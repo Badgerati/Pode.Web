@@ -1,0 +1,3 @@
+$(foreach ($control in $data.Controls) {
+    Use-PodeWebPartialView -Path "controls/$($control.ControlType.ToLowerInvariant())" -Data $control
+})

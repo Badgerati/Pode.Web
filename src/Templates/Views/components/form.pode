@@ -1,0 +1,15 @@
+<div class="card">
+    $(if (!$data.Meta.NoHeader) {
+        "<h5 class='card-header'>$($data.Meta.Name)</h5>"
+    })
+    <div class="card-body">
+        $(if (![string]::IsNullOrWhiteSpace($data.Meta.Message)) {
+            "<p class='card-text'>$($data.Meta.Message)</p>"
+        })
+
+        <form id="$($data.Meta.ID)" class="pode-component-form" action="POST" method="/components/form/$($data.Meta.ID)">
+            $(Use-PodeWebPartialView -Path 'controls/load_controls' -Data @{ Controls = $data.Meta.Controls })
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </form>
+    </div>
+</div>

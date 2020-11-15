@@ -1,0 +1,71 @@
+<html>
+    $(Use-PodeWebPartialView -Path 'shared/head' -Data @{ Title = 'Home' })
+
+    <body id="normal-page">
+        <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">$(Get-PodeWebState -Name 'title')</a>
+            <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            $(if ($data.Auth.Enabled) {
+                if ($data.Auth.Authenticated) {
+                    "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
+                        <span class='navbar-text mRight05 welcome-msg'>Hello, $($data.Username)</span>
+                        <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>Sign out</button>
+                    </form>"
+                }
+                else {
+                    "<form class='form-inline' action='/login' method='GET' style='margin-bottom: 0'>
+                        <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>Sign in</button>
+                    </form>"
+                }
+            })
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                    <div class="sidebar-sticky pt-3">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link $(if ($data.Name -ieq 'home') { 'active' })" href="/">
+                                    <span data-feather="home"></span>
+                                    Home
+                                </a>
+                            </li>
+
+                            $(foreach ($page in @(Get-PodeWebState -Name 'pages')) {
+                                "<li class='nav-item'>
+                                    <a class='nav-link $(if ($data.Name -ieq $page.Name) { "active" })' href='/pages/$($page.Name)'>
+                                        <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
+                                        $($page.Name)
+                                    </a>
+                                </li>"
+                            })
+                        </ul>
+                    </div>
+                </nav>
+
+                <div aria-live="polite" aria-atomic="true" style="min-height: 200px;">
+                    <div id="toast-area">
+                    </div>
+                </div>
+
+                <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">$($data.Name)</h1>
+                    </div>
+
+                    $(foreach ($component in $data.Components) {
+                        Use-PodeWebPartialView -Path "components/$($component.ComponentType.ToLowerInvariant())" -Data @{
+                            Name = $data.Name
+                            Meta = $component
+                        }
+                    })
+                </main>
+            </div>
+        </div>
+
+        $(Use-PodeWebPartialView -Path 'shared/scripts')
+    </body>
+</html>
