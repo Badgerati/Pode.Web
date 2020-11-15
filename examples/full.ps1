@@ -52,7 +52,11 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Services -Icon Settings -Components $form, $table
+    $table2 = New-PodeWebTable -Name 'Static' -ScriptBlock {
+        @(Get-Service | Select-Object Name, Status)
+    }
+
+    Add-PodeWebPage -Name Services -Icon Settings -Components $form, $table, $table2
 
 
     # add a page to search process (output as json in an appended textbox) [note: requires auth]

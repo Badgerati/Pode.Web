@@ -15,18 +15,43 @@ function New-PodeWebTable
         $Message,
 
         [Parameter()]
-        [hashtable[]]
-        $Data,
+        [scriptblock]
+        $ScriptBlock,
 
         [switch]
         $Filter,
 
         [switch]
-        $NoExport
+        $NoExport,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
         $Id = "table_$($Name)_$(Get-PodeWebRandomName)"
+    }
+
+    if ($null -ne $ScriptBlock) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path "/components/table/$($Id)" -Authentication $auth -ScriptBlock {
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
+                $result = ($result | Out-PodeWebTable -Id $using:Id)
+            }
+
+            Write-PodeJsonResponse -Value $result
+        }
     }
 
     return @{
@@ -35,7 +60,7 @@ function New-PodeWebTable
         ID = $Id
         Message = $Message
         Filter = $Filter.IsPresent
-        Data = $Data
+        IsDynamic = ($null -ne $ScriptBlock)
         NoExport = $NoExport.IsPresent
     }
 }
@@ -85,7 +110,7 @@ function New-PodeWebForm
     Add-PodeRoute -Method Post -Path "/components/form/$($Id)" -Authentication $auth -ScriptBlock {
         $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $WebEvent.Data -Splat -Return
         if ($null -eq $result) {
-            $result = @{}
+            $result = @()
         }
 
         Write-PodeJsonResponse -Value $result

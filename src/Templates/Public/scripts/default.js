@@ -9,11 +9,61 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
 })();
 
 $(document).ready(() => {
+    loadTables();
     bindFormSubmits();
     bindTableFilters();
     bindTableExports();
-
+    bindTableRefresh();
 });
+
+function loadTables(tableId) {
+    if (tableId && !tableId.startsWith('#')) {
+        tableId = `#${tableId}`;
+    }
+
+    if (!tableId) {
+        tableId = '';
+    }
+
+    $(`table${tableId}[data-pode-dynamic='True']`).each((i, e) => {
+        $.ajax({
+            url: `/components/table/${$(e).attr('id')}`,
+            method: 'post',
+            success: function(res) {
+                loadComponents(res, $(e));
+            }
+        });
+    });
+}
+
+function loadComponents(components, sender) {
+    if (!components) {
+        return;
+    }
+
+    if (!$.isArray(components)) {
+        components = [components];
+    }
+
+    components.forEach((comp) => {
+        switch (comp.OutputType.toLowerCase()) {
+            case 'table':
+                outputTable(comp, sender);
+                break;
+
+            case 'textbox':
+                outputTextbox(comp, sender);
+                break;
+
+            case 'toast':
+                newToast(comp);
+                break;
+
+            default:
+                break;
+        }
+    });
+}
 
 function bindFormSubmits() {
     $("form.pode-component-form").submit(function(e) {
@@ -32,33 +82,7 @@ function bindFormSubmits() {
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(res) {
                 spinner.hide();
-
-                if (!res) {
-                    return;
-                }
-
-                if (!$.isArray(res)) {
-                    res = [res];
-                }
-
-                res.forEach((comp) => {
-                    switch (comp.OutputType.toLowerCase()) {
-                        case 'table':
-                            outputTable(comp, form);
-                            break;
-
-                        case 'textbox':
-                            outputTextbox(comp, form);
-                            break;
-
-                        case 'toast':
-                            newToast(comp);
-                            break;
-
-                        default:
-                            break;
-                    }
-                });
+                loadComponents(res, form);
             }
         });
     });
@@ -72,6 +96,8 @@ function bindTableFilters() {
         var tableId = input.attr('for');
         var value = input.val();
 
+        console.log(tableId);
+        console.log(value);
         $(`table#${tableId} tbody tr:not(:icontains('${value}'))`).css("display", "none");
         $(`table#${tableId} tbody tr:icontains('${value}')`).css("display", "");
     });
@@ -85,6 +111,17 @@ function bindTableExports() {
         var tableId = input.attr('for');
 
         exportTableAsCSV(tableId);
+    });
+}
+
+function bindTableRefresh() {
+    $("button.pode-table-refresh").click(function(e) {
+        e.preventDefault();
+
+        var input = $(e.target);
+        var tableId = input.attr('for');
+
+        loadTables(tableId);
     });
 }
 
