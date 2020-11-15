@@ -9,6 +9,13 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
 })();
 
 $(document).ready(() => {
+    bindFormSubmits();
+    bindTableFilters();
+    bindTableExports();
+
+});
+
+function bindFormSubmits() {
     $("form.pode-component-form").submit(function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -55,7 +62,9 @@ $(document).ready(() => {
             }
         });
     });
+}
 
+function bindTableFilters() {
     $("input.pode-table-filter").keyup(function(e) {
         e.preventDefault();
 
@@ -66,7 +75,18 @@ $(document).ready(() => {
         $(`table#${tableId} tbody tr:not(:icontains('${value}'))`).css("display", "none");
         $(`table#${tableId} tbody tr:icontains('${value}')`).css("display", "");
     });
-});
+}
+
+function bindTableExports() {
+    $("button.pode-table-export").click(function(e) {
+        e.preventDefault();
+
+        var input = $(e.target);
+        var tableId = input.attr('for');
+
+        exportTableAsCSV(tableId);
+    });
+}
 
 function outputTable(component, sender) {
     if (component.ID) {
@@ -175,18 +195,6 @@ function newToast(component) {
     $(`div#${toastId}`).toast('show');
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 function outputTextbox(component, sender) {
     if (component.ID) {
         updateTextbox(component);
@@ -247,4 +255,46 @@ function writeTextbox(component, sender) {
     // update
     component.ID = txtId;
     updateTextbox(component);
+}
+
+function exportTableAsCSV(tableId) {
+    var csv = [];
+    var rows = $(`table#${tableId} tr:visible`);
+
+    if (!rows || rows.length == 0) {
+        return;
+    }
+
+    for (var i = 0; i < rows.length; i++) {
+        var row = [];
+        var cols = $(rows[i]).find('td, th');
+
+        for (var j = 0; j < cols.length; j++) {
+            row.push(cols[j].innerText);
+        }
+
+        csv.push(row.join(","));
+    }
+
+    // download
+    var tableName = $(`table#${tableId}`).attr('name').replace(' ', '_');
+    downloadCSV(csv.join("\n"), `${tableName}.csv`);
+}
+
+function downloadCSV(csv, filename) {
+    // the csv file
+    var csvFile = new Blob([csv], {type: "text/csv"});
+
+    // build a hidden download link
+    var downloadLink = document.createElement('a');
+    downloadLink.download = filename;
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = 'none';
+
+    // add the link, and click it
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+
+    // remove the link
+    $(downloadLink).remove();
 }

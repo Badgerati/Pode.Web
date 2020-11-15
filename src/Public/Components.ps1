@@ -19,7 +19,10 @@ function New-PodeWebTable
         $Data,
 
         [switch]
-        $Filter
+        $Filter,
+
+        [switch]
+        $NoExport
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
@@ -31,8 +34,9 @@ function New-PodeWebTable
         Name = $Name
         ID = $Id
         Message = $Message
-        Filter = $Filter
+        Filter = $Filter.IsPresent
         Data = $Data
+        NoExport = $NoExport.IsPresent
     }
 }
 
