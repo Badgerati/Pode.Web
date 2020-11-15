@@ -14,6 +14,9 @@ $(document).ready(() => {
         e.stopPropagation();
 
         var form = $(e.target);
+        var spinner = form.find('button span.spinner-border');
+
+        spinner.show();
 
         $.ajax({
             url: form.attr('method'),
@@ -21,6 +24,8 @@ $(document).ready(() => {
             data: form.serialize(),
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(res) {
+                spinner.hide();
+
                 if (!res) {
                     return;
                 }

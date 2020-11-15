@@ -3,6 +3,6 @@
         "<h5 class='card-header'>$($data.Meta.Name)</h5>"
     })
     <div class="card-body">
-        $(Use-PodeWebPartialView -Path 'controls/load_controls' -Data @{ Controls = $data.Meta.Controls })
+        $(Use-PodeWebPartialView -Path 'controls/_load' -Data @{ Controls = $data.Meta.Controls })
     </div>
 </div>

@@ -4,11 +4,16 @@
         $(
             $element = [string]::Empty
 
+            $describedBy = [string]::Empty
+            if (![string]::IsNullOrWhiteSpace($data.HelpText)) {
+                $describedBy = "aria-describedby='$($data.ID)_help'"
+            }
+
             if ($data.Multiline) {
-                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)'></textarea>"
+                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' $($describedBy)></textarea>"
             }
             else {
-                $element = "<input type='$($data.Type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)'>"
+                $element = "<input type='$($data.Type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' $($describedBy)>"
             }
 
             if ($data.Preformat) {
@@ -17,5 +22,9 @@
 
             $element
         )
+
+        $(if (![string]::IsNullOrWhiteSpace($data.HelpText)) {
+            "<small id='$($data.ID)_help' class='form-text text-muted'>$($data.HelpText)</small>"
+        })
     </div>
 </div>

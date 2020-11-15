@@ -23,6 +23,10 @@ function New-PodeWebTextbox
         [int]
         $Height = 4,
 
+        [Parameter()]
+        [string]
+        $HelpText,
+
         [Parameter(ParameterSetName='Multi')]
         [switch]
         $Multiline,
@@ -48,6 +52,31 @@ function New-PodeWebTextbox
         Placeholder = $Placeholder
         Height = $Height
         Preformat = $Preformat.IsPresent
+        HelpText = $HelpText
+    }
+}
+
+function New-PodeWebFileUpload
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "file_$($Name)_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'FileUpload'
+        Name = $Name
+        ID = $Id
     }
 }
 
@@ -72,5 +101,132 @@ function New-PodeWebParagraph
         ControlType = 'Paragraph'
         ID = $Id
         Value = $Value
+    }
+}
+
+function New-PodeWebCodeBlock
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value,
+
+        [switch]
+        $Scrollable
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "codeblock_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'CodeBlock'
+        ID = $Id
+        Value = $Value
+        Scrollable = $Scrollable
+    }
+}
+
+function New-PodeWebCheckbox
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string[]]
+        $Options,
+
+        [switch]
+        $Inline
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "chkbox_$($Name)_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'Checkbox'
+        Name = $Name
+        ID = $Id
+        Options = @($Options)
+        Inline = $Inline.IsPresent
+    }
+}
+
+function New-PodeWebRadio
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string[]]
+        $Options,
+
+        [switch]
+        $Inline
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "radio_$($Name)_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'Radio'
+        Name = $Name
+        ID = $Id
+        Options = @($Options)
+        Inline = $Inline.IsPresent
+    }
+}
+
+function New-PodeWebSelect
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string[]]
+        $Options,
+
+        [switch]
+        $Multiple
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "select_$($Name)_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'Select'
+        Name = $Name
+        ID = $Id
+        Options = @($Options)
+        Multiple = $Multiple.IsPresent
     }
 }

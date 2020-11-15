@@ -78,7 +78,7 @@ function Out-PodeWebTextbox
             ID = $Id
             AsJson = $AsJson.IsPresent
             Multiline = $Multiline
-            Height =$Height
+            Height = $Height
             Preformat = $Preformat.IsPresent
         }
     }

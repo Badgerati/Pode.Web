@@ -1,6 +1,10 @@
 # root path
 $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Path
 
+# load binaries
+Add-Type -AssemblyName System.Web
+Add-Type -AssemblyName System.Net.Http
+
 # import everything if in a runspace
 if ($PODE_SCOPE_RUNSPACE) {
     $sysfuncs = Get-ChildItem Function:

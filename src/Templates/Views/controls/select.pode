@@ -1,0 +1,23 @@
+<div class="form-group row">
+    <label for="$($data.ID)" class="col-sm-2 col-form-label">$($data.Name)</label>
+    <div class="col-sm-10">
+        $(
+            $multiple = [string]::Empty
+            if ($data.Multiple) {
+                $multiple = 'multiple'
+            }
+
+            "<select class='custom-select' id='$($data.ID)' name='$($data.Name)' $($multiple)>"
+
+            if (!$data.Multiple) {
+                "<option selected>Choose an option</option>"
+            }
+
+            foreach ($option in $data.Options) {
+                "<option value='$($option)'>$($option)</option>"
+            }
+
+            "</select>"
+        )
+    </div>
+</div>

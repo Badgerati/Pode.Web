@@ -1,0 +1,20 @@
+<div class="form-group row">
+    <div class="col-sm-2 col-form-label">$($data.Name)</div>
+    <div class="col-sm-10">
+        $(
+            $inline = [string]::Empty
+            if ($data.Inline) {
+                $inline = 'form-check-inline'
+            }
+
+            for ($i = 0; $i -lt $data.Options.Length; $i++) {
+                "<div class='form-check $($inline)'>
+                    <input class='form-check-input' type='checkbox' value='$($data.Options[$i])' id='$($data.ID)_option$($i)' name='$($data.Name)'>
+                    <label class='form-check-label' for='$($data.ID)_option$($i)'>
+                        $($data.Options[$i])
+                    </label>
+                </div>"
+            }
+        )
+    </div>
+</div>

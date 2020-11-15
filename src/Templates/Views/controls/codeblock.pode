@@ -1,0 +1,10 @@
+$(if ($data.Scrollable) {
+    "<pre id='$($data.ID)' class='.pre-scrollable'>"
+}
+else {
+    "<pre id='$($data.ID)'>"
+})
+    <code>
+        $([System.Net.WebUtility]::HtmlEncode($data.Value))
+    </code>
+</pre>
