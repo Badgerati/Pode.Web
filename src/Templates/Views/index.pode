@@ -7,6 +7,8 @@
             <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            <div id='pode-social' class='text-light'>
+            </div>
             $(if ($data.Auth.Enabled) {
                 if ($data.Auth.Authenticated) {
                     "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
@@ -44,6 +46,14 @@
                             })
                         </ul>
                     </div>
+
+                    <footer class="footer mt-auto py-3">
+                        <div class="container">
+                            <span class="text-muted">
+                                🧡 Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
+                            </span>
+                        </div>
+                    </footer>
                 </nav>
 
                 <div aria-live="polite" aria-atomic="true" style="min-height: 200px;">

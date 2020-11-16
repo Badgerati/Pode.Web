@@ -18,6 +18,25 @@ body#normal-page {
     background-color: #f5f5f5;
 }
 
+div#pode-social {
+    margin-right: auto;
+    margin-left: 1em;
+}
+
+.sidebar-sticky {
+    margin-bottom: -4em !important;
+    height: calc(100vh - 7em) !important;
+}
+
+.sidebar-sticky ul {
+    margin-bottom: 4em !important;
+}
+
+.footer {
+    z-index: 9999;
+    margin-top: 3.5em !important;
+}
+
 table {
     font-size: .9rem;
 }
