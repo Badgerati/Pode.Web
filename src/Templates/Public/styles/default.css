@@ -23,6 +23,12 @@ div#pode-social {
     margin-left: 1em;
 }
 
+div.pode-grid {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
 .sidebar-sticky {
     margin-bottom: -4em !important;
     height: calc(100vh - 7em) !important;

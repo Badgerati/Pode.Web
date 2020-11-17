@@ -1,0 +1,17 @@
+<div class="card">
+    <div class="card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h5>$($data.Meta.Name)</h5>
+        <div class="btn-toolbar mb-2 mb-md-0 mTop-05">
+            <div class="btn-group mr-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary pode-chart-refresh" for="$($data.Meta.ID)"><span data-feather='refresh-cw' class='mRight05'></span>Refresh</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        $(if (![string]::IsNullOrWhiteSpace($data.Meta.Message)) {
+            "<p class='card-text'>$($data.Meta.Message)</p>"
+        })
+
+        <canvas class="my-4 w-100" id="$($data.Meta.ID)" name="$($data.Meta.Name)" data-pode-chart-type="$($data.Meta.ChartType)" data-pode-dynamic="$($data.Meta.IsDynamic)"></canvas>
+    </div>
+</div>

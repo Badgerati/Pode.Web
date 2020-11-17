@@ -27,6 +27,41 @@ function Out-PodeWebTable
     }
 }
 
+function Out-PodeWebChart
+{
+    [CmdletBinding(DefaultParameterSetName='New')]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        $Data,
+
+        [Parameter(ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(ParameterSetName='New')]
+        [ValidateSet('line', 'pie', 'doughnut', 'bar')]
+        [string]
+        $Type = 'line'
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $Data
+    }
+
+    end {
+        return @{
+            OutputType = 'Chart'
+            Data = $items
+            ID = $Id
+            ChartType = $Type
+        }
+    }
+}
+
 function Out-PodeWebTextbox
 {
     [CmdletBinding(DefaultParameterSetName='New')]

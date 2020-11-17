@@ -159,3 +159,87 @@ function New-PodeWebSection
         NoHeader = $NoHeader.IsPresent
     }
 }
+
+function New-PodeWebChart
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Message,
+
+        [Parameter()]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [ValidateSet('line', 'pie', 'doughnut', 'bar')]
+        [string]
+        $Type = 'line',
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "chart_$($Name)_$(Get-PodeWebRandomName)"
+    }
+
+    if ($null -ne $ScriptBlock) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path "/components/chart/$($Id)" -Authentication $auth -ScriptBlock {
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
+                $result = ($result | Out-PodeWebChart -Id $using:Id)
+            }
+
+            Write-PodeJsonResponse -Value $result
+        }
+    }
+
+    return @{
+        ComponentType = 'Chart'
+        Name = $Name
+        ID = $Id
+        Message = $Message
+        ChartType = $Type
+        IsDynamic = ($null -ne $ScriptBlock)
+    }
+}
+
+function New-PodeWebGrid
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [hashtable[]]
+        $Components,
+
+        [switch]
+        $Vertical
+    )
+
+    return @{
+        ComponentType = 'Grid'
+        Components = $Components
+        Vertical = $Vertical.IsPresent
+    }
+}

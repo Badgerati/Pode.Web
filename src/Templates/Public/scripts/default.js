@@ -10,10 +10,12 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
 
 $(document).ready(() => {
     loadTables();
+    loadCharts();
     bindFormSubmits();
     bindTableFilters();
     bindTableExports();
     bindTableRefresh();
+    bindChartRefresh();
 });
 
 function loadTables(tableId) {
@@ -36,6 +38,26 @@ function loadTables(tableId) {
     });
 }
 
+function loadCharts(chartId) {
+    if (chartId && !chartId.startsWith('#')) {
+        chartId = `#${chartId}`;
+    }
+
+    if (!chartId) {
+        chartId = '';
+    }
+
+    $(`canvas${chartId}[data-pode-dynamic='True']`).each((i, e) => {
+        $.ajax({
+            url: `/components/chart/${$(e).attr('id')}`,
+            method: 'post',
+            success: function(res) {
+                loadComponents(res, $(e));
+            }
+        });
+    });
+}
+
 function loadComponents(components, sender) {
     if (!components) {
         return;
@@ -49,6 +71,10 @@ function loadComponents(components, sender) {
         switch (comp.OutputType.toLowerCase()) {
             case 'table':
                 outputTable(comp, sender);
+                break;
+
+            case 'chart':
+                outputChart(comp, sender);
                 break;
 
             case 'textbox':
@@ -117,11 +143,14 @@ function bindTableExports() {
 function bindTableRefresh() {
     $("button.pode-table-refresh").click(function(e) {
         e.preventDefault();
+        loadTables($(e.target).attr('for'));
+    });
+}
 
-        var input = $(e.target);
-        var tableId = input.attr('for');
-
-        loadTables(tableId);
+function bindChartRefresh() {
+    $("button.pode-chart-refresh").click(function(e) {
+        e.preventDefault();
+        loadTables($(e.target).attr('for'));
     });
 }
 
@@ -334,4 +363,118 @@ function downloadCSV(csv, filename) {
 
     // remove the link
     $(downloadLink).remove();
+}
+
+function outputChart(component, sender) {
+    if (component.ID) {
+        updateChart(component);
+    }
+    else {
+        writeChart(component, sender);
+    }
+}
+
+function updateChart(component) {
+    if (!component.Data) {
+        return;
+    }
+
+    if (!$.isArray(component.Data)) {
+        component.Data = [component.Data];
+    }
+
+    if (component.Data.length <= 0) {
+        return;
+    }
+
+    var xAxis = [];
+    component.Data.forEach((item) => {
+        xAxis = xAxis.concat(item.Key);
+    });
+
+    var yAxis = [];
+    component.Data.forEach((item) => {
+        yAxis = yAxis.concat(item.Value);
+    });
+
+    var ctx = document.getElementById(component.ID).getContext('2d');
+    var chartType = ($(`canvas#${component.ID}`).attr('data-pode-chart-type') || component.ChartType);
+
+    var palette = [
+        'rgb(255, 159, 64)',
+        'rgb(255, 99, 132)',
+        'rgb(255, 205, 86)',
+        'rgb(0, 163, 51)',
+        'rgb(54, 162, 235)',
+        'rgb(153, 102, 255)',
+        'rgb(201, 203, 207)'
+    ]
+
+    var dataset = {};
+    switch (chartType.toLowerCase()) {
+        case 'line':
+            dataset = {
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgb(54, 162, 235)',
+                borderWidth: 3,
+                pointBackgroundColor: '#007bff'
+            }
+            break;
+
+        case 'doughnut':
+        case 'pie':
+            dataset = {
+                backgroundColor: function(context) {
+                    return palette[context.dataIndex % palette.length];
+                }
+            }
+            break;
+
+        case 'bar':
+            dataset = {
+                backgroundColor: function(context) {
+                    return palette[context.dataIndex % palette.length].replace(')', ', 0.6)');
+                },
+                borderColor: function(context) {
+                    return palette[context.dataIndex % palette.length];
+                },
+                borderWidth: 1
+            }
+            break;
+    }
+
+    dataset.data = yAxis;
+
+    var chart = new Chart(ctx, {
+        type: chartType.toLowerCase(),
+
+        data: {
+            labels: xAxis,
+            datasets: [dataset]
+        },
+
+        options: {
+            legend: {
+                display: false
+            }
+        }
+    });
+}
+
+function writeChart(component, sender) {
+    var senderId = getId(sender);
+    var chartId = `chart_${senderId}`;
+
+    // card
+    var card = sender.closest('.card-body');
+
+    // create canvas
+    var canvas = $(`canvas#${chartId}`);
+    if (canvas.length == 0) {
+        card.append(`<canvas class="my-4 w-100" id="${chartId}" data-pode-chart-type="${component.ChartType}"></canvas>`);
+    }
+
+    // update
+    component.ID = chartId;
+    updateChart(component);
 }

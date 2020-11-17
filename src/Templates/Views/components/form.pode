@@ -9,9 +9,6 @@
 
         <form id="$($data.Meta.ID)" class="pode-component-form" action="POST" method="/components/form/$($data.Meta.ID)">
             $(Use-PodeWebPartialView -Path 'controls/_load' -Data @{ Controls = $data.Meta.Controls })
-            <!--<button class="btn btn-primary" type="submit">Submit</button>-->
-
-
             <button class="btn btn-primary" type="submit">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                 Submit
