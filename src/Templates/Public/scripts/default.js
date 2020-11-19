@@ -16,6 +16,19 @@ $(document).ready(() => {
     bindTableExports();
     bindTableRefresh();
     bindChartRefresh();
+
+    $('input[type="range"].pode-range-value').each((index, item) => {
+        var target = $(item);
+        var value = $(`input#${target.attr('id')}_value`);
+
+        target.change((e) => {
+            value.val(target.val());
+        });
+
+        value.change((e) => {
+            target.val(value.val());
+        });
+    });
 });
 
 function loadTables(tableId) {
@@ -240,7 +253,7 @@ function newToast(component) {
     toastArea.append(`
         <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${component.Duration}">
             <div class="toast-header">
-                <span data-feather='${component.Icon}'></span>
+                <span data-feather='${component.Icon.toLowerCase()}'></span>
                 <strong class="mr-auto mLeft05">${component.Title}</strong>
                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
                     <span aria-hidden="true">&times;</span>

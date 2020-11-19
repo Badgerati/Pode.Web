@@ -29,6 +29,16 @@ div.pode-grid {
     padding-right: 0 !important;
 }
 
+input[type="range"].pode-range-value {
+    display: inline;
+    width: 93% !important;
+}
+
+input[type="number"].pode-range-value {
+    display: inline;
+    width: 6% !important;
+}
+
 .sidebar-sticky {
     margin-bottom: -4em !important;
     height: calc(100vh - 7em) !important;

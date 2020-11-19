@@ -1,0 +1,17 @@
+<div class="form-group row">
+    <label for="$($data.ID)" class="col-sm-2 col-form-label">$($data.Name)</label>
+    <div class="col-sm-10">
+        $(
+            $showValue = [string]::Empty
+            if ($data.ShowValue) {
+                $showValue = 'pode-range-value'
+            }
+
+            "<input type='range' class='form-control-range $($showValue)' id='$($data.ID)' name='$($data.Name)' value='$($data.Value)' min='$($data.Min)' max='$($data.Max)' $(if ($data.Disabled) { 'disabled' })>"
+
+            if ($data.ShowValue) {
+                "<input type='number' class='form-control $($showValue)' id='$($data.ID)_value' for='$($data.ID)' value='$($data.Value)' min='$($data.Min)' max='$($data.Max)'>"
+            }
+        )
+    </div>
+</div>

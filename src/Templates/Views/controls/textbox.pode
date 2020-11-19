@@ -9,11 +9,33 @@
                 $describedBy = "aria-describedby='$($data.ID)_help'"
             }
 
+            $readOnly = [string]::Empty
+            if ($data.ReadOnly) {
+                $readOnly = "readonly"
+            }
+
             if ($data.Multiline) {
-                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' $($describedBy)></textarea>"
+                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' $($describedBy) $($readOnly)></textarea>"
             }
             else {
-                $element = "<input type='$($data.Type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' $($describedBy)>"
+                $element = [string]::Empty
+
+                if ($data.Prepend.Enabled) {
+                    $element = "<div class='input-group mb-2'>"
+
+                    if (![string]::IsNullOrWhiteSpace($data.Prepend.Text)) {
+                        $element += "<div class='input-group-prepend'><div class='input-group-text'>$($data.Prepend.Text)</div></div>"
+                    }
+                    else {
+                        $element += "<div class='input-group-prepend'><div class='input-group-text'><span data-feather='$($data.Prepend.Icon.ToLowerInvariant())'></span></div></div>"
+                    }
+                }
+
+                $element += "<input type='$($data.Type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' $($describedBy) $($readOnly)>"
+
+                if ($data.Prepend.Enabled) {
+                    $element += "</div>"
+                }
             }
 
             if ($data.Preformat) {

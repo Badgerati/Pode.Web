@@ -8,12 +8,22 @@
             }
 
             for ($i = 0; $i -lt $data.Options.Length; $i++) {
-                "<div class='form-check $($inline)'>
-                    <input class='form-check-input' type='checkbox' value='$($data.Options[$i])' id='$($data.ID)_option$($i)' name='$($data.Name)'>
-                    <label class='form-check-label' for='$($data.ID)_option$($i)'>
-                        $($data.Options[$i])
-                    </label>
-                </div>"
+                if ($data.AsSwitch) {
+                    "<div class='custom-control custom-switch $($inline)'>
+                        <input type='checkbox' class='custom-control-input' value='$($data.Options[$i])' id='$($data.ID)_option$($i)' name='$($data.Name)' $(if ($data.Disabled) { "disabled" })>
+                        <label class='custom-control-label' for='$($data.ID)_option$($i)'>
+                            $($data.Options[$i])
+                        </label>
+                    </div>"
+                }
+                else {
+                    "<div class='form-check $($inline)'>
+                        <input class='form-check-input' type='checkbox' value='$($data.Options[$i])' id='$($data.ID)_option$($i)' name='$($data.Name)' $(if ($data.Disabled) { "disabled" })>
+                        <label class='form-check-label' for='$($data.ID)_option$($i)'>
+                            $($data.Options[$i])
+                        </label>
+                    </div>"
+                }
             }
         )
     </div>

@@ -21,10 +21,11 @@ Start-PodeServer {
         } | Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Controls @(
         New-PodeWebTextbox -Name 'Name'
-        New-PodeWebTextbox -Name 'Password' -Type Password
-        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy')
+        New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
+        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
         New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple
+        New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
     )
 
     Set-PodeWebHomePage -Components $form -Title 'Testing Inputs'

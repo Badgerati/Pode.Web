@@ -27,12 +27,23 @@ function New-PodeWebTextbox
         [string]
         $HelpText,
 
+        [Parameter(ParameterSetName='Single')]
+        [string]
+        $PrependText,
+
+        [Parameter(ParameterSetName='Single')]
+        [string]
+        $PrependIcon,
+
         [Parameter(ParameterSetName='Multi')]
         [switch]
         $Multiline,
 
         [switch]
-        $Preformat
+        $Preformat,
+
+        [switch]
+        $ReadOnly
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
@@ -53,6 +64,12 @@ function New-PodeWebTextbox
         Height = $Height
         Preformat = $Preformat.IsPresent
         HelpText = $HelpText
+        ReadOnly = $ReadOnly.IsPresent
+        Prepend = @{
+            Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
+            Text = $PrependText
+            Icon = $PrependIcon
+        }
     }
 }
 
@@ -128,7 +145,7 @@ function New-PodeWebCodeBlock
         ControlType = 'CodeBlock'
         ID = $Id
         Value = $Value
-        Scrollable = $Scrollable
+        Scrollable = $Scrollable.IsPresent
     }
 }
 
@@ -149,7 +166,13 @@ function New-PodeWebCheckbox
         $Options,
 
         [switch]
-        $Inline
+        $Inline,
+
+        [switch]
+        $AsSwitch,
+
+        [switch]
+        $Disabled
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
@@ -162,6 +185,8 @@ function New-PodeWebCheckbox
         ID = $Id
         Options = @($Options)
         Inline = $Inline.IsPresent
+        AsSwitch = $AsSwitch.IsPresent
+        Disabled = $Disabled.IsPresent
     }
 }
 
@@ -182,7 +207,10 @@ function New-PodeWebRadio
         $Options,
 
         [switch]
-        $Inline
+        $Inline,
+
+        [switch]
+        $Disabled
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
@@ -195,6 +223,7 @@ function New-PodeWebRadio
         ID = $Id
         Options = @($Options)
         Inline = $Inline.IsPresent
+        Disabled = $Disabled.IsPresent
     }
 }
 
@@ -228,5 +257,60 @@ function New-PodeWebSelect
         ID = $Id
         Options = @($Options)
         Multiple = $Multiple.IsPresent
+    }
+}
+
+function New-PodeWebRange
+{
+    [CmdletBinding(DefaultParameterSetName="Percentage")]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [int]
+        $Value = 0,
+
+        [Parameter()]
+        [int]
+        $Min = 0,
+
+        [Parameter()]
+        [int]
+        $Max = 100,
+
+        [switch]
+        $Disabled,
+
+        [switch]
+        $ShowValue
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "range_$($Name)_$(Get-PodeWebRandomName)"
+    }
+
+    if ($Value -lt $Min) {
+        $Value = $Min
+    }
+
+    if ($Value -gt $Max) {
+        $Value = $Max
+    }
+
+    return @{
+        ControlType = 'Range'
+        Name = $Name
+        ID = $Id
+        Value = $Value
+        Min = $Min
+        Max = $Max
+        Disabled = $Disabled.IsPresent
+        ShowValue = $ShowValue.IsPresent
     }
 }
