@@ -16,7 +16,10 @@ $(document).ready(() => {
     bindTableExports();
     bindTableRefresh();
     bindChartRefresh();
+    bindRangeValue();
+});
 
+function bindRangeValue() {
     $('input[type="range"].pode-range-value').each((index, item) => {
         var target = $(item);
         var value = $(`input#${target.attr('id')}_value`);
@@ -29,7 +32,7 @@ $(document).ready(() => {
             target.val(value.val());
         });
     });
-});
+}
 
 function loadTables(tableId) {
     if (tableId && !tableId.startsWith('#')) {
@@ -158,12 +161,30 @@ function bindTableRefresh() {
         e.preventDefault();
         loadTables($(e.target).attr('for'));
     });
+
+    $("table[data-pode-auto-refresh='True']").each((index, item) => {
+        setTimeout(() => {
+            loadTables($(item).attr('id'));
+            setInterval(() => {
+                loadTables($(item).attr('id'));
+            }, 60000);
+        }, (60 - (new Date()).getSeconds()) * 1000);
+    });
 }
 
 function bindChartRefresh() {
     $("button.pode-chart-refresh").click(function(e) {
         e.preventDefault();
-        loadTables($(e.target).attr('for'));
+        loadCharts($(e.target).attr('for'));
+    });
+
+    $("canvas[data-pode-auto-refresh='True']").each((index, item) => {
+        setTimeout(() => {
+            loadCharts($(item).attr('id'));
+            setInterval(() => {
+                loadCharts($(item).attr('id'));
+            }, 60000);
+        }, (60 - (new Date()).getSeconds()) * 1000);
     });
 }
 
@@ -387,6 +408,8 @@ function outputChart(component, sender) {
     }
 }
 
+var _charts = {};
+
 function updateChart(component) {
     if (!component.Data) {
         return;
@@ -400,78 +423,124 @@ function updateChart(component) {
         return;
     }
 
-    var xAxis = [];
-    component.Data.forEach((item) => {
-        xAxis = xAxis.concat(item.Key);
-    });
+    var canvas = $(`canvas#${component.ID}`)
+    var _append = (canvas.attr('data-pode-append') == 'True');
+    var _timeLabels = (canvas.attr('data-pode-time-labels') == 'True');
 
-    var yAxis = [];
-    component.Data.forEach((item) => {
-        yAxis = yAxis.concat(item.Value);
-    });
+    if (_append && _charts[component.ID]) {
+        var _chart = _charts[component.ID];
+        var _max = canvas.attr('data-pode-max');
 
-    var ctx = document.getElementById(component.ID).getContext('2d');
-    var chartType = ($(`canvas#${component.ID}`).attr('data-pode-chart-type') || component.ChartType);
-
-    var palette = [
-        'rgb(255, 159, 64)',
-        'rgb(255, 99, 132)',
-        'rgb(255, 205, 86)',
-        'rgb(0, 163, 51)',
-        'rgb(54, 162, 235)',
-        'rgb(153, 102, 255)',
-        'rgb(201, 203, 207)'
-    ]
-
-    var dataset = {};
-    switch (chartType.toLowerCase()) {
-        case 'line':
-            dataset = {
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgb(54, 162, 235)',
-                borderWidth: 3,
-                pointBackgroundColor: '#007bff'
+        // labels
+        component.Data.forEach((item) => {
+            if (_timeLabels) {
+                _chart.data.labels.push(getTimeString());
             }
-            break;
-
-        case 'doughnut':
-        case 'pie':
-            dataset = {
-                backgroundColor: function(context) {
-                    return palette[context.dataIndex % palette.length];
-                }
+            else {
+                _chart.data.labels.push(item.Key);
             }
-            break;
+        });
 
-        case 'bar':
-            dataset = {
-                backgroundColor: function(context) {
-                    return palette[context.dataIndex % palette.length].replace(')', ', 0.6)');
-                },
-                borderColor: function(context) {
-                    return palette[context.dataIndex % palette.length];
-                },
-                borderWidth: 1
-            }
-            break;
+        if (_max > 0 && _chart.data.labels.length > _max) {
+            _chart.data.labels = _chart.data.labels.slice(_chart.data.labels.length - _max, _chart.data.labels.length);
+        }
+
+        // data
+        component.Data.forEach((item) => {
+            _chart.data.datasets[0].data.push(item.Value);
+        });
+
+        if (_max > 0 && _chart.data.datasets[0].data.length > _max) {
+            _chart.data.datasets[0].data = _chart.data.datasets[0].data.slice(_chart.data.datasets[0].data.length - _max, _chart.data.datasets[0].data.length);
+        }
+
+        // re-render
+        _chart.update();
     }
 
-    dataset.data = yAxis;
-
-    var chart = new Chart(ctx, {
-        type: chartType.toLowerCase(),
-
-        data: {
-            labels: xAxis,
-            datasets: [dataset]
-        },
-
-        options: {
-            legend: {
-                display: false
+    else {
+        var xAxis = [];
+        component.Data.forEach((item) => {
+            if (_timeLabels) {
+                xAxis = xAxis.concat(getTimeString());
             }
+            else {
+                xAxis = xAxis.concat(item.Key);
+            }
+        });
+
+        var yAxis = [];
+        component.Data.forEach((item) => {
+            yAxis = yAxis.concat(item.Value);
+        });
+
+        var ctx = document.getElementById(component.ID).getContext('2d');
+        var chartType = ($(`canvas#${component.ID}`).attr('data-pode-chart-type') || component.ChartType);
+
+        var palette = [
+            'rgb(255, 159, 64)',
+            'rgb(255, 99, 132)',
+            'rgb(255, 205, 86)',
+            'rgb(0, 163, 51)',
+            'rgb(54, 162, 235)',
+            'rgb(153, 102, 255)',
+            'rgb(201, 203, 207)'
+        ]
+
+        var dataset = {};
+        switch (chartType.toLowerCase()) {
+            case 'line':
+                dataset = {
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#007bff'
+                }
+                break;
+
+            case 'doughnut':
+            case 'pie':
+                dataset = {
+                    backgroundColor: function(context) {
+                        return palette[context.dataIndex % palette.length];
+                    }
+                }
+                break;
+
+            case 'bar':
+                dataset = {
+                    backgroundColor: function(context) {
+                        return palette[context.dataIndex % palette.length].replace(')', ', 0.6)');
+                    },
+                    borderColor: function(context) {
+                        return palette[context.dataIndex % palette.length];
+                    },
+                    borderWidth: 1
+                }
+                break;
         }
-    });
+
+        dataset.data = yAxis;
+
+        var chart = new Chart(ctx, {
+            type: chartType.toLowerCase(),
+
+            data: {
+                labels: xAxis,
+                datasets: [dataset]
+            },
+
+            options: {
+                legend: {
+                    display: false
+                }
+            }
+        });
+
+        if (_append) {
+            _charts[component.ID] = chart;
+        }
+    }
 }
 
 function writeChart(component, sender) {
@@ -490,4 +559,8 @@ function writeChart(component, sender) {
     // update
     component.ID = chartId;
     updateChart(component);
+}
+
+function getTimeString() {
+    return (new Date()).toLocaleTimeString().split(':').slice(0,2).join(':');
 }

@@ -37,22 +37,30 @@ Start-PodeServer {
     $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Controls @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
+        New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Location Right
     )
 
     $chartData = {
-        return (Get-Service |
-            Select-Object Name |
-            Group-Object -Property { $_.Name.ToUpper()[0] } |
-            ForEach-Object {
-                @{
-                    Key = $_.Name
-                    Value = $_.Count
-                }
-            })
+        # return (Get-Service |
+        #     Select-Object Name |
+        #     Group-Object -Property { $_.Name.ToUpper()[0] } |
+        #     ForEach-Object {
+        #         @{
+        #             Key = $_.Name
+        #             Value = $_.Count
+        #         }
+        #     })
+
+        return (1..1 | ForEach-Object {
+            @{
+                Key = $_
+                Value = (Get-Random -Maximum 10)
+            }
+        })
     }
 
     $grid1 = New-PodeWebGrid -Components @(
-        New-PodeWebChart -Name 'Months' -NoAuth -Type Line -ScriptBlock $chartData
+        New-PodeWebChart -Name 'Months' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh
         New-PodeWebChart -Name 'Months' -NoAuth -Type Bar -ScriptBlock $chartData
         New-PodeWebChart -Name 'Months' -NoAuth -Type Doughnut -ScriptBlock $chartData
     )

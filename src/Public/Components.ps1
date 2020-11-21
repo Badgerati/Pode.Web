@@ -27,7 +27,10 @@ function New-PodeWebTable
         [Parameter()]
         [Alias('NoAuth')]
         [switch]
-        $NoAuthentication
+        $NoAuthentication,
+
+        [switch]
+        $AutoRefresh
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
@@ -62,6 +65,7 @@ function New-PodeWebTable
         Filter = $Filter.IsPresent
         IsDynamic = ($null -ne $ScriptBlock)
         NoExport = $NoExport.IsPresent
+        AutoRefresh = $AutoRefresh.IsPresent
     }
 }
 
@@ -186,13 +190,30 @@ function New-PodeWebChart
         $Type = 'line',
 
         [Parameter()]
+        [int]
+        $MaxItems = 0,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
-        $NoAuthentication
+        $NoAuthentication,
+
+        [switch]
+        $Append,
+
+        [switch]
+        $TimeLabels,
+
+        [switch]
+        $AutoRefresh
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
         $Id = "chart_$($Name)_$(Get-PodeWebRandomName)"
+    }
+
+    if ($MaxItems -lt 0) {
+        $MaxItems = 0
     }
 
     if ($null -ne $ScriptBlock) {
@@ -222,6 +243,10 @@ function New-PodeWebChart
         Message = $Message
         ChartType = $Type
         IsDynamic = ($null -ne $ScriptBlock)
+        Append = $Append.IsPresent
+        MaxItems = $MaxItems
+        TimeLabels = $TimeLabels.IsPresent
+        AutoRefresh = $AutoRefresh.IsPresent
     }
 }
 

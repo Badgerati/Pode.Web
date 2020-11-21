@@ -1,0 +1,36 @@
+$(
+    $loc = [string]::Empty
+    switch ($data.Location.ToLowerInvariant()) {
+        'left' {
+            $loc = 'float-left'
+        }
+
+        'right' {
+            $loc = 'float-right'
+        }
+
+        'center' {
+            $loc = 'mx-auto d-block'
+        }
+    }
+
+    $dim = [string]::Empty
+    $fluid = [string]::Empty
+
+    if ($data.Height -gt 0 -and $data.Width -gt 0) {
+        $dim = "style='height:$($data.Height)px;width:$($data.Width)px'"
+    }
+    elseif ($data.Height -gt 0) {
+        $dim = "style='height:$($data.Height)px'"
+        $fluid = 'img-fluid'
+    }
+    elseif ($data.Width -gt 0) {
+        $dim = "style='width:$($data.Width)px'"
+        $fluid = 'img-fluid'
+    }
+    else {
+        $fluid = 'img-fluid'
+    }
+
+    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc)' alt='$($data.Alt)' $($dim)>"
+)

@@ -3,7 +3,12 @@
         <h5>$($data.Meta.Name)</h5>
         <div class="btn-toolbar mb-2 mb-md-0 mTop-05">
             <div class="btn-group mr-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary pode-chart-refresh" for="$($data.Meta.ID)"><span data-feather='refresh-cw' class='mRight05'></span>Refresh</button>
+                $(if (!$data.Meta.AutoRefresh) {
+                    "<button type='button' class='btn btn-sm btn-outline-secondary pode-chart-refresh' for='$($data.Meta.ID)'><span data-feather='refresh-cw' class='mRight05'></span>Refresh</button>"
+                }
+                else {
+                    "<button type='button' class='btn btn-sm btn-secondary' disabled><span data-feather='refresh-cw'></span></button>"
+                })
             </div>
         </div>
     </div>
@@ -12,6 +17,16 @@
             "<p class='card-text'>$($data.Meta.Message)</p>"
         })
 
-        <canvas class="my-4 w-100" id="$($data.Meta.ID)" name="$($data.Meta.Name)" data-pode-chart-type="$($data.Meta.ChartType)" data-pode-dynamic="$($data.Meta.IsDynamic)"></canvas>
+        <canvas
+            class="my-4 w-100"
+            id="$($data.Meta.ID)"
+            name="$($data.Meta.Name)"
+            data-pode-chart-type="$($data.Meta.ChartType)"
+            data-pode-dynamic="$($data.Meta.IsDynamic)"
+            data-pode-append="$($data.Meta.Append)"
+            data-pode-max="$($data.Meta.MaxItems)"
+            data-pode-time-labels="$($data.Meta.TimeLabels)"
+            data-pode-auto-refresh="$($data.Meta.AutoRefresh)">
+        </canvas>
     </div>
 </div>

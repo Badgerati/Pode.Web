@@ -314,3 +314,56 @@ function New-PodeWebRange
         ShowValue = $ShowValue.IsPresent
     }
 }
+
+function New-PodeWebImage
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Source,
+
+        [Parameter()]
+        [string]
+        $Alt,
+
+        [Parameter()]
+        [ValidateSet('Left', 'Right', 'Center')]
+        [string]
+        $Location = 'Left',
+
+        [Parameter()]
+        [int]
+        $Height = 0,
+
+        [Parameter()]
+        [int]
+        $Width = 0
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "img_$(Get-PodeWebRandomName)"
+    }
+
+    if ($Height -lt 0) {
+        $Height = 0
+    }
+
+    if ($Width -lt 0) {
+        $Width = 0
+    }
+
+    return @{
+        ControlType = 'Image'
+        ID = $Id
+        Source = $Source
+        Alt = $Alt
+        Location = $Location
+        Height = $Height
+        Width = $Width
+    }
+}
