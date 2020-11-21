@@ -229,13 +229,6 @@ table {
     overflow-y: auto;
 }
 
-@supports ((position: -webkit-sticky) or (position: sticky)) {
-    .sidebar-sticky {
-        position: -webkit-sticky;
-        position: sticky;
-    }
-}
-
 .sidebar .nav-link {
     font-weight: 500;
     color: #333;

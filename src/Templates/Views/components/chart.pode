@@ -1,6 +1,11 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h5>$($data.Meta.Name)</h5>
+        $(if (!$data.Meta.NoHeader) {
+            "<h5>$($data.Meta.Name)</h5>"
+        }
+        else {
+            "<h5></h5>"
+        })
         <div class="btn-toolbar mb-2 mb-md-0 mTop-05">
             <div class="btn-group mr-2">
                 $(if (!$data.Meta.AutoRefresh) {

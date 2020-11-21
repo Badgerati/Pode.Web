@@ -205,7 +205,10 @@ function New-PodeWebChart
         $TimeLabels,
 
         [switch]
-        $AutoRefresh
+        $AutoRefresh,
+
+        [switch]
+        $NoHeader
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
@@ -247,24 +250,6 @@ function New-PodeWebChart
         MaxItems = $MaxItems
         TimeLabels = $TimeLabels.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
-    }
-}
-
-function New-PodeWebGrid
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [hashtable[]]
-        $Components,
-
-        [switch]
-        $Vertical
-    )
-
-    return @{
-        ComponentType = 'Grid'
-        Components = $Components
-        Vertical = $Vertical.IsPresent
+        NoHeader = $NoHeader.IsPresent
     }
 }

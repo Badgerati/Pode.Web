@@ -68,6 +68,22 @@ Start-PodeServer {
     Set-PodeWebHomePage -NoAuth -Components $section, $grid1 -Title 'Awesome Homepage'
 
 
+    # tabs and charts
+    $tabs1 = New-PodeWebTabs -Tabs @(
+        New-PodeWebTab -Name 'Line' -Components @(
+            New-PodeWebChart -Name 'Months' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -NoHeader
+        )
+        New-PodeWebTab -Name 'Bar' -Components @(
+            New-PodeWebChart -Name 'Months' -NoAuth -Type Bar -ScriptBlock $chartData -NoHeader
+        )
+        New-PodeWebTab -Name 'Doughnut' -Components @(
+            New-PodeWebChart -Name 'Months' -NoAuth -Type Doughnut -ScriptBlock $chartData -NoHeader
+        )
+    )
+
+    Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Components $tabs1
+
+
     # add a page to search and filter services (output in a new table component) [note: requires auth]
     $table = New-PodeWebTable -Name 'Results' -Id 'tbl_svc_results'
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
