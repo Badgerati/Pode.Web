@@ -101,6 +101,10 @@ function loadComponents(components, sender) {
                 newToast(comp);
                 break;
 
+            case 'validation':
+                outputValidation(comp, sender);
+                break;
+
             default:
                 break;
         }
@@ -115,6 +119,7 @@ function bindFormSubmits() {
         var form = $(e.target);
         var spinner = form.find('button span.spinner-border');
 
+        form.find('.is-invalid').removeClass('is-invalid');
         spinner.show();
 
         $.ajax({
@@ -293,6 +298,21 @@ function newToast(component) {
     })
 
     $(`div#${toastId}`).toast('show');
+}
+
+function outputValidation(component, sender) {
+    var input = null;
+    if (component.ID) {
+        input = $(`#${component.ID}`);
+    }
+    else {
+        input = sender.find(`[name="${component.Name}"]`);
+    }
+
+    var validationId = `div#${$(input).attr('id')}_validation`;
+    $(validationId).text(component.Message);
+
+    $(input).addClass('is-invalid');
 }
 
 function outputTextbox(component, sender) {

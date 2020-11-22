@@ -88,7 +88,12 @@ Start-PodeServer {
     $table = New-PodeWebTable -Name 'Results' -Id 'tbl_svc_results'
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
         param($Name)
-        Start-Sleep -Seconds 5
+
+        if ($Name.Length -lt 3) {
+            Out-PodeWebValidation -Name 'Name' -Message 'Invalid service name supplied (Name should be 3+ characters)'
+            return
+        }
+
         $svcs = @(Get-Service -Name $Name -ErrorAction Ignore | Select-Object Name, Status)
         $svcs | Out-PodeWebTable -Id 'tbl_svc_results'
         Show-PodeWebToast -Message "Found $($svcs.Length) services"

@@ -13,5 +13,7 @@
                 "<input type='number' class='form-control $($showValue)' id='$($data.ID)_value' for='$($data.ID)' value='$($data.Value)' min='$($data.Min)' max='$($data.Max)'>"
             }
         )
+
+        <div id="$($data.ID)_validation" class="invalid-feedback"></div>
     </div>
 </div>

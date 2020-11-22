@@ -153,3 +153,28 @@ function Show-PodeWebToast
         Icon = $Icon
     }
 }
+
+function Out-PodeWebValidation
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Message
+    )
+
+    return @{
+        OutputType = 'Validation'
+        Name = $Name
+        ID = $Id
+        Message = $Message
+    }
+}

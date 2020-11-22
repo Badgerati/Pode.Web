@@ -20,6 +20,10 @@ function Use-PodeWebTemplates
         throw "The Pode module is not loaded. You need at least Pode 2.0 to use the Pode.Web module."
     }
 
+    if ([string]::IsNullOrWhiteSpace($FavIcon)) {
+        $FavIcon = '/pode.web/images/favicon.ico'
+    }
+
     Set-PodeWebState -Name 'title' -Value $Title
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
