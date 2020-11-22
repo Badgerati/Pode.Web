@@ -10,11 +10,21 @@
             "<select class='custom-select' id='$($data.ID)' name='$($data.Name)' $($multiple)>"
 
             if (!$data.Multiple) {
-                "<option selected>Choose an option</option>"
+                if ([string]::IsNullOrWhiteSpace($data.SelectedValue)) {
+                    "<option selected>Choose an option</option>"
+                }
+                else {
+                    "<option>Choose an option</option>"
+                }
             }
 
             foreach ($option in $data.Options) {
-                "<option value='$($option)'>$($option)</option>"
+                if ([string]::IsNullOrWhiteSpace($data.SelectedValue)) {
+                    "<option value='$($option)'>$($option)</option>"
+                }
+                else {
+                    "<option value='$($option)' $(if ($data.SelectedValue -ieq $option) { 'selected' })>$($option)</option>"
+                }
             }
 
             "</select>"

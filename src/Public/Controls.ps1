@@ -172,6 +172,9 @@ function New-PodeWebCheckbox
         $AsSwitch,
 
         [switch]
+        $Checked,
+
+        [switch]
         $Disabled
     )
 
@@ -186,6 +189,7 @@ function New-PodeWebCheckbox
         Options = @($Options)
         Inline = $Inline.IsPresent
         AsSwitch = $AsSwitch.IsPresent
+        Checked = $Checked.IsPresent
         Disabled = $Disabled.IsPresent
     }
 }
@@ -243,6 +247,10 @@ function New-PodeWebSelect
         [string[]]
         $Options,
 
+        [Parameter()]
+        [string]
+        $SelectedValue,
+
         [switch]
         $Multiple
     )
@@ -256,6 +264,7 @@ function New-PodeWebSelect
         Name = $Name
         ID = $Id
         Options = @($Options)
+        SelectedValue = $SelectedValue
         Multiple = $Multiple.IsPresent
     }
 }
