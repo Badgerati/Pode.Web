@@ -47,7 +47,7 @@ function New-PodeWebTextbox
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "txt_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "txt_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     if ($Height -le 0) {
@@ -87,7 +87,7 @@ function New-PodeWebFileUpload
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "file_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "file_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     return @{
@@ -179,7 +179,7 @@ function New-PodeWebCheckbox
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "chkbox_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "chkbox_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     return @{
@@ -218,7 +218,7 @@ function New-PodeWebRadio
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "radio_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "radio_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     return @{
@@ -256,7 +256,7 @@ function New-PodeWebSelect
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "select_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "select_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     return @{
@@ -271,7 +271,7 @@ function New-PodeWebSelect
 
 function New-PodeWebRange
 {
-    [CmdletBinding(DefaultParameterSetName="Percentage")]
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -301,7 +301,7 @@ function New-PodeWebRange
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "range_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "range_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     if ($Value -lt $Min) {
@@ -321,6 +321,71 @@ function New-PodeWebRange
         Max = $Max
         Disabled = $Disabled.IsPresent
         ShowValue = $ShowValue.IsPresent
+    }
+}
+
+function New-PodeWebProgress
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [int]
+        $Value = 0,
+
+        [Parameter()]
+        [int]
+        $Min = 0,
+
+        [Parameter()]
+        [int]
+        $Max = 100,
+
+        [switch]
+        $ShowValue,
+
+        [switch]
+        $Striped,
+
+        [switch]
+        $Animated
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "progress_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+    }
+
+    if ($Value -lt $Min) {
+        $Value = $Min
+    }
+
+    if ($Value -gt $Max) {
+        $Value = $Max
+    }
+
+    $percentage = 0
+    if ($Value -gt 0) {
+        $percentage = ($Value / $Max) * 100.0
+    }
+
+    return @{
+        ControlType = 'Progress'
+        Name = $Name
+        ID = $Id
+        Value = $Value
+        Min = $Min
+        Max = $Max
+        Percentage = $percentage
+        ShowValue = $ShowValue.IsPresent
+        Striped = ($Striped.IsPresent -or $Animated.IsPresent)
+        Animated = $Animated.IsPresent
     }
 }
 

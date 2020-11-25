@@ -87,14 +87,12 @@ Start-PodeServer {
     # add a page to search and filter services (output in a new table component) [note: requires auth]
     $table = New-PodeWebTable -Name 'Results' -Id 'tbl_svc_results'
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        param($Name)
-
-        if ($Name.Length -lt 3) {
+        if ($InputData.Name.Length -lt 3) {
             Out-PodeWebValidation -Name 'Name' -Message 'Invalid service name supplied (Name should be 3+ characters)'
             return
         }
 
-        $svcs = @(Get-Service -Name $Name -ErrorAction Ignore | Select-Object Name, Status)
+        $svcs = @(Get-Service -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, Status)
         $svcs | Out-PodeWebTable -Id 'tbl_svc_results'
         Show-PodeWebToast -Message "Found $($svcs.Length) services"
     } -Controls @(
@@ -110,8 +108,7 @@ Start-PodeServer {
 
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        param($Name)
-        Get-Process -Name $Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat
+        Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat
     } -Controls @(
         New-PodeWebTextbox -Name 'Name'
     )

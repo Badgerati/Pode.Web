@@ -17,6 +17,7 @@ $(document).ready(() => {
     bindTableRefresh();
     bindChartRefresh();
     bindRangeValue();
+    bindProgressValue();
 });
 
 function bindRangeValue() {
@@ -30,6 +31,17 @@ function bindRangeValue() {
 
         value.change((e) => {
             target.val(value.val());
+        });
+    });
+}
+
+function bindProgressValue() {
+    $('div.progress div.pode-progress-value').each((index, item) => {
+        var target = $(item);
+
+        target.text(`${target.attr('aria-valuenow')} / ${target.attr('aria-valuemax')}`);
+        target.change((e) => {
+            target.text(`${target.attr('aria-valuenow')} / ${target.attr('aria-valuemax')}`);
         });
     });
 }

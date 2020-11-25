@@ -11,6 +11,7 @@
 
             if ($data.ShowValue) {
                 "<input type='number' class='form-control $($showValue)' id='$($data.ID)_value' for='$($data.ID)' value='$($data.Value)' min='$($data.Min)' max='$($data.Max)'>"
+                "<label class=''>/$($data.Max)</label>"
             }
         )
 

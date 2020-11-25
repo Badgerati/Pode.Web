@@ -34,7 +34,7 @@ function New-PodeWebTable
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "table_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "table_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     if ($null -ne $ScriptBlock) {
@@ -103,7 +103,7 @@ function New-PodeWebForm
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "form_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "form_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     $auth = $null
@@ -112,7 +112,8 @@ function New-PodeWebForm
     }
 
     Add-PodeRoute -Method Post -Path "/components/form/$($Id)" -Authentication $auth -ScriptBlock {
-        $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $WebEvent.Data -Splat -Return
+        $global:InputData = $WebEvent.Data
+        $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
         if ($null -eq $result) {
             $result = @()
         }
@@ -135,7 +136,7 @@ function New-PodeWebSection
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter()]
         [string]
         $Name,
 
@@ -151,8 +152,12 @@ function New-PodeWebSection
         $NoHeader
     )
 
+    if ([string]::IsNullOrWhiteSpace($Name)) {
+        $Name = Get-PodeWebRandomName
+    }
+
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "section_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "section_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     return @{
@@ -212,7 +217,7 @@ function New-PodeWebChart
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "chart_$($Name)_$(Get-PodeWebRandomName)"
+        $Id = "chart_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     if ($MaxItems -lt 0) {

@@ -8,7 +8,7 @@ It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaS
 
 ## Libraries
 
-The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), and [Feather icons](https://feathericons.com).
+The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), and [Chart.js](https://www.chartjs.org).
 
 At present these are loaded using a CDN, though they may get bundled with the module to make it more self-contained.
 
@@ -40,8 +40,7 @@ Start-PodeServer {
 
     # add a page to search process (output as json in an appended textbox)
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        param($Name)
-        Get-Process -Name $Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
+        Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Controls @(
         New-PodeWebTextbox -Name 'Name'
     )
@@ -93,8 +92,7 @@ Start-PodeServer {
 
     # add a page to search process (output as json in an appended textbox)
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        param($Name)
-        Get-Process -Name $Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
+        Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Controls @(
         New-PodeWebTextbox -Name 'Name'
     )
