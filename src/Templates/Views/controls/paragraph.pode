@@ -1,3 +1,10 @@
 <p id='$($data.ID)'>
-    $([System.Net.WebUtility]::HtmlEncode($data.Value))
+    $(
+        if (![string]::IsNullOrWhiteSpace($data.Value)) {
+            [System.Net.WebUtility]::HtmlEncode($data.Value)
+        }
+        else {
+            Use-PodeWebPartialView -Path 'controls/_load' -Data @{ Controls = $data.Controls }
+        }
+    )
 </p>

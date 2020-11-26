@@ -1,0 +1,8 @@
+$(
+    $target = '_self'
+    if ($data.NewTab) {
+        $target = '_blank'
+    }
+
+    "<a href='$($data.Source)' id='$($data.ID)' target='$($target)'>$($data.Value)</a>"
+)

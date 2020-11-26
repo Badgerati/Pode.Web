@@ -1,0 +1,37 @@
+$(
+    $value = [System.Net.WebUtility]::HtmlEncode($data.Value)
+
+    switch ($data.Style.ToLowerInvariant()) {
+        'normal' {
+            $value
+        }
+
+        'underlined' {
+            "<u>$($value)</u>"
+        }
+
+        'strikethrough' {
+            "<s>$($value)</s>"
+        }
+
+        'deleted' {
+            "<del>$($value)</del>"
+        }
+
+        'inserted' {
+            "<ins>$($value)</ins>"
+        }
+
+        'italics' {
+            "<em>$($value)</em>"
+        }
+
+        'bold' {
+            "<strong>$($value)</strong>"
+        }
+
+        'small' {
+            "<small>$($value)</small>"
+        }
+    }
+)

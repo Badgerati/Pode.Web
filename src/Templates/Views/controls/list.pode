@@ -1,0 +1,15 @@
+$(
+    $tag = 'ul'
+    if ($data.Numbered) {
+        $tag = 'ol'
+    }
+
+    "<$($tag) class='list-unstyled' id='$($data.ID)'>"
+
+
+    foreach ($item in $data.Items) {
+        "<li>$([System.Net.WebUtility]::HtmlEncode($item))</li>"
+    }
+
+    "</$($tag)>"
+)

@@ -36,8 +36,18 @@ Start-PodeServer {
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
     $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Controls @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
-        New-PodeWebParagraph -Value 'Using some example paragraphs'
+        New-PodeWebParagraph -Controls @(
+            New-PodeWebText -Value 'Using some '
+            New-PodeWebText -Value 'example' -Style Italics
+            New-PodeWebText -Value ' paragraphs' -Style Bold
+        )
+        New-PodeWebParagraph -Controls @(
+            New-PodeWebText -Value "Look, here's a "
+            New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
+            New-PodeWebText -Value "!"
+        )
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Location Right
+        New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
     )
 
     $chartData = {

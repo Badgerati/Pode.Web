@@ -105,9 +105,13 @@ function New-PodeWebParagraph
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Value')]
         [string]
-        $Value
+        $Value,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Controls')]
+        [hashtable[]]
+        $Controls
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
@@ -118,6 +122,7 @@ function New-PodeWebParagraph
         ControlType = 'Paragraph'
         ID = $Id
         Value = $Value
+        Controls = $Controls
     }
 }
 
@@ -439,5 +444,157 @@ function New-PodeWebImage
         Location = $Location
         Height = $Height
         Width = $Width
+    }
+}
+
+function New-PodeWebHeader
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateSet(1, 2, 3, 4, 5, 6)]
+        [int]
+        $Size,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Secondary
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "header_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'Header'
+        ID = $Id
+        Size = $Size
+        Value = $Value
+        Secondary = $Secondary
+    }
+}
+
+function New-PodeWebQuote
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [ValidateSet('Left', 'Right', 'Center')]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Source
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "quote_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'Quote'
+        ID = $Id
+        Location = $Location
+        Value = $Value
+        Source = $Source
+    }
+}
+
+function New-PodeWebList
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string[]]
+        $Items,
+
+        [switch]
+        $Numbered
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "list_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'List'
+        ID = $Id
+        Items  = $Items
+        Numbered = $Numbered.IsPresent
+    }
+}
+
+function New-PodeWebLink
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Source,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value,
+
+        [switch]
+        $NewTab
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "a_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'Link'
+        ID = $Id
+        Source = $Source
+        Value = $Value
+        Newtab = $NewTab.IsPresent
+    }
+}
+
+function New-PodeWebText
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Normal', 'Underlined', 'StrikeThrough', 'Deleted', 'Inserted', 'Italics', 'Bold', 'Small')]
+        [string]
+        $Style = 'Normal'
+    )
+
+    return @{
+        ControlType = 'Text'
+        Value = $Value
+        Style = $Style
     }
 }
