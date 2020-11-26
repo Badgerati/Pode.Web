@@ -34,14 +34,14 @@ Start-PodeServer {
 
 
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
-    $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Controls @(
+    $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Elements @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
-        New-PodeWebParagraph -Controls @(
+        New-PodeWebParagraph -Elements @(
             New-PodeWebText -Value 'Using some '
             New-PodeWebText -Value 'example' -Style Italics
             New-PodeWebText -Value ' paragraphs' -Style Bold
         )
-        New-PodeWebParagraph -Controls @(
+        New-PodeWebParagraph -Elements @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "!"
@@ -105,7 +105,7 @@ Start-PodeServer {
         $svcs = @(Get-Service -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, Status)
         $svcs | Out-PodeWebTable -Id 'tbl_svc_results'
         Show-PodeWebToast -Message "Found $($svcs.Length) services"
-    } -Controls @(
+    } -Elements @(
         New-PodeWebTextbox -Name 'Name'
     )
 
@@ -119,7 +119,7 @@ Start-PodeServer {
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
         Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat
-    } -Controls @(
+    } -Elements @(
         New-PodeWebTextbox -Name 'Name'
     )
 

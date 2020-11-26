@@ -87,7 +87,7 @@ function New-PodeWebForm
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Controls,
+        $Elements,
 
         [Parameter(Mandatory=$true)]
         [scriptblock]
@@ -126,7 +126,7 @@ function New-PodeWebForm
         Name = $Name
         ID = $Id
         Message = $Message
-        Controls = $Controls
+        Elements = $Elements
         ScriptBlock = $ScriptBlock
         NoHeader = $NoHeader.IsPresent
     }
@@ -146,7 +146,7 @@ function New-PodeWebSection
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Controls,
+        $Elements,
 
         [switch]
         $NoHeader
@@ -164,7 +164,7 @@ function New-PodeWebSection
         ComponentType = 'Section'
         Name = $Name
         ID = $Id
-        Controls = $Controls
+        Elements = $Elements
         NoHeader = $NoHeader.IsPresent
     }
 }

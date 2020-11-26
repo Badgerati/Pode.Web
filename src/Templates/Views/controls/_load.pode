@@ -1,9 +1,0 @@
-$(
-    $value = [string]::Empty
-
-    foreach ($control in $data.Controls) {
-        $value += (Use-PodeWebPartialView -Path "controls/$($control.ControlType.ToLowerInvariant())" -Data $control)
-    }
-
-    $value
-)

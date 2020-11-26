@@ -26,7 +26,7 @@ Start-PodeServer {
     Set-PodeWebLoginPage -Authentication Login
 
     # set the home page controls (just a simple paragraph)
-    $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Controls @(
+    $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Elements @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
@@ -35,7 +35,7 @@ Start-PodeServer {
     # add a page to search process (output as json in an appended textbox)
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
         Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
-    } -Controls @(
+    } -Elements @(
         New-PodeWebTextbox -Name 'Name'
     )
 

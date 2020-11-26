@@ -55,7 +55,7 @@ function New-PodeWebTextbox
     }
 
     return @{
-        ControlType = 'Textbox'
+        ElementType = 'Textbox'
         Name = $Name
         ID = $Id
         Type = $Type
@@ -91,7 +91,7 @@ function New-PodeWebFileUpload
     }
 
     return @{
-        ControlType = 'FileUpload'
+        ElementType = 'FileUpload'
         Name = $Name
         ID = $Id
     }
@@ -109,9 +109,9 @@ function New-PodeWebParagraph
         [string]
         $Value,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Controls')]
+        [Parameter(Mandatory=$true, ParameterSetName='Elements')]
         [hashtable[]]
-        $Controls
+        $Elements
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
@@ -119,10 +119,10 @@ function New-PodeWebParagraph
     }
 
     return @{
-        ControlType = 'Paragraph'
+        ElementType = 'Paragraph'
         ID = $Id
         Value = $Value
-        Controls = $Controls
+        Elements = $Elements
     }
 }
 
@@ -147,7 +147,7 @@ function New-PodeWebCodeBlock
     }
 
     return @{
-        ControlType = 'CodeBlock'
+        ElementType = 'CodeBlock'
         ID = $Id
         Value = $Value
         Scrollable = $Scrollable.IsPresent
@@ -172,7 +172,7 @@ function New-PodeWebCode
     }
 
     return @{
-        ControlType = 'Code'
+        ElementType = 'Code'
         ID = $Id
         Value = $Value
     }
@@ -212,7 +212,7 @@ function New-PodeWebCheckbox
     }
 
     return @{
-        ControlType = 'Checkbox'
+        ElementType = 'Checkbox'
         Name = $Name
         ID = $Id
         Options = @($Options)
@@ -251,7 +251,7 @@ function New-PodeWebRadio
     }
 
     return @{
-        ControlType = 'Radio'
+        ElementType = 'Radio'
         Name = $Name
         ID = $Id
         Options = @($Options)
@@ -289,7 +289,7 @@ function New-PodeWebSelect
     }
 
     return @{
-        ControlType = 'Select'
+        ElementType = 'Select'
         Name = $Name
         ID = $Id
         Options = @($Options)
@@ -342,7 +342,7 @@ function New-PodeWebRange
     }
 
     return @{
-        ControlType = 'Range'
+        ElementType = 'Range'
         Name = $Name
         ID = $Id
         Value = $Value
@@ -405,7 +405,7 @@ function New-PodeWebProgress
     }
 
     return @{
-        ControlType = 'Progress'
+        ElementType = 'Progress'
         Name = $Name
         ID = $Id
         Value = $Value
@@ -461,7 +461,7 @@ function New-PodeWebImage
     }
 
     return @{
-        ControlType = 'Image'
+        ElementType = 'Image'
         ID = $Id
         Source = $Source
         Alt = $Alt
@@ -498,7 +498,7 @@ function New-PodeWebHeader
     }
 
     return @{
-        ControlType = 'Header'
+        ElementType = 'Header'
         ID = $Id
         Size = $Size
         Value = $Value
@@ -533,7 +533,7 @@ function New-PodeWebQuote
     }
 
     return @{
-        ControlType = 'Quote'
+        ElementType = 'Quote'
         ID = $Id
         Location = $Location
         Value = $Value
@@ -562,7 +562,7 @@ function New-PodeWebList
     }
 
     return @{
-        ControlType = 'List'
+        ElementType = 'List'
         ID = $Id
         Items  = $Items
         Numbered = $Numbered.IsPresent
@@ -594,7 +594,7 @@ function New-PodeWebLink
     }
 
     return @{
-        ControlType = 'Link'
+        ElementType = 'Link'
         ID = $Id
         Source = $Source
         Value = $Value
@@ -617,7 +617,7 @@ function New-PodeWebText
     )
 
     return @{
-        ControlType = 'Text'
+        ElementType = 'Text'
         Value = $Value
         Style = $Style
     }

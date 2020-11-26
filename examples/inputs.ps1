@@ -18,7 +18,7 @@ Start-PodeServer {
             Radios = $InputData.Radios
             Role = $InputData.Role
         } | Out-PodeWebTextbox -Multiline -Preformat -AsJson
-    } -Controls @(
+    } -Elements @(
         New-PodeWebTextbox -Name 'Name'
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch

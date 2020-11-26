@@ -4,7 +4,7 @@
             [System.Net.WebUtility]::HtmlEncode($data.Value)
         }
         else {
-            Use-PodeWebPartialView -Path 'controls/_load' -Data @{ Controls = $data.Controls }
+            Use-PodeWebPartialView -Path 'elements/_load' -Data @{ Elements = $data.Elements }
         }
     )
 </p>
