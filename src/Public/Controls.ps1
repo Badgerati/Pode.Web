@@ -154,6 +154,30 @@ function New-PodeWebCodeBlock
     }
 }
 
+function New-PodeWebCode
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "code_$(Get-PodeWebRandomName)"
+    }
+
+    return @{
+        ControlType = 'Code'
+        ID = $Id
+        Value = $Value
+    }
+}
+
 function New-PodeWebCheckbox
 {
     [CmdletBinding()]
