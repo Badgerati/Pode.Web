@@ -11,6 +11,7 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
 $(document).ready(() => {
     loadTables();
     loadCharts();
+    bindSidebarFilter();
     bindFormSubmits();
     bindTableFilters();
     bindTableExports();
@@ -18,7 +19,24 @@ $(document).ready(() => {
     bindChartRefresh();
     bindRangeValue();
     bindProgressValue();
+    bindCollapse();
 });
+
+function bindCollapse() {
+    $('ul#sidebar-list div.collapse').on('hide.bs.collapse', function(e) {
+        toggleCollapseArrow(e.target, 'arrow-right', 'arrow-down-right');
+    });
+
+    $('ul#sidebar-list div.collapse').on('show.bs.collapse', function(e) {
+        toggleCollapseArrow(e.target, 'arrow-down-right', 'arrow-right');
+    });
+}
+
+function toggleCollapseArrow(element, showIcon, hideIcon) {
+    var id = $(element).attr('id');
+    $(`a[aria-controls="${id}"]`).find(`svg.feather-${showIcon}`).show();
+    $(`a[aria-controls="${id}"]`).find(`svg.feather-${hideIcon}`).hide();
+}
 
 function bindRangeValue() {
     $('input[type="range"].pode-range-value').each((index, item) => {
@@ -142,6 +160,10 @@ function bindFormSubmits() {
             success: function(res) {
                 spinner.hide();
                 loadComponents(res, form);
+            },
+            error: function(err) {
+                spinner.hide();
+                console.log(err);
             }
         });
     });
@@ -155,10 +177,30 @@ function bindTableFilters() {
         var tableId = input.attr('for');
         var value = input.val();
 
-        console.log(tableId);
-        console.log(value);
-        $(`table#${tableId} tbody tr:not(:icontains('${value}'))`).css("display", "none");
-        $(`table#${tableId} tbody tr:icontains('${value}')`).css("display", "");
+        $(`table#${tableId} tbody tr:not(:icontains('${value}'))`).hide();
+        $(`table#${tableId} tbody tr:icontains('${value}')`).show();
+    });
+}
+
+function bindSidebarFilter() {
+    $("input.pode-nav-filter").keyup(function(e) {
+        e.preventDefault();
+
+        var input = $(e.target);
+        var listId = input.attr('for');
+        var value = input.val();
+
+        if (value) {
+            $('div.collapse').collapse('show');
+            $(`ul#${listId} li.nav-group-title`).hide();
+        }
+        else {
+            $('div.collapse').collapse('hide');
+            $(`ul#${listId} li.nav-group-title`).show();
+        }
+
+        $(`ul#${listId} li.nav-page-item:not(:icontains('${value}'))`).hide();
+        $(`ul#${listId} li.nav-page-item:icontains('${value}')`).show();
     });
 }
 

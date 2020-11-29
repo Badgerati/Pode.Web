@@ -4,14 +4,20 @@
         <div class="btn-toolbar mb-2 mb-md-0 mTop-05">
             <div class="btn-group mr-2">
                 $(if (!$data.Meta.AutoRefresh) {
-                    "<button type='button' class='btn btn-sm btn-outline-secondary pode-table-refresh' for='$($data.Meta.ID)'><span data-feather='refresh-cw' class='mRight05'></span>Refresh</button>"
+                    "<button type='button' class='btn btn-sm btn-outline-secondary pode-table-refresh' for='$($data.Meta.ID)'>
+                        <span data-feather='refresh-cw' class='mRight05'></span>
+                        Refresh
+                    </button>"
                 }
                 else {
                     "<button type='button' class='btn btn-sm btn-secondary' disabled><span data-feather='refresh-cw'></span></button>"
                 })
 
                 $(if (!$data.NoExport) {
-                    "<button type='button' class='btn btn-sm btn-outline-secondary pode-table-export' for='$($data.Meta.ID)'><span data-feather='download' class='mRight05'></span>Export</button>"
+                    "<button type='button' class='btn btn-sm btn-outline-secondary pode-table-export' for='$($data.Meta.ID)'>
+                        <span data-feather='download' class='mRight05'></span>
+                        Export
+                    </button>"
                 })
             </div>
         </div>

@@ -13,12 +13,18 @@
                 if ($data.Auth.Authenticated) {
                     "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
                         <span class='navbar-text mRight05 welcome-msg'>Hello, $($data.Username)</span>
-                        <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>Sign out</button>
+                        <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                            <span data-feather='log-out' class='mRight02'></span>
+                            Sign out
+                        </button>
                     </form>"
                 }
                 else {
                     "<form class='form-inline' action='/login' method='GET' style='margin-bottom: 0'>
-                        <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>Sign in</button>
+                        <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                            <span data-feather='log-in' class='mRight02'></span>
+                            Sign in
+                        </button>
                     </form>"
                 }
             })
@@ -27,23 +33,51 @@
         <div class="container-fluid">
             <div class="row">
                 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                    <div class="sidebar-sticky pt-3">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link $(if ($data.Name -ieq 'home') { 'active' })" href="/">
+                    <div class='input-group mb-2 mLeft1 w90 mTop1-8'>
+                        <div class='input-group-prepend'><div class='input-group-text'><span data-feather='filter'></span></div></div>
+                        <input type='text' class='form-control pode-nav-filter' id="filter_sidebar" placeholder='Filter' for="sidebar-list">
+                    </div>
+
+                    <div class="sidebar-sticky pt-0">
+                        <ul id="sidebar-list" class="nav flex-column">
+                            <li class="nav-item nav-page-item">
+                                <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="/">
                                     <span data-feather="home"></span>
                                     Home
                                 </a>
                             </li>
 
-                            $(foreach ($page in @(Get-PodeWebState -Name 'pages')) {
-                                "<li class='nav-item'>
-                                    <a class='nav-link $(if ($data.Name -ieq $page.Name) { "active" })' href='/pages/$($page.Name)'>
-                                        <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
-                                        $($page.Name)
-                                    </a>
-                                </li>"
-                            })
+                            $(
+                                $groups = (Get-PodeWebState -Name 'pages' | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
+
+                                foreach ($group in $groups) {
+                                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
+                                        "<li class='nav-item mTop1 nav-group-title'>
+                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($group.Name)' aria-expanded='$($data.Page.Group -ieq $group.Name)' aria-controls='nav-$($group.Name)'>
+                                                <span data-feather='arrow-right'></span>
+                                                <span data-feather='arrow-down-right' style='display:none;'></span>
+                                                <span class='h6'>$($group.Name)</span>
+                                                <span class='badge badge-primary'>$($group.Count)</span>
+                                            </a>
+                                        </li>"
+
+                                        "<div class='collapse $(if ($data.Page.Group -ieq $group.Name) { "show" })' id='nav-$($group.Name)'>"
+                                    }
+
+                                    foreach ($page in $group.Group) {
+                                        "<li class='nav-item nav-page-item'>
+                                            <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' href='/pages/$($page.Name)'>
+                                                <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
+                                                $($page.Name)
+                                            </a>
+                                        </li>"
+                                    }
+
+                                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
+                                        "</div>"
+                                    }
+                                }
+                            )
                         </ul>
                     </div>
 
@@ -63,12 +97,12 @@
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                     <div id="pode-page-title" class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">$($data.Name)</h1>
+                        <h1 class="h2">$($data.Page.Name)</h1>
                     </div>
 
                     $(foreach ($component in $data.Components) {
                         Use-PodeWebPartialView -Path "components/$($component.ComponentType.ToLowerInvariant())" -Data @{
-                            Name = $data.Name
+                            Name = $data.Page.Name
                             Meta = $component
                         }
                     })

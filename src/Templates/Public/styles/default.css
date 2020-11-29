@@ -27,6 +27,22 @@ div#pode-page-title {
     margin-top: 4em;
 }
 
+li.nav-group-title {
+    border-top: 1px dashed #888;
+    padding-top: 1em;
+}
+
+li.nav-group-title span.badge {
+    float: right;
+    margin-right: 1em;
+    padding: 5px;
+}
+
+ul#sidebar-list div.collapse,
+ul#sidebar-list div.collapsing {
+    margin-left: 1em;
+}
+
 div.pode-grid {
     max-width: 100% !important;
     padding-left: 0 !important;
@@ -195,9 +211,10 @@ table {
 }
 
 .feather {
-  width: 16px;
-  height: 16px;
-  vertical-align: text-bottom;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-top: -1px;
 }
 
 /*
@@ -291,12 +308,24 @@ table {
  * General
  */
 
+.w90 {
+    width: 90%;
+}
+
 .mLeft05 {
     margin-left: 0.5em;
 }
 
+.mLeft1 {
+    margin-left: 1em;
+}
+
 .mRight05 {
     margin-right: 0.5em;
+}
+
+.mRight02 {
+    margin-right: 0.2em;
 }
 
 .mTop-05 {
@@ -305,6 +334,14 @@ table {
 
 .mTop05 {
     margin-top: 0.5em;
+}
+
+.mTop1 {
+    margin-top: 1em;
+}
+
+.mTop1-8 {
+    margin-top: 1.8em;
 }
 
 .mBottom1 {

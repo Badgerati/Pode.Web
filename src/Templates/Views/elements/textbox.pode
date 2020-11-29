@@ -14,12 +14,15 @@
                 $readOnly = "readonly"
             }
 
+            $value = [string]::Empty
+            if (![string]::IsNullOrWhiteSpace($data.Value)) {
+                $value = "value='$($data.Value)'"
+            }
+
             if ($data.Multiline) {
-                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' $($describedBy) $($readOnly)></textarea>"
+                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' $($describedBy) $($readOnly) $($value)></textarea>"
             }
             else {
-                $element = [string]::Empty
-
                 if ($data.Prepend.Enabled) {
                     $element = "<div class='input-group mb-2'>"
 
@@ -31,7 +34,7 @@
                     }
                 }
 
-                $element += "<input type='$($data.Type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' $($describedBy) $($readOnly)>"
+                $element += "<input type='$($data.Type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' $($describedBy) $($readOnly)  $($value)>"
 
                 if ($data.Prepend.Enabled) {
                     $element += "</div>"

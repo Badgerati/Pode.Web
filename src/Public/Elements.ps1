@@ -35,6 +35,10 @@ function New-PodeWebTextbox
         [string]
         $PrependIcon,
 
+        [Parameter()]
+        [string]
+        $Value,
+
         [Parameter(ParameterSetName='Multi')]
         [switch]
         $Multiline,
@@ -65,6 +69,7 @@ function New-PodeWebTextbox
         Preformat = $Preformat.IsPresent
         HelpText = $HelpText
         ReadOnly = $ReadOnly.IsPresent
+        Value = $Value
         Prepend = @{
             Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
             Text = $PrependText
@@ -620,5 +625,67 @@ function New-PodeWebText
         ElementType = 'Text'
         Value = $Value
         Style = $Style
+    }
+}
+
+function New-PodeWebHidden
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "hidden_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+    }
+
+    return @{
+        ElementType = 'Hidden'
+        Name = $Name
+        ID = $Id
+        Value = $Value
+    }
+}
+
+function New-PodeWebCredential
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $HelpText,
+
+        [switch]
+        $ReadOnly
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "cred_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+    }
+
+    return @{
+        ElementType = 'Credential'
+        Name = $Name
+        ID = $Id
+        HelpText = $HelpText
+        ReadOnly = $ReadOnly.IsPresent
     }
 }

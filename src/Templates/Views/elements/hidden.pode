@@ -1,0 +1,5 @@
+<div class="form-group row">
+    <div class="col-sm-10">
+        <input type="hidden" class="form-control" id="$($data.ID)" name="$($data.Name)" value="$($data.Value)">
+    </div>
+</div>

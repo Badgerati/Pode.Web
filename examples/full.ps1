@@ -113,7 +113,7 @@ Start-PodeServer {
         @(Get-Service | Select-Object Name, Status)
     }
 
-    Add-PodeWebPage -Name Services -Icon Settings -Components $form, $table, $table2
+    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Components $form, $table, $table2
 
 
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
@@ -123,5 +123,5 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Components $form
+    Add-PodeWebPage -Name Processes -Icon Activity -Group Tools -Components $form
 }
