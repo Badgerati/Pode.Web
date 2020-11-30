@@ -48,19 +48,12 @@ Start-PodeServer {
         )
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Location Right
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
+        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -ScriptBlock {
+            Show-PodeWebToast -Message "Message of the day: $($InputData.Value)"
+        }
     )
 
     $chartData = {
-        # return (Get-Service |
-        #     Select-Object Name |
-        #     Group-Object -Property { $_.Name.ToUpper()[0] } |
-        #     ForEach-Object {
-        #         @{
-        #             Key = $_.Name
-        #             Value = $_.Count
-        #         }
-        #     })
-
         return (1..1 | ForEach-Object {
             @{
                 Key = $_

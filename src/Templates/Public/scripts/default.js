@@ -13,6 +13,7 @@ $(document).ready(() => {
     loadCharts();
     bindSidebarFilter();
     bindFormSubmits();
+    bindButtons();
     bindTableFilters();
     bindTableExports();
     bindTableRefresh();
@@ -160,6 +161,42 @@ function bindFormSubmits() {
             success: function(res) {
                 spinner.hide();
                 loadComponents(res, form);
+            },
+            error: function(err) {
+                spinner.hide();
+                console.log(err);
+            }
+        });
+    });
+}
+
+function bindButtons() {
+    $("button.pode-button").click(function(e) {
+        e.preventDefault();
+        var button = $(e.target);
+
+        var dataValue = button.attr('pode-data-value');
+        var data = `Value=${dataValue}`;
+
+        if (!dataValue) {
+            var form = button.closest('form');
+
+            if (form) {
+                data = form.serialize();
+            }
+        }
+
+        var spinner = button.find('span.spinner-border');
+        spinner.show();
+
+        $.ajax({
+            url: `/elements/button/${button.attr('id')}`,
+            method: 'POST',
+            data: data,
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(res) {
+                spinner.hide();
+                loadComponents(res, button);
             },
             error: function(err) {
                 spinner.hide();

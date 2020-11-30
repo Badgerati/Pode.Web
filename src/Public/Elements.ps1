@@ -713,3 +713,57 @@ function New-PodeWebRaw
         Value = $Value
     }
 }
+
+function New-PodeWebButton
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $DataValue,
+
+        [Parameter(Mandatory=$true)]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "btn_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+    }
+
+    $auth = $null
+    if (!$NoAuthentication) {
+        $auth = (Get-PodeWebState -Name 'auth')
+    }
+
+    Add-PodeRoute -Method Post -Path "/elements/button/$($Id)" -Authentication $auth -ScriptBlock {
+        $global:InputData = $WebEvent.Data
+        $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+        if ($null -eq $result) {
+            $result = @()
+        }
+
+        Write-PodeJsonResponse -Value $result
+    }
+
+    return @{
+        ElementType = 'Button'
+        Name = $Name
+        ID = $Id
+        DataValue = $DataValue
+        ScriptBlock = $ScriptBlock
+    }
+}
