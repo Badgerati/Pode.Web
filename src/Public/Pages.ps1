@@ -255,20 +255,28 @@ function ConvertTo-PodeWebPage
                 $default = ($paramDefs | Where-Object { $_.DefaultValue -and $_.Name.Extent.Text -ieq "`$$($param.Name)" }).DefaultValue.Value
 
                 if ($type -iin @('boolean', 'switchparameter')) {
-                    New-PodeWebCheckbox -Name $param.Name -Options $param.Name
+                    New-PodeWebCheckbox -Name $param.Name -AsSwitch
                 }
                 else {
                     switch ($type) {
-                        { @('int32', 'int64') -icontains $_ } {
-                            New-PodeWebTextbox -Name $param.Name -Type Number -Value $default
-                        }
-
                         'pscredential' {
                             New-PodeWebCredential -Name $param.Name
                         }
 
                         default {
-                            New-PodeWebTextbox -Name $param.Name -Value $default
+                            $multiple = $param.ParameterType.Name.EndsWith('[]')
+
+                            if ($param.Attributes.TypeId.Name -icontains 'ValidateSetAttribute') {
+                                $values = ($param.Attributes | Where-Object { $_.TypeId.Name -ieq 'ValidateSetAttribute' }).ValidValues
+                                New-PodeWebSelect -Name  $param.Name -Options $values -SelectedValue $default -Multiple:$multiple
+                            }
+                            elseif ($param.ParameterType.BaseType.Name -ieq 'enum') {
+                                $values = [enum]::GetValues($param.ParameterType)
+                                New-PodeWebSelect -Name  $param.Name -Options $values -SelectedValue $default -Multiple:$multiple
+                            }
+                            else {
+                                New-PodeWebTextbox -Name $param.Name -Value $default
+                            }
                         }
                     }
                 }
@@ -293,12 +301,16 @@ function ConvertTo-PodeWebPage
                         }
                     }
                     else {
-                        "$($key) - $($InputData[$key])" | out-default
                         if ($InputData[$key] -iin @('true', 'false')) {
                             $_args[$key] = ($InputData[$key] -ieq 'true')
                         }
                         else {
-                            $_args[$key] = $InputData[$key]
+                            if ($InputData[$key].Contains(',')) {
+                                $_args[$key] = ($InputData[$key] -isplit ',' | ForEach-Object { $_.Trim() })
+                            }
+                            else {
+                                $_args[$key] = $InputData[$key]
+                            }
                         }
                     }
                 }

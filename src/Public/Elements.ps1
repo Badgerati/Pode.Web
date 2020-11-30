@@ -195,10 +195,11 @@ function New-PodeWebCheckbox
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName='Multiple')]
         [string[]]
         $Options,
 
+        [Parameter(ParameterSetName='Multiple')]
         [switch]
         $Inline,
 
@@ -214,6 +215,10 @@ function New-PodeWebCheckbox
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
         $Id = "chkbox_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+    }
+
+    if (($null -eq $Options) -or ($Options.Length -eq 0)) {
+        $Options = @('true')
     }
 
     return @{
@@ -277,7 +282,7 @@ function New-PodeWebSelect
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter()]
         [string[]]
         $Options,
 
@@ -288,6 +293,10 @@ function New-PodeWebSelect
         [switch]
         $Multiple
     )
+
+    if (Test-PodeIsEmpty $Options) {
+        throw "Select options are required"
+    }
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
         $Id = "select_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
