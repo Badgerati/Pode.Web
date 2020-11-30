@@ -698,3 +698,18 @@ function New-PodeWebCredential
         ReadOnly = $ReadOnly.IsPresent
     }
 }
+
+function New-PodeWebRaw
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value
+    )
+
+    return @{
+        ElementType = 'Raw'
+        Value = $Value
+    }
+}
