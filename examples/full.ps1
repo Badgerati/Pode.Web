@@ -29,7 +29,7 @@ Start-PodeServer {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test
+    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png'
     Set-PodeWebLoginPage -Authentication Example
 
 
@@ -48,7 +48,7 @@ Start-PodeServer {
         )
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Location Right
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
-        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -ScriptBlock {
+        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon Command -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($InputData.Value)"
         }
     )

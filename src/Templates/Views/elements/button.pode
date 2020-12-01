@@ -2,6 +2,11 @@
     <div class="row">
         <button type="button" class="btn btn-primary pode-button" id="$($data.ID)" pode-data-value="$($data.DataValue)">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
+            $(
+                if (![string]::IsNullOrWhiteSpace($data.Icon)) {
+                    "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight02'></span>"
+                }
+            )
             $($data.Name)
         </button>
     </div>

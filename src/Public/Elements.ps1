@@ -730,6 +730,10 @@ function New-PodeWebButton
         [string]
         $DataValue,
 
+        [Parameter()]
+        [string]
+        $Icon,
+
         [Parameter(Mandatory=$true)]
         [scriptblock]
         $ScriptBlock,
@@ -764,6 +768,7 @@ function New-PodeWebButton
         Name = $Name
         ID = $Id
         DataValue = $DataValue
+        Icon = $Icon
         ScriptBlock = $ScriptBlock
     }
 }
