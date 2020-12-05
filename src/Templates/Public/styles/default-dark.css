@@ -1,0 +1,73 @@
+nav#sidebarMenu {
+    background-color: #343a40 !important;
+}
+
+.sidebar .nav-link {
+    color: #ccc !important;
+}
+
+body, main[role="main"] {
+    background-color: #444a50 !important;
+    color: #ccc !important;
+}
+
+nav.navbar {
+    box-shadow: 0 .5rem 2rem rgba(80, 80, 80, 0.15) !important;
+}
+
+a.navbar-brand {
+    color: #fff !important;
+}
+
+.card {
+    background-color: #343a40 !important;
+    color: #ccc !important;
+}
+
+.card .card-header {
+    background-color: rgba(0, 0, 0, .25);
+}
+
+cite {
+    color: #999 !important;
+}
+
+a {
+    color: deepskyblue !important;
+}
+
+a:hover {
+    color: dodgerblue !important;
+}
+
+.btn-outline-secondary {
+    border-color: #aaa;
+    color: #aaa;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #444 !important;
+    color: #ccc !important
+}
+
+.nav-tabs .nav-link {
+    color: #ccc !important
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #555 !important;
+    color: #ccc !important
+}
+
+.table {
+    background-color: #343a40 !important;
+    color: #ccc !important;
+}
+
+.table tbody td, .table thead th {
+    border-color: #454d55;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255,255,255,.05);
+}

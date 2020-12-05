@@ -12,7 +12,10 @@ function Use-PodeWebTemplates
 
         [Parameter()]
         [string]
-        $FavIcon
+        $FavIcon,
+
+        [switch]
+        $DarkMode
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore)
@@ -27,6 +30,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'title' -Value $Title
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
+    Set-PodeWebState -Name 'darkmode' -Value $DarkMode.IsPresent
     Set-PodeWebState -Name 'pages' -Value @()
 
     $templatePath = Get-PodeWebTemplatePath

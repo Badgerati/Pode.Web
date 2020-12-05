@@ -22,6 +22,9 @@ function New-PodeWebTable
         $Filter,
 
         [switch]
+        $Sort,
+
+        [switch]
         $NoExport,
 
         [Parameter()]
@@ -63,6 +66,7 @@ function New-PodeWebTable
         ID = $Id
         Message = $Message
         Filter = $Filter.IsPresent
+        Sort = $Sort.IsPresent
         IsDynamic = ($null -ne $ScriptBlock)
         NoExport = $NoExport.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent

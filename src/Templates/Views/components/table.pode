@@ -27,10 +27,12 @@
             "<p class='card-text'>$($data.Meta.Message)</p>"
         })
 
-        <div class='input-group mb-2'>
-            <div class='input-group-prepend'><div class='input-group-text'><span data-feather='filter'></span></div></div>
-            <input type='text' class='form-control mBottom1 pode-table-filter' id="filter_$($data.Meta.ID)" placeholder='Filter' for="$($data.Meta.ID)">
-        </div>
+        $(if ($data.Meta.Filter) {
+            "<div class='input-group mb-2'>
+                <div class='input-group-prepend'><div class='input-group-text'><span data-feather='filter'></span></div></div>
+                <input type='text' class='form-control mBottom1 pode-table-filter' id='filter_$($data.Meta.ID)' placeholder='Filter' for='$($data.Meta.ID)'>
+            </div>"
+        })
 
         <div class="table-responsive">
             <table
@@ -38,7 +40,8 @@
                 name="$($data.Meta.Name)"
                 class="table table-striped table-sm"
                 data-pode-dynamic="$($data.Meta.IsDynamic)"
-                data-pode-auto-refresh="$($data.Meta.AutoRefresh)">
+                data-pode-auto-refresh="$($data.Meta.AutoRefresh)"
+                data-pode-sort="$($data.Meta.Sort)">
                 <thead></thead>
                 <tbody></tbody>
             </table>

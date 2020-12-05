@@ -7,7 +7,11 @@ function Out-PodeWebTable
 
         [Parameter(ParameterSetName='Id')]
         [string]
-        $Id
+        $Id,
+
+        [Parameter(ParameterSetName='New')]
+        [switch]
+        $Sort
     )
 
     begin {
@@ -23,6 +27,7 @@ function Out-PodeWebTable
             OutputType = 'Table'
             Data = $items
             ID = $Id
+            Sort = $Sort.IsPresent
         }
     }
 }

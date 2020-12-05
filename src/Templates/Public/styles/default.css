@@ -77,6 +77,10 @@ table {
     font-size: .9rem;
 }
 
+table[data-pode-sort='True'] thead th {
+    cursor: pointer;
+}
+
 .card {
     margin-bottom: 2em;
     border-color: #bbb;

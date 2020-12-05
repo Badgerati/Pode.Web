@@ -23,6 +23,33 @@ $(document).ready(() => {
     bindCollapse();
 });
 
+function bindTableSort(tableId) {
+    $(`${tableId}[data-pode-sort='True'] thead th`).click(function() {
+        var table = $(this).parents('table').eq(0);
+        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+
+        this.asc = !this.asc;
+        if (!this.asc) {
+            rows = rows.reverse();
+        }
+
+        for (var i = 0; i < rows.length; i++) {
+            table.append(rows[i]);
+        }
+    });
+
+    function comparer(index) {
+        return function(a, b) {
+            var valA = getCellValue(a, index), valB = getCellValue(b, index);
+            return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
+        }
+    }
+
+    function getCellValue(row, index) {
+        return $(row).children('td').eq(index).text();
+    }
+}
+
 function bindCollapse() {
     $('ul#sidebar-list div.collapse').on('hide.bs.collapse', function(e) {
         toggleCollapseArrow(e.target, 'arrow-right', 'arrow-down-right');
@@ -329,6 +356,8 @@ function updateTable(component) {
         _value += '</tr>'
         tableBody.append(_value);
     });
+
+    bindTableSort(tableId);
 }
 
 function writeTable(component, sender) {
@@ -342,7 +371,7 @@ function writeTable(component, sender) {
     var table = $(`table#${tableId}`);
     if (table.length == 0) {
         card.append(`
-            <table id="${tableId}" class="table table-striped table-sm">
+            <table id="${tableId}" class="table table-striped table-sm" data-pode-sort="${component.Sort}">
                 <thead></thead>
                 <tbody></tbody>
             </table>
@@ -598,7 +627,19 @@ function updateChart(component) {
             'rgb(201, 203, 207)'
         ]
 
+        var isDark = $('body.pode-dark').length > 0;
+
         var dataset = {};
+
+        var axesOpts = [];
+        var axesDarkOpts = [{
+            gridLines: {
+                color: '#ccc',
+                zeroLineColor: '#ccc'
+            },
+            ticks: { fontColor: '#ccc' }
+        }];
+
         switch (chartType.toLowerCase()) {
             case 'line':
                 dataset = {
@@ -606,6 +647,10 @@ function updateChart(component) {
                     borderColor: 'rgb(54, 162, 235)',
                     borderWidth: 3,
                     pointBackgroundColor: '#007bff'
+                }
+
+                if (isDark) {
+                    axesOpts = axesDarkOpts;
                 }
                 break;
 
@@ -615,6 +660,10 @@ function updateChart(component) {
                     backgroundColor: function(context) {
                         return palette[context.dataIndex % palette.length];
                     }
+                }
+
+                if (isDark) {
+                    dataset.borderColor = '#444';
                 }
                 break;
 
@@ -627,6 +676,10 @@ function updateChart(component) {
                         return palette[context.dataIndex % palette.length];
                     },
                     borderWidth: 1
+                }
+
+                if (isDark) {
+                    axesOpts = axesDarkOpts;
                 }
                 break;
         }
@@ -644,6 +697,11 @@ function updateChart(component) {
             options: {
                 legend: {
                     display: false
+                },
+
+                scales: {
+                    xAxes: axesOpts,
+                    yAxes: axesOpts
                 }
             }
         });

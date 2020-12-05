@@ -29,7 +29,7 @@ Start-PodeServer {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png'
+    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -DarkMode
     Set-PodeWebLoginPage -Authentication Example
 
 
@@ -88,7 +88,7 @@ Start-PodeServer {
 
 
     # add a page to search and filter services (output in a new table component) [note: requires auth]
-    $table = New-PodeWebTable -Name 'Results' -Id 'tbl_svc_results'
+    $table = New-PodeWebTable -Name 'Results' -Id 'tbl_svc_results' -Filter -Sort
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
         if ($InputData.Name.Length -lt 3) {
             Out-PodeWebValidation -Name 'Name' -Message 'Invalid service name supplied (Name should be 3+ characters)'
@@ -102,7 +102,7 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    $table2 = New-PodeWebTable -Name 'Static' -ScriptBlock {
+    $table2 = New-PodeWebTable -Name 'Static' -Filter -Sort -ScriptBlock {
         @(Get-Service | Select-Object Name, Status)
     }
 

@@ -22,7 +22,7 @@
                     "<div class='custom-control custom-switch $($inline)'>
                         <input type='checkbox' class='custom-control-input' value='$($data.Options[$i])' id='$($data.ID)_option$($i)' name='$($data.Name)' $($disabled) $($checked)>
                         <label class='custom-control-label' for='$($data.ID)_option$($i)'>
-                            $(if ($data.Options[$i] -ine 'true') { data.Options[$i] })
+                            $(if ($data.Options[$i] -ine 'true') { $data.Options[$i] })
                         </label>
                     </div>"
                 }
@@ -30,7 +30,7 @@
                     "<div class='form-check $($inline)'>
                         <input class='form-check-input' type='checkbox' value='$($data.Options[$i])' id='$($data.ID)_option$($i)' name='$($data.Name)' $($disabled) $($checked)>
                         <label class='form-check-label' for='$($data.ID)_option$($i)'>
-                            $(if ($data.Options[$i] -ine 'true') { data.Options[$i] })
+                            $(if ($data.Options[$i] -ine 'true') { $data.Options[$i] })
                         </label>
                     </div>"
                 }
