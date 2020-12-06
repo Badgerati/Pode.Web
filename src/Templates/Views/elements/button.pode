@@ -1,13 +1,23 @@
 <fieldset class="form-group">
     <div class="row">
-        <button type="button" class="btn btn-primary pode-button" id="$($data.ID)" pode-data-value="$($data.DataValue)">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
-            $(
-                if (![string]::IsNullOrWhiteSpace($data.Icon)) {
-                    "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight02'></span>"
-                }
-            )
-            $($data.Name)
-        </button>
+        $(
+            $icon = [string]::Empty
+            if (![string]::IsNullOrWhiteSpace($data.Icon)) {
+                $icon = "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight02'></span>"
+            }
+
+            if ($data.IconOnly) {
+                "<button type='button' class='btn btn-icon-only pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
+                    $($icon)
+                </button>"
+            }
+            else {
+                "<button type='button' class='btn btn-primary pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
+                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                    $($icon)
+                    $($data.Name)
+                </button>"
+            }
+        )
     </div>
 </fieldset>

@@ -82,3 +82,40 @@ function Test-PodeWebPage
 
     return (Get-PodeWebState -Name 'pages' | Where-Object { $_.Name -ieq $Name } | Measure-Object).Count -ne 0
 }
+
+function Get-PodeWebElementId
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Tag,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Name
+    )
+
+    if (![string]::IsNullOrWhiteSpace($Id)) {
+        return $Id
+    }
+
+    $_id = [string]::Empty
+    if (![string]::IsNullOrWhiteSpace($ComponentData.ID)) {
+        $_id = "$($ComponentData.ID)_"
+    }
+
+    $_id += "$($Tag)"
+    if (![string]::IsNullOrWhiteSpace($Name)) {
+        $_id += "_$($Name)"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($ComponentData.ID)) {
+        $_id += "_$(Get-PodeWebRandomName)"
+    }
+
+    return ($_id -replace '\s+', '_').ToLowerInvariant()
+}

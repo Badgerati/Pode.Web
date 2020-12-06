@@ -15,6 +15,10 @@ function New-PodeWebTable
         $Message,
 
         [Parameter()]
+        [string]
+        $DataColumn,
+
+        [Parameter()]
         [scriptblock]
         $ScriptBlock,
 
@@ -33,11 +37,28 @@ function New-PodeWebTable
         $NoAuthentication,
 
         [switch]
-        $AutoRefresh
+        $AutoRefresh,
+
+        [switch]
+        $NoHeader
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
         $Id = "table_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+    }
+
+    $component = @{
+        ComponentType = 'Table'
+        Name = $Name
+        ID = $Id
+        DataColumn = $DataColumn
+        Message = $Message
+        Filter = $Filter.IsPresent
+        Sort = $Sort.IsPresent
+        IsDynamic = ($null -ne $ScriptBlock)
+        NoExport = $NoExport.IsPresent
+        AutoRefresh = $AutoRefresh.IsPresent
+        NoHeader = $NoHeader.IsPresent
     }
 
     if ($null -ne $ScriptBlock) {
@@ -46,7 +67,12 @@ function New-PodeWebTable
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path "/components/table/$($Id)" -Authentication $auth -ScriptBlock {
+        $routePath = "/components/table/$($Id)"
+        Remove-PodeRoute -Method Post -Path $routePath
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ScriptBlock {
+            $global:ComponentData = $using:component
+
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
             if ($null -eq $result) {
                 $result = @()
@@ -60,17 +86,7 @@ function New-PodeWebTable
         }
     }
 
-    return @{
-        ComponentType = 'Table'
-        Name = $Name
-        ID = $Id
-        Message = $Message
-        Filter = $Filter.IsPresent
-        Sort = $Sort.IsPresent
-        IsDynamic = ($null -ne $ScriptBlock)
-        NoExport = $NoExport.IsPresent
-        AutoRefresh = $AutoRefresh.IsPresent
-    }
+    return $component
 }
 
 function New-PodeWebForm
@@ -131,7 +147,6 @@ function New-PodeWebForm
         ID = $Id
         Message = $Message
         Elements = $Elements
-        ScriptBlock = $ScriptBlock
         NoHeader = $NoHeader.IsPresent
     }
 }

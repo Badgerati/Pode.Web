@@ -26,12 +26,12 @@
             class="my-4 w-100"
             id="$($data.Meta.ID)"
             name="$($data.Meta.Name)"
-            data-pode-chart-type="$($data.Meta.ChartType)"
-            data-pode-dynamic="$($data.Meta.IsDynamic)"
-            data-pode-append="$($data.Meta.Append)"
-            data-pode-max="$($data.Meta.MaxItems)"
-            data-pode-time-labels="$($data.Meta.TimeLabels)"
-            data-pode-auto-refresh="$($data.Meta.AutoRefresh)">
+            pode-chart-type="$($data.Meta.ChartType)"
+            pode-dynamic="$($data.Meta.IsDynamic)"
+            pode-append="$($data.Meta.Append)"
+            pode-max="$($data.Meta.MaxItems)"
+            pode-time-labels="$($data.Meta.TimeLabels)"
+            pode-auto-refresh="$($data.Meta.AutoRefresh)">
         </canvas>
     </div>
 </div>

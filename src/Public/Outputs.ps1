@@ -24,7 +24,8 @@ function Out-PodeWebTable
 
     end {
         return @{
-            OutputType = 'Table'
+            Operation = 'Output'
+            ElementType = 'Table'
             Data = $items
             ID = $Id
             Sort = $Sort.IsPresent
@@ -59,7 +60,8 @@ function Out-PodeWebChart
 
     end {
         return @{
-            OutputType = 'Chart'
+            Operation = 'Output'
+            ElementType = 'Chart'
             Data = $items
             ID = $Id
             ChartType = $Type
@@ -113,7 +115,8 @@ function Out-PodeWebTextbox
         }
 
         return @{
-            OutputType = 'Textbox'
+            Operation = 'Output'
+            ElementType = 'Textbox'
             Data = $items
             ID = $Id
             AsJson = $AsJson.IsPresent
@@ -151,7 +154,8 @@ function Show-PodeWebToast
     }
 
     return @{
-        OutputType = 'Toast'
+        Operation = 'Output'
+        ElementType = 'Toast'
         Message = $Message
         Title = $Title
         Duration = $Duration
@@ -177,7 +181,8 @@ function Out-PodeWebValidation
     )
 
     return @{
-        OutputType = 'Validation'
+        Operation = 'Output'
+        ElementType = 'Validation'
         Name = $Name
         ID = $Id
         Message = $Message

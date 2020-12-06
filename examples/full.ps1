@@ -88,25 +88,37 @@ Start-PodeServer {
 
 
     # add a page to search and filter services (output in a new table component) [note: requires auth]
-    $table = New-PodeWebTable -Name 'Results' -Id 'tbl_svc_results' -Filter -Sort
-    $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        if ($InputData.Name.Length -lt 3) {
-            Out-PodeWebValidation -Name 'Name' -Message 'Invalid service name supplied (Name should be 3+ characters)'
-            return
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -NoHeader -Filter -Sort -ScriptBlock {
+        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
+            Stop-Service -Name $InputData.Value -Force | Out-Null
+            Show-PodeWebToast -Message "$($InputData.Value) stopped"
+            Sync-PodeWebTable -Id $ElementData.Component.ID
         }
 
-        $svcs = @(Get-Service -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, Status)
-        $svcs | Out-PodeWebTable -Id 'tbl_svc_results'
-        Show-PodeWebToast -Message "Found $($svcs.Length) services"
-    } -Elements @(
-        New-PodeWebTextbox -Name 'Name'
-    )
+        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
+            Start-Service -Name $InputData.Value | Out-Null
+            Show-PodeWebToast -Message "$($InputData.Value) started"
+            Sync-PodeWebTable -Id $ElementData.Component.ID
+        }
 
-    $table2 = New-PodeWebTable -Name 'Static' -Filter -Sort -ScriptBlock {
-        @(Get-Service | Select-Object Name, Status)
+        foreach ($svc in (Get-Service)) {
+            $btns = @()
+            if ($svc.Status -ieq 'running') {
+                $btns += $stopBtn
+            }
+            else {
+                $btns += $startBtn
+            }
+
+            [ordered]@{
+                Name = $svc.Name
+                Status = "$($svc.Status)"
+                Actions = $btns
+            }
+        }
     }
 
-    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Components $form, $table, $table2
+    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Components $table
 
 
     # add a page to search process (output as json in an appended textbox) [note: requires auth]

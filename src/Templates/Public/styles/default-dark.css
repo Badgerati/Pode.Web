@@ -11,8 +11,17 @@ body, main[role="main"] {
     color: #ccc !important;
 }
 
+.btn-icon-only {
+    color: #ccc !important;
+}
+
+.toast-body {
+    color: #444a50 !important;
+}
+
 nav.navbar {
-    box-shadow: 0 .5rem 2rem rgba(80, 80, 80, 0.15) !important;
+    box-shadow: 0 .5rem 2rem rgba(100, 100, 100, 0.15) !important;
+    border-bottom: #ccc 1px solid;
 }
 
 a.navbar-brand {
@@ -57,17 +66,4 @@ a:hover {
 .nav-tabs .nav-link:hover {
     background-color: #555 !important;
     color: #ccc !important
-}
-
-.table {
-    background-color: #343a40 !important;
-    color: #ccc !important;
-}
-
-.table tbody td, .table thead th {
-    border-color: #454d55;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255,255,255,.05);
 }

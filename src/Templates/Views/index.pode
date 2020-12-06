@@ -111,7 +111,7 @@
                     </footer>
                 </nav>
 
-                <div aria-live="polite" aria-atomic="true" style="min-height: 200px;">
+                <div aria-live="polite" aria-atomic="true" style="min-height: 200px;" class="sticky">
                     <div id="toast-area">
                     </div>
                 </div>

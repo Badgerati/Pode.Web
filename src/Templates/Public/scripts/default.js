@@ -24,7 +24,7 @@ $(document).ready(() => {
 });
 
 function bindTableSort(tableId) {
-    $(`${tableId}[data-pode-sort='True'] thead th`).click(function() {
+    $(`${tableId}[pode-sort='True'] thead th`).click(function() {
         var table = $(this).parents('table').eq(0);
         var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
 
@@ -101,12 +101,12 @@ function loadTables(tableId) {
         tableId = '';
     }
 
-    $(`table${tableId}[data-pode-dynamic='True']`).each((i, e) => {
+    $(`table${tableId}[pode-dynamic='True']`).each((i, e) => {
         $.ajax({
             url: `/components/table/${$(e).attr('id')}`,
             method: 'post',
             success: function(res) {
-                loadComponents(res, $(e));
+                invokeActions(res, $(e));
             }
         });
     });
@@ -121,52 +121,77 @@ function loadCharts(chartId) {
         chartId = '';
     }
 
-    $(`canvas${chartId}[data-pode-dynamic='True']`).each((i, e) => {
+    $(`canvas${chartId}[pode-dynamic='True']`).each((i, e) => {
         $.ajax({
             url: `/components/chart/${$(e).attr('id')}`,
             method: 'post',
             success: function(res) {
-                loadComponents(res, $(e));
+                invokeActions(res, $(e));
             }
         });
     });
 }
 
-function loadComponents(components, sender) {
-    if (!components) {
+function invokeActions(actions, sender) {
+    if (!actions) {
         return;
     }
 
-    if (!$.isArray(components)) {
-        components = [components];
+    if (!$.isArray(actions)) {
+        actions = [actions];
     }
 
-    components.forEach((comp) => {
-        switch (comp.OutputType.toLowerCase()) {
+    actions.forEach((action) => {
+        switch (action.ElementType.toLowerCase()) {
             case 'table':
-                outputTable(comp, sender);
+                actionTable(action, sender);
                 break;
 
             case 'chart':
-                outputChart(comp, sender);
+                actionChart(action, sender);
                 break;
 
             case 'textbox':
-                outputTextbox(comp, sender);
+                actionTextbox(action, sender);
                 break;
 
             case 'toast':
-                newToast(comp);
+                actionToast(action);
                 break;
 
             case 'validation':
-                outputValidation(comp, sender);
+                actionValidation(action, sender);
                 break;
 
             default:
                 break;
         }
     });
+}
+
+function buildElements(elements) {
+    var html = '';
+
+    if (!elements) {
+        return html;
+    }
+
+    if (!$.isArray(elements)) {
+        elements = [elements];
+    }
+
+    elements.forEach((ele) => {
+        switch (ele.ElementType.toLowerCase()) {
+            case 'button':
+                html += getButton(ele);
+                break;
+
+            default:
+                break;
+        }
+    });
+
+    return html;
 }
 
 function bindFormSubmits() {
@@ -187,7 +212,7 @@ function bindFormSubmits() {
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(res) {
                 spinner.hide();
-                loadComponents(res, form);
+                invokeActions(res, form);
             },
             error: function(err) {
                 spinner.hide();
@@ -200,9 +225,18 @@ function bindFormSubmits() {
 function bindButtons() {
     $("button.pode-button").click(function(e) {
         e.preventDefault();
-        var button = $(e.target);
 
+        var button = $(e.target);
+        if (button.prop('nodeName').toLowerCase() != 'button') {
+            button = button.closest('button');
+        }
+
+        // default data value
         var dataValue = button.attr('pode-data-value');
+        if (!dataValue) {
+            dataValue = button.closest('[pode-data-value!=""][pode-data-value]').attr('pode-data-value');
+        }
+
         var data = `Value=${dataValue}`;
 
         if (!dataValue) {
@@ -223,7 +257,7 @@ function bindButtons() {
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(res) {
                 spinner.hide();
-                loadComponents(res, button);
+                invokeActions(res, button);
             },
             error: function(err) {
                 spinner.hide();
@@ -236,14 +270,20 @@ function bindButtons() {
 function bindTableFilters() {
     $("input.pode-table-filter").keyup(function(e) {
         e.preventDefault();
-
-        var input = $(e.target);
-        var tableId = input.attr('for');
-        var value = input.val();
-
-        $(`table#${tableId} tbody tr:not(:icontains('${value}'))`).hide();
-        $(`table#${tableId} tbody tr:icontains('${value}')`).show();
+        filterTable($(e.target));
     });
+}
+
+function filterTable(filter) {
+    if (!filter) {
+        return;
+    }
+
+    var tableId = filter.attr('for');
+    var value = filter.val();
+
+    $(`table#${tableId} tbody tr:not(:icontains('${value}'))`).hide();
+    $(`table#${tableId} tbody tr:icontains('${value}')`).show();
 }
 
 function bindSidebarFilter() {
@@ -285,7 +325,7 @@ function bindTableRefresh() {
         loadTables($(e.target).attr('for'));
     });
 
-    $("table[data-pode-auto-refresh='True']").each((index, item) => {
+    $("table[pode-auto-refresh='True']").each((index, item) => {
         setTimeout(() => {
             loadTables($(item).attr('id'));
             setInterval(() => {
@@ -301,7 +341,7 @@ function bindChartRefresh() {
         loadCharts($(e.target).attr('for'));
     });
 
-    $("canvas[data-pode-auto-refresh='True']").each((index, item) => {
+    $("canvas[pode-auto-refresh='True']").each((index, item) => {
         setTimeout(() => {
             loadCharts($(item).attr('id'));
             setInterval(() => {
@@ -311,13 +351,29 @@ function bindChartRefresh() {
     });
 }
 
-function outputTable(component, sender) {
-    if (component.ID) {
-        updateTable(component);
+function actionTable(action, sender) {
+    switch (action.Operation.toLowerCase()) {
+        case 'output':
+            if (action.ID) {
+                updateTable(action);
+            }
+            else {
+                writeTable(action, sender);
+            }
+            break;
+
+        case 'sync':
+            syncTable(action);
+            break;
     }
-    else {
-        writeTable(component, sender);
+}
+
+function syncTable(action) {
+    if (!action.ID) {
+        return;
     }
+
+    loadTables(action.ID);
 }
 
 function updateTable(component) {
@@ -339,25 +395,49 @@ function updateTable(component) {
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
 
+    // is there a data column?
+    var dataColumn = $(tableId).attr('pode-data-column');
+
+    // headers
     tableHead.empty();
+
     var _value = '<tr>';
     keys.forEach((key) => {
         _value += `<th>${key}</th>`;
     });
     _value += '</tr>';
+
     tableHead.append(_value);
 
+    // body
     tableBody.empty();
+
     component.Data.forEach((item) => {
-        _value = '<tr>';
+        _value = `<tr pode-data-value="${item[dataColumn]}">`;
+
         keys.forEach((key) => {
-            _value += `<td>${item[key]}</td>`;
+            _value += `<td>`;
+
+            if ($.isArray(item[key])) {
+                _value += buildElements(item[key]);
+            }
+            else {
+                _value += item[key];
+            }
+
+            _value += `</td>`;
         });
         _value += '</tr>'
         tableBody.append(_value);
     });
 
+    // binds
+    feather.replace();
     bindTableSort(tableId);
+    bindButtons();
+
+    // filter
+    filterTable($(tableId).closest('div.card-body').find('input.pode-table-filter'));
 }
 
 function writeTable(component, sender) {
@@ -371,7 +451,7 @@ function writeTable(component, sender) {
     var table = $(`table#${tableId}`);
     if (table.length == 0) {
         card.append(`
-            <table id="${tableId}" class="table table-striped table-sm" data-pode-sort="${component.Sort}">
+            <table id="${tableId}" class="table table-striped table-sm" pode-sort="${component.Sort}">
                 <thead></thead>
                 <tbody></tbody>
             </table>
@@ -387,7 +467,7 @@ function getId(element) {
     return $(element).attr('id');
 }
 
-function newToast(component) {
+function actionToast(action) {
     var toastArea = $('div#toast-area');
     if (toastArea.length == 0) {
         return;
@@ -397,16 +477,16 @@ function newToast(component) {
     var toastId = `toast${toastCount + 1}`;
 
     toastArea.append(`
-        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${component.Duration}">
+        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${action.Duration}">
             <div class="toast-header">
-                <span data-feather='${component.Icon.toLowerCase()}'></span>
-                <strong class="mr-auto mLeft05">${component.Title}</strong>
+                <span data-feather='${action.Icon.toLowerCase()}'></span>
+                <strong class="mr-auto mLeft05">${action.Title}</strong>
                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="toast-body">
-                ${component.Message}
+                ${action.Message}
             </div>
         </div>
     `);
@@ -420,27 +500,27 @@ function newToast(component) {
     $(`div#${toastId}`).toast('show');
 }
 
-function outputValidation(component, sender) {
+function actionValidation(action, sender) {
     var input = null;
-    if (component.ID) {
-        input = $(`#${component.ID}`);
+    if (action.ID) {
+        input = $(`#${action.ID}`);
     }
     else {
-        input = sender.find(`[name="${component.Name}"]`);
+        input = sender.find(`[name="${action.Name}"]`);
     }
 
     var validationId = `div#${$(input).attr('id')}_validation`;
-    $(validationId).text(component.Message);
+    $(validationId).text(action.Message);
 
     $(input).addClass('is-invalid');
 }
 
-function outputTextbox(component, sender) {
-    if (component.ID) {
-        updateTextbox(component);
+function actionTextbox(action, sender) {
+    if (action.ID) {
+        updateTextbox(action);
     }
     else {
-        writeTextbox(component, sender);
+        writeTextbox(action, sender);
     }
 }
 
@@ -539,12 +619,12 @@ function downloadCSV(csv, filename) {
     $(downloadLink).remove();
 }
 
-function outputChart(component, sender) {
-    if (component.ID) {
-        updateChart(component);
+function actionChart(action, sender) {
+    if (action.ID) {
+        updateChart(action);
     }
     else {
-        writeChart(component, sender);
+        writeChart(action, sender);
     }
 }
 
@@ -564,12 +644,12 @@ function updateChart(component) {
     }
 
     var canvas = $(`canvas#${component.ID}`)
-    var _append = (canvas.attr('data-pode-append') == 'True');
-    var _timeLabels = (canvas.attr('data-pode-time-labels') == 'True');
+    var _append = (canvas.attr('pode-append') == 'True');
+    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
     if (_append && _charts[component.ID]) {
         var _chart = _charts[component.ID];
-        var _max = canvas.attr('data-pode-max');
+        var _max = canvas.attr('pode-max');
 
         // labels
         component.Data.forEach((item) => {
@@ -615,7 +695,7 @@ function updateChart(component) {
         });
 
         var ctx = document.getElementById(component.ID).getContext('2d');
-        var chartType = ($(`canvas#${component.ID}`).attr('data-pode-chart-type') || component.ChartType);
+        var chartType = ($(`canvas#${component.ID}`).attr('pode-chart-type') || component.ChartType);
 
         var palette = [
             'rgb(255, 159, 64)',
@@ -722,7 +802,7 @@ function writeChart(component, sender) {
     // create canvas
     var canvas = $(`canvas#${chartId}`);
     if (canvas.length == 0) {
-        card.append(`<canvas class="my-4 w-100" id="${chartId}" data-pode-chart-type="${component.ChartType}"></canvas>`);
+        card.append(`<canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${component.ChartType}"></canvas>`);
     }
 
     // update
@@ -732,4 +812,20 @@ function writeChart(component, sender) {
 
 function getTimeString() {
     return (new Date()).toLocaleTimeString().split(':').slice(0,2).join(':');
+}
+
+function getButton(element) {
+    var icon = '';
+    if (element.Icon) {
+        icon = `<span data-feather='${element.Icon.toLowerCase()}' class='mRight02'></span>`
+    }
+
+    if (element.IconOnly) {
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>${icon}</button>`;
+    }
+
+    return `<button type='button' class='btn btn-primary pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>
+        <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+        ${icon}${element.Name}
+    </button>`;
 }

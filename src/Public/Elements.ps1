@@ -50,9 +50,7 @@ function New-PodeWebTextbox
         $ReadOnly
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "txt_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Txt -Id $Id -Name $Name
 
     if ($Height -le 0) {
         $Height = 4
@@ -60,6 +58,7 @@ function New-PodeWebTextbox
 
     return @{
         ElementType = 'Textbox'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
         Type = $Type
@@ -91,12 +90,11 @@ function New-PodeWebFileUpload
         $Id
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "file_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag File -Id $Id -Name $Name
 
     return @{
         ElementType = 'FileUpload'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
     }
@@ -119,12 +117,11 @@ function New-PodeWebParagraph
         $Elements
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "para_$(Get-PodeWebRandomName)"
-    }
+    $Id = Get-PodeWebElementId -Tag Para -Id $Id
 
     return @{
         ElementType = 'Paragraph'
+        Component = $ComponentData
         ID = $Id
         Value = $Value
         Elements = $Elements
@@ -147,12 +144,11 @@ function New-PodeWebCodeBlock
         $Scrollable
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "codeblock_$(Get-PodeWebRandomName)"
-    }
+    $Id = Get-PodeWebElementId -Tag Codeblock -Id $Id
 
     return @{
         ElementType = 'CodeBlock'
+        Component = $ComponentData
         ID = $Id
         Value = $Value
         Scrollable = $Scrollable.IsPresent
@@ -172,12 +168,11 @@ function New-PodeWebCode
         $Value
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "code_$(Get-PodeWebRandomName)"
-    }
+    $Id = Get-PodeWebElementId -Tag Code -Id $Id
 
     return @{
         ElementType = 'Code'
+        Component = $ComponentData
         ID = $Id
         Value = $Value
     }
@@ -213,9 +208,7 @@ function New-PodeWebCheckbox
         $Disabled
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "chkbox_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Chkbox -Id $Id -Name $Name
 
     if (($null -eq $Options) -or ($Options.Length -eq 0)) {
         $Options = @('true')
@@ -223,6 +216,7 @@ function New-PodeWebCheckbox
 
     return @{
         ElementType = 'Checkbox'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
         Options = @($Options)
@@ -256,12 +250,11 @@ function New-PodeWebRadio
         $Disabled
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "radio_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Radio -Id $Id -Name $Name
 
     return @{
         ElementType = 'Radio'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
         Options = @($Options)
@@ -298,12 +291,11 @@ function New-PodeWebSelect
         throw "Select options are required"
     }
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "select_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
 
     return @{
         ElementType = 'Select'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
         Options = @($Options)
@@ -343,9 +335,7 @@ function New-PodeWebRange
         $ShowValue
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "range_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Range -Id $Id -Name $Name
 
     if ($Value -lt $Min) {
         $Value = $Min
@@ -357,6 +347,7 @@ function New-PodeWebRange
 
     return @{
         ElementType = 'Range'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
         Value = $Value
@@ -401,9 +392,7 @@ function New-PodeWebProgress
         $Animated
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "progress_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Progress -Id $Id
 
     if ($Value -lt $Min) {
         $Value = $Min
@@ -420,6 +409,7 @@ function New-PodeWebProgress
 
     return @{
         ElementType = 'Progress'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
         Value = $Value
@@ -462,9 +452,7 @@ function New-PodeWebImage
         $Width = 0
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "img_$(Get-PodeWebRandomName)"
-    }
+    $Id = Get-PodeWebElementId -Tag Img -Id $Id
 
     if ($Height -lt 0) {
         $Height = 0
@@ -476,6 +464,7 @@ function New-PodeWebImage
 
     return @{
         ElementType = 'Image'
+        Component = $ComponentData
         ID = $Id
         Source = $Source
         Alt = $Alt
@@ -507,12 +496,11 @@ function New-PodeWebHeader
         $Secondary
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "header_$(Get-PodeWebRandomName)"
-    }
+    $Id = Get-PodeWebElementId -Tag Header -Id $Id
 
     return @{
         ElementType = 'Header'
+        Component = $ComponentData
         ID = $Id
         Size = $Size
         Value = $Value
@@ -542,12 +530,11 @@ function New-PodeWebQuote
         $Source
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "quote_$(Get-PodeWebRandomName)"
-    }
+    $Id = Get-PodeWebElementId -Tag Quote -Id $Id
 
     return @{
         ElementType = 'Quote'
+        Component = $ComponentData
         ID = $Id
         Location = $Location
         Value = $Value
@@ -571,12 +558,11 @@ function New-PodeWebList
         $Numbered
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "list_$(Get-PodeWebRandomName)"
-    }
+    $Id = Get-PodeWebElementId -Tag List -Id $Id
 
     return @{
         ElementType = 'List'
+        Component = $ComponentData
         ID = $Id
         Items  = $Items
         Numbered = $Numbered.IsPresent
@@ -603,12 +589,11 @@ function New-PodeWebLink
         $NewTab
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "a_$(Get-PodeWebRandomName)"
-    }
+    $Id = Get-PodeWebElementId -Tag A -Id $Id
 
     return @{
         ElementType = 'Link'
+        Component = $ComponentData
         ID = $Id
         Source = $Source
         Value = $Value
@@ -632,6 +617,7 @@ function New-PodeWebText
 
     return @{
         ElementType = 'Text'
+        Component = $ComponentData
         Value = $Value
         Style = $Style
     }
@@ -654,12 +640,11 @@ function New-PodeWebHidden
         $Value
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "hidden_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Hidden -Id $Id -Name $Name
 
     return @{
         ElementType = 'Hidden'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
         Value = $Value
@@ -686,12 +671,11 @@ function New-PodeWebCredential
         $ReadOnly
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "cred_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Cred -Id $Id -Name $Name
 
     return @{
         ElementType = 'Credential'
+        Component = $ComponentData
         Name = $Name
         ID = $Id
         HelpText = $HelpText
@@ -710,6 +694,7 @@ function New-PodeWebRaw
 
     return @{
         ElementType = 'Raw'
+        Component = $ComponentData
         Value = $Value
     }
 }
@@ -741,20 +726,36 @@ function New-PodeWebButton
         [Parameter()]
         [Alias('NoAuth')]
         [switch]
-        $NoAuthentication
+        $NoAuthentication,
+
+        [switch]
+        $IconOnly
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "btn_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
 
     $auth = $null
     if (!$NoAuthentication) {
         $auth = (Get-PodeWebState -Name 'auth')
     }
 
-    Add-PodeRoute -Method Post -Path "/elements/button/$($Id)" -Authentication $auth -ScriptBlock {
+    $element = @{
+        ElementType = 'Button'
+        Component = $ComponentData
+        Name = $Name
+        ID = $Id
+        DataValue = $DataValue
+        Icon = $Icon
+        IconOnly = $IconOnly.IsPresent
+    }
+
+    $routePath = "/elements/button/$($Id)"
+    Remove-PodeRoute -Method Post -Path $routePath
+
+    Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ScriptBlock {
+        $global:ElementData = $using:element
         $global:InputData = $WebEvent.Data
+
         $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
         if ($null -eq $result) {
             $result = @()
@@ -763,12 +764,5 @@ function New-PodeWebButton
         Write-PodeJsonResponse -Value $result
     }
 
-    return @{
-        ElementType = 'Button'
-        Name = $Name
-        ID = $Id
-        DataValue = $DataValue
-        Icon = $Icon
-        ScriptBlock = $ScriptBlock
-    }
+    return $element
 }

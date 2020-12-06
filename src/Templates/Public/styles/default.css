@@ -18,6 +18,20 @@ body#normal-page {
     background-color: #f5f5f5;
 }
 
+.btn-icon-only {
+    color: #f5f5f5;
+}
+
+.btn-icon-only,
+.btn-icon-only:active,
+.btn-icon-only:focus {
+    outline: 0 !important;
+    outline-style: none !important;
+    outline-width: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
 div#pode-social {
     margin-right: auto;
     margin-left: 1em;
@@ -77,7 +91,7 @@ table {
     font-size: .9rem;
 }
 
-table[data-pode-sort='True'] thead th {
+table[pode-sort='True'] thead th {
     cursor: pointer;
 }
 
@@ -91,7 +105,7 @@ table[data-pode-sort='True'] thead th {
 }
 
 #toast-area {
-    position: absolute;
+    position: fixed;
     top: 5em;
     right: 1em;
     z-index: 9999;
