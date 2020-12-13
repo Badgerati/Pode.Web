@@ -110,6 +110,7 @@ Start-PodeServer {
 
     # add a page to search and filter services (output in a new table component) [note: requires auth]
     $modal = New-PodeWebModal -Name 'Edit Service' -Id 'modal_edit_svc' -Form -Elements @(
+        New-PodeWebAlert -Type Info -Value 'This does nothing, it is just an example'
         New-PodeWebCheckbox -Name Running -Id 'chk_svc_running' -AsSwitch
     ) -ScriptBlock {
         $InputData | Out-Default

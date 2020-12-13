@@ -1,18 +1,20 @@
 # Pode.Web
 
-> This is still a work in progress, until v1.0.0 there will be breaking changes in releases.
+> This is still a work in progress, until v1.0.0 expect possible breaking changes in some releases.
 
 This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (version 2.0+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
 
-You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light/ dark theme, and you can fully customise the CSS yourself.
+You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light/dark theme, and you can supply and custom CSS file yourself.
 
 ## Libraries
 
 The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
 At present these are loaded using the jsDelivr CDN.
+
+> Note: where a `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
 
 ## Usage
 
@@ -64,6 +66,63 @@ Start-PodeServer {
 ```
 
 Accessing any page will auto-redirect to a login page. If you want a page to be accessible without authentication - like a simple Home/About Page - supply `-NoAuth` to `Add-PodeWebPage` or `Set-PodeWebHomePage`. If you do this, and that page contains elements that calls backend routes, ensure you supply `-NoAuth` where appropriate or you'll get 401 errors.
+
+### Module to Pages
+
+Like how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: `ConvertTo-PodeWebPage`!
+
+For example, if you wanted to make a web portal for the Pester module:
+
+```powershell
+Import-Module Pode
+Import-Module Pode.Web
+
+Start-PodeServer {
+    # add a simple endpoint
+    Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
+
+    # set the use of templates
+    Use-PodeWebTemplates -Title 'Pester'
+
+    # convert module to pages
+    ConvertTo-PodeWebPage -Module Pester -NoAuthentication -GroupVerbs
+}
+```
+
+or if you want to force authentication:
+
+```powershell
+Import-Module Pode
+Import-Module Pode.Web
+
+Start-PodeServer {
+    # add a simple endpoint
+    Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
+
+    # enable sessions and authentication
+    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+
+    New-PodeAuthScheme -Form | Add-PodeAuth -Name Login -ScriptBlock {
+        param($username, $password)
+
+        # here you'd check a real user storage, this is just for example
+        if ($username -eq 'morty' -and $password -eq 'pickle') {
+            return @{
+                User = @{ ID ='M0R7Y302'; Name = 'Morty'; Type = 'Human' }
+            }
+        }
+
+        return @{ Message = 'Invalid details supplied' }
+    }
+
+    # set the use of templates, and set a login page
+    Use-PodeWebTemplates -Title 'Pester'
+    Set-PodeWebLoginPage -Authentication Login
+
+    # convert module to pages
+    ConvertTo-PodeWebPage -Module Pester -GroupVerbs
+}
+```
 
 ## Components
 
