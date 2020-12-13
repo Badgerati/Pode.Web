@@ -1,22 +1,134 @@
 # Pode.Web
 
-> This is still a work in progress!
+> This is still a work in progress, until v1.0.0 there will be breaking changes in releases.
 
 This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (version 2.0+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
 
+You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light/ dark theme, and you can fully customise the CSS yourself.
+
 ## Libraries
 
 The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
-At present these are loaded using a CDN, though they may get bundled with the module to make it more self-contained.
+At present these are loaded using the jsDelivr CDN.
 
-## Example
+## Usage
 
-> More example can be found in the examples directory
+To use the Pode.Web templates, you first need to call `Use-PodeWebTemplates`; you can supply a Title, Logo, FavIcon, custom Stylesheet, or flag to use DarkMode:
 
-### Basic
+```powershell
+Import-Module Pode
+Import-Module Pode.Web
+
+Start-PodeServer {
+    Use-PodeWebTemplates -Title 'Some Title' -DarkMode
+}
+```
+
+The `-Logo`, `-FavIcon`, and `-Stylesheet` must be URL paths relative to your site's `/public` directory.
+
+### Login
+
+By default, a site will not use authentication. To do so, you need to set sessions/authentication, and then call `Set-PodeWebLoginPage`:
+
+```powershell
+Import-Module Pode
+Import-Module Pode.Web
+
+Start-PodeServer {
+    # add a simple endpoint
+    Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
+
+    # enable sessions and authentication
+    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+
+    New-PodeAuthScheme -Form | Add-PodeAuth -Name Login -ScriptBlock {
+        param($username, $password)
+
+        # here you'd check a real user storage, this is just for example
+        if ($username -eq 'morty' -and $password -eq 'pickle') {
+            return @{
+                User = @{ ID ='M0R7Y302'; Name = 'Morty'; Type = 'Human' }
+            }
+        }
+
+        return @{ Message = 'Invalid details supplied' }
+    }
+
+    # set the use of templates, and set a login page
+    Use-PodeWebTemplates -Title 'Login Example'
+    Set-PodeWebLoginPage -Authentication Login
+}
+```
+
+Accessing any page will auto-redirect to a login page. If you want a page to be accessible without authentication - like a simple Home/About Page - supply `-NoAuth` to `Add-PodeWebPage` or `Set-PodeWebHomePage`. If you do this, and that page contains elements that calls backend routes, ensure you supply `-NoAuth` where appropriate or you'll get 401 errors.
+
+## Components
+
+Components are the base elements that can contain and render other elements:
+
+* Tables
+* Forms
+* Sections
+* Charts / CounterCharts
+* Modals
+
+## Layouts
+
+Custom layouts contain components:
+
+* Grids
+* Tabs
+
+## Elements
+
+These are the building elements that can be used in components:
+
+* Textbox
+* File Upload
+* Paragraph
+* Code Block
+* Code
+* Checkbox
+* Radio
+* Select
+* Range
+* Progress Bar
+* Image
+* Header
+* Quote
+* List
+* Link
+* Text
+* Hidden
+* Credentials
+* Raw
+* Button
+* Alert
+* Icon
+* Badge
+
+## Outputs
+
+Outputs allow you to manipulate the frontend from action ScriptBlocks - such as submiting a form which renders a Toast, and outputs to a Table:
+
+* Tables (out/sync)
+* Charts (out)
+* Textbox (out)
+* Toast (show)
+* Validation (out)
+* Form (reset)
+* Text (out)
+* Checkbox (out)
+* Modal (show/hide)
+
+## Examples
+
+> More examples can be found in the examples directory (the full.ps1 has example of nearly everything)
+
+### Home Page
 
 This is a simple example with a basic home page, and a page to query processes:
 
@@ -36,6 +148,7 @@ Start-PodeServer {
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
+
     Set-PodeWebHomePage -Components $section -Title 'Awesome Homepage'
 
     # add a page to search process (output as json in an appended textbox)

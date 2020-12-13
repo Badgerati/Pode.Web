@@ -129,6 +129,10 @@
                     </div>
 
                     $(foreach ($component in $data.Components) {
+                        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
+                            continue
+                        }
+
                         Use-PodeWebPartialView -Path "components/$($component.ComponentType.ToLowerInvariant())" -Data @{
                             Name = $data.Page.Name
                             Meta = $component

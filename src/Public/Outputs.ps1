@@ -33,6 +33,22 @@ function Out-PodeWebTable
     }
 }
 
+function Sync-PodeWebTable
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Sync'
+        ElementType = 'Table'
+        ID = $Id
+    }
+}
+
 function Out-PodeWebChart
 {
     [CmdletBinding(DefaultParameterSetName='New')]

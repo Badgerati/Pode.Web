@@ -163,7 +163,12 @@ function invokeActions(actions, sender) {
     }
 
     actions.forEach((action) => {
-        switch (action.ElementType.toLowerCase()) {
+        var _type = action.ElementType;
+        if (_type) {
+            _type = _type.toLowerCase();
+        }
+
+        switch (_type) {
             case 'table':
                 actionTable(action, sender);
                 break;
@@ -218,7 +223,12 @@ function buildElements(elements) {
     }
 
     elements.forEach((ele) => {
-        switch (ele.ElementType.toLowerCase()) {
+        var _type = ele.ElementType;
+        if (_type) {
+            _type = _type.toLowerCase();
+        }
+
+        switch (_type) {
             case 'button':
                 html += getButton(ele);
                 break;
