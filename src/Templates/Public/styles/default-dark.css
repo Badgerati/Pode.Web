@@ -1,14 +1,48 @@
 nav#sidebarMenu {
-    background-color: #343a40 !important;
+    background-color: #121d2f !important;
+    border-color: #214981 !important;
+    border-right-style: solid;
+    border-right-width: 1px
 }
 
 .sidebar .nav-link {
     color: #ccc !important;
 }
 
-body, main[role="main"] {
-    background-color: #444a50 !important;
+.welcome-msg {
     color: #ccc !important;
+}
+
+body, main[role="main"] {
+    background-color: #161b22 !important;
+    color: #aaa !important;
+}
+
+.modal-content {
+    border-color: #214981 !important;
+    border-width: 2px !important;
+}
+
+.modal-header {
+    background-color: #121d2f !important;
+    border-bottom: 2px solid #214981 !important;
+    color: #aaa !important;
+}
+
+.modal-header button.close {
+    color: #ccc !important;
+    text-shadow: none;
+}
+
+.modal-body {
+    background-color: #142440 !important;
+    color: #aaa !important;
+}
+
+.modal-footer {
+    background-color: #121d2f !important;
+    border-top: 2px solid #214981 !important;
+    color: #aaa !important;
 }
 
 .btn-icon-only {
@@ -21,7 +55,11 @@ body, main[role="main"] {
 
 nav.navbar {
     box-shadow: 0 .5rem 2rem rgba(100, 100, 100, 0.15) !important;
-    border-bottom: #ccc 1px solid;
+    border-bottom: #214981 1px solid;
+}
+
+nav.navbar-dark {
+    background-color: #142440 !important;
 }
 
 a.navbar-brand {
@@ -29,12 +67,18 @@ a.navbar-brand {
 }
 
 .card {
-    background-color: #343a40 !important;
+    background-color: #142440 !important;
+    border-color: #214981 !important;
     color: #ccc !important;
 }
 
 .card .card-header {
-    background-color: rgba(0, 0, 0, .25);
+    background-color: #121d2f !important;
+    border-bottom-color: #214981 !important;
+}
+
+.card .card-body {
+    background-color: #142440 !important;
 }
 
 cite {
@@ -50,12 +94,31 @@ a:hover {
 }
 
 .btn-outline-secondary {
-    border-color: #aaa;
-    color: #aaa;
+    border-color: #214981;
+    border-width: 2px;
+    background-color: #090d13 !important;
+    color: #bbb;
+}
+
+.btn-outline-secondary:hover {
+    border-color: dodgerblue;
+    color: dodgerblue
+}
+
+.btn-secondary.pode-btn-solid {
+    border-width: 2px;
+    background-color: #090d13 !important;
+    border-color: dodgerblue;
+    color: dodgerblue
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #214981 !important;
 }
 
 .nav-tabs .nav-link.active {
-    background-color: #444 !important;
+    background-color: #142440 !important;
+    border-color: #214981 !important;
     color: #ccc !important
 }
 
@@ -64,6 +127,64 @@ a:hover {
 }
 
 .nav-tabs .nav-link:hover {
-    background-color: #555 !important;
+    background-color: #142440 !important;
+    border-color: #214981 !important;
     color: #ccc !important
+}
+
+input, textarea, select, .progress {
+    background-color: #090d13 !important;
+    border-color: #214981 !important;
+    color: #999 !important;
+}
+
+pre code {
+    background-color: #090d13 !important;
+    border-color: #214981 !important;
+    color: #ccc !important;
+}
+
+.input-group-prepend .input-group-text {
+    background-color: #121d2f !important;
+    border-color: #214981 !important;
+    color: #999 !important
+}
+
+#pode-page-title {
+    border-color: #214981 !important;
+}
+
+.table-dark {
+    color: #ccc !important;
+}
+
+.table-dark thead th {
+    background-color: #090d13 !important;
+    color: #ccc !important;
+}
+
+.table-dark.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #142440 !important;
+}
+
+.table-dark.table-striped tbody tr:nth-of-type(even) {
+    background-color: #121d2f !important;
+}
+
+.table-dark td, .table-dark th, .table-dark thead th {
+    border-color: #214981 !important;
+}
+
+.table-dark.table-striped tbody tr:hover {
+    background-color: #090d13 !important;
+}
+
+.nav-item.nav-page-item a.nav-link.active {
+    color: dodgerblue !important;
+}
+
+.ui-autocomplete {
+    border-color: #214981 !important;
+    background-color: #121d2f !important;
+    color: #999 !important;
 }

@@ -1,5 +1,5 @@
 <html>
-    $(Use-PodeWebPartialView -Path 'shared/head' -Data @{ Title = 'Home' })
+    $(Use-PodeWebPartialView -Path 'shared/head' -Data @{ Title = $data.Page.Name })
 
     $(
         $darkMode = [string]::Empty
@@ -118,7 +118,14 @@
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                     <div id="pode-page-title" class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">$($data.Page.Name)</h1>
+                        <h1 class="h2">
+                            $(
+                                if ($data.Page.ShowBack) {
+                                    "<a href='/pages/$($data.Page.Name)'><span data-feather='arrow-left'></span></a>"
+                                }
+                            )
+                            $($data.Page.Name)
+                        </h1>
                     </div>
 
                     $(foreach ($component in $data.Components) {

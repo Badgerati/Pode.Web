@@ -1,0 +1,17 @@
+<div id="$($data.ID)" class="alert alert-$($data.ClassType)" role="alert">
+    <h6 class='pode-alert-header'>
+        <span data-feather="$($data.IconType)"></span>
+        <strong>$($data.Type)</strong>
+    </h6>
+
+    <div class='pode-alert-body'>
+        $(
+            if (![string]::IsNullOrWhiteSpace($data.Value)) {
+                [System.Net.WebUtility]::HtmlEncode($data.Value)
+            }
+            else {
+                Use-PodeWebPartialView -Path 'elements/_load' -Data @{ Elements = $data.Elements }
+            }
+        )
+    </div>
+</div>

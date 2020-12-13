@@ -48,7 +48,7 @@ function New-PodeWebTab
     return @{
         ComponentType = 'Tab'
         Name = $Name
-        ID = ("tab_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_')
+        ID = ("tab_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_')
         Components = $Components
     }
 }

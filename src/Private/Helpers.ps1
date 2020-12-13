@@ -72,6 +72,17 @@ function Get-PodeWebRandomName
     return [String]::Concat($value)
 }
 
+function Protect-PodeWebName
+{
+    param(
+        [Parameter()]
+        [string]
+        $Name
+    )
+
+    return ($Name -ireplace '[^a-z0-9 ]', '').Trim()
+}
+
 function Test-PodeWebPage
 {
     param(
@@ -118,4 +129,129 @@ function Get-PodeWebElementId
     }
 
     return ($_id -replace '\s+', '_').ToLowerInvariant()
+}
+
+function Convert-PodeWebAlertTypeToClass
+{
+    param(
+        [Parameter()]
+        [string]
+        $Type
+    )
+
+    switch ($Type.ToLowerInvariant()) {
+        'error' {
+            return 'danger'
+        }
+
+        'warning' {
+            return 'warning'
+        }
+
+        'tip' {
+            return 'success'
+        }
+
+        'note' {
+            return 'secondary'
+        }
+
+        'info' {
+            return 'info'
+        }
+
+        'important' {
+            return 'primary'
+        }
+
+        default {
+            return 'primary'
+        }
+    }
+}
+
+function Convert-PodeWebAlertTypeToIcon
+{
+    param(
+        [Parameter()]
+        [string]
+        $Type
+    )
+
+    switch ($Type.ToLowerInvariant()) {
+        'error' {
+            return 'alert-circle'
+        }
+
+        'warning' {
+            return 'alert-triangle'
+        }
+
+        'tip' {
+            return 'thumbs-up'
+        }
+
+        'note' {
+            return 'book-open'
+        }
+
+        'info' {
+            return 'info'
+        }
+
+        'important' {
+            return 'paperclip'
+        }
+
+        default {
+            return 'paperclip'
+        }
+    }
+}
+
+function Convert-PodeWebColourToClass
+{
+    param(
+        [Parameter()]
+        [string]
+        $Colour
+    )
+
+    switch ($Colour.ToLowerInvariant()) {
+        'blue' {
+            return 'primary'
+        }
+
+        'green' {
+            return 'success'
+        }
+
+        'grey' {
+            return 'secondary'
+        }
+
+        'red' {
+            return 'danger'
+        }
+
+        'yellow' {
+            return 'warning'
+        }
+
+        'cyan' {
+            return 'info'
+        }
+
+        'light' {
+            return 'light'
+        }
+
+        'dark' {
+            return 'dark'
+        }
+
+        default {
+            return 'primary'
+        }
+    }
 }

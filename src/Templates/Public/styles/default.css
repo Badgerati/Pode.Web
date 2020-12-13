@@ -22,6 +22,29 @@ body#normal-page {
     color: #f5f5f5;
 }
 
+.ui-autocomplete {
+    border-color: #bbb;
+    background-color: #f0f0f0;
+    border-width: 2px;
+    margin-top: -1px;
+    border-radius: 5px;
+    color: #333;
+}
+
+table .btn-icon-only {
+    color: #777;
+}
+
+pre code {
+    background-color: #f0f0f0;
+    border-color: #bbb;
+    border-radius: 1em;
+    border-width: 1px;
+    border-style: solid;
+    display: block;
+    padding: 0.5em;
+}
+
 .btn-icon-only,
 .btn-icon-only:active,
 .btn-icon-only:focus {
@@ -74,7 +97,7 @@ input[type="number"].pode-range-value {
 }
 
 .sidebar-sticky {
-    margin-bottom: -4em !important;
+    margin-bottom: -8.5em !important;
     height: calc(100vh - 7em) !important;
 }
 
@@ -92,6 +115,10 @@ table {
 }
 
 table[pode-sort='True'] thead th {
+    cursor: pointer;
+}
+
+table.pode-table-click tbody tr {
     cursor: pointer;
 }
 
@@ -209,6 +236,10 @@ table[pode-sort='True'] thead th {
     color: #777;
 }
 
+.pode-form-checkbox .col-form-label {
+    margin-top: -5px;
+}
+
 /* Fallback for Edge
 -------------------------------------------------- */
 @supports (-ms-ime-align: auto) {
@@ -233,6 +264,18 @@ table[pode-sort='True'] thead th {
     height: 16px;
     vertical-align: middle;
     margin-top: -1px;
+}
+
+h2 .feather, .h2 .feather {
+    width: 25px;
+    height: 25px;
+    margin-top: -5px;
+}
+
+h6 .feather, .h6 .feather {
+    width: 18px;
+    height: 18px;
+    margin-top: -2px;
 }
 
 /*
@@ -286,6 +329,20 @@ table[pode-sort='True'] thead th {
 .sidebar-heading {
     font-size: .75rem;
     text-transform: uppercase;
+}
+
+.nav-item.nav-page-item a.nav-link:hover {
+    width: fit-content !important;
+    background-color: rgba(29, 161, 242, 0.1) !important;
+    padding-right: 2em !important;
+    border-top-right-radius: 5em !important;
+    border-bottom-right-radius: 5em !important;
+}
+
+.nav-item.nav-group-title a.nav-link:hover {
+    background-color: rgba(29, 161, 242, 0.1) !important;
+    border-top-right-radius: 5em !important;
+    border-bottom-right-radius: 5em !important;
 }
 
 /*

@@ -16,7 +16,7 @@ $(
 
     $progress = "<div class='progress'>
             <div
-                class='progress-bar $($showValue) $($striped) $($animated)'
+                class='progress-bar bg-$($data.ColourType) $($showValue) $($striped) $($animated)'
                 id='$($data.ID)'
                 role='progressbar'
                 style='width: $($data.Percentage)%;'

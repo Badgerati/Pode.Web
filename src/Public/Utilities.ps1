@@ -14,6 +14,10 @@ function Use-PodeWebTemplates
         [string]
         $FavIcon,
 
+        [Parameter()]
+        [string]
+        $Stylesheet,
+
         [switch]
         $DarkMode
     )
@@ -30,6 +34,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'title' -Value $Title
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
+    Set-PodeWebState -Name 'stylesheet' -Value $Stylesheet
     Set-PodeWebState -Name 'darkmode' -Value $DarkMode.IsPresent
     Set-PodeWebState -Name 'pages' -Value @()
 

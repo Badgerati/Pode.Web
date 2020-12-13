@@ -4,7 +4,7 @@ $(if ($data.Scrollable) {
 else {
     "<pre id='$($data.ID)'>"
 })
-    <code>
+    <code class="$($data.Language)">
         $([System.Net.WebUtility]::HtmlEncode($data.Value))
     </code>
 </pre>

@@ -39,6 +39,10 @@ function New-PodeWebTextbox
         [string]
         $Value,
 
+        [Parameter(ParameterSetName='Single')]
+        [scriptblock]
+        $AutoComplete,
+
         [Parameter(ParameterSetName='Multi')]
         [switch]
         $Multiline,
@@ -47,7 +51,12 @@ function New-PodeWebTextbox
         $Preformat,
 
         [switch]
-        $ReadOnly
+        $ReadOnly,
+
+        [Parameter(ParameterSetName='Single')]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
     )
 
     $Id = Get-PodeWebElementId -Tag Txt -Id $Id -Name $Name
@@ -56,7 +65,12 @@ function New-PodeWebTextbox
         $Height = 4
     }
 
-    return @{
+    $auth = $null
+    if (!$NoAuthentication) {
+        $auth = (Get-PodeWebState -Name 'auth')
+    }
+
+    $element = @{
         ElementType = 'Textbox'
         Component = $ComponentData
         Name = $Name
@@ -68,6 +82,7 @@ function New-PodeWebTextbox
         Preformat = $Preformat.IsPresent
         HelpText = $HelpText
         ReadOnly = $ReadOnly.IsPresent
+        IsAutoComplete = ($null -ne $AutoComplete)
         Value = $Value
         Prepend = @{
             Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
@@ -75,6 +90,22 @@ function New-PodeWebTextbox
             Icon = $PrependIcon
         }
     }
+
+    if ($null -ne $AutoComplete) {
+        Add-PodeRoute -Method Post -Path "/elements/autocomplete/$($Id)" -Authentication $auth -ScriptBlock {
+            $global:ElementData = $using:element
+            $global:InputData = $WebEvent.Data
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:AutoComplete -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value @{ Values = $result }
+        }
+    }
+
+    return $element
 }
 
 function New-PodeWebFileUpload
@@ -140,17 +171,31 @@ function New-PodeWebCodeBlock
         [string]
         $Value,
 
+        [Parameter()]
+        [string]
+        $Language = [string]::Empty,
+
         [switch]
-        $Scrollable
+        $Scrollable,
+
+        [switch]
+        $NoHighlight
     )
 
+    # id
     $Id = Get-PodeWebElementId -Tag Codeblock -Id $Id
+
+    # language
+    if ($NoHighlight) {
+        $Language = 'plaintext'
+    }
 
     return @{
         ElementType = 'CodeBlock'
         Component = $ComponentData
         ID = $Id
         Value = $Value
+        Language = $Language.ToLowerInvariant()
         Scrollable = $Scrollable.IsPresent
     }
 }
@@ -382,6 +427,11 @@ function New-PodeWebProgress
         [int]
         $Max = 100,
 
+        [Parameter()]
+        [ValidateSet('Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = 'Blue',
+
         [switch]
         $ShowValue,
 
@@ -393,6 +443,7 @@ function New-PodeWebProgress
     )
 
     $Id = Get-PodeWebElementId -Tag Progress -Id $Id
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     if ($Value -lt $Min) {
         $Value = $Min
@@ -419,6 +470,8 @@ function New-PodeWebProgress
         ShowValue = $ShowValue.IsPresent
         Striped = ($Striped.IsPresent -or $Animated.IsPresent)
         Animated = $Animated.IsPresent
+        Colour = $Colour
+        ColourType = $ColourType
     }
 }
 
@@ -605,7 +658,11 @@ function New-PodeWebText
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
         [string]
         $Value,
 
@@ -618,6 +675,7 @@ function New-PodeWebText
     return @{
         ElementType = 'Text'
         Component = $ComponentData
+        ID = $Id
         Value = $Value
         Style = $Style
     }
@@ -724,6 +782,11 @@ function New-PodeWebButton
         $ScriptBlock,
 
         [Parameter()]
+        [ValidateSet('Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = 'Blue',
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -733,6 +796,7 @@ function New-PodeWebButton
     )
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     $auth = $null
     if (!$NoAuthentication) {
@@ -747,6 +811,8 @@ function New-PodeWebButton
         DataValue = $DataValue
         Icon = $Icon
         IconOnly = $IconOnly.IsPresent
+        Colour = $Colour
+        ColourType = $ColourType
     }
 
     $routePath = "/elements/button/$($Id)"
@@ -765,4 +831,89 @@ function New-PodeWebButton
     }
 
     return $element
+}
+
+function New-PodeWebAlert
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [ValidateSet('Note', 'Tip', 'Important', 'Info', 'Warning', 'Error')]
+        [string]
+        $Type = 'Note',
+
+        [Parameter(Mandatory=$true, ParameterSetName='Value')]
+        [string]
+        $Value,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Elements')]
+        [hashtable[]]
+        $Elements
+    )
+
+    $Id = Get-PodeWebElementId -Tag Alert -Id $Id
+    $classType = Convert-PodeWebAlertTypeToClass -Type $Type
+    $iconType = Convert-PodeWebAlertTypeToIcon -Type $Type
+
+    return @{
+        ElementType = 'Alert'
+        Component = $ComponentData
+        ID = $Id
+        Type = $Type
+        ClassType = $classType
+        IconType = $iconType
+        Value = $Value
+        Elements = $Elements
+    }
+}
+
+function New-PodeWebIcon
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name
+    )
+
+    return @{
+        ElementType = 'Icon'
+        Component = $ComponentData
+        Name = $Name
+    }
+}
+
+function New-PodeWebBadge
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [ValidateSet('Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = 'Blue',
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value
+    )
+
+    $Id = Get-PodeWebElementId -Tag Alert -Id $Id
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
+
+    return @{
+        ElementType = 'Badge'
+        Component = $ComponentData
+        ID = $Id
+        Colour = $Colour
+        ColourType = $ColourType
+        Value = $Value
+    }
 }

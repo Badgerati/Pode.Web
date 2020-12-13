@@ -8,7 +8,7 @@ It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaS
 
 ## Libraries
 
-The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), and [Chart.js](https://www.chartjs.org).
+The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
 At present these are loaded using a CDN, though they may get bundled with the module to make it more self-contained.
 

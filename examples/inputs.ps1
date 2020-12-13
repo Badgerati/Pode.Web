@@ -19,7 +19,9 @@ Start-PodeServer {
             Role = $InputData.Role
         } | Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Elements @(
-        New-PodeWebTextbox -Name 'Name'
+        New-PodeWebTextbox -Name 'Name' -AutoComplete {
+            return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
+        }
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')

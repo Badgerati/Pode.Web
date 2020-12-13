@@ -7,10 +7,18 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
 (function () {
     feather.replace();
 })();
+(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+})();
+(function () {
+    hljs.initHighlightingOnLoad();
+})();
 
 $(document).ready(() => {
     loadTables();
     loadCharts();
+    loadAutoCompletes();
+
     bindSidebarFilter();
     bindFormSubmits();
     bindButtons();
@@ -20,6 +28,7 @@ $(document).ready(() => {
     bindChartRefresh();
     bindRangeValue();
     bindProgressValue();
+    bindModalSubmits();
     bindCollapse();
 });
 
@@ -112,6 +121,18 @@ function loadTables(tableId) {
     });
 }
 
+function loadAutoCompletes() {
+    $(`input[pode-autocomplete='True']`).each((i, e) => {
+        $.ajax({
+            url: `/elements/autocomplete/${$(e).attr('id')}`,
+            method: 'post',
+            success: function(res) {
+                $(e).autocomplete({ source: res.Values });
+            }
+        });
+    });
+}
+
 function loadCharts(chartId) {
     if (chartId && !chartId.startsWith('#')) {
         chartId = `#${chartId}`;
@@ -163,6 +184,22 @@ function invokeActions(actions, sender) {
                 actionValidation(action, sender);
                 break;
 
+            case 'form':
+                actionForm(action);
+                break;
+
+            case 'text':
+                actionText(action);
+                break;
+
+            case 'checkbox':
+                actionCheckbox(action);
+                break;
+
+            case 'modal':
+                actionModal(action, sender);
+                break;
+
             default:
                 break;
         }
@@ -203,7 +240,9 @@ function bindFormSubmits() {
         var spinner = form.find('button span.spinner-border');
 
         form.find('.is-invalid').removeClass('is-invalid');
-        spinner.show();
+        if (spinner) {
+            spinner.show();
+        }
 
         $.ajax({
             url: form.attr('method'),
@@ -211,20 +250,107 @@ function bindFormSubmits() {
             data: form.serialize(),
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(res) {
-                spinner.hide();
+                if (spinner) {
+                    spinner.hide();
+                }
                 invokeActions(res, form);
             },
             error: function(err) {
-                spinner.hide();
+                if (spinner) {
+                    spinner.hide();
+                }
                 console.log(err);
             }
         });
     });
 }
 
+function bindModalSubmits() {
+    $("div.modal-footer button.pode-modal-submit").click(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // get the button
+        var button = $(e.target);
+        if (button.prop('nodeName').toLowerCase() != 'button') {
+            button = button.closest('button');
+        }
+
+        // get url
+        var url = button.attr('pode-url');
+        if (!url) {
+            return;
+        }
+
+        // get the modal
+        var modal = button.closest('div.modal');
+        if (!modal) {
+            return;
+        }
+
+        // find a form
+        var formData = '';
+        var form = null;
+
+        if (button.attr('pode-modal-form') == 'True') {
+            form = modal.find('div.modal-body form');
+            formData = form.serialize();
+            form.find('.is-invalid').removeClass('is-invalid');
+        }
+
+        // get a data value
+        var dataValue = getDataValue(button);
+
+        // build data
+        if (dataValue) {
+            if (formData) {
+                formData += '&';
+            }
+
+            formData += `Value=${dataValue}`;
+        }
+
+        // show spinner
+        var spinner = button.find('span.spinner-border');
+        if (spinner) {
+            spinner.show();
+        }
+
+        // invoke url
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: formData,
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(res) {
+                if (spinner) {
+                    spinner.hide();
+                }
+                invokeActions(res, (form ?? button));
+            },
+            error: function(err) {
+                if (spinner) {
+                    spinner.hide();
+                }
+                console.log(err);
+            }
+        });
+    });
+}
+
+function getDataValue(element) {
+    var dataValue = element.attr('pode-data-value');
+    if (!dataValue) {
+        dataValue = element.closest('[pode-data-value!=""][pode-data-value]').attr('pode-data-value');
+    }
+
+    return dataValue;
+}
+
 function bindButtons() {
     $("button.pode-button").click(function(e) {
         e.preventDefault();
+        e.stopPropagation();
 
         var button = $(e.target);
         if (button.prop('nodeName').toLowerCase() != 'button') {
@@ -232,11 +358,7 @@ function bindButtons() {
         }
 
         // default data value
-        var dataValue = button.attr('pode-data-value');
-        if (!dataValue) {
-            dataValue = button.closest('[pode-data-value!=""][pode-data-value]').attr('pode-data-value');
-        }
-
+        var dataValue = getDataValue(button);
         var data = `Value=${dataValue}`;
 
         if (!dataValue) {
@@ -248,7 +370,9 @@ function bindButtons() {
         }
 
         var spinner = button.find('span.spinner-border');
-        spinner.show();
+        if (spinner) {
+            spinner.show();
+        }
 
         $.ajax({
             url: `/elements/button/${button.attr('id')}`,
@@ -256,11 +380,15 @@ function bindButtons() {
             data: data,
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(res) {
-                spinner.hide();
+                if (spinner) {
+                    spinner.hide();
+                }
                 invokeActions(res, button);
             },
             error: function(err) {
-                spinner.hide();
+                if (spinner) {
+                    spinner.hide();
+                }
                 console.log(err);
             }
         });
@@ -433,11 +561,18 @@ function updateTable(component) {
 
     // binds
     feather.replace();
+    $('[data-toggle="tooltip"]').tooltip();
     bindTableSort(tableId);
     bindButtons();
 
     // filter
     filterTable($(tableId).closest('div.card-body').find('input.pode-table-filter'));
+
+    // clickable rows
+    $(`${tableId}.pode-table-click tbody tr`).click(function() {
+        var dataValue = $(this).attr('pode-data-value');
+        window.location = `${window.location.href}?value=${dataValue}`;
+    });
 }
 
 function writeTable(component, sender) {
@@ -465,6 +600,75 @@ function writeTable(component, sender) {
 
 function getId(element) {
     return $(element).attr('id');
+}
+
+function actionForm(action) {
+    var form = $(action.ID);
+    if (!form) {
+        return;
+    }
+
+    form[0].reset();
+}
+
+function actionModal(action, sender) {
+    switch (action.Operation.toLowerCase()) {
+        case 'hide':
+            hideModal(action, sender);
+            break;
+
+        case 'show':
+            showModal(action);
+            break;
+    }
+}
+
+function showModal(action) {
+    var modal = $(`div#${action.ID}.modal`);
+    if (!modal) {
+        return;
+    }
+
+    if (action.DataValue) {
+        modal.attr('pode-data-value', action.DataValue);
+    }
+
+    invokeActions(action.Actions);
+    modal.modal('show');
+}
+
+function hideModal(action, sender) {
+    var modal = null;
+    if (action.ID) {
+        modal = $(`div#${action.ID}.modal`);
+    }
+    else {
+        modal = sender.closest('div.modal');
+    }
+
+    if (!modal) {
+        return;
+    }
+
+    modal.modal('hide');
+}
+
+function actionText(action) {
+    var text = $(`span#${action.ID}.pode-text`);
+    if (!text) {
+        return;
+    }
+
+    text.text(action.Value);
+}
+
+function actionCheckbox(action) {
+    var checkbox = $(`#${action.ID}_option0`);
+    if (!checkbox) {
+        return;
+    }
+
+    checkbox.attr('checked', action.Checked);
 }
 
 function actionToast(action) {
@@ -509,6 +713,10 @@ function actionValidation(action, sender) {
         input = sender.find(`[name="${action.Name}"]`);
     }
 
+    if (!input) {
+        return;
+    }
+
     var validationId = `div#${$(input).attr('id')}_validation`;
     $(validationId).text(action.Message);
 
@@ -550,16 +758,22 @@ function writeTextbox(component, sender) {
     var element = null;
     var txt = null;
 
+    // default attrs
+    var readOnly = '';
+    if (component.ReadOnly) {
+        readOnly ='readonly';
+    }
+
     if (component.Multiline) {
         txt = $(`textarea#${txtId}`);
         if (txt.length == 0) {
-            element = `<pre><textarea class='form-control' id='${txtId}' rows='${component.Height}'></textarea></pre>`;
+            element = `<pre><textarea class='form-control' id='${txtId}' rows='${component.Height}' ${readOnly}></textarea></pre>`;
         }
     }
     else {
         txt = $(`input#${txtId}`);
         if (txt.length == 0) {
-            element = `<input type='text' class='form-control' id='${txtId}'>`;
+            element = `<input type='text' class='form-control' id='${txtId}' ${readOnly}>`;
         }
     }
 
@@ -714,8 +928,8 @@ function updateChart(component) {
         var axesOpts = [];
         var axesDarkOpts = [{
             gridLines: {
-                color: '#ccc',
-                zeroLineColor: '#ccc'
+                color: '#214981',
+                zeroLineColor: '#214981'
             },
             ticks: { fontColor: '#ccc' }
         }];
@@ -743,7 +957,7 @@ function updateChart(component) {
                 }
 
                 if (isDark) {
-                    dataset.borderColor = '#444';
+                    dataset.borderColor = '#214981';
                 }
                 break;
 
@@ -821,7 +1035,7 @@ function getButton(element) {
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip'>${icon}</button>`;
     }
 
     return `<button type='button' class='btn btn-primary pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>

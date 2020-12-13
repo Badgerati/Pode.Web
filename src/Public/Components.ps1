@@ -29,6 +29,9 @@ function New-PodeWebTable
         $Sort,
 
         [switch]
+        $Click,
+
+        [switch]
         $NoExport,
 
         [Parameter()]
@@ -44,7 +47,7 @@ function New-PodeWebTable
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "table_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+        $Id = "table_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     $component = @{
@@ -55,6 +58,7 @@ function New-PodeWebTable
         Message = $Message
         Filter = $Filter.IsPresent
         Sort = $Sort.IsPresent
+        Click = $Click.IsPresent
         IsDynamic = ($null -ne $ScriptBlock)
         NoExport = $NoExport.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
@@ -123,7 +127,7 @@ function New-PodeWebForm
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "form_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+        $Id = "form_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     $auth = $null
@@ -176,7 +180,7 @@ function New-PodeWebSection
     }
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "section_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+        $Id = "section_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     return @{
@@ -204,7 +208,7 @@ function New-PodeWebChart
         [string]
         $Message,
 
-        [Parameter()]
+        [Parameter(Mandatory=$true)]
         [scriptblock]
         $ScriptBlock,
 
@@ -216,6 +220,10 @@ function New-PodeWebChart
         [Parameter()]
         [int]
         $MaxItems = 0,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
 
         [Parameter()]
         [Alias('NoAuth')]
@@ -236,31 +244,31 @@ function New-PodeWebChart
     )
 
     if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "chart_$($Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+        $Id = "chart_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
     }
 
     if ($MaxItems -lt 0) {
         $MaxItems = 0
     }
 
-    if ($null -ne $ScriptBlock) {
-        $auth = $null
-        if (!$NoAuthentication) {
-            $auth = (Get-PodeWebState -Name 'auth')
+    $auth = $null
+    if (!$NoAuthentication) {
+        $auth = (Get-PodeWebState -Name 'auth')
+    }
+
+    Add-PodeRoute -Method Post -Path "/components/chart/$($Id)" -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+        param($Data)
+
+        $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+        if ($null -eq $result) {
+            $result = @()
         }
 
-        Add-PodeRoute -Method Post -Path "/components/chart/$($Id)" -Authentication $auth -ScriptBlock {
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
-
-            if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
-                $result = ($result | Out-PodeWebChart -Id $using:Id)
-            }
-
-            Write-PodeJsonResponse -Value $result
+        if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
+            $result = ($result | Out-PodeWebChart -Id $using:Id)
         }
+
+        Write-PodeJsonResponse -Value $result
     }
 
     return @{
@@ -276,4 +284,115 @@ function New-PodeWebChart
         AutoRefresh = $AutoRefresh.IsPresent
         NoHeader = $NoHeader.IsPresent
     }
+}
+
+function New-PodeWebModal
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [hashtable[]]
+        $Elements,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $SubmitText = 'Submit',
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $CloseText = 'Close',
+
+        [Parameter()]
+        [scriptblock]
+        $ScriptBlock,
+
+        [switch]
+        $Form,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $Id = "modal_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
+    }
+
+    $auth = $null
+    if (!$NoAuthentication) {
+        $auth = (Get-PodeWebState -Name 'auth')
+    }
+
+    if ($null -ne $ScriptBlock) {
+        Add-PodeRoute -Method Post -Path "/components/modal/$($Id)" -Authentication $auth -ScriptBlock {
+            $global:InputData = $WebEvent.Data
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value $result
+        }
+    }
+
+    return @{
+        ComponentType = 'Modal'
+        Name = $Name
+        ID = $Id
+        Elements = $Elements
+        CloseText = $CloseText
+        SubmitText = $SubmitText
+        Form = $Form.IsPresent
+        ShowSubmit = ($null -ne $ScriptBlock)
+    }
+}
+
+function New-PodeWebCounterChart
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Counter,
+
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Name)) {
+        $Name = Split-Path -Path $Counter -Leaf
+    }
+
+    New-PodeWebChart `
+        -Name $Name `
+        -Type Line `
+        -MaxItems 30 `
+        -ArgumentList $Counter `
+        -Append `
+        -TimeLabels `
+        -AutoRefresh `
+        -NoAuthentication:$NoAuthentication `
+        -ScriptBlock {
+            param($counter)
+            @{
+                Value = ((Get-Counter -Counter $counter -SampleInterval 1 -MaxSamples 3).CounterSamples.CookedValue | Measure-Object -Average).Average
+            }
+        }
 }

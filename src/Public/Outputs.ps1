@@ -94,7 +94,11 @@ function Out-PodeWebTextbox
 
         [Parameter(ParameterSetName='New')]
         [switch]
-        $Preformat
+        $Preformat,
+
+        [Parameter(ParameterSetName='New')]
+        [switch]
+        $ReadOnly
     )
 
     begin {
@@ -123,6 +127,7 @@ function Out-PodeWebTextbox
             Multiline = $Multiline
             Height = $Height
             Preformat = $Preformat.IsPresent
+            ReadOnly = $ReadOnly.IsPresent
         }
     }
 }
@@ -154,7 +159,7 @@ function Show-PodeWebToast
     }
 
     return @{
-        Operation = 'Output'
+        Operation = 'Show'
         ElementType = 'Toast'
         Message = $Message
         Title = $Title
@@ -186,5 +191,105 @@ function Out-PodeWebValidation
         Name = $Name
         ID = $Id
         Message = $Message
+    }
+}
+
+function Reset-PodeWebForm
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Reset'
+        ElementType = 'Form'
+        ID = $Id
+    }
+}
+
+function Out-PodeWebText
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string]
+        $Value
+    )
+
+    return @{
+        Operation = 'Output'
+        ElementType = 'Text'
+        ID = $Id
+        Value = $Value
+    }
+}
+
+function Out-PodeWebCheckbox
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [switch]
+        $Checked
+    )
+
+    return @{
+        Operation = 'Output'
+        ElementType = 'Checkbox'
+        ID = $Id
+        Checked = $Checked.IsPresent
+    }
+}
+
+function Show-PodeWebModal
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $DataValue,
+
+        [Parameter()]
+        [hashtable[]]
+        $Actions
+    )
+
+    return @{
+        Operation = 'Show'
+        ElementType = 'Modal'
+        ID = $Id
+        DataValue = $DataValue
+        Actions = $Actions
+    }
+}
+
+function Hide-PodeWebModal
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Hide'
+        ElementType = 'Modal'
+        ID = $Id
     }
 }

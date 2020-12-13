@@ -1,5 +1,8 @@
 $(
     $value = [System.Net.WebUtility]::HtmlEncode($data.Value)
+    if (![string]::IsNullOrWhiteSpace($data.ID)) {
+        $value = "<span class='pode-text' id='$($data.ID)'>$($value)</span>"
+    }
 
     switch ($data.Style.ToLowerInvariant()) {
         'normal' {

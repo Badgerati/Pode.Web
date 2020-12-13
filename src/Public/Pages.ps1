@@ -90,7 +90,9 @@ function Set-PodeWebHomePage
         }
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
-            Name = 'Home'
+            Page = @{
+                Name = 'Home'
+            }
             Title = $using:Title
             Username = $authData.User.Name
             Components = $using:Components
@@ -128,6 +130,10 @@ function Add-PodeWebPage
         $Components,
 
         [Parameter()]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication
@@ -140,29 +146,44 @@ function Add-PodeWebPage
 
     Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + @{ Name = $Name; Icon = $Icon; Group = $Group })
 
+    # set page title
     if ([string]::IsNullOrWhiteSpace($Title)) {
         $Title = $Name
     }
 
+    # does the page need auth?
     $auth = $null
     if (!$NoAuthentication) {
         $auth = (Get-PodeWebState -Name 'auth')
     }
 
+    # add the page route
     Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -ScriptBlock {
+        # get auth details of a user
         $authData = $WebEvent.Auth
         if (($null -eq $authData) -or ($authData.Count -eq 0)) {
             $authData = $WebEvent.Session.Data.Auth
+        }
+
+        # if we have a scriptblock, invoke that to get dynamic components
+        $comps =$null
+        if ($null -ne $using:ScriptBlock) {
+            $comps = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+        }
+
+        if (($null -eq $comps) -or ($comps.Length -eq 0)) {
+            $comps = $using:Components
         }
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = $using:Name
                 Group = $using:Group
+                ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
             }
             Title = $using:Title
             Username = $authData.User.Name
-            Components = $using:Components
+            Components = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
                 Authenticated = $authData.IsAuthenticated

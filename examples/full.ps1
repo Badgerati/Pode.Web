@@ -44,13 +44,33 @@ Start-PodeServer {
         New-PodeWebParagraph -Elements @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
-            New-PodeWebText -Value "!"
+            New-PodeWebText -Value "! "
+            New-PodeWebBadge -Value 'Sweet!' -Colour Cyan
         )
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Location Right
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
-        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon Command -ScriptBlock {
+        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon Command -Colour Green -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($InputData.Value)"
         }
+        New-PodeWebAlert -Type Note -Value 'Hello, world'
+    )
+
+    $section2 = New-PodeWebSection -Name 'Code' -NoHeader -Elements @(
+        New-PodeWebCodeBlock -Value "Write-Host 'hello, world!'" -NoHighlight
+        New-PodeWebCodeBlock -Value "
+            function Write-SomeStuff
+            {
+                param(
+                    [Parameter()]
+                    [string]
+                    `$Message
+                )
+
+                Write-Host `$Message
+            }
+
+            Write-SomeStuff -Message 'Hello, there'
+        " -Language PowerShell
     )
 
     $chartData = {
@@ -65,10 +85,11 @@ Start-PodeServer {
     $grid1 = New-PodeWebGrid -Components @(
         New-PodeWebChart -Name 'Months' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh
         New-PodeWebChart -Name 'Months' -NoAuth -Type Bar -ScriptBlock $chartData
-        New-PodeWebChart -Name 'Months' -NoAuth -Type Doughnut -ScriptBlock $chartData
+        New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth
+        #New-PodeWebChart -Name 'Months' -NoAuth -Type Doughnut -ScriptBlock $chartData
     )
 
-    Set-PodeWebHomePage -NoAuth -Components $section, $grid1 -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -NoAuth -Components $section, $section2, $grid1 -Title 'Awesome Homepage'
 
 
     # tabs and charts
@@ -88,7 +109,14 @@ Start-PodeServer {
 
 
     # add a page to search and filter services (output in a new table component) [note: requires auth]
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -NoHeader -Filter -Sort -ScriptBlock {
+    $modal = New-PodeWebModal -Name 'Edit Service' -Id 'modal_edit_svc' -Form -Elements @(
+        New-PodeWebCheckbox -Name Running -Id 'chk_svc_running' -AsSwitch
+    ) -ScriptBlock {
+        $InputData | Out-Default
+        Hide-PodeWebModal
+    }
+
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -NoHeader -Filter -Sort -Click -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
             Stop-Service -Name $InputData.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($InputData.Value) stopped"
@@ -101,8 +129,17 @@ Start-PodeServer {
             Sync-PodeWebTable -Id $ElementData.Component.ID
         }
 
+        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'Edit' -IconOnly -ScriptBlock {
+            $svc = Get-Service -Name $InputData.Value
+            $checked = ($svc.Status -ieq 'running')
+
+            Show-PodeWebModal -Id 'modal_edit_svc' -DataValue $InputData.Value -Actions @(
+                Out-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
+            )
+        }
+
         foreach ($svc in (Get-Service)) {
-            $btns = @()
+            $btns = @($editBtn)
             if ($svc.Status -ieq 'running') {
                 $btns += $stopBtn
             }
@@ -118,12 +155,23 @@ Start-PodeServer {
         }
     }
 
-    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Components $table
+    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Components $modal, $table -ScriptBlock {
+        $name = $WebEvent.Query['value']
+        if ([string]::IsNullOrWhiteSpace($name)) {
+            return
+        }
+        
+        $svc = Get-Service -Name $name | Out-String
+
+        New-PodeWebSection -Name "$($name) Details" -Elements @(
+            New-PodeWebCodeBlock -Value $svc -NoHighlight
+        )
+    }
 
 
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat
+        Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
     } -Elements @(
         New-PodeWebTextbox -Name 'Name'
     )

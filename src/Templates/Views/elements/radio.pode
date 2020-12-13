@@ -1,4 +1,4 @@
-<fieldset class="form-group">
+<fieldset class="form-group pode-form-radio">
     <div class="row">
         <legend class="col-form-label col-sm-2 pt-0">$($data.Name)</legend>
         <div class="col-sm-10">
