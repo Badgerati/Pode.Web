@@ -51,6 +51,7 @@ Start-PodeServer {
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
         New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon Command -Colour Green -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($InputData.Value)"
+            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
         }
         New-PodeWebAlert -Type Note -Value 'Hello, world'
     )
@@ -117,7 +118,7 @@ Start-PodeServer {
         Hide-PodeWebModal
     }
 
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -NoHeader -Filter -Sort -Click -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -NoHeader -Filter -Sort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
             Stop-Service -Name $InputData.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($InputData.Value) stopped"

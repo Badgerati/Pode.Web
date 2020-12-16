@@ -38,14 +38,18 @@ function Set-PodeWebLoginPage
 
     Remove-PodeRoute -Method Get -Path '/'
     Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -ScriptBlock {
-        $authData = $WebEvent.Auth
-        if (($null -eq $authData) -or ($authData.Count -eq 0)) {
-            $authData = $WebEvent.Session.Data.Auth
+        $pages = @(Get-PodeWebState -Name 'pages')
+        if (($null -ne $pages) -and ($pages.Length -gt 0)) {
+            Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+            return
         }
+
+        $authData = Get-PodeWebAuthData
+        $username = Get-PodeWebAuthUsername -AuthData $authData
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Name = 'Home'
-            Username = $authData.User.Name
+            Username = $username
             Auth = @{
                 Enabled = $true
                 Authenticated = $authData.IsAuthenticated
@@ -72,6 +76,13 @@ function Set-PodeWebHomePage
         $NoAuthentication
     )
 
+    # ensure components are correct
+    foreach ($component in $Components) {
+        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
+            throw "Invalid component supplied: $($component)"
+        }
+    }
+
     $auth = $null
     if (!$NoAuthentication) {
         $auth = (Get-PodeWebState -Name 'auth')
@@ -84,18 +95,25 @@ function Set-PodeWebHomePage
     Remove-PodeRoute -Method Get -Path '/'
 
     Add-PodeRoute -Method Get -Path '/' -Authentication $auth -ScriptBlock {
-        $authData = $WebEvent.Auth
-        if (($null -eq $authData) -or ($authData.Count -eq 0)) {
-            $authData = $WebEvent.Session.Data.Auth
+        $comps = $using:Components
+        if (($null -eq $comps) -or ($comps.Length -eq 0)) {
+            $pages = @(Get-PodeWebState -Name 'pages')
+            if (($null -ne $pages) -and ($pages.Length -gt 0)) {
+                Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+                return
+            }
         }
+
+        $authData = Get-PodeWebAuthData
+        $username = Get-PodeWebAuthUsername -AuthData $authData
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
             }
             Title = $using:Title
-            Username = $authData.User.Name
-            Components = $using:Components
+            Username = $username
+            Components = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
                 Authenticated = $authData.IsAuthenticated
@@ -139,6 +157,13 @@ function Add-PodeWebPage
         $NoAuthentication
     )
 
+    # ensure components are correct
+    foreach ($component in $Components) {
+        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
+            throw "Invalid component supplied: $($component)"
+        }
+    }
+
     # test if page exists
     if (Test-PodeWebPage -Name $Name) {
         throw " Web page already exists: $($Name)"
@@ -160,10 +185,8 @@ function Add-PodeWebPage
     # add the page route
     Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -ScriptBlock {
         # get auth details of a user
-        $authData = $WebEvent.Auth
-        if (($null -eq $authData) -or ($authData.Count -eq 0)) {
-            $authData = $WebEvent.Session.Data.Auth
-        }
+        $authData = Get-PodeWebAuthData
+        $username = Get-PodeWebAuthUsername -AuthData $authData
 
         # if we have a scriptblock, invoke that to get dynamic components
         $comps =$null
@@ -182,7 +205,7 @@ function Add-PodeWebPage
                 ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
             }
             Title = $using:Title
-            Username = $authData.User.Name
+            Username = $username
             Components = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -253,10 +276,10 @@ function ConvertTo-PodeWebPage
         'OutBuffer',
         'PipelineVariable'
     )
-
+    
     # create the pages for each of the commands
     foreach ($cmd in $Commands) {
-        $cmdInfo = (Get-Command -Name $cmd)
+        $cmdInfo = (Get-Command -Name $cmd -ErrorAction Stop)
 
         $sets = $cmdInfo.ParameterSets
         if (($null -eq $sets) -or ($sets.Length -eq 0)) {

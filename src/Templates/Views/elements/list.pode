@@ -8,7 +8,7 @@ $(
 
 
     foreach ($item in $data.Items) {
-        "<li>$([System.Net.WebUtility]::HtmlEncode($item))</li>"
+        "<li>$($item)</li>"
     }
 
     "</$($tag)>"

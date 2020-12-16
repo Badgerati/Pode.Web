@@ -1,7 +1,7 @@
 <p id='$($data.ID)'>
     $(
         if (![string]::IsNullOrWhiteSpace($data.Value)) {
-            [System.Net.WebUtility]::HtmlEncode($data.Value)
+            $data.Value
         }
         else {
             Use-PodeWebPartialView -Path 'elements/_load' -Data @{ Elements = $data.Elements }

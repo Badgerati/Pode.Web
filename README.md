@@ -132,7 +132,7 @@ Start-PodeServer {
 
 Components are the base elements that can contain and render other elements:
 
-* Tables
+* Tables + Pagination
 * Forms
 * Sections
 * Charts / CounterCharts
@@ -172,10 +172,11 @@ These are the building elements that can be used in components:
 * Alert
 * Icon
 * Badge
+* Spinner
 
 ## Outputs
 
-Outputs allow you to manipulate the frontend from action ScriptBlocks - such as submiting a form which renders a Toast, and outputs to a Table:
+Outputs allow you to manipulate the frontend from action ScriptBlocks - such as submitting a form which renders a Toast, and outputs to a Table:
 
 * Tables (out/sync)
 * Charts (out)
@@ -186,6 +187,7 @@ Outputs allow you to manipulate the frontend from action ScriptBlocks - such as 
 * Text (out)
 * Checkbox (out)
 * Modal (show/hide)
+* Desktop Notifications (show)
 
 ## Examples
 

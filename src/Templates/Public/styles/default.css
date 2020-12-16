@@ -18,8 +18,23 @@ body#normal-page {
     background-color: #f5f5f5;
 }
 
+.modal-body {
+    word-break: break-word;
+}
+
+.modal-dialog.pode-modal-small {
+    max-width: 500px;
+}
+.modal-dialog.pode-modal-medium {
+    max-width: 750px;
+}
+.modal-dialog.pode-modal-large {
+    max-width: 1000px;
+}
+
 .btn-icon-only {
     color: #f5f5f5;
+    margin-left: -1em;
 }
 
 .ui-autocomplete {
@@ -35,6 +50,12 @@ table .btn-icon-only {
     color: #777;
 }
 
+pre.code-block {
+    margin-top: -3em;
+    margin-bottom: 0em;
+    position: relative;
+}
+
 pre code {
     background-color: #f0f0f0;
     border-color: #bbb;
@@ -43,6 +64,14 @@ pre code {
     border-style: solid;
     display: block;
     padding: 0.5em;
+}
+
+.pode-code-copy {
+    color: #333;
+    position: absolute;
+    display: flex;
+    top: 3.6rem;
+    right: 0.5em;
 }
 
 .btn-icon-only,
@@ -120,6 +149,10 @@ table[pode-sort='True'] thead th {
 
 table.pode-table-click tbody tr {
     cursor: pointer;
+}
+
+table tbody td {
+    word-break: break-word;
 }
 
 .card {

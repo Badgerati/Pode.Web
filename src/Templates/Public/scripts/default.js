@@ -22,15 +22,57 @@ $(document).ready(() => {
     bindSidebarFilter();
     bindFormSubmits();
     bindButtons();
+    bindCodeCopy();
+
     bindTableFilters();
     bindTableExports();
     bindTableRefresh();
+
     bindChartRefresh();
     bindRangeValue();
     bindProgressValue();
     bindModalSubmits();
     bindCollapse();
 });
+
+function bindTablePagination() {
+    $('nav .pagination a.page-link').click(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var link = $(this);
+
+        // if active/disabled, do nothing
+        if (link.hasClass('active') || link.hasClass('disabled')) {
+            return;
+        }
+
+        // get amount
+        var pageNav = link.closest('nav');
+        var amount = pageNav.attr('pode-amount') ?? 20;
+
+        // next or previous? - get current +/-
+        var page = 1;
+
+        if (link.hasClass('page-arrows')) {
+            var current = link.closest('ul').find('a.page-link.active').text();
+
+            if (link.hasClass('page-previous')) {
+                current--;
+            }
+
+            if (link.hasClass('page-next')) {
+                current++;
+            }
+
+            page = current;
+        }
+        else {
+            page = link.text();
+        }
+
+        loadTables(pageNav.attr('for'), page, amount);
+    });
+}
 
 function bindTableSort(tableId) {
     $(`${tableId}[pode-sort='True'] thead th`).click(function() {
@@ -101,7 +143,7 @@ function bindProgressValue() {
     });
 }
 
-function loadTables(tableId) {
+function loadTables(tableId, pageNumber, pageAmount) {
     if (tableId && !tableId.startsWith('#')) {
         tableId = `#${tableId}`;
     }
@@ -110,10 +152,19 @@ function loadTables(tableId) {
         tableId = '';
     }
 
+    var data = '';
+    if (pageNumber || pageAmount) {
+        pageNumber = (pageNumber ?? 1);
+        pageAmount = (pageAmount ?? 20);
+        data = `PageNumber=${pageNumber}&PageAmount=${pageAmount}`;
+    }
+
     $(`table${tableId}[pode-dynamic='True']`).each((i, e) => {
         $.ajax({
             url: `/components/table/${$(e).attr('id')}`,
             method: 'post',
+            data: data,
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(res) {
                 invokeActions(res, $(e));
             }
@@ -205,6 +256,10 @@ function invokeActions(actions, sender) {
                 actionModal(action, sender);
                 break;
 
+            case 'notification':
+                actionNotification(action);
+                break;
+
             default:
                 break;
         }
@@ -230,7 +285,19 @@ function buildElements(elements) {
 
         switch (_type) {
             case 'button':
-                html += getButton(ele);
+                html += buildButton(ele);
+                break;
+
+            case 'icon':
+                html += buildIcon(ele);
+                break;
+
+            case 'badge':
+                html += buildBadge(ele);
+                break;
+
+            case 'spinner':
+                html += buildSpinner(ele);
                 break;
 
             default:
@@ -355,6 +422,13 @@ function getDataValue(element) {
     }
 
     return dataValue;
+}
+
+function bindCodeCopy() {
+    $('pre button.pode-code-copy').click(function(e) {
+        var value = $(e.target).closest('pre').find('code').text().trim();
+        navigator.clipboard.writeText(value);
+    });
 }
 
 function bindButtons() {
@@ -519,16 +593,26 @@ function updateTable(component) {
         return;
     }
 
+    // convert data to array
     if (!$.isArray(component.Data)) {
         component.Data = [component.Data];
     }
 
+    // do nothing if no data
     if (component.Data.length <= 0) {
         return;
     }
 
+    // get data keys for table columns
     var keys = Object.keys(component.Data[0]);
 
+    // get custom column meta - for widths etc
+    var columns = {};
+    if (component.Columns) {
+        columns = component.Columns;
+    }
+
+    // table meta
     var tableId = `table#${component.ID}`;
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
@@ -536,18 +620,23 @@ function updateTable(component) {
     // is there a data column?
     var dataColumn = $(tableId).attr('pode-data-column');
 
-    // headers
+    // table headers
     tableHead.empty();
 
     var _value = '<tr>';
     keys.forEach((key) => {
-        _value += `<th>${key}</th>`;
+        if ((key in columns) && (columns[key].Width > 0)) {
+            _value += `<th style='width:${columns[key].Width}%'>${key}</th>`;
+        }
+        else {
+            _value += `<th>${key}</th>`;
+        }
     });
     _value += '</tr>';
 
     tableHead.append(_value);
 
-    // body
+    // table body
     tableBody.empty();
 
     component.Data.forEach((item) => {
@@ -556,7 +645,7 @@ function updateTable(component) {
         keys.forEach((key) => {
             _value += `<td>`;
 
-            if ($.isArray(item[key])) {
+            if ($.isArray(item[key]) || item[key].ElementType) {
                 _value += buildElements(item[key]);
             }
             else {
@@ -565,20 +654,89 @@ function updateTable(component) {
 
             _value += `</td>`;
         });
-        _value += '</tr>'
+        _value += '</tr>';
         tableBody.append(_value);
     });
 
-    // binds
+    // is the table paginated?
+    var isPaginated = ($(tableId).attr('pode-paginate') == 'True');
+    if (isPaginated) {
+        var paging = $(tableId).closest('.card-body').find('nav ul');
+        paging.empty();
+
+        // previous
+        paging.append(`
+            <li class="page-item">
+                <a class="page-link page-arrows page-previous" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>`);
+
+        var pageActive = '';
+
+        // first page
+        pageActive = (1 == component.Paging.Number ? 'active' : '');
+        paging.append(`
+            <li class="page-item">
+                <a class="page-link ${pageActive}" href="#">1</a>
+            </li>`);
+
+        // ...
+        if (component.Paging.Number > 4) {
+            paging.append(`
+                <li class="page-item">
+                    <a class="page-link disabled" href="#">...</a>
+                </li>`);
+        }
+
+        // pages
+        for (var i = (component.Paging.Number - 2); i <= (component.Paging.Number + 2); i++) {
+            if (i <= 1 || i >= component.Paging.Max) {
+                continue;
+            }
+
+            pageActive = (i == component.Paging.Number ? 'active' : '');
+            paging.append(`
+                <li class="page-item">
+                    <a class="page-link ${pageActive}" href="#">${i}</a>
+                </li>`);
+        }
+
+        // ...
+        if (component.Paging.Number < component.Paging.Max - 3) {
+            paging.append(`
+                <li class="page-item">
+                    <a class="page-link disabled" href="#">...</a>
+                </li>`);
+        }
+
+        // last page
+        pageActive = (component.Paging.Max == component.Paging.Number ? 'active' : '');
+        paging.append(`
+            <li class="page-item">
+                <a class="page-link ${pageActive}" href="#">${component.Paging.Max}</a>
+            </li>`);
+
+        // next
+        paging.append(`
+            <li class="page-item">
+                <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${component.Paging.Max}">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>`);
+    }
+
+    // binds sort/buttons/etc
     feather.replace();
     $('[data-toggle="tooltip"]').tooltip();
     bindTableSort(tableId);
     bindButtons();
+    bindTablePagination();
 
-    // filter
+    // setup table filter
     filterTable($(tableId).closest('div.card-body').find('input.pode-table-filter'));
 
-    // clickable rows
+    // setup clickable rows
     $(`${tableId}.pode-table-click tbody tr`).click(function() {
         var dataValue = $(this).attr('pode-data-value');
         window.location = `${window.location.href}?value=${dataValue}`;
@@ -664,7 +822,7 @@ function hideModal(action, sender) {
 }
 
 function actionText(action) {
-    var text = $(`span#${action.ID}.pode-text`);
+    var text = $(`#${action.ID}`);
     if (!text) {
         return;
     }
@@ -777,7 +935,7 @@ function writeTextbox(component, sender) {
     if (component.Multiline) {
         txt = $(`textarea#${txtId}`);
         if (txt.length == 0) {
-            element = `<pre><textarea class='form-control' id='${txtId}' rows='${component.Height}' ${readOnly}></textarea></pre>`;
+            element = `<textarea class='form-control' id='${txtId}' rows='${component.Height}' ${readOnly}></textarea>`;
         }
     }
     else {
@@ -1038,7 +1196,7 @@ function getTimeString() {
     return (new Date()).toLocaleTimeString().split(':').slice(0,2).join(':');
 }
 
-function getButton(element) {
+function buildButton(element) {
     var icon = '';
     if (element.Icon) {
         icon = `<span data-feather='${element.Icon.toLowerCase()}' class='mRight02'></span>`
@@ -1048,8 +1206,48 @@ function getButton(element) {
         return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip'>${icon}</button>`;
     }
 
-    return `<button type='button' class='btn btn-primary pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>
+    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>
         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         ${icon}${element.Name}
     </button>`;
+}
+
+function buildIcon(element) {
+    return `<span data-feather='${element.Name.toLowerCase()}'></span>`;
+}
+
+function buildBadge(element) {
+    return `<span id='${element.ID}' class='badge badge-${element.ColourType}'>${element.Value}</span>`;
+}
+
+function buildSpinner(element) {
+    return `<span class="spinner-border spinner-border-sm" role="status"></span>`;
+}
+
+function actionNotification(action) {
+    if (!window.Notification) {
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        showNotification(action);
+    }
+    else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(function(p) {
+            if (p === 'granted') {
+                showNotification(action);
+            }
+        });
+    }
+}
+
+function showNotification(action) {
+    if (!action) {
+        return;
+    }
+
+    var notif = new Notification(action.Title, {
+        body: action.Body,
+        icon: action.Icon
+    });
 }

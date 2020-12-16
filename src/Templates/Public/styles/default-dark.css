@@ -144,6 +144,10 @@ pre code {
     color: #ccc !important;
 }
 
+.pode-code-copy {
+    color: #fff !important;
+}
+
 .input-group-prepend .input-group-text {
     background-color: #121d2f !important;
     border-color: #214981 !important;
@@ -187,4 +191,14 @@ pre code {
     border-color: #214981 !important;
     background-color: #121d2f !important;
     color: #999 !important;
+}
+
+nav .pagination .page-link {
+    border-color: #214981 !important;
+    background-color: #121d2f !important;
+    color: #ccc !important;
+}
+
+nav .pagination .page-link.active, nav .pagination .page-link:hover {
+    background-color: #214981 !important;
 }

@@ -1,11 +1,11 @@
 $(
-    $value = [System.Net.WebUtility]::HtmlEncode($data.Value)
+    $value = $data.Value
 
     $quote = "<blockquote class='blockquote text-$($data.Location.ToLowerInvariant())' id='$($data.ID)'>
         <p class='mb-0'>$($value)</p>"
 
     if (![string]::IsNullOrWhiteSpace($data.Source)) {
-        $src = [System.Net.WebUtility]::HtmlEncode($data.Source)
+        $src = $data.Source
         $quote += "<footer class='blockquote-footer'><cite><cite>$($src)</cite></footer>"
     }
 

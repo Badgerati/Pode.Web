@@ -1,9 +1,9 @@
 $(
-    $value = [System.Net.WebUtility]::HtmlEncode($data.Value)
+    $value = $data.Value
     $header = "<h$($data.Size) id='$($data.ID)'>$($value)"
 
     if (![string]::IsNullOrWhiteSpace($data.Secondary)) {
-        $sub = [System.Net.WebUtility]::HtmlEncode($data.Secondary)
+        $sub = $data.Secondary
         $header += "<small class='text-muted'>$($sub)</small>"
     }
 

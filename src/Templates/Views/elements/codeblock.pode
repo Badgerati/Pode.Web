@@ -1,10 +1,16 @@
-$(if ($data.Scrollable) {
-    "<pre id='$($data.ID)' class='.pre-scrollable'>"
-}
-else {
-    "<pre id='$($data.ID)'>"
-})
-    <code class="$($data.Language)">
-        $([System.Net.WebUtility]::HtmlEncode($data.Value))
+$(
+    $scrollable = [string]::Empty
+    if ($data.Scrollable) {
+        $scrollable = '.pre-scrollable'
+    }
+
+    "<pre class='code-block $($scrollable)'>"
+)
+    <button type='button' class='btn btn-icon-only pode-code-copy' title='Copy to clipboard' data-toggle='tooltip'>
+        <span data-feather='copy' class='mRight02'></span>
+    </button>
+
+    <code id="$($data.ID)" class="$($data.Language)">
+        $($data.Value)
     </code>
 </pre>

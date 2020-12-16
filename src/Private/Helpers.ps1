@@ -4,6 +4,54 @@ function Get-PodeWebTemplatePath
     return (Join-Path $path 'Templates')
 }
 
+function Get-PodeWebAuthData
+{
+    $authData = $WebEvent.Auth
+    if (($null -eq $authData) -or ($authData.Count -eq 0)) {
+        $authData = $WebEvent.Session.Data.Auth
+    }
+
+    return $authData
+}
+
+function Get-PodeWebAuthUsername
+{
+    param(
+        [Parameter()]
+        $AuthData
+    )
+
+    # nothing if no auth data
+    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+        return [string]::Empty
+    }
+
+    $user = $AuthData.User
+
+    # name
+    if (![string]::IsNullOrWhiteSpace($user.Name)) {
+        return $user.Name
+    }
+
+    # full name
+    if (![string]::IsNullOrWhiteSpace($user.FullName)) {
+        return $user.Name
+    }
+
+    # username
+    if (![string]::IsNullOrWhiteSpace($user.Username)) {
+        return $user.Username
+    }
+
+    # email - spli on @ though
+    if (![string]::IsNullOrWhiteSpace($user.Email)) {
+        return ($user.Email -split '@')[0]
+    }
+
+    # nothing
+    return [string]::Empty
+}
+
 function Write-PodeWebViewResponse
 {
     param(

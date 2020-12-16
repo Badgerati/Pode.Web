@@ -1,5 +1,5 @@
 <div class="modal fade" id="$($data.Meta.ID)" tabindex="-1" aria-labelledby="$($data.Meta.ID)_lbl" aria-hidden="true" pode-data-value="">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable pode-modal-$($data.Meta.Size.ToLowerInvariant())">
         <div class="modal-content">
 
             <div class="modal-header">

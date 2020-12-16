@@ -1,40 +1,42 @@
 $(
-    $value = [System.Net.WebUtility]::HtmlEncode($data.Value)
+    $value = $data.Value
     if (![string]::IsNullOrWhiteSpace($data.ID)) {
         $value = "<span class='pode-text' id='$($data.ID)'>$($value)</span>"
     }
 
     switch ($data.Style.ToLowerInvariant()) {
-        'normal' {
-            $value
-        }
-
         'underlined' {
-            "<u>$($value)</u>"
+            $value = "<u>$($value)</u>"
         }
 
         'strikethrough' {
-            "<s>$($value)</s>"
+            $value = "<s>$($value)</s>"
         }
 
         'deleted' {
-            "<del>$($value)</del>"
+            $value = "<del>$($value)</del>"
         }
 
         'inserted' {
-            "<ins>$($value)</ins>"
+            $value = "<ins>$($value)</ins>"
         }
 
         'italics' {
-            "<em>$($value)</em>"
+            $value = "<em>$($value)</em>"
         }
 
         'bold' {
-            "<strong>$($value)</strong>"
+            $value = "<strong>$($value)</strong>"
         }
 
         'small' {
-            "<small>$($value)</small>"
+            $value = "<small>$($value)</small>"
         }
     }
+
+    if ($data.InParagraph) {
+        $value = "<p>$($value)</p>"
+    }
+
+    $value
 )

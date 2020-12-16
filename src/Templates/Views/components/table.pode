@@ -1,5 +1,5 @@
 <div class="card">
-    <div class="card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div class="card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom">
         $(if (!$data.Meta.NoHeader) {
             "<h5>$($data.Meta.Name)</h5>"
         }
@@ -58,11 +58,19 @@
                     pode-dynamic='$($data.Meta.IsDynamic)'
                     pode-data-column='$($data.Meta.DataColumn)'
                     pode-auto-refresh='$($data.Meta.AutoRefresh)'
-                    pode-sort='$($data.Meta.Sort)'>
+                    pode-sort='$($data.Meta.Sort)'
+                    pode-paginate='$($data.Meta.Paging.Enabled)'>
                     <thead></thead>
                     <tbody></tbody>
                 </table>"
             )
         </div>
+
+        $(if ($data.Meta.Paging.Enabled) {
+            "<nav aria-label='$($data.Meta.Name) Pages' for='$($data.Meta.ID)' pode-amount='$($data.Meta.Paging.Amount)'>
+                <ul class='pagination justify-content-end'>
+                </ul>
+            </nav>"
+        })
     </div>
 </div>

@@ -1,1 +1,1 @@
-<code id="$($data.ID)">$([System.Net.WebUtility]::HtmlEncode($data.Value))</code>
+<code id="$($data.ID)">$($data.Value)</code>

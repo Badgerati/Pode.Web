@@ -148,13 +148,20 @@ function New-PodeWebParagraph
         $Elements
     )
 
+    # ensure elements are correct
+    foreach ($element in $Elements) {
+        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
+            throw "Invalid element supplied: $($element)"
+        }
+    }
+
     $Id = Get-PodeWebElementId -Tag Para -Id $Id
 
     return @{
         ElementType = 'Paragraph'
         Component = $ComponentData
         ID = $Id
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Elements = $Elements
     }
 }
@@ -167,7 +174,7 @@ function New-PodeWebCodeBlock
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter()]
         [string]
         $Value,
 
@@ -194,7 +201,7 @@ function New-PodeWebCodeBlock
         ElementType = 'CodeBlock'
         Component = $ComponentData
         ID = $Id
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Language = $Language.ToLowerInvariant()
         Scrollable = $Scrollable.IsPresent
     }
@@ -219,7 +226,7 @@ function New-PodeWebCode
         ElementType = 'Code'
         Component = $ComponentData
         ID = $Id
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
 
@@ -556,8 +563,8 @@ function New-PodeWebHeader
         Component = $ComponentData
         ID = $Id
         Size = $Size
-        Value = $Value
-        Secondary = $Secondary
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        Secondary = [System.Net.WebUtility]::HtmlEncode($Secondary)
     }
 }
 
@@ -590,8 +597,8 @@ function New-PodeWebQuote
         Component = $ComponentData
         ID = $Id
         Location = $Location
-        Value = $Value
-        Source = $Source
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        Source = [System.Net.WebUtility]::HtmlEncode($Source)
     }
 }
 
@@ -617,7 +624,9 @@ function New-PodeWebList
         ElementType = 'List'
         Component = $ComponentData
         ID = $Id
-        Items  = $Items
+        Items  = @(foreach ($item in $Items) {
+            [System.Net.WebUtility]::HtmlEncode($item)
+        })
         Numbered = $Numbered.IsPresent
     }
 }
@@ -669,15 +678,19 @@ function New-PodeWebText
         [Parameter()]
         [ValidateSet('Normal', 'Underlined', 'StrikeThrough', 'Deleted', 'Inserted', 'Italics', 'Bold', 'Small')]
         [string]
-        $Style = 'Normal'
+        $Style = 'Normal',
+
+        [switch]
+        $InParagraph
     )
 
     return @{
         ElementType = 'Text'
         Component = $ComponentData
         ID = $Id
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Style = $Style
+        InParagraph = $InParagraph.IsPresent
     }
 }
 
@@ -855,6 +868,13 @@ function New-PodeWebAlert
         $Elements
     )
 
+    # ensure elements are correct
+    foreach ($element in $Elements) {
+        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
+            throw "Invalid element supplied: $($element)"
+        }
+    }
+
     $Id = Get-PodeWebElementId -Tag Alert -Id $Id
     $classType = Convert-PodeWebAlertTypeToClass -Type $Type
     $iconType = Convert-PodeWebAlertTypeToIcon -Type $Type
@@ -866,7 +886,7 @@ function New-PodeWebAlert
         Type = $Type
         ClassType = $classType
         IconType = $iconType
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Elements = $Elements
     }
 }
@@ -884,6 +904,17 @@ function New-PodeWebIcon
         ElementType = 'Icon'
         Component = $ComponentData
         Name = $Name
+    }
+}
+
+function New-PodeWebSpinner
+{
+    [CmdletBinding()]
+    param()
+
+    return @{
+        ElementType = 'Spinner'
+        Component = $ComponentData
     }
 }
 
@@ -913,7 +944,7 @@ function New-PodeWebBadge
         Component = $ComponentData
         ID = $Id
         Colour = $Colour
-        ColourType = $ColourType
-        Value = $Value
+        ColourType = $ColourType.ToLowerInvariant()
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }

@@ -10,6 +10,13 @@ function New-PodeWebGrid
         $Vertical
     )
 
+    # ensure components are correct
+    foreach ($component in $Components) {
+        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
+            throw "Invalid component supplied: $($component)"
+        }
+    }
+
     return @{
         ComponentType = 'Grid'
         Components = $Components
@@ -44,6 +51,13 @@ function New-PodeWebTab
         [hashtable[]]
         $Components
     )
+
+    # ensure components are correct
+    foreach ($component in $Components) {
+        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
+            throw "Invalid component supplied: $($component)"
+        }
+    }
 
     return @{
         ComponentType = 'Tab'

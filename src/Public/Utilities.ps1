@@ -44,6 +44,12 @@ function Use-PodeWebTemplates
     Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-Path $templatePath 'Views')
 
     Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
+        $pages = @(Get-PodeWebState -Name 'pages')
+        if (($null -ne $pages) -and ($pages.Length -gt 0)) {
+            Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+            return
+        }
+
         Write-PodeWebViewResponse -Path 'index' -Data @{ Name = 'Home' }
     }
 }

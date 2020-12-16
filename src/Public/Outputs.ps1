@@ -9,6 +9,18 @@ function Out-PodeWebTable
         [string]
         $Id,
 
+        [Parameter()]
+        [hashtable[]]
+        $Columns,
+
+        [Parameter()]
+        [int]
+        $PageNumber = 0,
+
+        [Parameter()]
+        [int]
+        $PageAmount = 0,
+
         [Parameter(ParameterSetName='New')]
         [switch]
         $Sort
@@ -23,12 +35,41 @@ function Out-PodeWebTable
     }
 
     end {
+        # columns
+        $_columns = @{}
+        if (($null -ne $Columns) -and ($Columns.Length -gt 0)) {
+            foreach ($col in $Columns) {
+                $_columns[$col.Key] = $col
+            }
+        }
+
+        # paging
+        $maxPages = 0
+        $totalItems = $items.Length
+
+        if (($PageNumber -gt 0) -and ($PageAmount -gt 0)) {
+            $maxPages = [int][math]::Ceiling(($totalItems / $PageAmount))
+            if ($PageNumber -gt $maxPages) {
+                $PageNumber = $maxPages
+            }
+
+            $items = $items[(($PageNumber - 1) * $PageAmount) .. (($PageNumber * $PageAmount) - 1)]
+        }
+
+        # table output
         return @{
             Operation = 'Output'
             ElementType = 'Table'
             Data = $items
             ID = $Id
             Sort = $Sort.IsPresent
+            Columns = $_columns
+            Paging = @{
+                Number = $PageNumber
+                Amount = $PageAmount
+                Total = $totalItems
+                Max = $maxPages
+            }
         }
     }
 }
@@ -307,5 +348,31 @@ function Hide-PodeWebModal
         Operation = 'Hide'
         ElementType = 'Modal'
         ID = $Id
+    }
+}
+
+function Show-PodeWebNotification
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Title,
+
+        [Parameter()]
+        [string]
+        $Body,
+
+        [Parameter()]
+        [string]
+        $Icon
+    )
+
+    return @{
+        Operation = 'Show'
+        ElementType = 'Notification'
+        Title = $Title
+        Body = $Body
+        Icon = $Icon
     }
 }
