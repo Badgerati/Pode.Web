@@ -1246,7 +1246,7 @@ function buildLink(element) {
         target = '_blank';
     }
 
-    return `<a href='${elemnt.Source}' id='${element.ID}' target='${target}'>${element.Value}</a>`;
+    return `<a href='${element.Source}' id='${element.ID}' target='${target}'>${element.Value}</a>`;
 }
 
 function actionNotification(action) {
