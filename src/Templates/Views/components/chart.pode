@@ -26,6 +26,7 @@
             class="my-4 w-100"
             id="$($data.Meta.ID)"
             name="$($data.Meta.Name)"
+            style="$(if ($data.Meta.Height -gt 0) { "height:$($data.Meta.Height)px;" })"
             pode-chart-type="$($data.Meta.ChartType)"
             pode-dynamic="$($data.Meta.IsDynamic)"
             pode-append="$($data.Meta.Append)"

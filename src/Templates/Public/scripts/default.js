@@ -70,7 +70,7 @@ function bindTablePagination() {
             page = link.text();
         }
 
-        loadTables(pageNav.attr('for'), page, amount);
+        loadTable(pageNav.attr('for'), page, amount);
     });
 }
 
@@ -143,13 +143,15 @@ function bindProgressValue() {
     });
 }
 
-function loadTables(tableId, pageNumber, pageAmount) {
-    if (tableId && !tableId.startsWith('#')) {
-        tableId = `#${tableId}`;
-    }
+function loadTables() {
+    $(`table[pode-dynamic='True']`).each((i, e) => {
+        loadTable($(e).attr('id'));
+    });
+}
 
+function loadTable(tableId, pageNumber, pageAmount) {
     if (!tableId) {
-        tableId = '';
+        return;
     }
 
     var data = '';
@@ -159,16 +161,14 @@ function loadTables(tableId, pageNumber, pageAmount) {
         data = `PageNumber=${pageNumber}&PageAmount=${pageAmount}`;
     }
 
-    $(`table${tableId}[pode-dynamic='True']`).each((i, e) => {
-        $.ajax({
-            url: `/components/table/${$(e).attr('id')}`,
-            method: 'post',
-            data: data,
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            success: function(res) {
-                invokeActions(res, $(e));
-            }
-        });
+    $.ajax({
+        url: `/components/table/${tableId}`,
+        method: 'post',
+        data: data,
+        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+        success: function(res) {
+            invokeActions(res, $(`table#${tableId}`));
+        }
     });
 }
 
@@ -184,23 +184,23 @@ function loadAutoCompletes() {
     });
 }
 
-function loadCharts(chartId) {
-    if (chartId && !chartId.startsWith('#')) {
-        chartId = `#${chartId}`;
-    }
+function loadCharts() {
+    $(`canvas[pode-dynamic='True']`).each((i, e) => {
+        loadChart($(e).attr('id'));
+    });
+}
 
+function loadChart(chartId) {
     if (!chartId) {
-        chartId = '';
+        return;
     }
 
-    $(`canvas${chartId}[pode-dynamic='True']`).each((i, e) => {
-        $.ajax({
-            url: `/components/chart/${$(e).attr('id')}`,
-            method: 'post',
-            success: function(res) {
-                invokeActions(res, $(e));
-            }
-        });
+    $.ajax({
+        url: `/components/chart/${chartId}`,
+        method: 'post',
+        success: function(res) {
+            invokeActions(res, $(`canvas#${chartId}`));
+        }
     });
 }
 
@@ -298,6 +298,10 @@ function buildElements(elements) {
 
             case 'spinner':
                 html += buildSpinner(ele);
+                break;
+
+            case 'link':
+                html += buildLink(ele);
                 break;
 
             default:
@@ -534,14 +538,14 @@ function bindTableExports() {
 function bindTableRefresh() {
     $("button.pode-table-refresh").click(function(e) {
         e.preventDefault();
-        loadTables($(e.target).attr('for'));
+        loadTable($(e.target).attr('for'));
     });
 
     $("table[pode-auto-refresh='True']").each((index, item) => {
         setTimeout(() => {
-            loadTables($(item).attr('id'));
+            loadTable($(item).attr('id'));
             setInterval(() => {
-                loadTables($(item).attr('id'));
+                loadTable($(item).attr('id'));
             }, 60000);
         }, (60 - (new Date()).getSeconds()) * 1000);
     });
@@ -550,14 +554,14 @@ function bindTableRefresh() {
 function bindChartRefresh() {
     $("button.pode-chart-refresh").click(function(e) {
         e.preventDefault();
-        loadCharts($(e.target).attr('for'));
+        loadChart($(e.target).attr('for'));
     });
 
     $("canvas[pode-auto-refresh='True']").each((index, item) => {
         setTimeout(() => {
-            loadCharts($(item).attr('id'));
+            loadChart($(item).attr('id'));
             setInterval(() => {
-                loadCharts($(item).attr('id'));
+                loadChart($(item).attr('id'));
             }, 60000);
         }, (60 - (new Date()).getSeconds()) * 1000);
     });
@@ -567,7 +571,7 @@ function actionTable(action, sender) {
     switch (action.Operation.toLowerCase()) {
         case 'output':
             if (action.ID) {
-                updateTable(action);
+                updateTable(action, sender);
             }
             else {
                 writeTable(action, sender);
@@ -585,10 +589,10 @@ function syncTable(action) {
         return;
     }
 
-    loadTables(action.ID);
+    loadTable(action.ID);
 }
 
-function updateTable(component) {
+function updateTable(component, sender) {
     if (!component.Data) {
         return;
     }
@@ -616,6 +620,12 @@ function updateTable(component) {
     var tableId = `table#${component.ID}`;
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
+
+    // get senderId if present, and set on table as 'for'
+    var senderId = getId(sender);
+    if (senderId) {
+        $(tableId).attr('for', senderId);
+    }
 
     // is there a data column?
     var dataColumn = $(tableId).attr('pode-data-column');
@@ -711,11 +721,13 @@ function updateTable(component) {
         }
 
         // last page
-        pageActive = (component.Paging.Max == component.Paging.Number ? 'active' : '');
-        paging.append(`
-            <li class="page-item">
-                <a class="page-link ${pageActive}" href="#">${component.Paging.Max}</a>
-            </li>`);
+        if (component.Paging.Max > 1) {
+            pageActive = (component.Paging.Max == component.Paging.Number ? 'active' : '');
+            paging.append(`
+                <li class="page-item">
+                    <a class="page-link ${pageActive}" href="#">${component.Paging.Max}</a>
+                </li>`);
+        }
 
         // next
         paging.append(`
@@ -763,10 +775,14 @@ function writeTable(component, sender) {
 
     // update
     component.ID = tableId;
-    updateTable(component);
+    updateTable(component, sender);
 }
 
 function getId(element) {
+    if (!element) {
+        return null;
+    }
+
     return $(element).attr('id');
 }
 
@@ -1222,6 +1238,15 @@ function buildBadge(element) {
 
 function buildSpinner(element) {
     return `<span class="spinner-border spinner-border-sm" role="status"></span>`;
+}
+
+function buildLink(element) {
+    var target = '_self';
+    if (element.NewTab) {
+        target = '_blank';
+    }
+
+    return `<a href='${elemnt.Source}' id='${element.ID}' target='${target}'>${element.Value}</a>`;
 }
 
 function actionNotification(action) {

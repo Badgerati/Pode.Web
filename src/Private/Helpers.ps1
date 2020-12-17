@@ -128,7 +128,7 @@ function Protect-PodeWebName
         $Name
     )
 
-    return ($Name -ireplace '[^a-z0-9 ]', '').Trim()
+    return ($Name -ireplace '[^a-z0-9_]', '').Trim()
 }
 
 function Test-PodeWebPage
@@ -140,6 +140,17 @@ function Test-PodeWebPage
     )
 
     return (Get-PodeWebState -Name 'pages' | Where-Object { $_.Name -ieq $Name } | Measure-Object).Count -ne 0
+}
+
+function Test-PodeWebRoute
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Path
+    )
+
+    return ($null -ne (Get-PodeRoute -Method Post -Path $path))
 }
 
 function Get-PodeWebElementId
@@ -155,27 +166,45 @@ function Get-PodeWebElementId
 
         [Parameter()]
         [string]
-        $Name
+        $Name,
+
+        [switch]
+        $RandomToken,
+
+        [switch]
+        $NameAsToken
     )
 
     if (![string]::IsNullOrWhiteSpace($Id)) {
         return $Id
     }
 
+    # prepend the parent component's ID
     $_id = [string]::Empty
     if (![string]::IsNullOrWhiteSpace($ComponentData.ID)) {
         $_id = "$($ComponentData.ID)_"
     }
 
+    # start with element tag
     $_id += "$($Tag)"
+
+    # add page name if we have one
+    if (![string]::IsNullOrWhiteSpace($PageData.Name)) {
+        $_id += "_$($PageData.Name)"
+    }
+
+    # add name if we have one
     if (![string]::IsNullOrWhiteSpace($Name)) {
         $_id += "_$($Name)"
     }
 
-    if ([string]::IsNullOrWhiteSpace($ComponentData.ID)) {
+    # add random token - if forced, or if no page
+    # [string]::IsNullOrWhiteSpace($ComponentData.ID)) {
+    if ($RandomToken -or ($NameAsToken -and [string]::IsNullOrWhiteSpace($Name)) -or ([string]::IsNullOrWhiteSpace($PageData.Name))) { 
         $_id += "_$(Get-PodeWebRandomName)"
     }
 
+    $_id = Protect-PodeWebName -Name $_id
     return ($_id -replace '\s+', '_').ToLowerInvariant()
 }
 

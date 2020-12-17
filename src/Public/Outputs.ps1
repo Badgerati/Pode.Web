@@ -13,17 +13,13 @@ function Out-PodeWebTable
         [hashtable[]]
         $Columns,
 
-        [Parameter()]
-        [int]
-        $PageNumber = 0,
-
-        [Parameter()]
-        [int]
-        $PageAmount = 0,
-
         [Parameter(ParameterSetName='New')]
         [switch]
-        $Sort
+        $Sort,
+
+        [Parameter(ParameterSetName='Id')]
+        [switch]
+        $Paginate
     )
 
     begin {
@@ -47,13 +43,37 @@ function Out-PodeWebTable
         $maxPages = 0
         $totalItems = $items.Length
 
-        if (($PageNumber -gt 0) -and ($PageAmount -gt 0)) {
-            $maxPages = [int][math]::Ceiling(($totalItems / $PageAmount))
-            if ($PageNumber -gt $maxPages) {
-                $PageNumber = $maxPages
+        if ($Paginate) {
+            $pageNumber = 1
+            $pageAmount = 20
+
+            if ($null -ne $ComponentData) {
+                if (!$ComponentData.Paging.Enabled) {
+                    throw "You cannot paginate a table that does not have paging enabled: $($ComponentData.ID)"
+                }
+
+                $pageAmount = $ComponentData.Paging.Amount
             }
 
-            $items = $items[(($PageNumber - 1) * $PageAmount) .. (($PageNumber * $PageAmount) - 1)]
+            if ($null -ne $WebEvent) {
+                $_number = [int]$WebEvent.Data['PageNumber']
+                $_amount = [int]$WebEvent.Data['PageAmount']
+
+                if ($_number -gt 0) {
+                    $pageNumber = $_number
+                }
+
+                if ($_amount -gt 0) {
+                    $pageAmount = $_amount
+                }
+            }
+
+            $maxPages = [int][math]::Ceiling(($totalItems / $pageAmount))
+            if ($pageNumber -gt $maxPages) {
+                $pageNumber = $maxPages
+            }
+
+            $items = $items[(($pageNumber - 1) * $pageAmount) .. (($pageNumber * $pageAmount) - 1)]
         }
 
         # table output
@@ -65,8 +85,8 @@ function Out-PodeWebTable
             Sort = $Sort.IsPresent
             Columns = $_columns
             Paging = @{
-                Number = $PageNumber
-                Amount = $PageAmount
+                Number = $pageNumber
+                Amount = $pageAmount
                 Total = $totalItems
                 Max = $maxPages
             }

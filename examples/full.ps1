@@ -84,10 +84,9 @@ Start-PodeServer {
     }
 
     $grid1 = New-PodeWebGrid -Components @(
-        New-PodeWebChart -Name 'Months' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh
-        New-PodeWebChart -Name 'Months' -NoAuth -Type Bar -ScriptBlock $chartData
+        New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh
+        New-PodeWebChart -Name 'Bar Example 1' -NoAuth -Type Bar -ScriptBlock $chartData
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth
-        #New-PodeWebChart -Name 'Months' -NoAuth -Type Doughnut -ScriptBlock $chartData
     )
 
     Set-PodeWebHomePage -NoAuth -Components $section, $section2, $grid1 -Title 'Awesome Homepage'
@@ -96,13 +95,13 @@ Start-PodeServer {
     # tabs and charts
     $tabs1 = New-PodeWebTabs -Tabs @(
         New-PodeWebTab -Name 'Line' -Components @(
-            New-PodeWebChart -Name 'Months' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -NoHeader
+            New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -NoHeader -Height 250
         )
         New-PodeWebTab -Name 'Bar' -Components @(
-            New-PodeWebChart -Name 'Months' -NoAuth -Type Bar -ScriptBlock $chartData -NoHeader
+            New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -NoHeader
         )
         New-PodeWebTab -Name 'Doughnut' -Components @(
-            New-PodeWebChart -Name 'Months' -NoAuth -Type Doughnut -ScriptBlock $chartData -NoHeader
+            New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -NoHeader
         )
     )
 

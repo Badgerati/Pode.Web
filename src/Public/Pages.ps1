@@ -184,6 +184,12 @@ function Add-PodeWebPage
 
     # add the page route
     Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -ScriptBlock {
+        $global:PageData = @{
+            Name = $using:Name
+            Group = $using:Group
+            ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
+        }
+
         # get auth details of a user
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
@@ -199,11 +205,7 @@ function Add-PodeWebPage
         }
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = @{
-                Name = $using:Name
-                Group = $using:Group
-                ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
-            }
+            Page = $global:PageData
             Title = $using:Title
             Username = $username
             Components = $comps
@@ -212,6 +214,8 @@ function Add-PodeWebPage
                 Authenticated = $authData.IsAuthenticated
             }
         }
+
+        $global:PageData = $null
     }
 }
 

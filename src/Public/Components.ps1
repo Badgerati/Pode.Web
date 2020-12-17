@@ -63,9 +63,7 @@ function New-PodeWebTable
         $NoHeader
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "table_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Table -Id $Id -Name $Name
 
     $component = @{
         ComponentType = 'Table'
@@ -87,14 +85,12 @@ function New-PodeWebTable
         }
     }
 
-    if ($null -ne $ScriptBlock) {
+    $routePath = "/components/table/$($Id)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
-
-        $routePath = "/components/table/$($Id)"
-        Remove-PodeRoute -Method Post -Path $routePath
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
             param($Data)
@@ -106,23 +102,12 @@ function New-PodeWebTable
             }
 
             if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
-                $pageNumber = 0
-                $pageAmount = 0
-
-                if ($ComponentData.Paging.Enabled) {
-                    $pageNumber = [int]$WebEvent.Data['PageNumber']
-                    $pageAmount = [int]$WebEvent.Data['PageAmount']
-
-                    if ($pageNumber -le 0) {
-                        $pageNumber = 1
-                        $pageAmount = $ComponentData.Paging.Amount
-                    }
-                }
-
-                $result = ($result | Out-PodeWebTable -Id $using:Id -Columns $ComponentData.Columns -PageNumber $pageNumber -PageAmount $pageAmount)
+                $paginate = $ComponentData.Paging.Enabled
+                $result = ($result | Out-PodeWebTable -Id $using:Id -Columns $ComponentData.Columns -Paginate:$paginate)
             }
 
             Write-PodeJsonResponse -Value $result
+            $global:ComponentData = $null
         }
     }
 
@@ -192,25 +177,27 @@ function New-PodeWebForm
         }
     }
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "form_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Form -Id $Id -Name $Name
 
-    $auth = $null
-    if (!$NoAuthentication) {
-        $auth = (Get-PodeWebState -Name 'auth')
-    }
-
-    Add-PodeRoute -Method Post -Path "/components/form/$($Id)" -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
-        param($Data)
-        $global:InputData = $WebEvent.Data
-
-        $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
-        if ($null -eq $result) {
-            $result = @()
+    $routePath = "/components/form/$($Id)"
+    if (!(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Write-PodeJsonResponse -Value $result
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
+            $global:InputData = $WebEvent.Data
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value $result
+            $global:InputData = $null
+        }
     }
 
     return @{
@@ -250,13 +237,7 @@ function New-PodeWebSection
         }
     }
 
-    if ([string]::IsNullOrWhiteSpace($Name)) {
-        $Name = Get-PodeWebRandomName
-    }
-
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "section_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Section -Id $Id -Name $Name -NameAsToken
 
     return @{
         ComponentType = 'Section'
@@ -297,6 +278,10 @@ function New-PodeWebChart
         $MaxItems = 0,
 
         [Parameter()]
+        [int]
+        $Height = 0,
+
+        [Parameter()]
         [object[]]
         $ArgumentList,
 
@@ -318,32 +303,33 @@ function New-PodeWebChart
         $NoHeader
     )
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "chart_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Chart -Id $Id -Name $Name
 
     if ($MaxItems -lt 0) {
         $MaxItems = 0
     }
 
-    $auth = $null
-    if (!$NoAuthentication) {
-        $auth = (Get-PodeWebState -Name 'auth')
-    }
-
-    Add-PodeRoute -Method Post -Path "/components/chart/$($Id)" -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
-        param($Data)
-
-        $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
-        if ($null -eq $result) {
-            $result = @()
+    $routePath = "/components/chart/$($Id)"
+    if (!(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
-            $result = ($result | Out-PodeWebChart -Id $using:Id)
-        }
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
 
-        Write-PodeJsonResponse -Value $result
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
+                $result = ($result | Out-PodeWebChart -Id $using:Id)
+            }
+
+            Write-PodeJsonResponse -Value $result
+        }
     }
 
     return @{
@@ -355,6 +341,7 @@ function New-PodeWebChart
         IsDynamic = ($null -ne $ScriptBlock)
         Append = $Append.IsPresent
         MaxItems = $MaxItems
+        Height = $Height
         TimeLabels = $TimeLabels.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
         NoHeader = $NoHeader.IsPresent
@@ -416,17 +403,16 @@ function New-PodeWebModal
         }
     }
 
-    if ([string]::IsNullOrWhiteSpace($Id)) {
-        $Id = "modal_$(Protect-PodeWebName -Name $Name)_$(Get-PodeWebRandomName)" -replace '\s+', '_'
-    }
+    $Id = Get-PodeWebElementId -Tag Modal -Id $Id -Name $Name
 
-    $auth = $null
-    if (!$NoAuthentication) {
-        $auth = (Get-PodeWebState -Name 'auth')
-    }
+    $routePath = "/components/modal/$($Id)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
 
-    if ($null -ne $ScriptBlock) {
-        Add-PodeRoute -Method Post -Path "/components/modal/$($Id)" -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
             param($Data)
             $global:InputData = $WebEvent.Data
 
@@ -436,6 +422,7 @@ function New-PodeWebModal
             }
 
             Write-PodeJsonResponse -Value $result
+            $global:InputData = $null
         }
     }
 

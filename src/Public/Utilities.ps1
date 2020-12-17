@@ -23,9 +23,9 @@ function Use-PodeWebTemplates
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore)
-    if (($null -eq $mod) -or ($mod.Version.Major -lt 2)) {
-        throw "The Pode module is not loaded. You need at least Pode 2.0 to use the Pode.Web module."
-    }
+    # if (($null -eq $mod) -or ($mod.Version.Major -lt 2)) {
+    #     throw "The Pode module is not loaded. You need at least Pode 2.0 to use the Pode.Web module."
+    # }
 
     if ([string]::IsNullOrWhiteSpace($FavIcon)) {
         $FavIcon = '/pode.web/images/favicon.ico'

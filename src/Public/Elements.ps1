@@ -59,15 +59,10 @@ function New-PodeWebTextbox
         $NoAuthentication
     )
 
-    $Id = Get-PodeWebElementId -Tag Txt -Id $Id -Name $Name
+    $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
 
     if ($Height -le 0) {
         $Height = 4
-    }
-
-    $auth = $null
-    if (!$NoAuthentication) {
-        $auth = (Get-PodeWebState -Name 'auth')
     }
 
     $element = @{
@@ -91,8 +86,14 @@ function New-PodeWebTextbox
         }
     }
 
-    if ($null -ne $AutoComplete) {
-        Add-PodeRoute -Method Post -Path "/elements/autocomplete/$($Id)" -Authentication $auth -ScriptBlock {
+    $routePath = "/elements/autocomplete/$($Id)"
+    if (($null -ne $AutoComplete) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ScriptBlock {
             $global:ElementData = $using:element
             $global:InputData = $WebEvent.Data
 
@@ -102,6 +103,8 @@ function New-PodeWebTextbox
             }
 
             Write-PodeJsonResponse -Value @{ Values = $result }
+            $global:ElementData = $null
+            $global:InputData = $null
         }
     }
 
@@ -155,7 +158,7 @@ function New-PodeWebParagraph
         }
     }
 
-    $Id = Get-PodeWebElementId -Tag Para -Id $Id
+    $Id = Get-PodeWebElementId -Tag Para -Id $Id -RandomToken
 
     return @{
         ElementType = 'Paragraph'
@@ -190,7 +193,7 @@ function New-PodeWebCodeBlock
     )
 
     # id
-    $Id = Get-PodeWebElementId -Tag Codeblock -Id $Id
+    $Id = Get-PodeWebElementId -Tag Codeblock -Id $Id -RandomToken
 
     # language
     if ($NoHighlight) {
@@ -220,7 +223,7 @@ function New-PodeWebCode
         $Value
     )
 
-    $Id = Get-PodeWebElementId -Tag Code -Id $Id
+    $Id = Get-PodeWebElementId -Tag Code -Id $Id -RandomToken
 
     return @{
         ElementType = 'Code'
@@ -260,7 +263,7 @@ function New-PodeWebCheckbox
         $Disabled
     )
 
-    $Id = Get-PodeWebElementId -Tag Chkbox -Id $Id -Name $Name
+    $Id = Get-PodeWebElementId -Tag Checkbox -Id $Id -Name $Name
 
     if (($null -eq $Options) -or ($Options.Length -eq 0)) {
         $Options = @('true')
@@ -414,7 +417,7 @@ function New-PodeWebProgress
 {
     [CmdletBinding()]
     param(
-        [Parameter()]
+        [Parameter(Mandatory=$true)]
         [string]
         $Name,
 
@@ -449,7 +452,7 @@ function New-PodeWebProgress
         $Animated
     )
 
-    $Id = Get-PodeWebElementId -Tag Progress -Id $Id
+    $Id = Get-PodeWebElementId -Tag Progress -Id $Id -Name $Name
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     if ($Value -lt $Min) {
@@ -512,7 +515,7 @@ function New-PodeWebImage
         $Width = 0
     )
 
-    $Id = Get-PodeWebElementId -Tag Img -Id $Id
+    $Id = Get-PodeWebElementId -Tag Img -Id $Id -RandomToken
 
     if ($Height -lt 0) {
         $Height = 0
@@ -556,7 +559,7 @@ function New-PodeWebHeader
         $Secondary
     )
 
-    $Id = Get-PodeWebElementId -Tag Header -Id $Id
+    $Id = Get-PodeWebElementId -Tag Header -Id $Id -RandomToken
 
     return @{
         ElementType = 'Header'
@@ -590,7 +593,7 @@ function New-PodeWebQuote
         $Source
     )
 
-    $Id = Get-PodeWebElementId -Tag Quote -Id $Id
+    $Id = Get-PodeWebElementId -Tag Quote -Id $Id -RandomToken
 
     return @{
         ElementType = 'Quote'
@@ -618,7 +621,7 @@ function New-PodeWebList
         $Numbered
     )
 
-    $Id = Get-PodeWebElementId -Tag List -Id $Id
+    $Id = Get-PodeWebElementId -Tag List -Id $Id -RandomToken
 
     return @{
         ElementType = 'List'
@@ -651,7 +654,7 @@ function New-PodeWebLink
         $NewTab
     )
 
-    $Id = Get-PodeWebElementId -Tag A -Id $Id
+    $Id = Get-PodeWebElementId -Tag A -Id $Id -RandomToken
 
     return @{
         ElementType = 'Link'
@@ -683,6 +686,8 @@ function New-PodeWebText
         [switch]
         $InParagraph
     )
+
+    $Id = Get-PodeWebElementId -Tag Txt -Id $Id -RandomToken
 
     return @{
         ElementType = 'Text'
@@ -811,11 +816,6 @@ function New-PodeWebButton
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
-    $auth = $null
-    if (!$NoAuthentication) {
-        $auth = (Get-PodeWebState -Name 'auth')
-    }
-
     $element = @{
         ElementType = 'Button'
         Component = $ComponentData
@@ -829,18 +829,25 @@ function New-PodeWebButton
     }
 
     $routePath = "/elements/button/$($Id)"
-    Remove-PodeRoute -Method Post -Path $routePath
-
-    Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ScriptBlock {
-        $global:ElementData = $using:element
-        $global:InputData = $WebEvent.Data
-
-        $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
-        if ($null -eq $result) {
-            $result = @()
+    if (!(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Write-PodeJsonResponse -Value $result
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ScriptBlock {
+            $global:ElementData = $using:element
+            $global:InputData = $WebEvent.Data
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value $result
+            $global:ElementData = $null
+            $global:InputData = $null
+        }
     }
 
     return $element
@@ -875,7 +882,7 @@ function New-PodeWebAlert
         }
     }
 
-    $Id = Get-PodeWebElementId -Tag Alert -Id $Id
+    $Id = Get-PodeWebElementId -Tag Alert -Id $Id -RandomToken
     $classType = Convert-PodeWebAlertTypeToClass -Type $Type
     $iconType = Convert-PodeWebAlertTypeToIcon -Type $Type
 
@@ -936,7 +943,7 @@ function New-PodeWebBadge
         $Value
     )
 
-    $Id = Get-PodeWebElementId -Tag Alert -Id $Id
+    $Id = Get-PodeWebElementId -Tag Alert -Id $Id -RandomToken
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     return @{
