@@ -955,3 +955,34 @@ function New-PodeWebBadge
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
+
+function New-PodeWebComment
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Icon,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Username,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Message,
+
+        [Parameter()]
+        [DateTime]
+        $TimeStamp
+    )
+
+    return @{
+        ElementType = 'Comment'
+        Component = $ComponentData
+        Icon = $Icon
+        Username = $Username
+        Message = $Message
+        TimeStamp = $TimeStamp
+    }
+}

@@ -154,6 +154,7 @@ function loadTable(tableId, pageNumber, pageAmount) {
         return;
     }
 
+    // define any table paging
     var data = '';
     if (pageNumber || pageAmount) {
         pageNumber = (pageNumber ?? 1);
@@ -161,13 +162,32 @@ function loadTable(tableId, pageNumber, pageAmount) {
         data = `PageNumber=${pageNumber}&PageAmount=${pageAmount}`;
     }
 
+    // things get funky here if we have a table with a 'for' attr
+    // if so, we need to serialize the form, and then send the request to the form instead
+    var table = $(`table#${tableId}`)
+    var url = `/components/table/${tableId}`;
+
+    if (table.attr('for')) {
+        var form = $(`#${table.attr('for')}`);
+        if (data) {
+            data += '&'
+        }
+
+        data += form.serialize();
+        url = form.attr('method');
+    }
+
+    // invoke and load table content
     $.ajax({
-        url: `/components/table/${tableId}`,
+        url: url,
         method: 'post',
         data: data,
         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
         success: function(res) {
-            invokeActions(res, $(`table#${tableId}`));
+            invokeActions(res, table);
+        },
+        error: function(err) {
+            console.log(err);
         }
     });
 }
@@ -179,6 +199,9 @@ function loadAutoCompletes() {
             method: 'post',
             success: function(res) {
                 $(e).autocomplete({ source: res.Values });
+            },
+            error: function(err) {
+                console.log(err);
             }
         });
     });
@@ -200,6 +223,9 @@ function loadChart(chartId) {
         method: 'post',
         success: function(res) {
             invokeActions(res, $(`canvas#${chartId}`));
+        },
+        error: function(err) {
+            console.log(err);
         }
     });
 }
@@ -258,6 +284,10 @@ function invokeActions(actions, sender) {
 
             case 'notification':
                 actionNotification(action);
+                break;
+
+            case 'href':
+                actionHref(action);
                 break;
 
             default:
@@ -623,7 +653,7 @@ function updateTable(component, sender) {
 
     // get senderId if present, and set on table as 'for'
     var senderId = getId(sender);
-    if (senderId) {
+    if (senderId && getTagName(sender) == 'form') {
         $(tableId).attr('for', senderId);
     }
 
@@ -784,6 +814,14 @@ function getId(element) {
     }
 
     return $(element).attr('id');
+}
+
+function getTagName(element) {
+    if (!element) {
+        return null;
+    }
+
+    return $(element).prop('nodeName').toLowerCase();
 }
 
 function actionForm(action) {
@@ -1275,4 +1313,16 @@ function showNotification(action) {
         body: action.Body,
         icon: action.Icon
     });
+}
+
+function actionHref(action) {
+    if (!action) {
+        return;
+    }
+
+    if (action.Url.startsWith('/')) {
+        action.Url = `${window.location.origin}${action.Url}`;
+    }
+
+    window.location = action.Url;
 }

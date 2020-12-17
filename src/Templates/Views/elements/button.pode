@@ -1,23 +1,21 @@
 <fieldset class="form-group">
-    <div class="row">
-        $(
-            $icon = [string]::Empty
-            if (![string]::IsNullOrWhiteSpace($data.Icon)) {
-                $icon = "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight02'></span>"
-            }
+    $(
+        $icon = [string]::Empty
+        if (![string]::IsNullOrWhiteSpace($data.Icon)) {
+            $icon = "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight02'></span>"
+        }
 
-            if ($data.IconOnly) {
-                "<button type='button' class='btn btn-icon-only pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
-                    $($icon)
-                </button>"
-            }
-            else {
-                "<button type='button' class='btn btn-$($data.ColourType) pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
-                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
-                    $($icon)
-                    $($data.Name)
-                </button>"
-            }
-        )
-    </div>
+        if ($data.IconOnly) {
+            "<button type='button' class='btn btn-icon-only pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
+                $($icon)
+            </button>"
+        }
+        else {
+            "<button type='button' class='btn btn-$($data.ColourType) pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
+                <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                $($icon)
+                $($data.Name)
+            </button>"
+        }
+    )
 </fieldset>

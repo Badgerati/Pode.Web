@@ -74,6 +74,11 @@ Start-PodeServer {
         " -Language PowerShell
     )
 
+    $section3 = New-PodeWebSection -Name 'Comments' -Elements @(
+        New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
+        New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
+    )
+
     $chartData = {
         return (1..1 | ForEach-Object {
             @{
@@ -89,7 +94,7 @@ Start-PodeServer {
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth
     )
 
-    Set-PodeWebHomePage -NoAuth -Components $section, $section2, $grid1 -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -NoAuth -Components $section, $section2, $section3, $grid1 -Title 'Awesome Homepage'
 
 
     # tabs and charts

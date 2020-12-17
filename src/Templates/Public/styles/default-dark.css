@@ -13,9 +13,22 @@ nav#sidebarMenu {
     color: #ccc !important;
 }
 
-body, main[role="main"] {
-    background-color: #161b22 !important;
-    color: #aaa !important;
+.media {
+    border-color: dodgerblue;
+    background-color: #121d2f;
+}
+
+.media img {
+    border-color: dodgerblue;
+}
+
+.media .media-head {
+    border-bottom-color: dodgerblue;
+}
+
+body, main[role="main"], body#login-page, body#normal-page {
+    background-color: #161b22;
+    color: #aaa;
 }
 
 .modal-content {
@@ -100,9 +113,13 @@ a:hover {
     color: #bbb;
 }
 
-.btn-outline-secondary:hover {
-    border-color: dodgerblue;
-    color: dodgerblue
+.btn-outline-secondary:hover, .btn-outline-secondary:active {
+    border-color: dodgerblue !important;
+    color: dodgerblue !important;
+}
+
+.btn-outline-secondary:focus {
+    box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.5);
 }
 
 .btn-secondary.pode-btn-solid {

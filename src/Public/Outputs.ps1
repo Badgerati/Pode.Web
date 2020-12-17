@@ -396,3 +396,43 @@ function Show-PodeWebNotification
         Icon = $Icon
     }
 }
+
+function Move-PodeWebPage
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $DataValue
+    )
+
+    $page = "/pages/$($Name -replace '\s+', '+')"
+
+    if (![string]::IsNullOrWhiteSpace($DataValue)) {
+        $page += "?Value=$($DataValue)"
+    }
+
+    return @{
+        Operation = 'Move'
+        ElementType = 'Href'
+        Url = $page
+    }
+}
+
+function Move-PodeWebUrl
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    return @{
+        Operation = 'Move'
+        ElementType = 'Href'
+        Url = $Url
+    }
+}
