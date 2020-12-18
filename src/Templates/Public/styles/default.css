@@ -18,6 +18,26 @@ body#normal-page {
     background-color: #f5f5f5;
 }
 
+button#menu-toggle {
+    margin-left: 0;
+}
+
+button#menu-toggle .feather {
+    width: 25px;
+    height: 25px;
+}
+
+main[role="main"].fullscreen {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100.0% !important;
+    margin-left: 0 !important;
+}
+
+.hide {
+    display: none !important;
+}
+
 .modal-body {
     word-break: break-word;
 }

@@ -20,6 +20,8 @@ $(document).ready(() => {
     loadAutoCompletes();
 
     bindSidebarFilter();
+    bindMenuToggle();
+
     bindFormSubmits();
     bindButtons();
     bindCodeCopy();
@@ -34,6 +36,16 @@ $(document).ready(() => {
     bindModalSubmits();
     bindCollapse();
 });
+
+function bindMenuToggle() {
+    $('button#menu-toggle').click(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        $('nav#sidebarMenu').toggleClass('hide');
+        $('main[role="main"]').toggleClass('fullscreen');
+    });
+}
 
 function bindTablePagination() {
     $('nav .pagination a.page-link').click(function(e) {

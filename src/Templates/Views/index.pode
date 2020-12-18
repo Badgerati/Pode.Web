@@ -6,6 +6,10 @@
         "<body id='normal-page' pode-theme='$($theme)'>"
     )
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+            <button type='button' class='btn btn-icon-only' id='menu-toggle'>
+                <span data-feather='menu' class='mRight02'></span>
+            </button>
+
             <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">
                 $(
                     $title = Get-PodeWebState -Name 'title'
