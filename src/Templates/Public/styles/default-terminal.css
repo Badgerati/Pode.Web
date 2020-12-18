@@ -29,6 +29,7 @@ nav#sidebarMenu {
 body, main[role="main"], body#login-page, body#normal-page {
     background-color: #111;
     color: #33ff00;
+    font-family: consolas;
 }
 
 .modal-content {

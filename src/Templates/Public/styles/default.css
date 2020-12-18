@@ -23,10 +23,10 @@ body#normal-page {
 }
 
 .modal-dialog.pode-modal-small {
-    max-width: 500px;
+    max-width: 600px;
 }
 .modal-dialog.pode-modal-medium {
-    max-width: 750px;
+    max-width: 800px;
 }
 .modal-dialog.pode-modal-large {
     max-width: 1000px;
