@@ -332,7 +332,14 @@ function ConvertTo-PodeWebPage
 
             $elements += (New-PodeWebHidden -Name '_Function_Name_' -Value $cmd)
 
-            $form = New-PodeWebForm -Name Parameters -NoHeader -Elements $elements -NoAuthentication:$NoAuthentication -ScriptBlock {
+            $name = $set.Name
+            if ([string]::IsNullOrWhiteSpace($name) -or ($set.Name -iin @('__AllParameterSets'))) {
+                $name = 'Default'
+            }
+
+            $formId = "form_param_$($cmd)_$($name)"
+
+            $form = New-PodeWebForm -Name Parameters -Id $formId -NoHeader -Elements $elements -NoAuthentication:$NoAuthentication -ScriptBlock {
                 $cmd = $InputData['_Function_Name_']
                 $InputData.Remove('_Function_Name_')
 
@@ -369,11 +376,6 @@ function ConvertTo-PodeWebPage
                 catch {
                     $_.Exception | Out-PodeWebTextbox -Multiline -Preformat
                 }
-            }
-
-            $name = $set.Name
-            if ([string]::IsNullOrWhiteSpace($name) -or ($set.Name -iin @('__AllParameterSets'))) {
-                $name = 'Default'
             }
 
             New-PodeWebTab -Name $name -Components $form

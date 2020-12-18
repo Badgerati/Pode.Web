@@ -150,7 +150,13 @@ function Test-PodeWebRoute
         $Path
     )
 
-    return ($null -ne (Get-PodeRoute -Method Post -Path $path))
+    $route = (Get-PodeRoute -Method Post -Path $Path)
+
+    if ([string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ComponentData.Name) -and ($null -ne $route)) {
+        throw "A component/element with ID '$(Split-Path -Path $Path -Leaf)' already exists"
+    }
+
+    return ($null -ne $route)
 }
 
 function Get-PodeWebElementId
@@ -199,8 +205,7 @@ function Get-PodeWebElementId
     }
 
     # add random token - if forced, or if no page
-    # [string]::IsNullOrWhiteSpace($ComponentData.ID)) {
-    if ($RandomToken -or ($NameAsToken -and [string]::IsNullOrWhiteSpace($Name)) -or ([string]::IsNullOrWhiteSpace($PageData.Name))) { 
+    if ($RandomToken -or ($NameAsToken -and [string]::IsNullOrWhiteSpace($Name))) {
         $_id += "_$(Get-PodeWebRandomName)"
     }
 

@@ -473,7 +473,7 @@ function New-PodeWebCounterChart
         -ScriptBlock {
             param($counter)
             @{
-                Value = ((Get-Counter -Counter $counter -SampleInterval 1 -MaxSamples 3).CounterSamples.CookedValue | Measure-Object -Average).Average
+                Value = ((Get-Counter -Counter $counter -SampleInterval 1 -MaxSamples 2).CounterSamples.CookedValue | Measure-Object -Average).Average
             }
         }
 }
