@@ -45,16 +45,22 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "! "
-            New-PodeWebBadge -Value 'Sweet!' -Colour Cyan
+            New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan
         )
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Location Right
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
         New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon Command -Colour Green -ScriptBlock {
-            Show-PodeWebToast -Message "Message of the day: $($InputData.Value)"
+            Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
         }
         New-PodeWebAlert -Type Note -Value 'Hello, world'
     )
+
+    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
+        $rand = Get-Random -Minimum 0 -Maximum 3
+        $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
+        Out-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
+    }
 
     $section2 = New-PodeWebSection -Name 'Code' -NoHeader -Elements @(
         New-PodeWebCodeBlock -Value "Write-Host 'hello, world!'" -NoHighlight
@@ -80,7 +86,12 @@ Start-PodeServer -StatusPageExceptions Show {
     )
 
     $chartData = {
-        return (1..1 | ForEach-Object {
+        $count = 1
+        if ($WebEvent.Data.FirstLoad -eq '1') {
+            $count = 4
+        }
+
+        return (1..$count | ForEach-Object {
             @{
                 Key = $_
                 Value = (Get-Random -Maximum 10)
@@ -94,7 +105,7 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth
     )
 
-    Set-PodeWebHomePage -NoAuth -Components $section, $section2, $section3, $grid1 -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -NoAuth -Components $section, $section2, $section3, $grid1, $timer1 -Title 'Awesome Homepage'
 
 
     # tabs and charts
@@ -118,28 +129,28 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebAlert -Type Info -Value 'This does nothing, it is just an example'
         New-PodeWebCheckbox -Name Running -Id 'chk_svc_running' -AsSwitch
     ) -ScriptBlock {
-        $InputData | Out-Default
+        $WebEvent.Data | Out-Default
         Hide-PodeWebModal
     }
 
     $table = New-PodeWebTable -Name 'Static' -DataColumn Name -NoHeader -Filter -Sort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
-            Stop-Service -Name $InputData.Value -Force | Out-Null
-            Show-PodeWebToast -Message "$($InputData.Value) stopped"
+            Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
+            Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
             Sync-PodeWebTable -Id $ElementData.Component.ID
         }
 
         $startBtn = New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
-            Start-Service -Name $InputData.Value | Out-Null
-            Show-PodeWebToast -Message "$($InputData.Value) started"
+            Start-Service -Name $WebEvent.Data.Value | Out-Null
+            Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
             Sync-PodeWebTable -Id $ElementData.Component.ID
         }
 
         $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'Edit' -IconOnly -ScriptBlock {
-            $svc = Get-Service -Name $InputData.Value
+            $svc = Get-Service -Name $WebEvent.Data.Value
             $checked = ($svc.Status -ieq 'running')
 
-            Show-PodeWebModal -Id 'modal_edit_svc' -DataValue $InputData.Value -Actions @(
+            Show-PodeWebModal -Id 'modal_edit_svc' -DataValue $WebEvent.Data.Value -Actions @(
                 Out-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
             )
         }
@@ -177,7 +188,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
+        Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
     } -Elements @(
         New-PodeWebTextbox -Name 'Name'
     )

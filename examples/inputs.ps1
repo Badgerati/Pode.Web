@@ -12,11 +12,11 @@ Start-PodeServer {
     # set the home page controls (just a simple paragraph)
     $form = New-PodeWebForm -Name 'Test' -ScriptBlock {
         @{
-            Name = $InputData.Name
-            Password = $InputData.Password
-            Checkboxes = $InputData.Checkboxes
-            Radios = $InputData.Radios
-            Role = $InputData.Role
+            Name = $WebEvent.Data.Name
+            Password = $WebEvent.Data.Password
+            Checkboxes = $WebEvent.Data.Checkboxes
+            Radios = $WebEvent.Data.Radios
+            Role = $WebEvent.Data.Role
         } | Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Elements @(
         New-PodeWebTextbox -Name 'Name' -AutoComplete {

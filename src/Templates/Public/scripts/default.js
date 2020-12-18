@@ -35,7 +35,35 @@ $(document).ready(() => {
     bindProgressValue();
     bindModalSubmits();
     bindCollapse();
+
+    bindTimers();
 });
+
+function bindTimers() {
+    $('span.pode-timer').each((i, e) => {
+        var interval = $(e).attr('pode-interval');
+        var id = $(e).attr('id');
+
+        invokeTimer(id);
+
+        setInterval(() => {
+            invokeTimer(id);
+        }, interval);
+    });
+}
+
+function invokeTimer(timerId) {
+    $.ajax({
+        url: `/components/timer/${timerId}`,
+        method: 'post',
+        success: function(res) {
+            invokeActions(res);
+        },
+        error: function(err) {
+            console.log(err);
+        }
+    });
+}
 
 function bindMenuToggle() {
     $('button#menu-toggle').click(function(e) {
@@ -230,14 +258,23 @@ function loadChart(chartId) {
         return;
     }
 
+    // is this the chart's first load?
+    var data = '';
+    if (!_charts[chartId]) {
+        data = 'FirstLoad=1'
+    }
+
     // things get funky here if we have a chart with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
     var chart = $(`canvas#${chartId}`);
     var url = `/components/chart/${chartId}`;
-    var data = '';
 
     if (chart.attr('for')) {
         var form = $(`#${chart.attr('for')}`);
+        if (data) {
+            data += '&';
+        }
+
         data += form.serialize();
         url = form.attr('method');
     }
@@ -314,6 +351,10 @@ function invokeActions(actions, sender) {
 
             case 'href':
                 actionHref(action);
+                break;
+
+            case 'badge':
+                actionBadge(action);
                 break;
 
             default:
@@ -904,6 +945,10 @@ function hideModal(action, sender) {
 }
 
 function actionText(action) {
+    if (!action) {
+        return;
+    }
+
     var text = $(`#${action.ID}`);
     if (!text) {
         return;
@@ -1383,4 +1428,26 @@ function actionHref(action) {
     }
 
     window.location = action.Url;
+}
+
+function actionBadge(action) {
+    if (!action) {
+        return;
+    }
+
+    var badge = $(`span#${action.ID}`);
+    if (!badge) {
+        return;
+    }
+
+    // change text
+    if (action.Value) {
+        badge.text(action.Value);
+    }
+
+    // change colour
+    if (action.Colour) {
+        badge.removeClass();
+        badge.addClass(`badge badge-${action.ColourType}`);
+    }
 }

@@ -188,7 +188,6 @@ function New-PodeWebForm
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
             param($Data)
-            $global:InputData = $WebEvent.Data
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
             if ($null -eq $result) {
@@ -196,7 +195,6 @@ function New-PodeWebForm
             }
 
             Write-PodeJsonResponse -Value $result
-            $global:InputData = $null
         }
     }
 
@@ -207,6 +205,69 @@ function New-PodeWebForm
         Message = $Message
         Elements = $Elements
         NoHeader = $NoHeader.IsPresent
+    }
+}
+
+function New-PodeWebTimer
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [int]
+        $Interval = 60,
+
+        [Parameter(Mandatory=$true)]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
+    )
+
+    $Id = Get-PodeWebElementId -Tag Timer -Id $Id -Name $Name
+
+    if ($Interval -lt 10) {
+        $Interval = 10
+    }
+
+    $routePath = "/components/timer/$($Id)"
+    if (!(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value $result
+        }
+    }
+
+    return @{
+        ComponentType = 'Timer'
+        Name = $Name
+        ID = $Id
+        Interval = ($Interval * 1000)
     }
 }
 
@@ -414,7 +475,6 @@ function New-PodeWebModal
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
             param($Data)
-            $global:InputData = $WebEvent.Data
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
             if ($null -eq $result) {
@@ -422,7 +482,6 @@ function New-PodeWebModal
             }
 
             Write-PodeJsonResponse -Value $result
-            $global:InputData = $null
         }
     }
 

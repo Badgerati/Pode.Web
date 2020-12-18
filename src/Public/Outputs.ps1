@@ -238,8 +238,8 @@ function Show-PodeWebToast
     return @{
         Operation = 'Show'
         ElementType = 'Toast'
-        Message = $Message
-        Title = $Title
+        Message = [System.Net.WebUtility]::HtmlEncode($Message)
+        Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Duration = $Duration
         Icon = $Icon
     }
@@ -267,7 +267,7 @@ function Out-PodeWebValidation
         ElementType = 'Validation'
         Name = $Name
         ID = $Id
-        Message = $Message
+        Message = [System.Net.WebUtility]::HtmlEncode($Message)
     }
 }
 
@@ -304,7 +304,37 @@ function Out-PodeWebText
         Operation = 'Output'
         ElementType = 'Text'
         ID = $Id
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+    }
+}
+
+function Out-PodeWebBadge
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('', 'Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = ''
+    )
+
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
+
+    return @{
+        Operation = 'Output'
+        ElementType = 'Badge'
+        ID = $Id
+        Colour = $Colour
+        ColourType = $ColourType.ToLowerInvariant()
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
 

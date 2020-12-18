@@ -137,6 +137,7 @@ Components are the base elements that can contain and render other elements:
 * Sections
 * Charts / CounterCharts
 * Modals
+* Timers
 
 ## Layouts
 
@@ -186,9 +187,12 @@ Outputs allow you to manipulate the frontend from action ScriptBlocks - such as 
 * Validation (out)
 * Form (reset)
 * Text (out)
+* Badge (out)
 * Checkbox (out)
 * Modal (show/hide)
 * Desktop Notifications (show)
+* Page (move)
+* URL (move)
 
 ## Examples
 
@@ -219,7 +223,7 @@ Start-PodeServer {
 
     # add a page to search process (output as json in an appended textbox)
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
+        Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Elements @(
         New-PodeWebTextbox -Name 'Name'
     )
@@ -271,7 +275,7 @@ Start-PodeServer {
 
     # add a page to search process (output as json in an appended textbox)
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
-        Get-Process -Name $InputData.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
+        Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Elements @(
         New-PodeWebTextbox -Name 'Name'
     )

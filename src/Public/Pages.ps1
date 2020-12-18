@@ -340,31 +340,31 @@ function ConvertTo-PodeWebPage
             $formId = "form_param_$($cmd)_$($name)"
 
             $form = New-PodeWebForm -Name Parameters -Id $formId -NoHeader -Elements $elements -NoAuthentication:$NoAuthentication -ScriptBlock {
-                $cmd = $InputData['_Function_Name_']
-                $InputData.Remove('_Function_Name_')
+                $cmd = $WebEvent.Data['_Function_Name_']
+                $WebEvent.Data.Remove('_Function_Name_')
 
                 $_args = @{}
-                foreach ($key in $InputData.Keys) {
+                foreach ($key in $WebEvent.Data.Keys) {
                     if ($key -imatch '(?<name>.+)_(Username|Password)$') {
                         $name = $Matches['name']
                         $uKey = "$($name)_Username"
                         $pKey = "$($name)_Password"
 
-                        if (![string]::IsNullOrWhiteSpace($InputData[$uKey]) -and ![string]::IsNullOrWhiteSpace($InputData[$pKey])) {
-                            $creds = (New-Object System.Management.Automation.PSCredential -ArgumentList $InputData[$uKey], (ConvertTo-SecureString -AsPlainText $InputData[$pKey] -Force))
+                        if (![string]::IsNullOrWhiteSpace($WebEvent.Data[$uKey]) -and ![string]::IsNullOrWhiteSpace($WebEvent.Data[$pKey])) {
+                            $creds = (New-Object System.Management.Automation.PSCredential -ArgumentList $WebEvent.Data[$uKey], (ConvertTo-SecureString -AsPlainText $WebEvent.Data[$pKey] -Force))
                             $_args[$name] = $creds
                         }
                     }
                     else {
-                        if ($InputData[$key] -iin @('true', 'false')) {
-                            $_args[$key] = ($InputData[$key] -ieq 'true')
+                        if ($WebEvent.Data[$key] -iin @('true', 'false')) {
+                            $_args[$key] = ($WebEvent.Data[$key] -ieq 'true')
                         }
                         else {
-                            if ($InputData[$key].Contains(',')) {
-                                $_args[$key] = ($InputData[$key] -isplit ',' | ForEach-Object { $_.Trim() })
+                            if ($WebEvent.Data[$key].Contains(',')) {
+                                $_args[$key] = ($WebEvent.Data[$key] -isplit ',' | ForEach-Object { $_.Trim() })
                             }
                             else {
-                                $_args[$key] = $InputData[$key]
+                                $_args[$key] = $WebEvent.Data[$key]
                             }
                         }
                     }

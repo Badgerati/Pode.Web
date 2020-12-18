@@ -95,7 +95,6 @@ function New-PodeWebTextbox
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ScriptBlock {
             $global:ElementData = $using:element
-            $global:InputData = $WebEvent.Data
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:AutoComplete -Return
             if ($null -eq $result) {
@@ -104,7 +103,6 @@ function New-PodeWebTextbox
 
             Write-PodeJsonResponse -Value @{ Values = $result }
             $global:ElementData = $null
-            $global:InputData = $null
         }
     }
 
@@ -837,7 +835,6 @@ function New-PodeWebButton
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ScriptBlock {
             $global:ElementData = $using:element
-            $global:InputData = $WebEvent.Data
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
             if ($null -eq $result) {
@@ -846,7 +843,6 @@ function New-PodeWebButton
 
             Write-PodeJsonResponse -Value $result
             $global:ElementData = $null
-            $global:InputData = $null
         }
     }
 
