@@ -209,6 +209,8 @@ table tbody td {
 
 .navbar-brand {
     font-size: 1.5em !important;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
 }
 
 .form-signin {

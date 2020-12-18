@@ -29,7 +29,7 @@ Start-PodeServer {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -DarkMode
+    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
     Set-PodeWebLoginPage -Authentication Example
 
 

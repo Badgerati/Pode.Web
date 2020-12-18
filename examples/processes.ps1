@@ -20,7 +20,7 @@ Start-PodeServer {
     }
 
     # templates / login page
-    Use-PodeWebTemplates -Title Test -DarkMode
+    Use-PodeWebTemplates -Title Test -Theme Dark
     Set-PodeWebLoginPage -Authentication Example
 
     # processes - table for results, and a form to search

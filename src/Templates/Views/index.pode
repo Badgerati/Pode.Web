@@ -2,12 +2,8 @@
     $(Use-PodeWebPartialView -Path 'shared/head' -Data @{ Title = $data.Page.Name })
 
     $(
-        $darkMode = [string]::Empty
-        if ((Get-PodeWebState -Name 'darkmode')) {
-            $darkMode = 'pode-dark'
-        }
-
-        "<body id='normal-page' class='$($darkMode)'>"
+        $theme = (Get-PodeWebState -Name 'theme')
+        "<body id='normal-page' pode-theme='$($theme)'>"
     )
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
             <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">
@@ -70,6 +66,7 @@
 
                             $(
                                 $groups = (Get-PodeWebState -Name 'pages' | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
+                                $bsColour = Get-PodeWebState -Name 'default-bs-colour'
 
                                 foreach ($group in $groups) {
                                     if (![string]::IsNullOrWhiteSpace($group.Name)) {
@@ -78,7 +75,7 @@
                                                 <span data-feather='arrow-right'></span>
                                                 <span data-feather='arrow-down-right' style='display:none;'></span>
                                                 <span class='h6'>$($group.Name)</span>
-                                                <span class='badge badge-primary'>$($group.Count)</span>
+                                                <span class='badge badge-$($bsColour)'>$($group.Count)</span>
                                             </a>
                                         </li>"
 

@@ -164,13 +164,13 @@ function loadTable(tableId, pageNumber, pageAmount) {
 
     // things get funky here if we have a table with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var table = $(`table#${tableId}`)
+    var table = $(`table#${tableId}`);
     var url = `/components/table/${tableId}`;
 
     if (table.attr('for')) {
         var form = $(`#${table.attr('for')}`);
         if (data) {
-            data += '&'
+            data += '&';
         }
 
         data += form.serialize();
@@ -218,9 +218,23 @@ function loadChart(chartId) {
         return;
     }
 
+    // things get funky here if we have a chart with a 'for' attr
+    // if so, we need to serialize the form, and then send the request to the form instead
+    var chart = $(`canvas#${chartId}`);
+    var url = `/components/chart/${chartId}`;
+    var data = '';
+
+    if (chart.attr('for')) {
+        var form = $(`#${chart.attr('for')}`);
+        data += form.serialize();
+        url = form.attr('method');
+    }
+
     $.ajax({
-        url: `/components/chart/${chartId}`,
+        url: url,
         method: 'post',
+        data: data,
+        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
         success: function(res) {
             invokeActions(res, $(`canvas#${chartId}`));
         },
@@ -648,17 +662,19 @@ function updateTable(component, sender) {
 
     // table meta
     var tableId = `table#${component.ID}`;
+    var table = $(tableId);
+
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
 
     // get senderId if present, and set on table as 'for'
     var senderId = getId(sender);
     if (senderId && getTagName(sender) == 'form') {
-        $(tableId).attr('for', senderId);
+        table.attr('for', senderId);
     }
 
     // is there a data column?
-    var dataColumn = $(tableId).attr('pode-data-column');
+    var dataColumn = table.attr('pode-data-column');
 
     // table headers
     tableHead.empty();
@@ -699,9 +715,9 @@ function updateTable(component, sender) {
     });
 
     // is the table paginated?
-    var isPaginated = ($(tableId).attr('pode-paginate') == 'True');
+    var isPaginated = (table.attr('pode-paginate') == 'True');
     if (isPaginated) {
-        var paging = $(tableId).closest('.card-body').find('nav ul');
+        var paging = table.closest('.card-body').find('nav ul');
         paging.empty();
 
         // previous
@@ -776,7 +792,7 @@ function updateTable(component, sender) {
     bindTablePagination();
 
     // setup table filter
-    filterTable($(tableId).closest('div.card-body').find('input.pode-table-filter'));
+    filterTable(table.closest('div.card-body').find('input.pode-table-filter'));
 
     // setup clickable rows
     $(`${tableId}.pode-table-click tbody tr`).click(function() {
@@ -1057,7 +1073,7 @@ function downloadCSV(csv, filename) {
 
 function actionChart(action, sender) {
     if (action.ID) {
-        updateChart(action);
+        updateChart(action, sender);
     }
     else {
         writeChart(action, sender);
@@ -1066,7 +1082,7 @@ function actionChart(action, sender) {
 
 var _charts = {};
 
-function updateChart(component) {
+function updateChart(component, sender) {
     if (!component.Data) {
         return;
     }
@@ -1083,6 +1099,7 @@ function updateChart(component) {
     var _append = (canvas.attr('pode-append') == 'True');
     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
+    // apend new data, rather than rebuild the chart
     if (_append && _charts[component.ID]) {
         var _chart = _charts[component.ID];
         var _max = canvas.attr('pode-max');
@@ -1114,7 +1131,9 @@ function updateChart(component) {
         _chart.update();
     }
 
+    // build the chart
     else {
+        // x-axis labels
         var xAxis = [];
         component.Data.forEach((item) => {
             if (_timeLabels) {
@@ -1125,14 +1144,23 @@ function updateChart(component) {
             }
         });
 
+        // y-axis labels
         var yAxis = [];
         component.Data.forEach((item) => {
             yAxis = yAxis.concat(item.Value);
         });
 
+        // get the chart's canvas and type
         var ctx = document.getElementById(component.ID).getContext('2d');
-        var chartType = ($(`canvas#${component.ID}`).attr('pode-chart-type') || component.ChartType);
+        var chartType = (canvas.attr('pode-chart-type') || component.ChartType);
 
+        // get senderId if present, and set on canvas as 'for'
+        var senderId = getId(sender);
+        if (senderId && getTagName(sender) == 'form') {
+            canvas.attr('for', senderId);
+        }
+
+        // colours for lines/bars/segments
         var palette = [
             'rgb(255, 159, 64)',
             'rgb(255, 99, 132)',
@@ -1143,30 +1171,40 @@ function updateChart(component) {
             'rgb(201, 203, 207)'
         ]
 
-        var isDark = $('body.pode-dark').length > 0;
-
-        var dataset = {};
+        // axis themes
+        var theme = $('body').attr('pode-theme');
 
         var axesOpts = [];
-        var axesDarkOpts = [{
-            gridLines: {
-                color: '#214981',
-                zeroLineColor: '#214981'
-            },
-            ticks: { fontColor: '#ccc' }
-        }];
+        var axesThemes = {
+            'dark': [{
+                gridLines: {
+                    color: '#214981',
+                    zeroLineColor: '#214981'
+                },
+                ticks: { fontColor: '#ccc' }
+            }],
+            'terminal': [{
+                gridLines: {
+                    color: 'darkgreen',
+                    zeroLineColor: 'darkgreen'
+                },
+                ticks: { fontColor: '#33ff00' }
+            }]
+        }
 
+        // dataset details
+        var dataset = {};
         switch (chartType.toLowerCase()) {
             case 'line':
                 dataset = {
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: (theme == 'terminal' ? 'rgba(255, 176, 0, 0.2)' : 'rgba(54, 162, 235, 0.2)'),
+                    borderColor: (theme == 'terminal' ? 'rgb(255, 176, 0)' : 'rgb(54, 162, 235)'),
                     borderWidth: 3,
-                    pointBackgroundColor: '#007bff'
+                    pointBackgroundColor: (theme == 'terminal' ? '#ffb000' : '#007bff')
                 }
 
-                if (isDark) {
-                    axesOpts = axesDarkOpts;
+                if (theme != 'light') {
+                    axesOpts = axesThemes[theme];
                 }
                 break;
 
@@ -1178,8 +1216,14 @@ function updateChart(component) {
                     }
                 }
 
-                if (isDark) {
-                    dataset.borderColor = '#214981';
+                switch (theme) {
+                    case 'dark':
+                        dataset.borderColor = '#214981';
+                        break;
+
+                    case 'terminal':
+                        dataset.borderColor = 'darkgreen';
+                        break;
                 }
                 break;
 
@@ -1194,14 +1238,15 @@ function updateChart(component) {
                     borderWidth: 1
                 }
 
-                if (isDark) {
-                    axesOpts = axesDarkOpts;
+                if (theme != 'light') {
+                    axesOpts = axesThemes[theme];
                 }
                 break;
         }
 
         dataset.data = yAxis;
 
+        // make the chart
         var chart = new Chart(ctx, {
             type: chartType.toLowerCase(),
 
@@ -1222,6 +1267,7 @@ function updateChart(component) {
             }
         });
 
+        // save chart for later appendage
         if (_append) {
             _charts[component.ID] = chart;
         }
@@ -1243,7 +1289,7 @@ function writeChart(component, sender) {
 
     // update
     component.ID = chartId;
-    updateChart(component);
+    updateChart(component, sender);
 }
 
 function getTimeString() {

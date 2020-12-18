@@ -62,6 +62,10 @@ body, main[role="main"], body#login-page, body#normal-page {
     color: #ccc !important;
 }
 
+.btn-icon-only:hover {
+    color: dodgerblue !important;
+}
+
 .toast-body {
     color: #444a50 !important;
 }

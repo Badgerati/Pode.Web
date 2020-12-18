@@ -22,14 +22,14 @@ At present these are loaded using the jsDelivr CDN.
 
 ## Usage
 
-To use the Pode.Web templates, you first need to call `Use-PodeWebTemplates`; you can supply a Title, Logo, FavIcon, custom Stylesheet, or flag to use DarkMode:
+To use the Pode.Web templates, you first need to call `Use-PodeWebTemplates`; you can supply a Title, Logo, FavIcon, custom Stylesheet, or change the Theme:
 
 ```powershell
 Import-Module Pode
 Import-Module Pode.Web
 
 Start-PodeServer {
-    Use-PodeWebTemplates -Title 'Some Title' -DarkMode
+    Use-PodeWebTemplates -Title 'Some Title' -Theme Dark
 }
 ```
 
@@ -173,6 +173,7 @@ These are the building elements that can be used in components:
 * Icon
 * Badge
 * Spinner
+* Comment Block
 
 ## Outputs
 

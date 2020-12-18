@@ -41,9 +41,9 @@
 
         <div class="table-responsive">
             $(
-                $dark = [string]::Empty
-                if (Get-PodeWebState -Name 'darkmode') {
-                    $dark = 'table-dark'
+                $theme = (Get-PodeWebState -Name 'theme')
+                if ($theme -iin @('dark', 'terminal')) {
+                    $theme = 'table-dark'
                 }
 
                 $click = [string]::Empty
@@ -54,7 +54,7 @@
                 "<table
                     id='$($data.Meta.ID)'
                     name='$($data.Meta.Name)'
-                    class='table table-striped table-hover $($dark) $($click)'
+                    class='table table-striped table-hover $($theme) $($click)'
                     pode-dynamic='$($data.Meta.IsDynamic)'
                     pode-data-column='$($data.Meta.DataColumn)'
                     pode-auto-refresh='$($data.Meta.AutoRefresh)'

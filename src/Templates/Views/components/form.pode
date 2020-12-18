@@ -9,7 +9,7 @@
 
         <form id="$($data.Meta.ID)" class="pode-component-form" action="POST" method="/components/form/$($data.Meta.ID)">
             $(Use-PodeWebPartialView -Path 'elements/_load' -Data @{ Elements = $data.Meta.Elements })
-            <button class="btn btn-primary" type="submit">
+            <button class="btn btn-$(Get-PodeWebState -Name 'default-bs-colour')" type="submit">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                 Submit
             </button>
