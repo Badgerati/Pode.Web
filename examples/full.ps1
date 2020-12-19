@@ -195,4 +195,9 @@ Start-PodeServer -StatusPageExceptions Show {
     )
 
     Add-PodeWebPage -Name Processes -Icon Activity -Group Tools -AccessGroups Developer -Components $form
+
+
+    # page with table showing csv data
+    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv'
+    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Components $table2
 }

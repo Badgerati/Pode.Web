@@ -30,7 +30,12 @@ function New-PodeWebTable
         [object[]]
         $ArgumentList,
 
+        [Parameter(ParameterSetName='Csv')]
+        [string]
+        $CsvFilePath,
+
         [Parameter(ParameterSetName='Dynamic')]
+        [Parameter(ParameterSetName='Csv')]
         [int]
         $PageAmount = 20,
 
@@ -44,6 +49,7 @@ function New-PodeWebTable
         $Click,
 
         [Parameter(ParameterSetName='Dynamic')]
+        [Parameter(ParameterSetName='Csv')]
         [switch]
         $Paginate,
 
@@ -56,6 +62,7 @@ function New-PodeWebTable
         $NoAuthentication,
 
         [Parameter(ParameterSetName='Dynamic')]
+        [Parameter(ParameterSetName='Csv')]
         [switch]
         $AutoRefresh,
 
@@ -64,6 +71,10 @@ function New-PodeWebTable
     )
 
     $Id = Get-PodeWebElementId -Tag Table -Id $Id -Name $Name
+
+    if (![string]::IsNullOrWhiteSpace($CsvFilePath) -and $CsvFilePath.StartsWith('.')) {
+        $CsvFilePath = Join-Path (Get-PodeServerPath) $CsvFilePath
+    }
 
     $component = @{
         ComponentType = 'Table'
@@ -75,7 +86,7 @@ function New-PodeWebTable
         Filter = $Filter.IsPresent
         Sort = $Sort.IsPresent
         Click = $Click.IsPresent
-        IsDynamic = ($null -ne $ScriptBlock)
+        IsDynamic = ($PSCmdlet.ParameterSetName -iin @('dynamic', 'csv'))
         NoExport = $NoExport.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
         NoHeader = $NoHeader.IsPresent
@@ -86,7 +97,9 @@ function New-PodeWebTable
     }
 
     $routePath = "/components/table/$($Id)"
-    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+    $buildRoute = (($null -ne $ScriptBlock) -or ![string]::IsNullOrWhiteSpace($CsvFilePath))
+
+    if ($buildRoute -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -96,7 +109,14 @@ function New-PodeWebTable
             param($Data)
             $global:ComponentData = $using:component
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $csvFilePath = $using:CsvFilePath
+            if ([string]::IsNullOrWhiteSpace($csvFilePath)) {
+                $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            }
+            else {
+                $result = Import-Csv -Path $csvFilePath
+            }
+
             if ($null -eq $result) {
                 $result = @()
             }
