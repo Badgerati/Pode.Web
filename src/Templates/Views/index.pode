@@ -10,7 +10,7 @@
                 <span data-feather='menu' class='mRight02'></span>
             </button>
 
-            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">
+            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">
                 $(
                     $title = Get-PodeWebState -Name 'title'
                     $logo = Get-PodeWebState -Name 'logo'
@@ -33,7 +33,7 @@
             $(if ($data.Auth.Enabled) {
                 if ($data.Auth.Authenticated) {
                     "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
-                        <span class='navbar-text mRight05 welcome-msg'>Hello, $($data.Username)</span>
+                        <span class='navbar-text mRight05 welcome-msg'>Hello, $($data.Auth.Username)</span>
                         <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
                             <span data-feather='log-out' class='mRight02'></span>
                             Sign out
@@ -59,6 +59,13 @@
                         <input type='text' class='form-control pode-nav-filter' id="filter_sidebar" placeholder='Filter' for="sidebar-list">
                     </div>
 
+                    <footer class="footer mt-auto py-3">
+                        <div class="container">
+                            <span class="text-muted">
+                                🧡 Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
+                            </span>
+                        </div>
+                    </footer>
                     <div class="sidebar-sticky pt-0">
                         <ul id="sidebar-list" class="nav flex-column">
                             <li class="nav-item nav-page-item">
@@ -69,24 +76,28 @@
                             </li>
 
                             $(
-                                $groups = (Get-PodeWebState -Name 'pages' | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
+                                $pageGroups = (Get-PodeWebState -Name 'pages' | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
                                 $bsColour = Get-PodeWebState -Name 'default-bs-colour'
 
-                                foreach ($group in $groups) {
-                                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
+                                foreach ($pageGroup in $pageGroups) {
+                                    if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
                                         "<li class='nav-item mTop1 nav-group-title'>
-                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($group.Name)' aria-expanded='$($data.Page.Group -ieq $group.Name)' aria-controls='nav-$($group.Name)'>
+                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
                                                 <span data-feather='arrow-right'></span>
                                                 <span data-feather='arrow-down-right' style='display:none;'></span>
-                                                <span class='h6'>$($group.Name)</span>
-                                                <span class='badge badge-$($bsColour)'>$($group.Count)</span>
+                                                <span class='h6'>$($pageGroup.Name)</span>
+                                                <span class='badge badge-$($bsColour)'>$($pageGroup.Count)</span>
                                             </a>
                                         </li>"
 
-                                        "<div class='collapse $(if ($data.Page.Group -ieq $group.Name) { "show" })' id='nav-$($group.Name)'>"
+                                        "<div class='collapse $(if ($data.Page.Group -ieq $pageGroup.Name) { "show" })' id='nav-$($pageGroup.Name)'>"
                                     }
 
-                                    foreach ($page in $group.Group) {
+                                    foreach ($page in $pageGroup.Group) {
+                                        if (!(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
+                                            continue
+                                        }
+
                                         "<li class='nav-item nav-page-item'>
                                             <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' href='/pages/$($page.Name)'>
                                                 <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
@@ -95,7 +106,7 @@
                                         </li>"
                                     }
 
-                                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
+                                    if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
                                         "</div>"
                                     }
                                 }
@@ -103,13 +114,6 @@
                         </ul>
                     </div>
 
-                    <footer class="footer mt-auto py-3">
-                        <div class="container">
-                            <span class="text-muted">
-                                🧡 Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
-                            </span>
-                        </div>
-                    </footer>
                 </nav>
 
                 <div aria-live="polite" aria-atomic="true" style="min-height: 200px;" class="sticky">

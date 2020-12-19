@@ -12,10 +12,20 @@ function Set-PodeWebLoginPage
 
         [Parameter()]
         [string]
-        $Copyright
+        $Copyright,
+
+        [Parameter()]
+        [string]
+        $UsernameProperty,
+
+        [Parameter()]
+        [string]
+        $GroupProperty
     )
 
     Set-PodeWebState -Name 'auth' -Value $Authentication
+    Set-PodeWebState -Name 'auth-username-prop' -Value $UsernameProperty
+    Set-PodeWebState -Name 'auth-group-prop' -Value $GroupProperty
 
     if ([string]::IsNullOrWhiteSpace($Icon)) {
         $Icon = '/pode.web/images/icon.png'
@@ -33,7 +43,6 @@ function Set-PodeWebLoginPage
     }
 
     Add-PodeRoute -Method Post -Path '/login' -Authentication $Authentication -Login
-
     Add-PodeRoute -Method Post -Path '/logout' -Authentication $Authentication -Logout
 
     Remove-PodeRoute -Method Get -Path '/'
@@ -46,13 +55,17 @@ function Set-PodeWebLoginPage
 
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
+        $groups = Get-PodeWebAuthGroups -AuthData $authData
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
-            Name = 'Home'
-            Username = $username
+            Page = @{
+                Name = 'Home'
+            }
             Auth = @{
                 Enabled = $true
                 Authenticated = $authData.IsAuthenticated
+                Username = $username
+                Groups = $groups
             }
         }
     }
@@ -106,17 +119,19 @@ function Set-PodeWebHomePage
 
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
+        $groups = Get-PodeWebAuthGroups -AuthData $authData
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
             }
             Title = $using:Title
-            Username = $username
             Components = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
                 Authenticated = $authData.IsAuthenticated
+                Username = $username
+                Groups = $groups
             }
         }
     }
@@ -152,6 +167,14 @@ function Add-PodeWebPage
         $ScriptBlock,
 
         [Parameter()]
+        [string[]]
+        $AccessGroups = @(),
+
+        [Parameter()]
+        [string[]]
+        $AccessUsers = @(),
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication
@@ -169,7 +192,17 @@ function Add-PodeWebPage
         throw " Web page already exists: $($Name)"
     }
 
-    Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + @{ Name = $Name; Icon = $Icon; Group = $Group })
+    $pageMeta = @{
+        Name = $Name
+        Icon = $Icon
+        Group = $Group
+        Access = @{
+            Groups = @($AccessGroups)
+            Users = @($AccessUsers)
+        }
+    }
+
+    Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + $pageMeta)
 
     # set page title
     if ([string]::IsNullOrWhiteSpace($Title)) {
@@ -184,34 +217,42 @@ function Add-PodeWebPage
 
     # add the page route
     Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -ScriptBlock {
-        $global:PageData = @{
-            Name = $using:Name
-            Group = $using:Group
-            ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
-        }
+        $global:PageData = $using:pageMeta
+        $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
 
         # get auth details of a user
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
+        $groups = Get-PodeWebAuthGroups -AuthData $authData
 
-        # if we have a scriptblock, invoke that to get dynamic components
-        $comps =$null
-        if ($null -ne $using:ScriptBlock) {
-            $comps = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
-        }
-
-        if (($null -eq $comps) -or ($comps.Length -eq 0)) {
-            $comps = $using:Components
-        }
-
-        Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = $global:PageData
-            Title = $using:Title
+        $authMeta = @{
+            Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
+            Authenticated = $authData.IsAuthenticated
             Username = $username
-            Components = $comps
-            Auth = @{
-                Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
-                Authenticated = $authData.IsAuthenticated
+            Groups = $groups
+        }
+
+        # check access - 403 if denied
+        if (!(Test-PodeWebPageAccess -PageAccess $global:PageData.Access -Auth $authMeta)) {
+            Set-PodeResponseStatus -Code 403
+        }
+
+        else {
+            # if we have a scriptblock, invoke that to get dynamic components
+            $comps =$null
+            if ($null -ne $using:ScriptBlock) {
+                $comps = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+            }
+
+            if (($null -eq $comps) -or ($comps.Length -eq 0)) {
+                $comps = $using:Components
+            }
+
+            Write-PodeWebViewResponse -Path 'index' -Data @{
+                Page = $global:PageData
+                Title = $using:Title
+                Components = $comps
+                Auth = $authMeta
             }
         }
 

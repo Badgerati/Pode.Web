@@ -1,7 +1,21 @@
 <div class="card">
-    $(if (!$data.Meta.NoHeader) {
-        "<h5 class='card-header'>$($data.Meta.Name)</h5>"
-    })
+    <div class="card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom">
+        $(if (!$data.Meta.NoHeader) {
+            "<h5>$($data.Meta.Name)</h5>"
+        }
+        else {
+            "<h5></h5>"
+        })
+        <div class="btn-toolbar mb-2 mb-md-0 mTop-05">
+            <div class="btn-group mr-2">
+                <button type='button' class='btn btn-sm btn-outline-secondary pode-card-collapse'>
+                    <span data-feather='eye'></span>
+                    <span data-feather='eye-off' style='display: none;'></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="card-body">
         $(Use-PodeWebPartialView -Path 'elements/_load' -Data @{ Elements = $data.Meta.Elements })
     </div>

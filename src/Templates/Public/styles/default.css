@@ -183,12 +183,13 @@ input[type="number"].pode-range-value {
 }
 
 .sidebar-sticky ul {
-    margin-bottom: 4em !important;
+    margin-bottom: 5em !important;
 }
 
 .footer {
     z-index: 9999;
-    margin-top: 3.5em !important;
+    bottom: 0;
+    position: fixed;
 }
 
 table {

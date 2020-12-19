@@ -28,6 +28,12 @@ function Get-PodeWebAuthUsername
 
     $user = $AuthData.User
 
+    # check username prop
+    $prop = Get-PodeWebState -Name 'auth-username-prop'
+    if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
+        return $user.$prop
+    }
+
     # name
     if (![string]::IsNullOrWhiteSpace($user.Name)) {
         return $user.Name
@@ -35,7 +41,7 @@ function Get-PodeWebAuthUsername
 
     # full name
     if (![string]::IsNullOrWhiteSpace($user.FullName)) {
-        return $user.Name
+        return $user.FullName
     }
 
     # username
@@ -43,13 +49,99 @@ function Get-PodeWebAuthUsername
         return $user.Username
     }
 
-    # email - spli on @ though
+    # email - split on @ though
     if (![string]::IsNullOrWhiteSpace($user.Email)) {
         return ($user.Email -split '@')[0]
     }
 
     # nothing
     return [string]::Empty
+}
+
+function Get-PodeWebAuthGroups
+{
+    param(
+        [Parameter()]
+        $AuthData
+    )
+
+    # nothing if no auth data
+    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+        return @()
+    }
+
+    $user = $AuthData.User
+
+    # check group prop
+    $prop = Get-PodeWebState -Name 'auth-group-prop'
+    if (![string]::IsNullOrWhiteSpace($prop) -and !(Test-PodeWebArrayEmpty -Array $user.$prop)) {
+        return @($user.$prop)
+    }
+
+    # groups
+    if (!(Test-PodeWebArrayEmpty -Array $user.Groups)) {
+        return @($user.Groups)
+    }
+
+    # roles
+    if (!(Test-PodeWebArrayEmpty -Array $user.Roles)) {
+        return @($user.Roles)
+    }
+
+    # scopes
+    if (!(Test-PodeWebArrayEmpty -Array $user.Scopes)) {
+        return @($user.Scopes)
+    }
+
+    # nothing
+    return @()
+}
+
+function Test-PodeWebArrayEmpty
+{
+    param(
+        [Parameter()]
+        $Array
+    )
+
+    return (($null -eq $Array) -or (@($Array).Length -eq 0))
+}
+
+function Test-PodeWebPageAccess
+{
+    param(
+        [Parameter()]
+        $PageAccess,
+
+        [Parameter()]
+        $Auth
+    )
+
+    $hasGroups = (!(Test-PodeWebArrayEmpty -Array $PageAccess.Groups))
+    $hasUsers = (!(Test-PodeWebArrayEmpty -Array $PageAccess.Users))
+
+    # if page has no access restriction, just return
+    if (!$hasGroups -and !$hasUsers) {
+        return $true
+    }
+
+    # check groups
+    if ($hasGroups -and !(Test-PodeWebArrayEmpty -Array $Auth.Groups)) {
+        foreach ($group in $PageAccess.Groups) {
+            if ($Auth.Groups -icontains $group) {
+                return $true
+            }
+        }
+    }
+
+    # check users
+    if ($hasUsers -and ![string]::IsNullOrWhiteSpace($Auth.Username)) {
+        if ($PageAccess.Users -icontains $Auth.Username) {
+            return $true
+        }
+    }
+
+    return $false
 }
 
 function Write-PodeWebViewResponse

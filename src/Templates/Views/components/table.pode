@@ -24,6 +24,11 @@
                         Export
                     </button>"
                 })
+
+                <button type='button' class='btn btn-sm btn-outline-secondary pode-card-collapse'>
+                    <span data-feather='eye'></span>
+                    <span data-feather='eye-off' style='display: none;'></span>
+                </button>
             </div>
         </div>
     </div>

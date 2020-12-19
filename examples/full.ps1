@@ -20,6 +20,7 @@ Start-PodeServer -StatusPageExceptions Show {
                     ID ='M0R7Y302'
                     Name = 'Morty'
                     Type = 'Human'
+                    Groups = @('Developer')
                 }
             }
         }
@@ -193,5 +194,5 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Group Tools -Components $form
+    Add-PodeWebPage -Name Processes -Icon Activity -Group Tools -AccessGroups Developer -Components $form
 }

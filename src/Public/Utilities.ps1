@@ -58,6 +58,10 @@ function Use-PodeWebTemplates
             return
         }
 
-        Write-PodeWebViewResponse -Path 'index' -Data @{ Name = 'Home' }
+        Write-PodeWebViewResponse -Path 'index' -Data @{
+            Page = @{
+                Name = 'Home'
+            }
+        }
     }
 }

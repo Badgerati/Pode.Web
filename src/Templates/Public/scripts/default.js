@@ -34,10 +34,25 @@ $(document).ready(() => {
     bindRangeValue();
     bindProgressValue();
     bindModalSubmits();
-    bindCollapse();
+
+    bindPageGroupCollapse();
+    bindCardCollapse();
 
     bindTimers();
 });
+
+function bindCardCollapse() {
+    $('button.pode-card-collapse').click(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var button = $(e.currentTarget);
+        button.find('.feather-eye').toggle();
+        button.find('.feather-eye-off').toggle();
+
+        button.closest('.card').find('.card-body').slideToggle();
+    });
+}
 
 function bindTimers() {
     $('span.pode-timer').each((i, e) => {
@@ -141,7 +156,7 @@ function bindTableSort(tableId) {
     }
 }
 
-function bindCollapse() {
+function bindPageGroupCollapse() {
     $('ul#sidebar-list div.collapse').on('hide.bs.collapse', function(e) {
         toggleCollapseArrow(e.target, 'arrow-right', 'arrow-down-right');
     });
