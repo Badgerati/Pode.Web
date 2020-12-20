@@ -86,7 +86,7 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )
 
-    $codeEditor = New-PodeWebCodeEditor -Language PowerShell
+    $codeEditor = New-PodeWebCodeEditor -Language PowerShell -Name 'Code Editor'
 
     $chartData = {
         $count = 1
@@ -97,7 +97,16 @@ Start-PodeServer -StatusPageExceptions Show {
         return (1..$count | ForEach-Object {
             @{
                 Key = $_
-                Value = (Get-Random -Maximum 10)
+                Values = @(
+                    @{
+                        Key = 'Example1'
+                        Value = (Get-Random -Maximum 10)
+                    },
+                    @{
+                        Key = 'Example2'
+                        Value = (Get-Random -Maximum 10)
+                    }
+                )
             }
         })
     }
@@ -191,6 +200,11 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
     $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
+        if ($WebEvent.Data.Name.Length -le 3) {
+            Out-PodeWebValidation -Name 'Name' -Message 'Name must be greater than 3 characters'
+            return
+        }
+
         Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
     } -Elements @(
         New-PodeWebTextbox -Name 'Name'

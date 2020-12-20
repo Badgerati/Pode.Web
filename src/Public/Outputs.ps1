@@ -132,6 +132,18 @@ function Out-PodeWebChart
     }
 
     process {
+        if ($Data.Values -isnot [array]) {
+            if ($Data.Values -is [hashtable]) {
+                $Data.Values = @($Data.Values)
+            }
+            else {
+                $Data.Values = @(@{
+                    Key = 'Default'
+                    Value = $Data.Values
+                })
+            }
+        }
+
         $items += $Data
     }
 

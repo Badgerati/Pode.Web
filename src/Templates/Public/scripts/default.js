@@ -1189,181 +1189,227 @@ function updateChart(component, sender) {
 
     var canvas = $(`canvas#${component.ID}`)
     var _append = (canvas.attr('pode-append') == 'True');
-    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
     // apend new data, rather than rebuild the chart
     if (_append && _charts[component.ID]) {
-        var _chart = _charts[component.ID];
-        var _max = canvas.attr('pode-max');
-
-        // labels
-        component.Data.forEach((item) => {
-            if (_timeLabels) {
-                _chart.data.labels.push(getTimeString());
-            }
-            else {
-                _chart.data.labels.push(item.Key);
-            }
-        });
-
-        if (_max > 0 && _chart.data.labels.length > _max) {
-            _chart.data.labels = _chart.data.labels.slice(_chart.data.labels.length - _max, _chart.data.labels.length);
-        }
-
-        // data
-        component.Data.forEach((item) => {
-            _chart.data.datasets[0].data.push(item.Value);
-        });
-
-        if (_max > 0 && _chart.data.datasets[0].data.length > _max) {
-            _chart.data.datasets[0].data = _chart.data.datasets[0].data.slice(_chart.data.datasets[0].data.length - _max, _chart.data.datasets[0].data.length);
-        }
-
-        // re-render
-        _chart.update();
+        appendToChart(canvas, component);
     }
 
     // build the chart
     else {
-        // x-axis labels
-        var xAxis = [];
-        component.Data.forEach((item) => {
-            if (_timeLabels) {
-                xAxis = xAxis.concat(getTimeString());
-            }
-            else {
-                xAxis = xAxis.concat(item.Key);
-            }
-        });
+        createTheChart(canvas, component, sender);
+    }
+}
 
-        // y-axis labels
-        var yAxis = [];
-        component.Data.forEach((item) => {
-            yAxis = yAxis.concat(item.Value);
-        });
+function appendToChart(canvas, component) {
+    var _chart = _charts[component.ID];
+    var _max = canvas.attr('pode-max');
+    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
-        // get the chart's canvas and type
-        var ctx = document.getElementById(component.ID).getContext('2d');
-        var chartType = (canvas.attr('pode-chart-type') || component.ChartType);
-
-        // get senderId if present, and set on canvas as 'for'
-        var senderId = getId(sender);
-        if (senderId && getTagName(sender) == 'form') {
-            canvas.attr('for', senderId);
+    // labels (x-axis)
+    component.Data.forEach((item) => {
+        if (_timeLabels) {
+            _chart.data.labels.push(getTimeString());
         }
+        else {
+            _chart.data.labels.push(item.Key);
+        }
+    });
 
-        // colours for lines/bars/segments
-        var palette = [
-            'rgb(255, 159, 64)',
-            'rgb(255, 99, 132)',
-            'rgb(255, 205, 86)',
-            'rgb(0, 163, 51)',
-            'rgb(54, 162, 235)',
-            'rgb(153, 102, 255)',
-            'rgb(201, 203, 207)'
-        ]
+    _chart.data.labels = truncateArray(_chart.data.labels, _max);
 
-        // axis themes
-        var theme = $('body').attr('pode-theme');
+    // data (y-axis)
+    component.Data.forEach((item) => {
+        item.Values.forEach((set, index) => {
+            _chart.data.datasets[index].data.push(set.Value);
+        });
+    });
 
-        var axesOpts = [];
-        var axesThemes = {
-            'dark': [{
+    _chart.data.datasets.forEach((dataset) => {
+        dataset.data = truncateArray(dataset.data, _max);
+    });
+
+    // re-render
+    _chart.update();
+}
+
+function truncateArray(array, maxItems) {
+    if (maxItems <= 0) {
+        return array;
+    }
+
+    if (array.length <= maxItems) {
+        return array;
+    }
+
+    return array.slice(array.length - maxItems, array.length);
+}
+
+function createTheChart(canvas, component, sender) {
+    // get the chart's canvas and type
+    var ctx = document.getElementById(component.ID).getContext('2d');
+    var chartType = (canvas.attr('pode-chart-type') || component.ChartType);
+    var theme = $('body').attr('pode-theme');
+    var _append = (canvas.attr('pode-append') == 'True');
+    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
+
+    // get senderId if present, and set on canvas as 'for'
+    var senderId = getId(sender);
+    if (senderId && getTagName(sender) == 'form') {
+        canvas.attr('for', senderId);
+    }
+
+    // colours for lines/bars/segments
+    var palette = getChartColourPalette(theme);
+
+    // axis themes
+    var axesOpts = [];
+
+    // x-axis labels
+    var xAxis = [];
+    component.Data.forEach((item) => {
+        if (_timeLabels) {
+            xAxis = xAxis.concat(getTimeString());
+        }
+        else {
+            xAxis = xAxis.concat(item.Key);
+        }
+    });
+
+    // y-axis labels - need to support datasets
+    var yAxises = {};
+    component.Data[0].Values.forEach((item) => {
+        yAxises[item.Key] = {
+            data: [],
+            label: item.Key
+        };
+    });
+
+    component.Data.forEach((item) => {
+        item.Values.forEach((set) => {
+            yAxises[set.Key].data = yAxises[set.Key].data.concat(set.Value);
+        });
+    });
+
+    // dataset details
+    Object.keys(yAxises).forEach((key, index) => {
+        switch (chartType.toLowerCase()) {
+            case 'line':
+                yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.2)');
+                yAxises[key].borderColor = palette[index % palette.length];
+                yAxises[key].borderWidth = 3;
+                axesOpts = getChartAxesColours(theme);
+                break;
+
+            case 'doughnut':
+            case 'pie':
+                yAxises[key].backgroundColor = function(context) {
+                    return palette[context.dataIndex % palette.length];
+                };
+                yAxises[key].borderColor = getChartPieBorderColour(theme);
+                break;
+
+            case 'bar':
+                yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.6)');
+                yAxises[key].borderColor = palette[index % palette.length];
+                yAxises[key].borderWidth = 1;
+                axesOpts = getChartAxesColours(theme);
+                break;
+        }
+    });
+
+    // make the chart
+    var chart = new Chart(ctx, {
+        type: chartType.toLowerCase(),
+
+        data: {
+            labels: xAxis,
+            datasets: Object.values(yAxises)
+        },
+
+        options: {
+            legend: {
+                display: (Object.keys(yAxises)[0].toLowerCase() != 'default'),
+                labels: {
+                    fontColor: $('body').css('color')
+                }
+            },
+
+            scales: {
+                xAxes: axesOpts,
+                yAxes: axesOpts
+            }
+        }
+    });
+
+    // save chart for later appendage
+    if (_append) {
+        _charts[component.ID] = chart;
+    }
+}
+
+function getChartAxesColours(theme) {
+    switch (theme) {
+        case 'dark':
+            return [{
                 gridLines: {
                     color: '#214981',
                     zeroLineColor: '#214981'
                 },
                 ticks: { fontColor: '#ccc' }
-            }],
-            'terminal': [{
+            }];
+
+        case 'terminal':
+            return [{
                 gridLines: {
                     color: 'darkgreen',
                     zeroLineColor: 'darkgreen'
                 },
                 ticks: { fontColor: '#33ff00' }
-            }]
-        }
+            }];
 
-        // dataset details
-        var dataset = {};
-        switch (chartType.toLowerCase()) {
-            case 'line':
-                dataset = {
-                    backgroundColor: (theme == 'terminal' ? 'rgba(255, 176, 0, 0.2)' : 'rgba(54, 162, 235, 0.2)'),
-                    borderColor: (theme == 'terminal' ? 'rgb(255, 176, 0)' : 'rgb(54, 162, 235)'),
-                    borderWidth: 3,
-                    pointBackgroundColor: (theme == 'terminal' ? '#ffb000' : '#007bff')
-                }
-
-                if (theme != 'light') {
-                    axesOpts = axesThemes[theme];
-                }
-                break;
-
-            case 'doughnut':
-            case 'pie':
-                dataset = {
-                    backgroundColor: function(context) {
-                        return palette[context.dataIndex % palette.length];
-                    }
-                }
-
-                switch (theme) {
-                    case 'dark':
-                        dataset.borderColor = '#214981';
-                        break;
-
-                    case 'terminal':
-                        dataset.borderColor = 'darkgreen';
-                        break;
-                }
-                break;
-
-            case 'bar':
-                dataset = {
-                    backgroundColor: function(context) {
-                        return palette[context.dataIndex % palette.length].replace(')', ', 0.6)');
-                    },
-                    borderColor: function(context) {
-                        return palette[context.dataIndex % palette.length];
-                    },
-                    borderWidth: 1
-                }
-
-                if (theme != 'light') {
-                    axesOpts = axesThemes[theme];
-                }
-                break;
-        }
-
-        dataset.data = yAxis;
-
-        // make the chart
-        var chart = new Chart(ctx, {
-            type: chartType.toLowerCase(),
-
-            data: {
-                labels: xAxis,
-                datasets: [dataset]
-            },
-
-            options: {
-                legend: {
-                    display: false
+        default:
+            return [{
+                gridLines: {
+                    color: 'lightgrey',
+                    zeroLineColor: 'lightgrey'
                 },
-
-                scales: {
-                    xAxes: axesOpts,
-                    yAxes: axesOpts
-                }
-            }
-        });
-
-        // save chart for later appendage
-        if (_append) {
-            _charts[component.ID] = chart;
-        }
+                ticks: { fontColor: '#333' }
+            }];
     }
+}
+
+function getChartPieBorderColour(theme) {
+    switch (theme) {
+        case 'dark':
+            return '#214981';
+
+        case 'terminal':
+            return 'darkgreen';
+
+        default:
+            return '#222';
+    }
+}
+
+function getChartColourPalette(theme) {
+    var first = [
+        'rgb(54, 162, 235)',    // blue
+        'rgb(255, 176, 0)'      // orange
+    ];
+
+    if (theme == 'terminal') {
+        first = ['rgb(255, 176, 0)', 'rgb(54, 162, 235)'];
+    }
+
+
+    return first.concat([
+        'rgb(255, 99, 132)',    // red
+        'rgb(255, 205, 86)',    // yellow
+        'rgb(0, 163, 51)',      // green
+        'rgb(153, 102, 255)',   // purple
+        'rgb(201, 203, 207)'    // grey
+    ]);
 }
 
 function writeChart(component, sender) {
