@@ -38,6 +38,10 @@ main[role="main"].fullscreen {
     display: none !important;
 }
 
+.code-editor {
+    height: 50em;
+}
+
 .modal-body {
     word-break: break-word;
 }

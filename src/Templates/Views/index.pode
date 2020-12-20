@@ -147,6 +147,6 @@
             </div>
         </div>
 
-        $(Use-PodeWebPartialView -Path 'shared/scripts')
+        $(Use-PodeWebPartialView -Path 'shared/scripts' -Data @{ Components = $data.Components })
     </body>
 </html>

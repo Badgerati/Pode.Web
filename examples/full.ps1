@@ -86,6 +86,8 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )
 
+    $codeEditor = New-PodeWebCodeEditor -Language PowerShell
+
     $chartData = {
         $count = 1
         if ($WebEvent.Data.FirstLoad -eq '1') {
@@ -106,7 +108,7 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth
     )
 
-    Set-PodeWebHomePage -NoAuth -Components $section, $section2, $section3, $grid1, $timer1 -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -NoAuth -Components $section, $section2, $section3, $codeEditor, $grid1, $timer1 -Title 'Awesome Homepage'
 
 
     # tabs and charts

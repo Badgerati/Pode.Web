@@ -556,3 +556,57 @@ function New-PodeWebCounterChart
             }
         }
 }
+
+function New-PodeWebCodeEditor
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Language = 'plaintext',
+
+        [Parameter()]
+        [ValidateSet('', 'vs', 'vs-dark', 'hc-black')]
+        [string]
+        $Theme,
+
+        [switch]
+        $NoHeader
+    )
+
+    $Id = Get-PodeWebElementId -Tag CodeEditor -Id $Id -Name $Name -NameAsToken
+
+    if ([string]::IsNullOrWhiteSpace($Theme)) {
+        switch ((Get-PodeWebState -Name 'theme')) {
+            'dark' {
+                $Theme = 'vs-dark'
+            }
+
+            'terminal' {
+                $Theme = 'hc-black'
+            }
+
+            default {
+                $Theme = 'vs'
+            }
+        }
+    }
+
+    return @{
+        ComponentType = 'Code-Editor'
+        Name = $Name
+        ID = $Id
+        Language = $Language.ToLowerInvariant()
+        Theme = $Theme
+        NoHeader = $NoHeader.IsPresent
+    }
+}

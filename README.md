@@ -138,6 +138,7 @@ Components are the base elements that can contain and render other elements:
 * Charts / CounterCharts
 * Modals
 * Timers
+* Monaco Code Editor (WIP)
 
 ## Layouts
 

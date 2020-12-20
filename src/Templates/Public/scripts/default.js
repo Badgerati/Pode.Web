@@ -4,13 +4,13 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
-(function () {
+(function() {
     feather.replace();
 })();
-(function () {
+(function() {
     $('[data-toggle="tooltip"]').tooltip();
 })();
-(function () {
+(function() {
     hljs.initHighlightingOnLoad();
 })();
 
@@ -25,6 +25,7 @@ $(document).ready(() => {
     bindFormSubmits();
     bindButtons();
     bindCodeCopy();
+    bindCodeEditors();
 
     bindTableFilters();
     bindTableExports();
@@ -40,6 +41,25 @@ $(document).ready(() => {
 
     bindTimers();
 });
+
+function bindCodeEditors() {
+    if ($('.code-editor').length == 0) {
+        return;
+    }
+
+    var src = $('script[role="monaco"]').attr('src');
+    require.config({ paths: { 'vs': src.substring(0, src.lastIndexOf('/')) }});
+
+    require(["vs/editor/editor.main"], function() {
+        $('.code-editor').each((i, e) => {
+            var editor = monaco.editor.create(e, {
+                value: '',
+                language: $(e).attr('pode-language'),
+                theme: $(e).attr('pode-theme')
+            });
+        });
+    });
+}
 
 function bindCardCollapse() {
     $('button.pode-card-collapse').click(function(e) {

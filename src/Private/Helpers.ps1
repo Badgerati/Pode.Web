@@ -107,6 +107,35 @@ function Test-PodeWebArrayEmpty
     return (($null -eq $Array) -or (@($Array).Length -eq 0))
 }
 
+function Test-PodeWebComponent
+{
+    param(
+        [Parameter()]
+        [hashtable[]]
+        $Components,
+
+        [Parameter()]
+        [string]
+        $Type
+    )
+
+    if (($null -eq $Components) -or ($Components.Length -eq 0)) {
+        return $false
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Type)) {
+        return $true
+    }
+
+    foreach ($comp in $Components) {
+        if ($comp.ComponentType -ieq $Type) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 function Test-PodeWebPageAccess
 {
     param(
