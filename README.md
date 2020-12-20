@@ -10,7 +10,7 @@ This is a web template framework for use with the [Pode](https://github.com/Badg
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
 
-You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light/dark theme, and you can supply and custom CSS file yourself.
+You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, and terminal themes, and you can supply a custom CSS file.
 
 ## Libraries
 
