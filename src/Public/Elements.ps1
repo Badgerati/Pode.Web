@@ -697,6 +697,17 @@ function New-PodeWebText
     }
 }
 
+function New-PodeWebLine
+{
+    [CmdletBinding()]
+    param()
+
+    return @{
+        ElementType = 'Line'
+        Component = $ComponentData
+    }
+}
+
 function New-PodeWebHidden
 {
     [CmdletBinding()]
@@ -775,7 +786,7 @@ function New-PodeWebRaw
 
 function New-PodeWebButton
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='ScriptBlock')]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -785,7 +796,7 @@ function New-PodeWebButton
         [string]
         $Id,
 
-        [Parameter()]
+        [Parameter(ParameterSetName='ScriptBlock')]
         [string]
         $DataValue,
 
@@ -793,16 +804,24 @@ function New-PodeWebButton
         [string]
         $Icon,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ScriptBlock')]
         [scriptblock]
         $ScriptBlock,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Url')]
+        [string]
+        $Url,
 
         [Parameter()]
         [ValidateSet('Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
         [string]
         $Colour = 'Blue',
 
-        [Parameter()]
+        [Parameter(ParameterSetName='ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -821,22 +840,25 @@ function New-PodeWebButton
         ID = $Id
         DataValue = $DataValue
         Icon = $Icon
+        Url = $Url
+        IsDynamic = ($null -ne $ScriptBlock)
         IconOnly = $IconOnly.IsPresent
         Colour = $Colour
         ColourType = $ColourType
     }
 
     $routePath = "/elements/button/$($Id)"
-    if (!(Test-PodeWebRoute -Path $routePath)) {
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }

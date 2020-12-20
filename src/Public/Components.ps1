@@ -191,12 +191,9 @@ function New-PodeWebForm
     )
 
     # ensure elements are correct
-    foreach ($element in $Elements) {
-        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
-            throw "Invalid element supplied: $($element)"
-        }
-    }
+    Test-PodeWebElements -Elements $Elements
 
+    # generate ID
     $Id = Get-PodeWebElementId -Tag Form -Id $Id -Name $Name
 
     $routePath = "/components/form/$($Id)"
@@ -312,12 +309,9 @@ function New-PodeWebSection
     )
 
     # ensure elements are correct
-    foreach ($element in $Elements) {
-        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
-            throw "Invalid element supplied: $($element)"
-        }
-    }
+    Test-PodeWebElements -Elements $Elements
 
+    # generate ID
     $Id = Get-PodeWebElementId -Tag Section -Id $Id -Name $Name -NameAsToken
 
     return @{
@@ -478,12 +472,9 @@ function New-PodeWebModal
     )
 
     # ensure elements are correct
-    foreach ($element in $Elements) {
-        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
-            throw "Invalid element supplied: $($element)"
-        }
-    }
+    Test-PodeWebElements -Elements $Elements
 
+    # generate ID
     $Id = Get-PodeWebElementId -Tag Modal -Id $Id -Name $Name
 
     $routePath = "/components/modal/$($Id)"
@@ -608,5 +599,33 @@ function New-PodeWebCodeEditor
         Language = $Language.ToLowerInvariant()
         Theme = $Theme
         NoHeader = $NoHeader.IsPresent
+    }
+}
+
+function New-PodeWebHero
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Title,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Message,
+
+        [Parameter()]
+        [hashtable[]]
+        $Elements
+    )
+
+    # ensure elements are correct
+    Test-PodeWebElements -Elements $Elements
+
+    return @{
+        ComponentType = 'Hero'
+        Title = $Title
+        Message = $Message
+        Elements = $Elements
     }
 }

@@ -42,6 +42,10 @@ main[role="main"].fullscreen {
     height: 50em;
 }
 
+.jumbotron {
+    border: #bbb 1px solid;
+}
+
 .modal-body {
     word-break: break-word;
 }

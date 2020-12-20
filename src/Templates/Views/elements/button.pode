@@ -6,16 +6,31 @@
         }
 
         if ($data.IconOnly) {
-            "<button type='button' class='btn btn-icon-only pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
-                $($icon)
-            </button>"
+            if ($data.IsDynamic) {
+                "<button type='button' class='btn btn-icon-only pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
+                    $($icon)
+                </button>"
+            }
+            else {
+                "<a id='$($data.ID)' class='btn btn-icon-only' href='$($data.Url)' role='button' title='$($data.Name)' data-toggle='tooltip'>
+                    $($icon)
+                </a>"
+            }
         }
         else {
-            "<button type='button' class='btn btn-$($data.ColourType) pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
-                <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
-                $($icon)
-                $($data.Name)
-            </button>"
+            if ($data.IsDynamic) {
+                "<button type='button' class='btn btn-$($data.ColourType) pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
+                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                    $($icon)
+                    $($data.Name)
+                </button>"
+            }
+            else {
+                "<a id='$($data.ID)' class='btn btn-$($data.ColourType)' href='$($data.Url)' role='button'>
+                    $($icon)
+                    $($data.Name)
+                </a>"
+            }
         }
     )
 </fieldset>

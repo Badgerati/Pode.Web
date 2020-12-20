@@ -124,7 +124,12 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth
     )
 
-    Set-PodeWebHomePage -NoAuth -Components $section, $section2, $section3, $codeEditor, $grid1, $timer1 -Title 'Awesome Homepage'
+    $hero = New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page for the full.ps1 example' -Elements @(
+        New-PodeWebText -Value 'Here you will see examples for close to everything Pode.Web can do.' -InParagraph
+        New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web'
+    )
+
+    Set-PodeWebHomePage -NoAuth -Components $hero, $section, $section2, $section3, $codeEditor, $grid1, $timer1 -Title 'Awesome Homepage'
 
 
     # tabs and charts

@@ -458,3 +458,18 @@ function Convert-PodeWebColourToClass
         }
     }
 }
+
+function Test-PodeWebElements
+{
+    param(
+        [Parameter()]
+        [hashtable[]]
+        $Elements
+    )
+
+    foreach ($element in $Elements) {
+        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
+            throw "Invalid element supplied: $($element)"
+        }
+    }
+}

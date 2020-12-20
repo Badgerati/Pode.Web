@@ -103,11 +103,11 @@ cite {
 }
 
 a {
-    color: deepskyblue !important;
+    color: deepskyblue;
 }
 
 a:hover {
-    color: dodgerblue !important;
+    color: dodgerblue;
 }
 
 .btn-outline-secondary {
@@ -222,4 +222,14 @@ nav .pagination .page-link {
 
 nav .pagination .page-link.active, nav .pagination .page-link:hover {
     background-color: #214981 !important;
+}
+
+.jumbotron {
+    background-color: #214981;
+    border: dodgerblue 1px solid;
+    color: #ccc;
+}
+
+hr {
+    border-color: dodgerblue;
 }

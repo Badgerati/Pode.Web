@@ -138,6 +138,7 @@ Components are the base elements that can contain and render other elements:
 * Charts / CounterCharts
 * Modals
 * Timers
+* Hero (Jumbotron)
 * Monaco Code Editor (WIP)
 
 ## Layouts
@@ -176,6 +177,7 @@ These are the building elements that can be used in components:
 * Badge
 * Spinner
 * Comment Block
+* Line
 
 ## Outputs
 
