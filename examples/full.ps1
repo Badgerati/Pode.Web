@@ -111,9 +111,16 @@ Start-PodeServer -StatusPageExceptions Show {
         })
     }
 
+    $processData = {
+        Get-Process |
+            Sort-Object -Property CPU -Descending |
+            Select-Object -First 10 |
+            ConvertTo-PodeWebChartDataset -Label ProcessName -Dataset CPU, Handles
+    }
+
     $grid1 = New-PodeWebGrid -Components @(
         New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh
-        New-PodeWebChart -Name 'Bar Example 1' -NoAuth -Type Bar -ScriptBlock $chartData
+        New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth
     )
 

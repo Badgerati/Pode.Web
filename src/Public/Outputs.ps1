@@ -158,6 +158,45 @@ function Out-PodeWebChart
     }
 }
 
+function ConvertTo-PodeWebChartDataset
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        $Data,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Label,
+
+        [Parameter(Mandatory=$true)]
+        [string[]]
+        $Dataset
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $Data
+    }
+
+    end {
+        foreach ($item in $items) {
+            @{
+                Key = $item.$Label
+                Values = @(foreach ($prop in $Dataset) {
+                    @{
+                        Key = $prop
+                        Value = $item.$prop
+                    }
+                })
+            }
+        }
+    }
+}
+
 function Out-PodeWebTextbox
 {
     [CmdletBinding(DefaultParameterSetName='New')]
