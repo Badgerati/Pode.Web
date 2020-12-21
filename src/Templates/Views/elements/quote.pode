@@ -6,7 +6,7 @@ $(
 
     if (![string]::IsNullOrWhiteSpace($data.Source)) {
         $src = $data.Source
-        $quote += "<footer class='blockquote-footer'><cite><cite>$($src)</cite></footer>"
+        $quote += "<footer class='blockquote-footer'><cite>$($src)</cite></footer>"
     }
 
     $quote += "</blockquote>"

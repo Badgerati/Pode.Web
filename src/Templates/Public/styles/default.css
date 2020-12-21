@@ -34,6 +34,10 @@ main[role="main"].fullscreen {
     margin-left: 0 !important;
 }
 
+nav[role="pagination"] {
+    float: right;
+}
+
 .hide {
     display: none !important;
 }
