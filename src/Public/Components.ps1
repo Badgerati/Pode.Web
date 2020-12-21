@@ -30,7 +30,7 @@ function New-PodeWebTable
         [object[]]
         $ArgumentList,
 
-        [Parameter(ParameterSetName='Csv')]
+        [Parameter(Mandatory=$true, ParameterSetName='Csv')]
         [string]
         $CsvFilePath,
 
