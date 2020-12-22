@@ -293,15 +293,16 @@ function loadChart(chartId) {
         return;
     }
 
+    var chart = $(`canvas#${chartId}`);
+
     // is this the chart's first load?
     var data = '';
-    if (!_charts[chartId]) {
-        data = 'FirstLoad=1'
+    if (!_charts[chartId] || !_charts[chartId].append) {
+        data = 'FirstLoad=1';
     }
 
     // things get funky here if we have a chart with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var chart = $(`canvas#${chartId}`);
     var url = `/components/chart/${chartId}`;
 
     if (chart.attr('for')) {
@@ -1209,28 +1210,28 @@ function appendToChart(canvas, component) {
     // labels (x-axis)
     component.Data.forEach((item) => {
         if (_timeLabels) {
-            _chart.data.labels.push(getTimeString());
+            _chart.canvas.data.labels.push(getTimeString());
         }
         else {
-            _chart.data.labels.push(item.Key);
+            _chart.canvas.data.labels.push(item.Key);
         }
     });
 
-    _chart.data.labels = truncateArray(_chart.data.labels, _max);
+    _chart.canvas.data.labels = truncateArray(_chart.canvas.data.labels, _max);
 
     // data (y-axis)
     component.Data.forEach((item) => {
         item.Values.forEach((set, index) => {
-            _chart.data.datasets[index].data.push(set.Value);
+            _chart.canvas.data.datasets[index].data.push(set.Value);
         });
     });
 
-    _chart.data.datasets.forEach((dataset) => {
+    _chart.canvas.data.datasets.forEach((dataset) => {
         dataset.data = truncateArray(dataset.data, _max);
     });
 
     // re-render
-    _chart.update();
+    _chart.canvas.update();
 }
 
 function truncateArray(array, maxItems) {
@@ -1246,6 +1247,12 @@ function truncateArray(array, maxItems) {
 }
 
 function createTheChart(canvas, component, sender) {
+    // remove chart
+    var _chart = _charts[component.ID];
+    if (_chart) {
+        _chart.canvas.destroy();
+    }
+
     // get the chart's canvas and type
     var ctx = document.getElementById(component.ID).getContext('2d');
     var chartType = (canvas.attr('pode-chart-type') || component.ChartType);
@@ -1342,10 +1349,11 @@ function createTheChart(canvas, component, sender) {
         }
     });
 
-    // save chart for later appendage
-    if (_append) {
-        _charts[component.ID] = chart;
-    }
+    // save chart for later appending, or resetting
+    _charts[component.ID] = {
+        canvas: chart,
+        append: _append
+    };
 }
 
 function getChartAxesColours(theme) {
