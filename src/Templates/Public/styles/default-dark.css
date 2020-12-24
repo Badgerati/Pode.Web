@@ -233,3 +233,44 @@ nav .pagination .page-link.active, nav .pagination .page-link:hover {
 hr {
     border-color: dodgerblue;
 }
+
+.footer.powered-by {
+    background-color: #142440;
+    border-color: #214981;
+}
+
+.footer.powered-by .text-muted {
+    color: #ccc !important;
+}
+
+.container {
+    background-color: #142440;
+    border-color: #214981;
+    color: #ccc;
+}
+
+.carousel {
+    background-color: #142440;
+    border-color: #214981;
+    color: #ccc;
+}
+
+.carousel .carousel-caption {
+    color: #ccc;
+}
+
+.carousel .carousel-indicators li {
+    background-color: #ccc;
+}
+
+.carousel .carousel-indicators li.active {
+    background-color: dodgerblue;
+}
+
+.step.active .bs-stepper-circle {
+    background-color: dodgerblue;
+}
+
+.bs-stepper-line {
+    background-color: #214981;
+}

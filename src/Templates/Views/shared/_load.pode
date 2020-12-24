@@ -1,0 +1,11 @@
+$(foreach ($item in $data.Content) {
+    switch ($item.ComponentType.ToLowerInvariant()) {
+        'layout' {
+            Use-PodeWebPartialView -Path "layouts/$($item.LayoutType.ToLowerInvariant())" -Data $item
+        }
+
+        'element' {
+            Use-PodeWebPartialView -Path "elements/$($item.ElementType.ToLowerInvariant())" -Data $item
+        }
+    }
+})

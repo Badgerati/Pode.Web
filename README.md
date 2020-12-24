@@ -22,7 +22,7 @@ At present these are loaded using the jsDelivr CDN.
 
 ## Usage
 
-To use the Pode.Web templates, you first need to call `Use-PodeWebTemplates`; you can supply a Title, Logo, FavIcon, custom Stylesheet, or change the Theme:
+To use the Pode.Web templates, you first need to call `Use-PodeWebTemplates`; you can supply a Title, Logo, FavIcon, or change the Theme:
 
 ```powershell
 Import-Module Pode
@@ -33,7 +33,9 @@ Start-PodeServer {
 }
 ```
 
-The `-Logo`, `-FavIcon`, and `-Stylesheet` must be URL paths relative to your site's `/public` directory.
+The `-Logo` and `-FavIcon` must be URL paths relative to your site's `/public` directory.
+
+You can import custom CSS/JS files by using `Import-PodeWebStylesheet` or `Import-PodeWebJavaScript`.
 
 ### Login
 
@@ -128,33 +130,26 @@ Start-PodeServer {
 }
 ```
 
-## Components
-
-Components are the base elements that can contain and render other elements:
-
-* Tables + Pagination
-* Forms
-* Sections
-* Charts / CounterCharts
-* Modals
-* Timers
-* Hero (Jumbotron)
-* Monaco Code Editor (WIP)
-
 ## Layouts
 
-Custom layouts contain components:
+Layouts let you customise the way elements are rendered/controlled. Layouts can contain other layouts, or elements - apart from certain layouts.
 
-* Grids
-* Tabs
+* Grids (only contains Cells, which can only contain other layouts)
+* Tabs (only contains Tabs, which can only contain other layouts)
+* Card
+* Container
+* Modal
+* Hero
+* Carousel (only contains Slides, which can contain other layouts/elements)
+* Steps (only contains Steps, which can contain other layouts/elements)
 
 ## Elements
 
-These are the building elements that can be used in components:
+These are the base elements that can be used in most layouts. In some cases, some elements can contain other elements, or even layouts.
 
 * Textbox
 * File Upload
-* Paragraph
+* Paragraph (can either be a value, or contain other elements)
 * Code Block
 * Code
 * Checkbox
@@ -168,16 +163,23 @@ These are the building elements that can be used in components:
 * List
 * Link
 * Text
+* Line
 * Hidden
 * Credentials
 * Raw
 * Button
-* Alert
+* Alert (can either be a value, or contain other elements)
 * Icon
-* Badge
 * Spinner
+* Badge
 * Comment Block
-* Line
+* Charts / CounterCharts
+* Tables + Pagination
+* Monaco Code Editor (WIP)
+* Forms (can either be a value, or contain other elements)
+* Timers
+
+> Tables, Forms, and Charts each have an `-AsCard` switch, is auto-wraps the element in a Card layout.
 
 ## Outputs
 
@@ -196,6 +198,7 @@ Outputs allow you to manipulate the frontend from action ScriptBlocks - such as 
 * Desktop Notifications (show)
 * Page (move)
 * URL (move)
+* Tabs (move)
 
 ## Examples
 
@@ -217,21 +220,21 @@ Start-PodeServer {
     Use-PodeWebTemplates -Title 'Basic Example'
 
     # set the home page elements (just a simple paragraph)
-    $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Elements @(
+    $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
 
-    Set-PodeWebHomePage -Components $section -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
 
     # add a page to search process (output as json in an appended textbox)
-    $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
+    $form = New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
         Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
-    } -Elements @(
+    } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Components $form
+    Add-PodeWebPage -Name Processes -Icon Activity -Layouts $form
 }
 ```
 
@@ -270,20 +273,20 @@ Start-PodeServer {
     Set-PodeWebLoginPage -Authentication Login
 
     # set the home page controls (just a simple paragraph)
-    $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Elements @(
+    $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
-    Set-PodeWebHomePage -Components $section -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
 
     # add a page to search process (output as json in an appended textbox)
-    $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
+    $form = New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
         Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
-    } -Elements @(
+    } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Components $form
+    Add-PodeWebPage -Name Processes -Icon Activity -Layouts $form
 }
 ```
 

@@ -1,7 +1,7 @@
 $(
     $value = $data.Value
     if (![string]::IsNullOrWhiteSpace($data.ID)) {
-        $value = "<span class='pode-text' id='$($data.ID)'>$($value)</span>"
+        $value = "<span class='pode-text $($data.CssClasses)' id='$($data.ID)'>$($value)</span>"
     }
 
     switch ($data.Style.ToLowerInvariant()) {
@@ -35,7 +35,7 @@ $(
     }
 
     if ($data.InParagraph) {
-        $value = "<p>$($value)</p>"
+        $value = "<p class='text-$($data.Alignment)'>$($value)</p>"
     }
 
     $value

@@ -268,3 +268,49 @@ hr {
 .jumbotron hr {
     border-color: #222;
 }
+
+.footer.powered-by {
+    background-color: #111;
+    border-color: #33ff00;
+}
+
+.footer.powered-by .text-muted {
+    color: #33ff00 !important;
+}
+
+.container {
+    background-color: #111;
+    border-color: #33ff00;
+    color: #33ff00;
+}
+
+.carousel {
+    background-color: #111;
+    border-color: #33ff00;
+    color: #33ff00;
+}
+
+.carousel .carousel-caption {
+    color: #33ff00;
+}
+
+.carousel .carousel-indicators li {
+    background-color: #33ff00;
+}
+
+.carousel .carousel-indicators li.active {
+    background-color: #ffb000;
+}
+
+.step .bs-stepper-circle {
+    background-color: #33ff00;
+    color: #222;
+}
+
+.step.active .bs-stepper-circle {
+    background-color: #ffb000;
+}
+
+.bs-stepper-line {
+    background-color: #33ff00;
+}

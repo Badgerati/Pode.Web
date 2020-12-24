@@ -1,4 +1,4 @@
-<div class="media">
+<div class="media $($data.CssClasses)">
     <img src="$($data.Icon)" class="align-self-start mr-3" alt="$($data.Username) icon">
     <div class="media-body">
         <div class="media-head">

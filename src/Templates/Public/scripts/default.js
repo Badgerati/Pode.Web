@@ -4,6 +4,11 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
+Chart.Legend.prototype.afterFit = function() {
+    this.height = this.height + 10;
+};
+
+
 (function() {
     feather.replace();
 })();
@@ -18,6 +23,8 @@ $(document).ready(() => {
     loadTables();
     loadCharts();
     loadAutoCompletes();
+
+    setupSteppers();
 
     bindSidebarFilter();
     bindMenuToggle();
@@ -39,8 +46,200 @@ $(document).ready(() => {
     bindPageGroupCollapse();
     bindCardCollapse();
 
+    bindTabCycling();
     bindTimers();
 });
+
+function serializeInputs(element) {
+    return element.find('input, textarea, select').serialize();
+}
+
+var _steppers = {};
+
+function setupSteppers() {
+    $('div.bs-stepper[role="stepper"]').each((i, e) => {
+        var stepper = $(e);
+        _steppers[stepper.attr('id')] = new Stepper(e, { linear: true });
+
+        // override form enter-key
+        stepper.find('form.pode-stepper-form').keypress(function(e) {
+            if (e.which != 13 && e.keyCode != 13) {
+                return;
+            }
+
+            var btn = stepper.find('.bs-stepper-content .bs-stepper-pane.active button.step-next');
+            if (!btn) {
+                btn = stepper.find('.bs-stepper-content .bs-stepper-pane.active button.step-submit');
+            }
+
+            if (btn) {
+                btn.click();
+            }
+        });
+
+        // previous buttons
+        stepper.find('.bs-stepper-content button.step-previous').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // get the button and step
+            var btn = getButton(e);
+            var step = btn.closest(`div#${btn.attr('for')}`);
+
+            // not need for validation, just go back
+            _steppers[step.attr('for')].previous();
+        });
+
+        // next buttons
+        stepper.find('.bs-stepper-content button.step-next').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // get the button and step
+            var btn = getButton(e);
+            var step = btn.closest(`div#${btn.attr('for')}`);
+
+            // skip if step not active
+            if (!step.hasClass('active')) {
+                return;
+            }
+
+            // call ajax, or move along?
+            if (step.attr('pode-dynamic') == 'True') {
+                // serialize any step-form data
+                var data = serializeInputs(step);
+                var url = `/layouts/step/${step.attr('id')}`;
+
+                // send ajax req, and call next on no validation errors
+                sendAjaxReq(url, data, step, true, (res, sender) => {
+                    if (!hasValidationErrors(sender)) {
+                        _steppers[sender.attr('for')].next();
+                    }
+                });
+            }
+            else {
+                _steppers[step.attr('for')].next();
+            }
+        });
+
+        // submit buttons
+        stepper.find('.bs-stepper-content button.step-submit').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // get the button and step
+            var btn = getButton(e);
+            var step = btn.closest(`div#${btn.attr('for')}`);
+
+            // skip if step not active
+            if (!step.hasClass('active')) {
+                return;
+            }
+
+            // call ajax, or move along?
+            if (step.attr('pode-dynamic') == 'True') {
+                // serialize any step-form data
+                var data = serializeInputs(step);
+                var url = `/layouts/step/${step.attr('id')}`;
+
+                // send ajax req, if not validation errors, send ajax for all steps
+                sendAjaxReq(url, data, step, true, (res, sender) => {
+                    if (!hasValidationErrors(sender)) {
+                        var _steps = sender.attr('for');
+                        var _data = sender.closest('form.pode-stepper-form').serialize();
+                        var _url = `/layouts/steps/${_steps}`;
+
+                        sendAjaxReq(_url, _data, sender, true);
+                    }
+                });
+            }
+            else {
+                var steps = step.attr('for');
+                var data = step.closest('form.pode-stepper-form').serialize();
+                var url = `/layouts/steps/${steps}`;
+
+                sendAjaxReq(url, data, step, true);
+            }
+        });
+    });
+}
+
+function hasValidationErrors(element) {
+    if (!element) {
+        return;
+    }
+
+    return (element.find('.is-invalid').length > 0)
+}
+
+function removeValidationErrors(element) {
+    if (!element) {
+        return;
+    }
+
+    element.find('.is-invalid').removeClass('is-invalid');
+}
+
+function setValidationError(element) {
+    if (!element) {
+        return;
+    }
+
+    element.addClass('is-invalid');
+}
+
+function sendAjaxReq(url, data, sender, useActions, successCallback) {
+    // show the spinner
+    showSpinner(sender);
+
+    // remove validation errors
+    removeValidationErrors(sender);
+
+    // make the call
+    $.ajax({
+        url: url,
+        method: 'post',
+        data: data,
+        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+        success: function(res) {
+            hideSpinner(sender);
+
+            if (useActions) {
+                invokeActions(res, sender);
+            }
+
+            if (successCallback) {
+                successCallback(res, sender);
+            }
+        },
+        error: function(err) {
+            hideSpinner(sender);
+            console.log(err);
+        }
+    });
+}
+
+function showSpinner(sender) {
+    if (!sender) {
+        return;
+    }
+
+    var spinner = sender.find('span.spinner-border');
+    if (spinner) {
+        spinner.show();
+    }
+}
+
+function hideSpinner(sender) {
+    if (!sender) {
+        return;
+    }
+
+    var spinner = sender.find('span.spinner-border');
+    if (spinner) {
+        spinner.hide();
+    }
+}
 
 function bindCodeEditors() {
     if ($('.code-editor').length == 0) {
@@ -66,7 +265,7 @@ function bindCardCollapse() {
         e.preventDefault();
         e.stopPropagation();
 
-        var button = $(e.currentTarget);
+        var button = getButton(e);
         button.find('.feather-eye').toggle();
         button.find('.feather-eye-off').toggle();
 
@@ -74,30 +273,29 @@ function bindCardCollapse() {
     });
 }
 
+function bindTabCycling() {
+    $('ul.nav-tabs[pode-cycle="True"]').each((i, e) => {
+        setInterval(() => {
+            var tabId = $(e).find('li.nav-item a.nav-link.active').attr('pode-next');
+            moveTab(tabId);
+        }, $(e).attr('pode-interval'));
+    });
+}
+
 function bindTimers() {
     $('span.pode-timer').each((i, e) => {
-        var interval = $(e).attr('pode-interval');
         var id = $(e).attr('id');
 
         invokeTimer(id);
 
         setInterval(() => {
             invokeTimer(id);
-        }, interval);
+        }, $(e).attr('pode-interval'));
     });
 }
 
 function invokeTimer(timerId) {
-    $.ajax({
-        url: `/components/timer/${timerId}`,
-        method: 'post',
-        success: function(res) {
-            invokeActions(res);
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
+    sendAjaxReq(`/elements/timer/${timerId}`, null, null, true);
 }
 
 function bindMenuToggle() {
@@ -229,6 +427,12 @@ function loadTable(tableId, pageNumber, pageAmount) {
         return;
     }
 
+    // ensure the table is dynamic, or has the 'for' attr set
+    var table = $(`table#${tableId}`);
+    if (table.attr('pode-dynamic') != 'True' && !table.attr('for')) {
+        return
+    }
+
     // define any table paging
     var data = '';
     if (pageNumber || pageAmount) {
@@ -239,8 +443,7 @@ function loadTable(tableId, pageNumber, pageAmount) {
 
     // things get funky here if we have a table with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var table = $(`table#${tableId}`);
-    var url = `/components/table/${tableId}`;
+    var url = `/elements/table/${tableId}`;
 
     if (table.attr('for')) {
         var form = $(`#${table.attr('for')}`);
@@ -253,31 +456,13 @@ function loadTable(tableId, pageNumber, pageAmount) {
     }
 
     // invoke and load table content
-    $.ajax({
-        url: url,
-        method: 'post',
-        data: data,
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        success: function(res) {
-            invokeActions(res, table);
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
+    sendAjaxReq(url, data, table, true);
 }
 
 function loadAutoCompletes() {
     $(`input[pode-autocomplete='True']`).each((i, e) => {
-        $.ajax({
-            url: `/elements/autocomplete/${$(e).attr('id')}`,
-            method: 'post',
-            success: function(res) {
-                $(e).autocomplete({ source: res.Values });
-            },
-            error: function(err) {
-                console.log(err);
-            }
+        sendAjaxReq(`/elements/autocomplete/${$(e).attr('id')}`, null, null, false, (res) => {
+            $(e).autocomplete({ source: res.Values });
         });
     });
 }
@@ -303,7 +488,7 @@ function loadChart(chartId) {
 
     // things get funky here if we have a chart with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var url = `/components/chart/${chartId}`;
+    var url = `/elements/chart/${chartId}`;
 
     if (chart.attr('for')) {
         var form = $(`#${chart.attr('for')}`);
@@ -315,18 +500,7 @@ function loadChart(chartId) {
         url = form.attr('method');
     }
 
-    $.ajax({
-        url: url,
-        method: 'post',
-        data: data,
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        success: function(res) {
-            invokeActions(res, $(`canvas#${chartId}`));
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
+    sendAjaxReq(url, data, chart, true);
 }
 
 function invokeActions(actions, sender) {
@@ -393,6 +567,10 @@ function invokeActions(actions, sender) {
                 actionBadge(action);
                 break;
 
+            case 'tab':
+                actionTab(action);
+                break;
+
             default:
                 break;
         }
@@ -446,36 +624,12 @@ function buildElements(elements) {
 }
 
 function bindFormSubmits() {
-    $("form.pode-component-form").submit(function(e) {
+    $("form.pode-form").submit(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
         var form = $(e.target);
-        var spinner = form.find('button span.spinner-border');
-
-        form.find('.is-invalid').removeClass('is-invalid');
-        if (spinner) {
-            spinner.show();
-        }
-
-        $.ajax({
-            url: form.attr('method'),
-            method: form.attr('action'),
-            data: form.serialize(),
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            success: function(res) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                invokeActions(res, form);
-            },
-            error: function(err) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                console.log(err);
-            }
-        });
+        sendAjaxReq(form.attr('method'), form.serialize(), form, true);
     });
 }
 
@@ -485,10 +639,7 @@ function bindModalSubmits() {
         e.stopPropagation();
 
         // get the button
-        var button = $(e.target);
-        if (button.prop('nodeName').toLowerCase() != 'button') {
-            button = button.closest('button');
-        }
+        var button = getButton(e);
 
         // get url
         var url = button.attr('pode-url');
@@ -509,7 +660,7 @@ function bindModalSubmits() {
         if (button.attr('pode-modal-form') == 'True') {
             form = modal.find('div.modal-body form');
             formData = form.serialize();
-            form.find('.is-invalid').removeClass('is-invalid');
+            removeValidationErrors(form);
         }
 
         // get a data value
@@ -531,24 +682,7 @@ function bindModalSubmits() {
         }
 
         // invoke url
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: formData,
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            success: function(res) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                invokeActions(res, (form ?? button));
-            },
-            error: function(err) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                console.log(err);
-            }
-        });
+        sendAjaxReq(url, formData, (form ?? button), true);
     });
 }
 
@@ -568,15 +702,23 @@ function bindCodeCopy() {
     });
 }
 
+function getButton(event) {
+    var button = $(event.target);
+    if (!testTagName(button, 'button')) {
+        button = button.closest('button');
+    }
+
+    return button;
+}
+
 function bindButtons() {
     $("button.pode-button").click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        var button = $(e.target);
-        if (button.prop('nodeName').toLowerCase() != 'button') {
-            button = button.closest('button');
-        }
+        // get the button
+        var button = getButton(e);
+        button.tooltip('hide');
 
         // default data value
         var dataValue = getDataValue(button);
@@ -595,24 +737,8 @@ function bindButtons() {
             spinner.show();
         }
 
-        $.ajax({
-            url: `/elements/button/${button.attr('id')}`,
-            method: 'POST',
-            data: data,
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            success: function(res) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                invokeActions(res, button);
-            },
-            error: function(err) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                console.log(err);
-            }
-        });
+        var url = `/elements/button/${button.attr('id')}`;
+        sendAjaxReq(url, data, button, true);
     });
 }
 
@@ -660,18 +786,22 @@ function bindSidebarFilter() {
 function bindTableExports() {
     $("button.pode-table-export").click(function(e) {
         e.preventDefault();
+        e.stopPropagation();
 
-        var input = $(e.target);
-        var tableId = input.attr('for');
-
-        exportTableAsCSV(tableId);
+        var button = getButton(e);
+        button.tooltip('hide');
+        exportTableAsCSV(button.attr('for'));
     });
 }
 
 function bindTableRefresh() {
     $("button.pode-table-refresh").click(function(e) {
         e.preventDefault();
-        loadTable($(e.target).attr('for'));
+        e.stopPropagation();
+
+        var button = getButton(e);
+        button.tooltip('hide');
+        loadTable(button.attr('for'));
     });
 
     $("table[pode-auto-refresh='True']").each((index, item) => {
@@ -687,7 +817,11 @@ function bindTableRefresh() {
 function bindChartRefresh() {
     $("button.pode-chart-refresh").click(function(e) {
         e.preventDefault();
-        loadChart($(e.target).attr('for'));
+        e.stopPropagation();
+
+        var button = getButton(e);
+        button.tooltip('hide');
+        loadChart(button.attr('for'));
     });
 
     $("canvas[pode-auto-refresh='True']").each((index, item) => {
@@ -725,32 +859,32 @@ function syncTable(action) {
     loadTable(action.ID);
 }
 
-function updateTable(component, sender) {
-    if (!component.Data) {
+function updateTable(action, sender) {
+    if (!action.Data) {
         return;
     }
 
     // convert data to array
-    if (!$.isArray(component.Data)) {
-        component.Data = [component.Data];
+    if (!$.isArray(action.Data)) {
+        action.Data = [action.Data];
     }
 
     // do nothing if no data
-    if (component.Data.length <= 0) {
+    if (action.Data.length <= 0) {
         return;
     }
 
     // get data keys for table columns
-    var keys = Object.keys(component.Data[0]);
+    var keys = Object.keys(action.Data[0]);
 
     // get custom column meta - for widths etc
     var columns = {};
-    if (component.Columns) {
-        columns = component.Columns;
+    if (action.Columns) {
+        columns = action.Columns;
     }
 
     // table meta
-    var tableId = `table#${component.ID}`;
+    var tableId = `table#${action.ID}`;
     var table = $(tableId);
 
     var tableHead = $(`${tableId} thead`);
@@ -784,7 +918,7 @@ function updateTable(component, sender) {
     // table body
     tableBody.empty();
 
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         _value = `<tr pode-data-value="${item[dataColumn]}">`;
 
         keys.forEach((key) => {
@@ -806,7 +940,7 @@ function updateTable(component, sender) {
     // is the table paginated?
     var isPaginated = (table.attr('pode-paginate') == 'True');
     if (isPaginated) {
-        var paging = table.closest('.card-body').find('nav ul');
+        var paging = table.closest('div[role="table"]').find('nav ul');
         paging.empty();
 
         // previous
@@ -820,14 +954,14 @@ function updateTable(component, sender) {
         var pageActive = '';
 
         // first page
-        pageActive = (1 == component.Paging.Number ? 'active' : '');
+        pageActive = (1 == action.Paging.Number ? 'active' : '');
         paging.append(`
             <li class="page-item">
                 <a class="page-link ${pageActive}" href="#">1</a>
             </li>`);
 
         // ...
-        if (component.Paging.Number > 4) {
+        if (action.Paging.Number > 4) {
             paging.append(`
                 <li class="page-item">
                     <a class="page-link disabled" href="#">...</a>
@@ -835,12 +969,12 @@ function updateTable(component, sender) {
         }
 
         // pages
-        for (var i = (component.Paging.Number - 2); i <= (component.Paging.Number + 2); i++) {
-            if (i <= 1 || i >= component.Paging.Max) {
+        for (var i = (action.Paging.Number - 2); i <= (action.Paging.Number + 2); i++) {
+            if (i <= 1 || i >= action.Paging.Max) {
                 continue;
             }
 
-            pageActive = (i == component.Paging.Number ? 'active' : '');
+            pageActive = (i == action.Paging.Number ? 'active' : '');
             paging.append(`
                 <li class="page-item">
                     <a class="page-link ${pageActive}" href="#">${i}</a>
@@ -848,7 +982,7 @@ function updateTable(component, sender) {
         }
 
         // ...
-        if (component.Paging.Number < component.Paging.Max - 3) {
+        if (action.Paging.Number < action.Paging.Max - 3) {
             paging.append(`
                 <li class="page-item">
                     <a class="page-link disabled" href="#">...</a>
@@ -856,18 +990,18 @@ function updateTable(component, sender) {
         }
 
         // last page
-        if (component.Paging.Max > 1) {
-            pageActive = (component.Paging.Max == component.Paging.Number ? 'active' : '');
+        if (action.Paging.Max > 1) {
+            pageActive = (action.Paging.Max == action.Paging.Number ? 'active' : '');
             paging.append(`
                 <li class="page-item">
-                    <a class="page-link ${pageActive}" href="#">${component.Paging.Max}</a>
+                    <a class="page-link ${pageActive}" href="#">${action.Paging.Max}</a>
                 </li>`);
         }
 
         // next
         paging.append(`
             <li class="page-item">
-                <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${component.Paging.Max}">
+                <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${action.Paging.Max}">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>`);
@@ -890,18 +1024,15 @@ function updateTable(component, sender) {
     });
 }
 
-function writeTable(component, sender) {
+function writeTable(action, sender) {
     var senderId = getId(sender);
     var tableId = `table_${senderId}`;
-
-    // card
-    var card = sender.closest('.card-body');
 
     // create table
     var table = $(`table#${tableId}`);
     if (table.length == 0) {
-        card.append(`
-            <table id="${tableId}" class="table table-striped table-sm" pode-sort="${component.Sort}">
+        sender.after(`
+            <table id="${tableId}" class="table table-striped table-sm" pode-sort="${action.Sort}">
                 <thead></thead>
                 <tbody></tbody>
             </table>
@@ -909,8 +1040,8 @@ function writeTable(component, sender) {
     }
 
     // update
-    component.ID = tableId;
-    updateTable(component, sender);
+    action.ID = tableId;
+    updateTable(action, sender);
 }
 
 function getId(element) {
@@ -927,6 +1058,10 @@ function getTagName(element) {
     }
 
     return $(element).prop('nodeName').toLowerCase();
+}
+
+function testTagName(element, tagName) {
+    return (getTagName(element) == tagName.toLowerCase());
 }
 
 function actionForm(action) {
@@ -1051,7 +1186,7 @@ function actionValidation(action, sender) {
     var validationId = `div#${$(input).attr('id')}_validation`;
     $(validationId).text(action.Message);
 
-    $(input).addClass('is-invalid');
+    setValidationError(input);
 }
 
 function actionTextbox(action, sender) {
@@ -1063,25 +1198,25 @@ function actionTextbox(action, sender) {
     }
 }
 
-function updateTextbox(component) {
-    if (!component.Data) {
+function updateTextbox(action) {
+    if (!action.Data) {
         return;
     }
 
-    if (component.AsJson) {
-        component.Data = JSON.stringify(component.Data, null, 4);
+    if (action.AsJson) {
+        action.Data = JSON.stringify(action.Data, null, 4);
     }
 
-    var txtId = `input#${component.ID}`;
-    if (component.Multiline) {
-        txtId = `textarea#${component.ID}`;
+    var txtId = `input#${action.ID}`;
+    if (action.Multiline) {
+        txtId = `textarea#${action.ID}`;
     }
 
     var txt = $(txtId);
-    txt.val(component.Data);
+    txt.val(action.Data);
 }
 
-function writeTextbox(component, sender) {
+function writeTextbox(action, sender) {
     var senderId = getId(sender);
     var txtId = `txt_${senderId}`;
 
@@ -1091,14 +1226,15 @@ function writeTextbox(component, sender) {
 
     // default attrs
     var readOnly = '';
-    if (component.ReadOnly) {
+    if (action.ReadOnly) {
         readOnly ='readonly';
     }
 
-    if (component.Multiline) {
+    // build the element
+    if (action.Multiline) {
         txt = $(`textarea#${txtId}`);
         if (txt.length == 0) {
-            element = `<textarea class='form-control' id='${txtId}' rows='${component.Height}' ${readOnly}></textarea>`;
+            element = `<textarea class='form-control' id='${txtId}' rows='${action.Height}' ${readOnly}></textarea>`;
         }
     }
     else {
@@ -1109,17 +1245,16 @@ function writeTextbox(component, sender) {
     }
 
     if (element) {
-        if (component.Preformat) {
+        if (action.Preformat) {
             element = `<pre>${element}</pre>`;
         }
 
-        var card = sender.closest('.card-body');
-        card.append(element);
+        sender.after(element);
     }
 
     // update
-    component.ID = txtId;
-    updateTextbox(component);
+    action.ID = txtId;
+    updateTextbox(action);
 }
 
 function exportTableAsCSV(tableId) {
@@ -1175,40 +1310,40 @@ function actionChart(action, sender) {
 
 var _charts = {};
 
-function updateChart(component, sender) {
-    if (!component.Data) {
+function updateChart(action, sender) {
+    if (!action.Data) {
         return;
     }
 
-    if (!$.isArray(component.Data)) {
-        component.Data = [component.Data];
+    if (!$.isArray(action.Data)) {
+        action.Data = [action.Data];
     }
 
-    if (component.Data.length <= 0) {
+    if (action.Data.length <= 0) {
         return;
     }
 
-    var canvas = $(`canvas#${component.ID}`)
+    var canvas = $(`canvas#${action.ID}`)
     var _append = (canvas.attr('pode-append') == 'True');
 
     // apend new data, rather than rebuild the chart
-    if (_append && _charts[component.ID]) {
-        appendToChart(canvas, component);
+    if (_append && _charts[action.ID]) {
+        appendToChart(canvas, action);
     }
 
     // build the chart
     else {
-        createTheChart(canvas, component, sender);
+        createTheChart(canvas, action, sender);
     }
 }
 
-function appendToChart(canvas, component) {
-    var _chart = _charts[component.ID];
+function appendToChart(canvas, action) {
+    var _chart = _charts[action.ID];
     var _max = canvas.attr('pode-max');
     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
     // labels (x-axis)
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         if (_timeLabels) {
             _chart.canvas.data.labels.push(getTimeString());
         }
@@ -1220,7 +1355,7 @@ function appendToChart(canvas, component) {
     _chart.canvas.data.labels = truncateArray(_chart.canvas.data.labels, _max);
 
     // data (y-axis)
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         item.Values.forEach((set, index) => {
             _chart.canvas.data.datasets[index].data.push(set.Value);
         });
@@ -1246,16 +1381,16 @@ function truncateArray(array, maxItems) {
     return array.slice(array.length - maxItems, array.length);
 }
 
-function createTheChart(canvas, component, sender) {
+function createTheChart(canvas, action, sender) {
     // remove chart
-    var _chart = _charts[component.ID];
+    var _chart = _charts[action.ID];
     if (_chart) {
         _chart.canvas.destroy();
     }
 
     // get the chart's canvas and type
-    var ctx = document.getElementById(component.ID).getContext('2d');
-    var chartType = (canvas.attr('pode-chart-type') || component.ChartType);
+    var ctx = document.getElementById(action.ID).getContext('2d');
+    var chartType = (canvas.attr('pode-chart-type') || action.ChartType);
     var theme = $('body').attr('pode-theme');
     var _append = (canvas.attr('pode-append') == 'True');
     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
@@ -1274,7 +1409,7 @@ function createTheChart(canvas, component, sender) {
 
     // x-axis labels
     var xAxis = [];
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         if (_timeLabels) {
             xAxis = xAxis.concat(getTimeString());
         }
@@ -1285,14 +1420,14 @@ function createTheChart(canvas, component, sender) {
 
     // y-axis labels - need to support datasets
     var yAxises = {};
-    component.Data[0].Values.forEach((item) => {
+    action.Data[0].Values.forEach((item) => {
         yAxises[item.Key] = {
             data: [],
             label: item.Key
         };
     });
 
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         item.Values.forEach((set) => {
             yAxises[set.Key].data = yAxises[set.Key].data.concat(set.Value);
         });
@@ -1350,7 +1485,7 @@ function createTheChart(canvas, component, sender) {
     });
 
     // save chart for later appending, or resetting
-    _charts[component.ID] = {
+    _charts[action.ID] = {
         canvas: chart,
         append: _append
     };
@@ -1420,22 +1555,19 @@ function getChartColourPalette(theme) {
     ]);
 }
 
-function writeChart(component, sender) {
+function writeChart(action, sender) {
     var senderId = getId(sender);
     var chartId = `chart_${senderId}`;
-
-    // card
-    var card = sender.closest('.card-body');
 
     // create canvas
     var canvas = $(`canvas#${chartId}`);
     if (canvas.length == 0) {
-        card.append(`<canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${component.ChartType}"></canvas>`);
+        sender.after(`<canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${action.ChartType}"></canvas>`);
     }
 
     // update
-    component.ID = chartId;
-    updateChart(component, sender);
+    action.ID = chartId;
+    updateChart(action, sender);
 }
 
 function getTimeString() {
@@ -1539,4 +1671,16 @@ function actionBadge(action) {
         badge.removeClass();
         badge.addClass(`badge badge-${action.ColourType}`);
     }
+}
+
+function actionTab(action) {
+    if (!action) {
+        return;
+    }
+
+    moveTab(action.ID ?? `tab_${action.Name}`);
+}
+
+function moveTab(tabId) {
+    $(`a.nav-link#${tabId}`).click();
 }

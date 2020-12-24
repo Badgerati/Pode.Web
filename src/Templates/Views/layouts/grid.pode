@@ -1,0 +1,23 @@
+<div class="container pode-grid $($data.CssClasses)">
+    $(if (!$data.Vertical) {
+        "<div class='row'>"
+    })
+
+    $(foreach ($cell in $data.Cells) {
+        if ($data.Vertical) {
+            "<div class='row'>"
+        }
+
+        "<div class='col'>"
+            Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $cell.Layouts }
+        "</div>"
+
+        if ($data.Vertical) {
+            "</div>"
+        }
+    })
+
+    $(if (!$data.Vertical) {
+        "</div>"
+    })
+</div>

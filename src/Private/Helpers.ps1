@@ -128,7 +128,7 @@ function Test-PodeWebComponent
     }
 
     foreach ($comp in $Components) {
-        if ($comp.ComponentType -ieq $Type) {
+        if ($comp.LayoutType -ieq $Type) {
             return $true
         }
     }
@@ -273,8 +273,8 @@ function Test-PodeWebRoute
 
     $route = (Get-PodeRoute -Method Post -Path $Path)
 
-    if ([string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ComponentData.Name) -and ($null -ne $route)) {
-        throw "A component/element with ID '$(Split-Path -Path $Path -Leaf)' already exists"
+    if ([string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ElementData.Name) -and ($null -ne $route)) {
+        throw "An element with ID '$(Split-Path -Path $Path -Leaf)' already exists"
     }
 
     return ($null -ne $route)
@@ -306,10 +306,10 @@ function Get-PodeWebElementId
         return $Id
     }
 
-    # prepend the parent component's ID
+    # prepend the parent element's ID
     $_id = [string]::Empty
-    if (![string]::IsNullOrWhiteSpace($ComponentData.ID)) {
-        $_id = "$($ComponentData.ID)_"
+    if (![string]::IsNullOrWhiteSpace($ElementData.ID)) {
+        $_id = "$($ElementData.ID)_"
     }
 
     # start with element tag

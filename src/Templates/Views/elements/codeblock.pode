@@ -4,7 +4,7 @@ $(
         $scrollable = '.pre-scrollable'
     }
 
-    "<pre class='code-block $($scrollable)'>"
+    "<pre class='code-block $($scrollable) $($data.CssClasses)'>"
 )
     <button type='button' class='btn btn-icon-only pode-code-copy' title='Copy to clipboard' data-toggle='tooltip'>
         <span data-feather='copy' class='mRight02'></span>

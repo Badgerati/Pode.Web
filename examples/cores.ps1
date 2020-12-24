@@ -13,8 +13,8 @@ Start-PodeServer {
 
     # set the home page controls
     $tabs = New-PodeWebTabs -Tabs @(
-        New-PodeWebTab -Name 'West Europe' -Components @(
-            New-PodeWebSection -NoHeader -Elements @(
+        New-PodeWebTab -Name 'West Europe' -Layouts @(
+            New-PodeWebCard -NoTitle -Content @(
                 @(foreach ($quota in (az vm list-usage --location westeurope | ConvertFrom-Json)) {
                     if ($quota.currentValue -gt 0) {
                         New-PodeWebProgress -Name $quota.localName -Id $quota.name.value -Value $quota.currentValue -Max $quota.limit -ShowValue
@@ -23,8 +23,8 @@ Start-PodeServer {
             )
         )
 
-        New-PodeWebTab -Name 'Central US' -Components @(
-            New-PodeWebSection -NoHeader -Elements @(
+        New-PodeWebTab -Name 'Central US' -Layouts @(
+            New-PodeWebCard -NoTitle -Content @(
                 @(foreach ($quota in (az vm list-usage --location centralus | ConvertFrom-Json)) {
                     if ($quota.currentValue -gt 0) {
                         New-PodeWebProgress -Name $quota.localName -Id $quota.name.value -Value $quota.currentValue -Max $quota.limit -ShowValue
@@ -33,8 +33,8 @@ Start-PodeServer {
             )
         )
 
-        New-PodeWebTab -Name 'Japan East' -Components @(
-            New-PodeWebSection -NoHeader -Elements @(
+        New-PodeWebTab -Name 'Japan East' -Layouts @(
+            New-PodeWebCard -NoTitle -Content @(
                 @(foreach ($quota in (az vm list-usage --location japaneast | ConvertFrom-Json)) {
                     if ($quota.currentValue -gt 0) {
                         New-PodeWebProgress -Name $quota.localName -Id $quota.name.value -Value $quota.currentValue -Max $quota.limit -ShowValue
@@ -43,8 +43,8 @@ Start-PodeServer {
             )
         )
 
-        New-PodeWebTab -Name 'UK South' -Components @(
-            New-PodeWebSection -NoHeader -Elements @(
+        New-PodeWebTab -Name 'UK South' -Layouts @(
+            New-PodeWebCard -NoTitle -Content @(
                 @(foreach ($quota in (az vm list-usage --location uksouth | ConvertFrom-Json)) {
                     if ($quota.currentValue -gt 0) {
                         New-PodeWebProgress -Name $quota.localName -Id $quota.name.value -Value $quota.currentValue -Max $quota.limit -ShowValue
@@ -54,5 +54,5 @@ Start-PodeServer {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Components $tabs
+    Set-PodeWebHomePage -NoAuth -Layouts $tabs
 }

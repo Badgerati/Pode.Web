@@ -15,10 +15,6 @@ function Use-PodeWebTemplates
         $FavIcon,
 
         [Parameter()]
-        [string]
-        $Stylesheet,
-
-        [Parameter()]
         [ValidateSet('Light', 'Dark', 'Terminal')]
         [string]
         $Theme = 'Light'
@@ -36,9 +32,10 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'title' -Value $Title
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
-    Set-PodeWebState -Name 'stylesheet' -Value $Stylesheet
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
     Set-PodeWebState -Name 'pages' -Value @()
+    Set-PodeWebState -Name 'custom-css' -Value @()
+    Set-PodeWebState -Name 'custom-js' -Value @()
 
     $defaultBSColour = 'primary'
     if ($Theme -ieq 'terminal') {
@@ -64,4 +61,28 @@ function Use-PodeWebTemplates
             }
         }
     }
+}
+
+function Import-PodeWebStylesheet
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    Set-PodeWebState -Name 'custom-css' -Value  (@(Get-PodeWebState -Name 'custom-css') + $Url)
+}
+
+function Import-PodeWebJavaScript
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    Set-PodeWebState -Name 'custom-js' -Value  (@(Get-PodeWebState -Name 'custom-js') + $Url)
 }

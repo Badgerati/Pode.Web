@@ -10,7 +10,7 @@ Start-PodeServer {
     Use-PodeWebTemplates -Title 'Inputs' -Theme Dark
 
     # set the home page controls (just a simple paragraph)
-    $form = New-PodeWebForm -Name 'Test' -ScriptBlock {
+    $form = New-PodeWebForm -Name 'Test'  -AsCard -ScriptBlock {
         @{
             Name = $WebEvent.Data.Name
             Password = $WebEvent.Data.Password
@@ -18,7 +18,7 @@ Start-PodeServer {
             Radios = $WebEvent.Data.Radios
             Role = $WebEvent.Data.Role
         } | Out-PodeWebTextbox -Multiline -Preformat -AsJson
-    } -Elements @(
+    } -Content @(
         New-PodeWebTextbox -Name 'Name' -AutoComplete {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
         }
@@ -29,5 +29,5 @@ Start-PodeServer {
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
     )
 
-    Set-PodeWebHomePage -Components $form -Title 'Testing Inputs'
+    Set-PodeWebHomePage -Layouts $form -Title 'Testing Inputs'
 }

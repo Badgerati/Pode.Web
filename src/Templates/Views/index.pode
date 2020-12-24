@@ -59,8 +59,8 @@
                         <input type='text' class='form-control pode-nav-filter' id="filter_sidebar" placeholder='Filter' for="sidebar-list">
                     </div>
 
-                    <footer class="footer mt-auto py-3">
-                        <div class="container">
+                    <footer class="footer powered-by mt-auto py-3">
+                        <div>
                             <span class="text-muted">
                                 🧡 Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
                             </span>
@@ -133,20 +133,11 @@
                         </h1>
                     </div>
 
-                    $(foreach ($component in $data.Components) {
-                        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
-                            continue
-                        }
-
-                        Use-PodeWebPartialView -Path "components/$($component.ComponentType.ToLowerInvariant())" -Data @{
-                            Name = $data.Page.Name
-                            Meta = $component
-                        }
-                    })
+                    $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Layouts })
                 </main>
             </div>
         </div>
 
-        $(Use-PodeWebPartialView -Path 'shared/scripts' -Data @{ Components = $data.Components })
+        $(Use-PodeWebPartialView -Path 'shared/scripts')
     </body>
 </html>

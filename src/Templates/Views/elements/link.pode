@@ -4,5 +4,5 @@ $(
         $target = '_blank'
     }
 
-    "<a href='$($data.Source)' id='$($data.ID)' target='$($target)'>$($data.Value)</a>"
+    "<a href='$($data.Source)' id='$($data.ID)' target='$($target)' class='$($data.CssClasses)'>$($data.Value)</a>"
 )

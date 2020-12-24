@@ -77,7 +77,7 @@ function Set-PodeWebHomePage
     param(
         [Parameter()]
         [hashtable[]]
-        $Components,
+        $Layouts,
 
         [Parameter()]
         [string]
@@ -90,11 +90,11 @@ function Set-PodeWebHomePage
     )
 
     # ensure components are correct
-    foreach ($component in $Components) {
-        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
-            throw "Invalid component supplied: $($component)"
-        }
-    }
+    # foreach ($component in $Components) {
+    #     if ([string]::IsNullOrWhiteSpace($component.LayoutType)) {
+    #         throw "Invalid component supplied: $($component)"
+    #     }
+    # }
 
     $auth = $null
     if (!$NoAuthentication) {
@@ -108,7 +108,7 @@ function Set-PodeWebHomePage
     Remove-PodeRoute -Method Get -Path '/'
 
     Add-PodeRoute -Method Get -Path '/' -Authentication $auth -ScriptBlock {
-        $comps = $using:Components
+        $comps = $using:Layouts
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
             $pages = @(Get-PodeWebState -Name 'pages')
             if (($null -ne $pages) -and ($pages.Length -gt 0)) {
@@ -126,7 +126,7 @@ function Set-PodeWebHomePage
                 Name = 'Home'
             }
             Title = $using:Title
-            Components = $comps
+            Layouts = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
                 Authenticated = $authData.IsAuthenticated
@@ -160,7 +160,7 @@ function Add-PodeWebPage
 
         [Parameter()]
         [hashtable[]]
-        $Components,
+        $Layouts,
 
         [Parameter()]
         [scriptblock]
@@ -181,11 +181,11 @@ function Add-PodeWebPage
     )
 
     # ensure components are correct
-    foreach ($component in $Components) {
-        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
-            throw "Invalid component supplied: $($component)"
-        }
-    }
+    # foreach ($component in $Components) {
+    #     if ([string]::IsNullOrWhiteSpace($component.LayoutType)) {
+    #         throw "Invalid component supplied: $($component)"
+    #     }
+    # }
 
     # test if page exists
     if (Test-PodeWebPage -Name $Name) {
@@ -245,13 +245,13 @@ function Add-PodeWebPage
             }
 
             if (($null -eq $comps) -or ($comps.Length -eq 0)) {
-                $comps = $using:Components
+                $comps = $using:Layouts
             }
 
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $using:Title
-                Components = $comps
+                Layouts = $comps
                 Auth = $authMeta
             }
         }
@@ -380,7 +380,7 @@ function ConvertTo-PodeWebPage
 
             $formId = "form_param_$($cmd)_$($name)"
 
-            $form = New-PodeWebForm -Name Parameters -Id $formId -NoHeader -Elements $elements -NoAuthentication:$NoAuthentication -ScriptBlock {
+            $form = New-PodeWebForm -Name Parameters -Id $formId -Content $elements -AsCard -NoAuthentication:$NoAuthentication -ScriptBlock {
                 $cmd = $WebEvent.Data['_Function_Name_']
                 $WebEvent.Data.Remove('_Function_Name_')
 
@@ -419,7 +419,7 @@ function ConvertTo-PodeWebPage
                 }
             }
 
-            New-PodeWebTab -Name $name -Components $form
+            New-PodeWebTab -Name $name -Layouts $form
         })
 
         $group = [string]::Empty
@@ -430,6 +430,6 @@ function ConvertTo-PodeWebPage
             }
         }
 
-        Add-PodeWebPage -Name $cmd -Icon Settings -Components $tabs -Group $group -NoAuthentication:$NoAuthentication
+        Add-PodeWebPage -Name $cmd -Icon Settings -Layouts $tabs -Group $group -NoAuthentication:$NoAuthentication
     }
 }
