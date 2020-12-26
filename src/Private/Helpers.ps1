@@ -29,7 +29,7 @@ function Get-PodeWebAuthUsername
     $user = $AuthData.User
 
     # check username prop
-    $prop = Get-PodeWebState -Name 'auth-username-prop'
+    $prop = (Get-PodeWebState -Name 'auth-props').Username
     if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
         return $user.$prop
     }
@@ -73,7 +73,7 @@ function Get-PodeWebAuthGroups
     $user = $AuthData.User
 
     # check group prop
-    $prop = Get-PodeWebState -Name 'auth-group-prop'
+    $prop = (Get-PodeWebState -Name 'auth-props').Group
     if (![string]::IsNullOrWhiteSpace($prop) -and !(Test-PodeWebArrayEmpty -Array $user.$prop)) {
         return @($user.$prop)
     }
@@ -95,6 +95,28 @@ function Get-PodeWebAuthGroups
 
     # nothing
     return @()
+}
+
+function Get-PodeWebAuthAvatar
+{
+    param(
+        [Parameter()]
+        $AuthData
+    )
+
+    # nothing if no auth data
+    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+        return $null
+    }
+
+    # nothing if no property set
+    $prop = (Get-PodeWebState -Name 'auth-props').Avatar
+    if ([string]::IsNullOrWhiteSpace($prop)) {
+        return $null
+    }
+
+    # get avatar url
+    return $AuthData.User.$prop
 }
 
 function Test-PodeWebArrayEmpty

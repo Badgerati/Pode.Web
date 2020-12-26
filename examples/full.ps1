@@ -21,6 +21,7 @@ Start-PodeServer -StatusPageExceptions Show {
                     Name = 'Morty'
                     Type = 'Human'
                     Groups = @('Developer')
+                    AvatarUrl = '/pode.web/images/icon.png'
                 }
             }
         }
@@ -30,8 +31,8 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Terminal
-    Set-PodeWebLoginPage -Authentication Example
+    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Light
+    Set-PodeWebLoginPage -Authentication Example -AvatarProperty AvatarUrl
 
 
     $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {

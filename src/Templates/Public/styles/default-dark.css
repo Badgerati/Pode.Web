@@ -13,6 +13,10 @@ nav#sidebarMenu {
     color: #ccc !important;
 }
 
+.welcome-msg img {
+    border-color: dodgerblue;
+}
+
 .media {
     border-color: dodgerblue;
     background-color: #121d2f;

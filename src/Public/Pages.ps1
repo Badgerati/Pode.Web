@@ -20,12 +20,19 @@ function Set-PodeWebLoginPage
 
         [Parameter()]
         [string]
-        $GroupProperty
+        $GroupProperty,
+
+        [Parameter()]
+        [string]
+        $AvatarProperty
     )
 
     Set-PodeWebState -Name 'auth' -Value $Authentication
-    Set-PodeWebState -Name 'auth-username-prop' -Value $UsernameProperty
-    Set-PodeWebState -Name 'auth-group-prop' -Value $GroupProperty
+    Set-PodeWebState -Name 'auth-props' -Value @{
+        Username = $UsernameProperty
+        Group = $GroupProperty
+        Avatar = $AvatarProperty
+    }
 
     if ([string]::IsNullOrWhiteSpace($Icon)) {
         $Icon = '/pode.web/images/icon.png'
@@ -56,6 +63,7 @@ function Set-PodeWebLoginPage
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
+        $avatar = Get-PodeWebAuthAvatar -AuthData $authData
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
@@ -66,6 +74,7 @@ function Set-PodeWebLoginPage
                 Authenticated = $authData.IsAuthenticated
                 Username = $username
                 Groups = $groups
+                Avatar = $avatar
             }
         }
     }
@@ -121,6 +130,7 @@ function Set-PodeWebHomePage
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
+        $avatar = Get-PodeWebAuthAvatar -AuthData $authData
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
@@ -134,6 +144,7 @@ function Set-PodeWebHomePage
                 Authenticated = $authData.IsAuthenticated
                 Username = $username
                 Groups = $groups
+                Avatar = $avatar
             }
         }
     }
@@ -230,12 +241,14 @@ function Add-PodeWebPage
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
+        $avatar = Get-PodeWebAuthAvatar -AuthData $authData
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
             Authenticated = $authData.IsAuthenticated
             Username = $username
             Groups = $groups
+            Avatar = $avatar
         }
 
         # check access - 403 if denied

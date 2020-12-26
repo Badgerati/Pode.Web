@@ -43,7 +43,12 @@
             $(if ($data.Auth.Enabled) {
                 if ($data.Auth.Authenticated) {
                     "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
-                        <span class='navbar-text mRight05 welcome-msg'>Hello, $($data.Auth.Username)</span>
+                        <span class='navbar-text mRight1 welcome-msg'>"
+                            if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
+                                "<img src='$($data.Auth.Avatar)'>"
+                            }
+                            "Hello, $($data.Auth.Username)
+                        </span>
                         <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
                             <span data-feather='log-out' class='mRight02'></span>
                             Sign out

@@ -309,6 +309,17 @@ table tbody td {
     font-size: 1.2em;
 }
 
+.welcome-msg img {
+    width: 35px;
+    height: 35px;
+    margin-right: 0.3rem;
+    border-radius: 5em;
+    margin-bottom: 2px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #bbb;
+}
+
 .navbar-brand {
     font-size: 1.5em !important;
     text-overflow: ellipsis;
@@ -583,6 +594,10 @@ h6 .feather, .h6 .feather {
 
 .mRight02 {
     margin-right: 0.2em;
+}
+
+.mRight1 {
+    margin-right: 1em;
 }
 
 .mTop-05 {
