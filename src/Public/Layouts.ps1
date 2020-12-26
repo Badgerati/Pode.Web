@@ -14,7 +14,9 @@ function New-PodeWebGrid
         $Vertical
     )
 
-    #TODO: check only cells supplied
+    if (!(Test-PodeWebContent -Content $Cells -ComponentType Layout -LayoutType Cell)) {
+        throw 'A Grid can only contain Cell layouts'
+    }
 
     return @{
         ComponentType = 'Layout'
@@ -34,12 +36,9 @@ function New-PodeWebCell
         $Layouts
     )
 
-    # ensure components are correct
-    # foreach ($component in $Components) {
-    #     if ([string]::IsNullOrWhiteSpace($component.LayoutType)) {
-    #         throw "Invalid component supplied: $($component)"
-    #     }
-    # }
+    if (!(Test-PodeWebContent -Content $Layouts -ComponentType Layout)) {
+        throw 'A Grid Cell can only contain layouts'
+    }
 
     return @{
         ComponentType = 'Layout'
@@ -68,7 +67,9 @@ function New-PodeWebTabs
         $Cycle
     )
 
-    #TODO: check only tabs supplied
+    if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout -LayoutType Tab)) {
+        throw 'Tabs can only contain Tab layouts'
+    }
 
     if ($CycleInterval -lt 10) {
         $CycleInterval = 10
@@ -99,12 +100,9 @@ function New-PodeWebTab
         $Layouts
     )
 
-    # ensure components are correct
-    # foreach ($component in $Components) {
-    #     if ([string]::IsNullOrWhiteSpace($component.LayoutType)) {
-    #         throw "Invalid component supplied: $($component)"
-    #     }
-    # }
+    if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout)) {
+        throw 'A Tab can only contain layouts'
+    }
 
     return @{
         ComponentType = 'Layout'
@@ -139,8 +137,9 @@ function New-PodeWebCard
         $NoTitle
     )
 
-    # ensure elements are correct
-    # Test-PodeWebElements -Elements $Elements
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Card can only contain layouts and/or elements'
+    }
 
     return @{
         ComponentType = 'Layout'
@@ -170,8 +169,9 @@ function New-PodeWebContainer
         $CssClass
     )
 
-    # ensure elements are correct
-    # Test-PodeWebElements -Elements $Elements
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Container can only contain layouts and/or elements'
+    }
 
     return @{
         ComponentType = 'Layout'
@@ -234,8 +234,9 @@ function New-PodeWebModal
         $NoAuthentication
     )
 
-    # ensure elements are correct
-    # Test-PodeWebElements -Elements $Elements
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Modal can only contain layouts and/or elements'
+    }
 
     # generate ID
     $Id = Get-PodeWebElementId -Tag Modal -Id $Id -Name $Name
@@ -295,8 +296,9 @@ function New-PodeWebHero
         $CssClass
     )
 
-    # ensure elements are correct
-    # Test-PodeWebElements -Elements $Elements
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Hero can only contain layouts and/or elements'
+    }
 
     return @{
         ComponentType = 'Layout'
@@ -321,7 +323,9 @@ function New-PodeWebCarousel
         $CssClass
     )
 
-    #TODO: check only slides supplied
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Slide)) {
+        throw 'A Carousel can only contain Slide layouts'
+    }
 
     return @{
         ComponentType = 'Layout'
@@ -348,6 +352,10 @@ function New-PodeWebSlide
         [string]
         $Message
     )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Slide can only contain layouts and/or elements'
+    }
 
     return @{
         ComponentType = 'Layout'
@@ -392,7 +400,9 @@ function New-PodeWebSteps
         $NoAuthentication
     )
 
-    #TODO: check only steps supplied
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Step)) {
+        throw 'Steps can only contain Step layouts'
+    }
 
     # generate ID
     $Id = Get-PodeWebElementId -Tag Steps -Id $Id -Name $Name
@@ -455,6 +465,10 @@ function New-PodeWebStep
         [switch]
         $NoAuthentication
     )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Step can only contain layouts and/or elements'
+    }
 
     # generate ID
     $Id = Get-PodeWebElementId -Tag Step -Name $Name

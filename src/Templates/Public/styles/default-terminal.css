@@ -278,7 +278,7 @@ hr {
     color: #33ff00 !important;
 }
 
-.container {
+.pode-container {
     background-color: #111;
     border-color: #33ff00;
     color: #33ff00;
@@ -313,4 +313,16 @@ hr {
 
 .bs-stepper-line {
     background-color: #33ff00;
+}
+
+div#pode-social a {
+    color: #33ff00;
+}
+
+div#pode-social a:hover {
+    color: #ffb000;
+}
+
+.footer.powered-by a {
+    color: #ffb000 !important;
 }

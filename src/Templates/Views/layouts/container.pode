@@ -1,3 +1,3 @@
-<div class="container $($data.CssClasses)">
+<div class="container pode-container $($data.CssClasses)">
     $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content })
 </div>

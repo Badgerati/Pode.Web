@@ -107,35 +107,6 @@ function Test-PodeWebArrayEmpty
     return (($null -eq $Array) -or (@($Array).Length -eq 0))
 }
 
-function Test-PodeWebComponent
-{
-    param(
-        [Parameter()]
-        [hashtable[]]
-        $Components,
-
-        [Parameter()]
-        [string]
-        $Type
-    )
-
-    if (($null -eq $Components) -or ($Components.Length -eq 0)) {
-        return $false
-    }
-
-    if ([string]::IsNullOrWhiteSpace($Type)) {
-        return $true
-    }
-
-    foreach ($comp in $Components) {
-        if ($comp.LayoutType -ieq $Type) {
-            return $true
-        }
-    }
-
-    return $false
-}
-
 function Test-PodeWebPageAccess
 {
     param(
@@ -459,17 +430,57 @@ function Convert-PodeWebColourToClass
     }
 }
 
-function Test-PodeWebElements
+function Test-PodeWebContent
 {
     param(
         [Parameter()]
         [hashtable[]]
-        $Elements
+        $Content,
+
+        [Parameter()]
+        [string[]]
+        $ComponentType,
+
+        [Parameter()]
+        [string[]]
+        $ElementType,
+
+        [Parameter()]
+        [string[]]
+        $LayoutType
     )
 
-    foreach ($element in $Elements) {
-        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
-            throw "Invalid element supplied: $($element)"
+    # if no content, then it's true
+    if (Test-PodeWebArrayEmpty -Array $Content) {
+        return $true
+    }
+
+    # ensure the content ComponentTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $ComponentType)) {
+        foreach ($item in $Content) {
+            if ($item.ComponentType -inotin $ComponentType) {
+                return $false
+            }
         }
     }
+
+    # ensure the content ElementTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $ElementType)) {
+        foreach ($item in $Content) {
+            if ($item.ElementType -inotin $ElementType) {
+                return $false
+            }
+        }
+    }
+
+    # ensure the content LayoutTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $LayoutType)) {
+        foreach ($item in $Content) {
+            if ($item.LayoutType -inotin $LayoutType) {
+                return $false
+            }
+        }
+    }
+
+    return $true
 }

@@ -30,9 +30,15 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
+    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Terminal
     Set-PodeWebLoginPage -Authentication Example
 
+
+    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
+        $rand = Get-Random -Minimum 0 -Maximum 3
+        $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
+        Out-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
+    }
 
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
     $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
@@ -57,12 +63,6 @@ Start-PodeServer -StatusPageExceptions Show {
         }
         New-PodeWebAlert -Type Note -Value 'Hello, world'
     )
-
-    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
-        $rand = Get-Random -Minimum 0 -Maximum 3
-        $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
-        Out-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
-    }
 
     $section2 = New-PodeWebCard -Name 'Code' -NoTitle -Content @(
         New-PodeWebCodeBlock -Value "Write-Host 'hello, world!'" -NoHighlight
@@ -148,7 +148,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $section, $carousel, $section2, $section3, $codeEditor, $grid1 -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -NoAuth -Layouts $hero, $section, $carousel, $section2, $section3, $codeEditor, $grid1 -NoTitle
 
 
     # tabs and charts
@@ -164,7 +164,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts $tabs1
+    Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts $tabs1 -Title 'Cycling Tabs'
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]

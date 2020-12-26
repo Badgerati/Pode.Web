@@ -86,15 +86,16 @@ function Set-PodeWebHomePage
         [Parameter()]
         [Alias('NoAuth')]
         [switch]
-        $NoAuthentication
+        $NoAuthentication,
+
+        [switch]
+        $NoTitle
     )
 
-    # ensure components are correct
-    # foreach ($component in $Components) {
-    #     if ([string]::IsNullOrWhiteSpace($component.LayoutType)) {
-    #         throw "Invalid component supplied: $($component)"
-    #     }
-    # }
+    # ensure layouts are correct
+    if (!(Test-PodeWebContent -Content $Layouts -ComponentType Layout)) {
+        throw 'The Home Page can only contain layouts'
+    }
 
     $auth = $null
     if (!$NoAuthentication) {
@@ -124,8 +125,9 @@ function Set-PodeWebHomePage
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
+                Title = $using:Title
+                NoTitle = $using:NoTitle
             }
-            Title = $using:Title
             Layouts = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -177,23 +179,32 @@ function Add-PodeWebPage
         [Parameter()]
         [Alias('NoAuth')]
         [switch]
-        $NoAuthentication
+        $NoAuthentication,
+
+        [switch]
+        $NoTitle
     )
 
-    # ensure components are correct
-    # foreach ($component in $Components) {
-    #     if ([string]::IsNullOrWhiteSpace($component.LayoutType)) {
-    #         throw "Invalid component supplied: $($component)"
-    #     }
-    # }
+    # ensure layouts are correct
+    if (!(Test-PodeWebContent -Content $Layouts -ComponentType Layout)) {
+        throw 'A Page can only contain layouts'
+    }
 
     # test if page exists
     if (Test-PodeWebPage -Name $Name) {
         throw " Web page already exists: $($Name)"
     }
 
+    # set page title
+    if ([string]::IsNullOrWhiteSpace($Title)) {
+        $Title = $Name
+    }
+
+    # setup page meta
     $pageMeta = @{
         Name = $Name
+        Title = $Title
+        NoTitle = $NoTitle.IsPresent
         Icon = $Icon
         Group = $Group
         Access = @{
@@ -203,11 +214,6 @@ function Add-PodeWebPage
     }
 
     Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + $pageMeta)
-
-    # set page title
-    if ([string]::IsNullOrWhiteSpace($Title)) {
-        $Title = $Name
-    }
 
     # does the page need auth?
     $auth = $null

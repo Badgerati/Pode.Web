@@ -33,6 +33,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
+    Set-PodeWebState -Name 'social' -Value @{}
     Set-PodeWebState -Name 'pages' -Value @()
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
@@ -85,4 +86,33 @@ function Import-PodeWebJavaScript
     )
 
     Set-PodeWebState -Name 'custom-js' -Value  (@(Get-PodeWebState -Name 'custom-js') + $Url)
+}
+
+function Set-PodeWebSocial
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('GitHub', 'Twitter', 'Facebook', 'LinkedIn', 'Twitch', 'GitLab', 'Instagram')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $Tooltip
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Tooltip)) {
+        $Tooltip = $Type
+    }
+
+    $socials = Get-PodeWebState -Name 'social'
+    $socials[$Type] = @{
+        Url = $Url
+        Tooltip = $Tooltip
+    }
 }

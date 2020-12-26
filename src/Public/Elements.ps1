@@ -171,10 +171,8 @@ function New-PodeWebParagraph
     )
 
     # ensure elements are correct
-    foreach ($element in $Elements) {
-        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
-            throw "Invalid element supplied: $($element)"
-        }
+    if (!(Test-PodeWebContent -Content $Elements -ComponentType Element)) {
+        throw 'A Paragraph can only contain elements'
     }
 
     $Id = Get-PodeWebElementId -Tag Para -Id $Id -RandomToken
@@ -1037,12 +1035,10 @@ function New-PodeWebAlert
         $CssClass
     )
 
-    # ensure elements are correct
-    # foreach ($element in $Elements) {
-    #     if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
-    #         throw "Invalid element supplied: $($element)"
-    #     }
-    # }
+    # ensure content are correct
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'An Alert can only contain layouts and/or elements'
+    }
 
     $Id = Get-PodeWebElementId -Tag Alert -Id $Id -RandomToken
     $classType = Convert-PodeWebAlertTypeToClass -Type $Type
@@ -1615,8 +1611,10 @@ function New-PodeWebForm
         $AsCard
     )
 
-    # ensure elements are correct
-    # Test-PodeWebElements -Elements $Elements
+    # ensure content are correct
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Form can only contain layouts and/or elements'
+    }
 
     # generate ID
     $Id = Get-PodeWebElementId -Tag Form -Id $Id -Name $Name

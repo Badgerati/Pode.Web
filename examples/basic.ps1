@@ -4,9 +4,14 @@ Import-Module ..\src\Pode.Web.psm1 -Force
 Start-PodeServer {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
+    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Basic Example'
+    Use-PodeWebTemplates -Title 'Basic Example' -Theme Dark
+
+    # social
+    Set-PodeWebSocial -Type GitHub -Url 'https://github.com/badgerati'
+    Set-PodeWebSocial -Type Twitter -Url 'https://twitter.com/Badgerati' -Tooltip '@Badgerati'
 
     # set the home page controls (just a simple paragraph)
     $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(

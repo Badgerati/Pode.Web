@@ -35,7 +35,7 @@ Start-PodeServer {
 
 The `-Logo` and `-FavIcon` must be URL paths relative to your site's `/public` directory.
 
-You can import custom CSS/JS files by using `Import-PodeWebStylesheet` or `Import-PodeWebJavaScript`.
+You can import custom CSS/JS files by using `Import-PodeWebStylesheet` or `Import-PodeWebJavaScript`. You can also setup social icons using `Set-PodeWebSocial`.
 
 ### Login
 
