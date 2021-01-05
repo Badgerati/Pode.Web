@@ -4,6 +4,14 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
+$.ajaxSetup({
+    converters: {
+        "text json": function(response) {
+            return (response == "" || response == '"N') ? null : JSON.parse(response);
+        },
+    },
+});
+
 Chart.Legend.prototype.afterFit = function() {
     this.height = this.height + 10;
 };
@@ -37,6 +45,7 @@ $(document).ready(() => {
     bindTableFilters();
     bindTableExports();
     bindTableRefresh();
+    bindTableButtons();
 
     bindChartRefresh();
     bindRangeValue();
@@ -62,7 +71,7 @@ function setupSteppers() {
         _steppers[stepper.attr('id')] = new Stepper(e, { linear: true });
 
         // override form enter-key
-        stepper.find('form.pode-stepper-form').keypress(function(e) {
+        stepper.find('form.pode-stepper-form').unbind('keypress').keypress(function(e) {
             if (e.which != 13 && e.keyCode != 13) {
                 return;
             }
@@ -78,7 +87,7 @@ function setupSteppers() {
         });
 
         // previous buttons
-        stepper.find('.bs-stepper-content button.step-previous').click(function(e) {
+        stepper.find('.bs-stepper-content button.step-previous').unbind('click').click(function(e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -91,7 +100,7 @@ function setupSteppers() {
         });
 
         // next buttons
-        stepper.find('.bs-stepper-content button.step-next').click(function(e) {
+        stepper.find('.bs-stepper-content button.step-next').unbind('click').click(function(e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -123,7 +132,7 @@ function setupSteppers() {
         });
 
         // submit buttons
-        stepper.find('.bs-stepper-content button.step-submit').click(function(e) {
+        stepper.find('.bs-stepper-content button.step-submit').unbind('click').click(function(e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -188,23 +197,37 @@ function setValidationError(element) {
     element.addClass('is-invalid');
 }
 
-function sendAjaxReq(url, data, sender, useActions, successCallback) {
+function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     // show the spinner
     showSpinner(sender);
 
     // remove validation errors
     removeValidationErrors(sender);
 
+    // set default content type
+    opts = (opts ?? {});
+    opts.contentType = (opts.contentType ?? 'application/x-www-form-urlencoded; charset=UTF-8');
+
     // make the call
     $.ajax({
         url: url,
         method: 'post',
         data: data,
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        success: function(res) {
+        contentType: opts.contentType,
+        success: function(res, status, xhr) {
+            // attempt to hide any spinners
             hideSpinner(sender);
 
-            if (useActions) {
+            // attempt to get a filename, for downloading
+            var filename = getAjaxFileName(xhr);
+
+            // do we have a file to download?
+            if (filename) {
+                downloadAjaxFile(filename, res, xhr);
+            }
+
+            // run any actions, if we need to
+            else if (useActions) {
                 invokeActions(res, sender);
             }
 
@@ -212,11 +235,70 @@ function sendAjaxReq(url, data, sender, useActions, successCallback) {
                 successCallback(res, sender);
             }
         },
-        error: function(err) {
+        error: function(err, msg, stack) {
             hideSpinner(sender);
             console.log(err);
+            console.log(stack);
         }
     });
+}
+
+function downloadAjaxFile(filename, response, xhr) {
+    var type = xhr.getResponseHeader('Content-Type');
+    var blob = new Blob([response], { type: type });
+
+    // from: https://gist.github.com/jasonweng/393aef0c05c425d8dcfdb2fc1a8188e5
+    // IE workaround for "HTML7007
+    if (typeof window.navigator.msSaveBlob !== 'undefined') {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else {
+        var URL = (window.URL || window.webkitURL);
+        var downloadUrl = URL.createObjectURL(blob);
+
+        if (filename) {
+            // use HTML5 a[download] attribute to specify filename
+            var a = document.createElement('a');
+
+            // safari doesn't support this yet
+            if (typeof a.download === 'undefined') {
+                window.location = downloadUrl;
+            }
+            else {
+                a.href = downloadUrl;
+                a.download = filename;
+                a.style.display = 'none';
+
+                document.body.appendChild(a);
+                a.click();
+
+                $(a).remove();
+            }
+        }
+        else {
+            window.location = downloadUrl;
+        }
+
+        // cleanup the blob url
+        setTimeout(function() {
+            URL.revokeObjectURL(downloadUrl);
+        }, 100);
+    }
+}
+
+function getAjaxFileName(xhr) {
+    var filename = '';
+    var disposition = xhr.getResponseHeader('Content-Disposition');
+
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        var matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+            filename = matches[1].replace(/['"]/g, '');
+        }
+    }
+
+    return filename;
 }
 
 function showSpinner(sender) {
@@ -261,7 +343,7 @@ function bindCodeEditors() {
 }
 
 function bindCardCollapse() {
-    $('button.pode-card-collapse').click(function(e) {
+    $('button.pode-card-collapse').unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -299,7 +381,7 @@ function invokeTimer(timerId) {
 }
 
 function bindMenuToggle() {
-    $('button#menu-toggle').click(function(e) {
+    $('button#menu-toggle').unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -309,7 +391,7 @@ function bindMenuToggle() {
 }
 
 function bindTablePagination() {
-    $('nav .pagination a.page-link').click(function(e) {
+    $('nav .pagination a.page-link').unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
         var link = $(this);
@@ -430,7 +512,7 @@ function loadTable(tableId, pageNumber, pageAmount) {
     // ensure the table is dynamic, or has the 'for' attr set
     var table = $(`table#${tableId}`);
     if (table.attr('pode-dynamic') != 'True' && !table.attr('for')) {
-        return
+        return;
     }
 
     // define any table paging
@@ -624,7 +706,7 @@ function buildElements(elements) {
 }
 
 function bindFormSubmits() {
-    $("form.pode-form").submit(function(e) {
+    $("form.pode-form").unbind('submit').submit(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -634,7 +716,7 @@ function bindFormSubmits() {
 }
 
 function bindModalSubmits() {
-    $("div.modal-footer button.pode-modal-submit").click(function(e) {
+    $("div.modal-footer button.pode-modal-submit").unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -696,7 +778,7 @@ function getDataValue(element) {
 }
 
 function bindCodeCopy() {
-    $('pre button.pode-code-copy').click(function(e) {
+    $('pre button.pode-code-copy').unbind('click').click(function(e) {
         var value = $(e.target).closest('pre').find('code').text().trim();
         navigator.clipboard.writeText(value);
     });
@@ -712,7 +794,7 @@ function getButton(event) {
 }
 
 function bindButtons() {
-    $("button.pode-button").click(function(e) {
+    $("button.pode-button").unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -743,7 +825,7 @@ function bindButtons() {
 }
 
 function bindTableFilters() {
-    $("input.pode-table-filter").keyup(function(e) {
+    $("input.pode-table-filter").unbind('keyup').keyup(function(e) {
         e.preventDefault();
         filterTable($(e.target));
     });
@@ -762,7 +844,7 @@ function filterTable(filter) {
 }
 
 function bindSidebarFilter() {
-    $("input.pode-nav-filter").keyup(function(e) {
+    $("input.pode-nav-filter").unbind('keyup').keyup(function(e) {
         e.preventDefault();
 
         var input = $(e.target);
@@ -784,18 +866,21 @@ function bindSidebarFilter() {
 }
 
 function bindTableExports() {
-    $("button.pode-table-export").click(function(e) {
+    $("button.pode-table-export").unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
         var button = getButton(e);
         button.tooltip('hide');
-        exportTableAsCSV(button.attr('for'));
+
+        var tableId = button.attr('for');
+        var csv = exportTableAsCSV(tableId);
+        downloadCSV(csv, getTableFileName(tableId));
     });
 }
 
 function bindTableRefresh() {
-    $("button.pode-table-refresh").click(function(e) {
+    $("button.pode-table-refresh").unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -814,8 +899,25 @@ function bindTableRefresh() {
     });
 }
 
+function bindTableButtons() {
+    $("button.pode-table-button").unbind('click').click(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var button = getButton(e);
+        button.tooltip('hide');
+
+        var tableId = button.attr('for');
+        var table = $(`table#${tableId}`);
+        var csv = exportTableAsCSV(tableId);
+
+        var url = `/elements/table/${tableId}/button/${button.attr('name')}`;
+        sendAjaxReq(url, csv, table, true, null, { contentType: 'text/csv' });
+    });
+}
+
 function bindChartRefresh() {
-    $("button.pode-chart-refresh").click(function(e) {
+    $("button.pode-chart-refresh").unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1276,14 +1378,17 @@ function exportTableAsCSV(tableId) {
         csv.push(row.join(","));
     }
 
-    // download
+    return csv.join("\n");
+}
+
+function getTableFileName(tableId) {
     var tableName = $(`table#${tableId}`).attr('name').replace(' ', '_');
-    downloadCSV(csv.join("\n"), `${tableName}.csv`);
+    return `${tableName}.csv`
 }
 
 function downloadCSV(csv, filename) {
     // the csv file
-    var csvFile = new Blob([csv], {type: "text/csv"});
+    var csvFile = new Blob([csv], { type: "text/csv" });
 
     // build a hidden download link
     var downloadLink = document.createElement('a');

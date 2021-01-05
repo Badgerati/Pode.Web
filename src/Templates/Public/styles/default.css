@@ -258,6 +258,12 @@ input[type="number"].pode-range-value {
     width: 6% !important;
 }
 
+input[type=date]::-webkit-calendar-picker-indicator:hover,
+input[type=time]::-webkit-calendar-picker-indicator:hover,
+input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
+    cursor: pointer;
+}
+
 .sidebar-sticky {
     margin-bottom: -8.5em !important;
     height: calc(100vh - 7em) !important;

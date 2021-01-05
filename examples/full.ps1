@@ -31,7 +31,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Light
+    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
     Set-PodeWebLoginPage -Authentication Example -AvatarProperty AvatarUrl
 
 
@@ -214,6 +214,14 @@ Start-PodeServer -StatusPageExceptions Show {
                 Actions = $btns
             }
         }
+    }
+
+    Add-PodeStaticRoute -Path '/download' -Source '.\storage' -DownloadOnly
+
+    $table | Add-PodeWebTableButton -Name 'Excel' -Icon 'Bar-Chart' -ScriptBlock {
+        $path = Join-Path (Get-PodeServerPath) '.\storage\test.csv'
+        $WebEvent.Data | Export-Csv -Path $path -NoTypeInformation
+        Set-PodeResponseAttachment -Path '/download/test.csv'
     }
 
     Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Layouts $modal, $table -ScriptBlock {

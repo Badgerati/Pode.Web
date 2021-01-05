@@ -303,6 +303,7 @@ function ConvertTo-PodeWebPage
     # if a module was supplied, import it - then validate the commands
     if (![string]::IsNullOrWhiteSpace($Module)) {
         Import-PodeModule -Name $Module
+        Export-PodeModule -Name $Module
 
         Write-Verbose "Getting exported commands from module"
         $ModuleCommands = (Get-Module -Name $Module | Sort-Object -Descending | Select-Object -First 1).ExportedCommands.Keys

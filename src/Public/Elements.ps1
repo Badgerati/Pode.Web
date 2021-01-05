@@ -11,7 +11,7 @@ function New-PodeWebTextbox
         $Id,
 
         [Parameter(ParameterSetName='Single')]
-        [ValidateSet('Text', 'Email', 'Password', 'Number', 'Date', 'Time', 'File')]
+        [ValidateSet('Text', 'Email', 'Password', 'Number', 'Date', 'Time', 'File', 'DateTime')]
         [string]
         $Type ='Text',
 
@@ -1001,7 +1001,10 @@ function New-PodeWebButton
                 $result = @()
             }
 
-            Write-PodeJsonResponse -Value $result
+            if ($WebEvent.Response.ContentLength64 -eq 0) {
+                Write-PodeJsonResponse -Value $result
+            }
+
             $global:ElementData = $null
         }
     }
@@ -1428,6 +1431,7 @@ function New-PodeWebTable
         ID = $Id
         DataColumn = $DataColumn
         Columns = $Columns
+        Buttons = @()
         Message = $Message
         Filter = $Filter.IsPresent
         Sort = $Sort.IsPresent
@@ -1436,6 +1440,7 @@ function New-PodeWebTable
         NoExport = $NoExport.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
         NoRefresh = $NoRefresh.IsPresent
+        NoAuth = $NoAuthentication.IsPresent
         CssClasses = ($CssClass -join ' ')
         Paging = @{
             Enabled = $Paginate.IsPresent
@@ -1501,6 +1506,67 @@ function Initialize-PodeWebTableColumn
     return @{
         Key = $Key
         Width = $Width
+    }
+}
+
+function Add-PodeWebTableButton
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [hashtable]
+        $Table,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Icon,
+
+        [Parameter(Mandatory=$true)]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [switch]
+        $WithText
+    )
+
+    if ($Table.ComponentType -ieq 'layout') {
+        $Table = @($Table.Content | Where-Object { $_.ElementType -ieq 'table' })[0]
+    }
+
+    $routePath = "/elements/table/$($Table.ID)/button/$($Name)"
+    if (!(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$Table.NoAuth) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if ($WebEvent.Response.ContentLength64 -eq 0) {
+                Write-PodeJsonResponse -Value $result
+            }
+        }
+    }
+
+    $Table.Buttons += @{
+        Name = $Name
+        Icon = $Icon
+        IsDynamic = ($null -ne $ScriptBlock)
+        WithText = $WithText.IsPresent
     }
 }
 

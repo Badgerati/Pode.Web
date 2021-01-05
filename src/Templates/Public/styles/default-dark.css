@@ -278,3 +278,15 @@ hr {
 .bs-stepper-line {
     background-color: #214981;
 }
+
+input[type=date]::-webkit-calendar-picker-indicator,
+input[type=time]::-webkit-calendar-picker-indicator,
+input[type=datetime-local]::-webkit-calendar-picker-indicator {
+    filter: invert(100%) brightness(60%);
+}
+
+input[type=date]::-webkit-calendar-picker-indicator:hover,
+input[type=time]::-webkit-calendar-picker-indicator:hover,
+input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(140deg);
+}

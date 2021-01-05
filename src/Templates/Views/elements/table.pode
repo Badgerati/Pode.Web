@@ -50,6 +50,17 @@ $(if ($data.Filter) {
                     <span data-feather='download'></span>
                 </button>"
             })
+
+            $(foreach ($btn in $data.Buttons) {
+                "<button type='button' class='btn btn btn-outline-secondary pode-table-button' for='$($data.ID)' title='$($btn.Name)' data-toggle='tooltip' name='$($btn.Name)'>
+                    <span data-feather='$($btn.Icon.ToLowerInvariant())' class='$(if ($btn.WithText) { "mRight02" })'></span>"
+
+                    if ($btn.WithText) {
+                        $btn.Name
+                    }
+
+                "</button>"
+            })
         </div>
 
         $(if ($data.Paging.Enabled) {

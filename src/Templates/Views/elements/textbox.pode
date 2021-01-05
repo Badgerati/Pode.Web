@@ -34,7 +34,12 @@
                     }
                 }
 
-                $element += "<input type='$($data.Type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly)  $($value)>"
+                $_type = $data.Type
+                if ($_type -ieq 'datetime') {
+                    $_type = 'datetime-local'
+                }
+
+                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly)  $($value)>"
 
                 if ($data.Prepend.Enabled) {
                     $element += "</div>"

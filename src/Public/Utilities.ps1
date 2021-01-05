@@ -29,6 +29,8 @@ function Use-PodeWebTemplates
         $FavIcon = '/pode.web/images/favicon.ico'
     }
 
+    Export-PodeModule -Name Pode.Web
+
     Set-PodeWebState -Name 'title' -Value $Title
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
