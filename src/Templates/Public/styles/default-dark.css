@@ -163,10 +163,6 @@ input, textarea, select, .progress {
     color: #999 !important;
 }
 
-input[type=date]::-webkit-calendar-picker-indicator {
-    filter: invert(1) brightness(0.5) !important;
-}
-
 pre code {
     background-color: #090d13 !important;
     border-color: #214981 !important;
