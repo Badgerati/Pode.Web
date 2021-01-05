@@ -1,0 +1,29 @@
+<ul class="nav nav-tabs $($data.CssClasses)" role="tablist" pode-cycle="$($data.Cycle.Enabled)" pode-interval="$($data.Cycle.Interval)">
+    $(for ($i = 0; $i -lt $data.Tabs.Length; $i++) {
+        $tab = $data.Tabs[$i]
+
+        "<li class='nav-item' role='presentation'>
+            <a
+                class='nav-link $(if ($i -eq 0) { "active" })'
+                id='$($tab.ID)'
+                data-toggle='tab' href='#$($tab.ID)_content'
+                role='tab'
+                pode-prev='$($data.Tabs[$i - 1].ID)'
+                pode-next='$($data.Tabs[($i + 1) % $data.Tabs.Length].ID)'
+                aria-controls='$($tab.ID)_content'
+                aria-selected='$($i -eq 0)'>
+                $($tab.Name)
+            </a>
+        </li>"
+    })
+</ul>
+
+<div class="tab-content">
+    $(for ($i = 0; $i -lt $data.Tabs.Length; $i++) {
+        $tab = $data.Tabs[$i]
+
+        "<div class='tab-pane fade show $(if ($i -eq 0) { "active" })' id='$($tab.ID)_content' role='tabpanel' aria-labelledby='$($tab.ID)'>"
+            Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $tab.Layouts }
+        "</div>"
+    })
+</div>

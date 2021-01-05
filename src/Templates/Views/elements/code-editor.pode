@@ -1,0 +1,1 @@
+<div class="code-editor $($data.CssClasses)" pode-language="$($data.Language)" pode-theme="$($data.Theme)"></div>

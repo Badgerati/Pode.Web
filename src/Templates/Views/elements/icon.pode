@@ -1,1 +1,1 @@
-<span data-feather="$($data.Name)"></span>
+<span data-feather="$($data.Name)" class="$($data.CssClasses)"></span>

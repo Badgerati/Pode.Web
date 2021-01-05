@@ -1,6 +1,6 @@
 $(
     $loc = [string]::Empty
-    switch ($data.Location.ToLowerInvariant()) {
+    switch ($data.Alignment) {
         'left' {
             $loc = 'float-left'
         }
@@ -32,5 +32,5 @@ $(
         $fluid = 'img-fluid'
     }
 
-    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc)' alt='$($data.Alt)' $($dim)>"
+    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc) $($data.CssClasses)' alt='$($data.Alt)' $($dim)>"
 )

@@ -13,6 +13,10 @@ nav#sidebarMenu {
     color: #ccc !important;
 }
 
+.welcome-msg img {
+    border-color: dodgerblue;
+}
+
 .media {
     border-color: dodgerblue;
     background-color: #121d2f;
@@ -236,4 +240,57 @@ nav .pagination .page-link.active, nav .pagination .page-link:hover {
 
 hr {
     border-color: dodgerblue;
+}
+
+.footer.powered-by {
+    background-color: #142440;
+    border-color: #214981;
+}
+
+.footer.powered-by .text-muted {
+    color: #ccc !important;
+}
+
+.pode-container {
+    background-color: #142440;
+    border-color: #214981;
+    color: #ccc;
+}
+
+.carousel {
+    background-color: #142440;
+    border-color: #214981;
+    color: #ccc;
+}
+
+.carousel .carousel-caption {
+    color: #ccc;
+}
+
+.carousel .carousel-indicators li {
+    background-color: #ccc;
+}
+
+.carousel .carousel-indicators li.active {
+    background-color: dodgerblue;
+}
+
+.step.active .bs-stepper-circle {
+    background-color: dodgerblue;
+}
+
+.bs-stepper-line {
+    background-color: #214981;
+}
+
+input[type=date]::-webkit-calendar-picker-indicator,
+input[type=time]::-webkit-calendar-picker-indicator,
+input[type=datetime-local]::-webkit-calendar-picker-indicator {
+    filter: invert(100%) brightness(60%);
+}
+
+input[type=date]::-webkit-calendar-picker-indicator:hover,
+input[type=time]::-webkit-calendar-picker-indicator:hover,
+input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(140deg);
 }

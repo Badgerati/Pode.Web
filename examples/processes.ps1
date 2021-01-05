@@ -24,16 +24,16 @@ Start-PodeServer {
     Set-PodeWebLoginPage -Authentication Example
 
     # processes - table for results, and a form to search
-    $table = New-PodeWebTable -Name 'Results' -Id 'tbl_process_results' -Filter
-    $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Results' -Id 'tbl_process_results' -Filter -AsCard
+    $form = New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
         $processes = Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU
         $processes | Out-PodeWebTable -Id 'tbl_process_results'
         Show-PodeWebToast -Message "Found $($processes.Length) processes"
-    } -Elements @(
+    } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Components $form, $table
+    Add-PodeWebPage -Name Processes -Icon Activity -Layouts $form, $table
 
     # services
     Add-PodeWebPage -Name Services -Icon Settings

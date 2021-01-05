@@ -29,7 +29,7 @@ function Get-PodeWebAuthUsername
     $user = $AuthData.User
 
     # check username prop
-    $prop = Get-PodeWebState -Name 'auth-username-prop'
+    $prop = (Get-PodeWebState -Name 'auth-props').Username
     if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
         return $user.$prop
     }
@@ -73,7 +73,7 @@ function Get-PodeWebAuthGroups
     $user = $AuthData.User
 
     # check group prop
-    $prop = Get-PodeWebState -Name 'auth-group-prop'
+    $prop = (Get-PodeWebState -Name 'auth-props').Group
     if (![string]::IsNullOrWhiteSpace($prop) -and !(Test-PodeWebArrayEmpty -Array $user.$prop)) {
         return @($user.$prop)
     }
@@ -97,6 +97,28 @@ function Get-PodeWebAuthGroups
     return @()
 }
 
+function Get-PodeWebAuthAvatar
+{
+    param(
+        [Parameter()]
+        $AuthData
+    )
+
+    # nothing if no auth data
+    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+        return $null
+    }
+
+    # nothing if no property set
+    $prop = (Get-PodeWebState -Name 'auth-props').Avatar
+    if ([string]::IsNullOrWhiteSpace($prop)) {
+        return $null
+    }
+
+    # get avatar url
+    return $AuthData.User.$prop
+}
+
 function Test-PodeWebArrayEmpty
 {
     param(
@@ -105,35 +127,6 @@ function Test-PodeWebArrayEmpty
     )
 
     return (($null -eq $Array) -or (@($Array).Length -eq 0))
-}
-
-function Test-PodeWebComponent
-{
-    param(
-        [Parameter()]
-        [hashtable[]]
-        $Components,
-
-        [Parameter()]
-        [string]
-        $Type
-    )
-
-    if (($null -eq $Components) -or ($Components.Length -eq 0)) {
-        return $false
-    }
-
-    if ([string]::IsNullOrWhiteSpace($Type)) {
-        return $true
-    }
-
-    foreach ($comp in $Components) {
-        if ($comp.ComponentType -ieq $Type) {
-            return $true
-        }
-    }
-
-    return $false
 }
 
 function Test-PodeWebPageAccess
@@ -273,8 +266,8 @@ function Test-PodeWebRoute
 
     $route = (Get-PodeRoute -Method Post -Path $Path)
 
-    if ([string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ComponentData.Name) -and ($null -ne $route)) {
-        throw "A component/element with ID '$(Split-Path -Path $Path -Leaf)' already exists"
+    if ([string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ElementData.Name) -and ($null -ne $route)) {
+        throw "An element with ID '$(Split-Path -Path $Path -Leaf)' already exists"
     }
 
     return ($null -ne $route)
@@ -306,10 +299,10 @@ function Get-PodeWebElementId
         return $Id
     }
 
-    # prepend the parent component's ID
+    # prepend the parent element's ID
     $_id = [string]::Empty
-    if (![string]::IsNullOrWhiteSpace($ComponentData.ID)) {
-        $_id = "$($ComponentData.ID)_"
+    if (![string]::IsNullOrWhiteSpace($ElementData.ID)) {
+        $_id = "$($ElementData.ID)_"
     }
 
     # start with element tag
@@ -459,17 +452,57 @@ function Convert-PodeWebColourToClass
     }
 }
 
-function Test-PodeWebElements
+function Test-PodeWebContent
 {
     param(
         [Parameter()]
         [hashtable[]]
-        $Elements
+        $Content,
+
+        [Parameter()]
+        [string[]]
+        $ComponentType,
+
+        [Parameter()]
+        [string[]]
+        $ElementType,
+
+        [Parameter()]
+        [string[]]
+        $LayoutType
     )
 
-    foreach ($element in $Elements) {
-        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
-            throw "Invalid element supplied: $($element)"
+    # if no content, then it's true
+    if (Test-PodeWebArrayEmpty -Array $Content) {
+        return $true
+    }
+
+    # ensure the content ComponentTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $ComponentType)) {
+        foreach ($item in $Content) {
+            if ($item.ComponentType -inotin $ComponentType) {
+                return $false
+            }
         }
     }
+
+    # ensure the content ElementTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $ElementType)) {
+        foreach ($item in $Content) {
+            if ($item.ElementType -inotin $ElementType) {
+                return $false
+            }
+        }
+    }
+
+    # ensure the content LayoutTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $LayoutType)) {
+        foreach ($item in $Content) {
+            if ($item.LayoutType -inotin $LayoutType) {
+                return $false
+            }
+        }
+    }
+
+    return $true
 }

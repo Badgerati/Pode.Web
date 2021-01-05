@@ -6,6 +6,7 @@
 
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bs-stepper@1.7.0/dist/css/bs-stepper.min.css">
 
     $(
         $theme = (Get-PodeWebState -Name 'theme')
@@ -27,9 +28,9 @@
     )
 
     $(
-        $css = Get-PodeWebState -Name 'stylesheet'
-        if (![string]::IsNullOrWhiteSpace($css)) {
-            "<link rel='stylesheet' href='$($css)'>"
+        $styles = @(Get-PodeWebState -Name 'custom-css')
+        foreach ($style in $styles) {
+            "<link rel='stylesheet' href='$($style)'>"
         }
     )
 </head>

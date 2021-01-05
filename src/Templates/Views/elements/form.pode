@@ -1,0 +1,11 @@
+$(if (![string]::IsNullOrWhiteSpace($data.Message)) {
+    "<p class='card-text'>$($data.Message)</p>"
+})
+
+<form id="$($data.ID)" class="pode-form $($data.CssClasses)" action="POST" method="/elements/form/$($data.ID)">
+    $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content })
+    <button class="btn btn-$(Get-PodeWebState -Name 'default-bs-colour')" type="submit">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
+        Submit
+    </button>
+</form>

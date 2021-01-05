@@ -20,6 +20,7 @@ body#normal-page {
 
 button#menu-toggle {
     margin-left: 0;
+    width: 50px;
 }
 
 button#menu-toggle .feather {
@@ -27,11 +28,83 @@ button#menu-toggle .feather {
     height: 25px;
 }
 
+.footer.powered-by {
+    background-color: #f5f5f5;
+    border: #bbb 1px solid;
+    border-radius: 0.25rem;
+    margin-left: 1em;
+    text-align: center;
+    width: 20em;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.pode-container {
+    background-color: #f5f5f5;
+    color: #333;
+    border: #bbb 1px solid;
+    border-radius: 0.25rem;
+    padding: 1.25rem;
+    margin-bottom: 2em;
+}
+
+.carousel {
+    min-height: 10em;
+    background-color: #f5f5f5;
+    color: #333;
+    border: #bbb 1px solid;
+    border-radius: 0.25rem;
+    padding: 1.25rem;
+    margin-bottom: 2em;
+}
+
+.carousel .carousel-caption {
+    color: #333;
+}
+
+.carousel .carousel-indicators li {
+    background-color: #333;
+}
+
+.carousel .carousel-arrow:hover {
+    background-color: rgba(51, 51, 51, 0.1);
+}
+
+.carousel .carousel-item {
+    max-height: 30em;
+    height: 100%;
+}
+
+div[role="chart"] div[role="controls"] {
+    float: left;
+    margin-bottom: -3px;
+    margin-top: -4px;
+}
+
 main[role="main"].fullscreen {
     width: 100% !important;
     max-width: 100% !important;
     flex: 0 0 100.0% !important;
     margin-left: 0 !important;
+}
+
+nav[role="pagination"] {
+    float: right;
+}
+
+div#pode-social .feather {
+    height: 22px;
+    width: 22px;
+    margin-right: 0.3rem;
+}
+
+div#pode-social a {
+    color: #bbb;
+}
+
+div#pode-social a:hover {
+    color: #007bff;
+    text-decoration: none;
 }
 
 .hide {
@@ -185,13 +258,19 @@ input[type="number"].pode-range-value {
     width: 6% !important;
 }
 
+input[type=date]::-webkit-calendar-picker-indicator:hover,
+input[type=time]::-webkit-calendar-picker-indicator:hover,
+input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
+    cursor: pointer;
+}
+
 .sidebar-sticky {
     margin-bottom: -8.5em !important;
     height: calc(100vh - 7em) !important;
 }
 
 .sidebar-sticky ul {
-    margin-bottom: 5em !important;
+    margin-bottom: 7em !important;
 }
 
 .footer {
@@ -234,6 +313,17 @@ table tbody td {
 
 .welcome-msg {
     font-size: 1.2em;
+}
+
+.welcome-msg img {
+    width: 35px;
+    height: 35px;
+    margin-right: 0.3rem;
+    border-radius: 5em;
+    margin-bottom: 2px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #bbb;
 }
 
 .navbar-brand {
@@ -410,6 +500,11 @@ h6 .feather, .h6 .feather {
 .sidebar .nav-link {
     font-weight: 500;
     color: #333;
+    padding: 0;
+}
+
+.sidebar .nav-link div {
+    padding: 0.5rem 1rem;
 }
 
 .sidebar .nav-link .feather {
@@ -431,7 +526,7 @@ h6 .feather, .h6 .feather {
     text-transform: uppercase;
 }
 
-.nav-item.nav-page-item a.nav-link:hover {
+.nav-item.nav-page-item a.nav-link:hover > div {
     width: fit-content !important;
     background-color: rgba(29, 161, 242, 0.1) !important;
     padding-right: 2em !important;
@@ -487,6 +582,10 @@ h6 .feather, .h6 .feather {
     width: 90%;
 }
 
+.mLeft02 {
+    margin-left: 0.2em;
+}
+
 .mLeft05 {
     margin-left: 0.5em;
 }
@@ -501,6 +600,10 @@ h6 .feather, .h6 .feather {
 
 .mRight02 {
     margin-right: 0.2em;
+}
+
+.mRight1 {
+    margin-right: 1em;
 }
 
 .mTop-05 {

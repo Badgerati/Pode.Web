@@ -1,4 +1,4 @@
-<fieldset class="form-group">
+<fieldset class="form-group text-$($data.Alignment)">
     $(
         $icon = [string]::Empty
         if (![string]::IsNullOrWhiteSpace($data.Icon)) {
@@ -7,26 +7,26 @@
 
         if ($data.IconOnly) {
             if ($data.IsDynamic) {
-                "<button type='button' class='btn btn-icon-only pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
+                "<button type='button' class='btn btn-icon-only pode-button $($data.CssClasses)' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
                     $($icon)
                 </button>"
             }
             else {
-                "<a id='$($data.ID)' class='btn btn-icon-only' href='$($data.Url)' role='button' title='$($data.Name)' data-toggle='tooltip'>
+                "<a id='$($data.ID)' class='btn btn-icon-only $($data.CssClasses)' href='$($data.Url)' role='button' title='$($data.Name)' data-toggle='tooltip'>
                     $($icon)
                 </a>"
             }
         }
         else {
             if ($data.IsDynamic) {
-                "<button type='button' class='btn btn-$($data.ColourType) pode-button' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
+                "<button type='button' class='btn btn-$($data.ColourType) pode-button $($data.CssClasses)' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
                     <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                     $($icon)
                     $($data.Name)
                 </button>"
             }
             else {
-                "<a id='$($data.ID)' class='btn btn-$($data.ColourType)' href='$($data.Url)' role='button'>
+                "<a id='$($data.ID)' class='btn btn-$($data.ColourType) $($data.CssClasses)' href='$($data.Url)' role='button'>
                     $($icon)
                     $($data.Name)
                 </a>"

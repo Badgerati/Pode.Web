@@ -1,4 +1,4 @@
-<div id="$($data.ID)" class="alert alert-$($data.ClassType)" role="alert">
+<div id="$($data.ID)" class="alert alert-$($data.ClassType) $($data.CssClasses)" role="alert">
     <h6 class='pode-alert-header'>
         <span data-feather="$($data.IconType)"></span>
         <strong>$($data.Type)</strong>
@@ -10,7 +10,7 @@
                 $data.Value
             }
             else {
-                Use-PodeWebPartialView -Path 'elements/_load' -Data @{ Elements = $data.Elements }
+                Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content }
             }
         )
     </div>

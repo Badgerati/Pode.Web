@@ -14,7 +14,7 @@ $(
         $animated = 'progress-bar-animated'
     }
 
-    $progress = "<div class='progress'>
+    $progress = "<div class='progress $($data.CssClasses)'>
             <div
                 class='progress-bar bg-$($data.ColourType) $($showValue) $($striped) $($animated)'
                 id='$($data.ID)'

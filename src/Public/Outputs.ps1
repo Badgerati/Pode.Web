@@ -47,12 +47,12 @@ function Out-PodeWebTable
             $pageNumber = 1
             $pageAmount = 20
 
-            if ($null -ne $ComponentData) {
-                if (!$ComponentData.Paging.Enabled) {
-                    throw "You cannot paginate a table that does not have paging enabled: $($ComponentData.ID)"
+            if ($null -ne $ElementData) {
+                if (!$ElementData.Paging.Enabled) {
+                    throw "You cannot paginate a table that does not have paging enabled: $($ElementData.ID)"
                 }
 
-                $pageAmount = $ComponentData.Paging.Amount
+                $pageAmount = $ElementData.Paging.Amount
             }
 
             if ($null -ne $WebEvent) {
@@ -480,6 +480,7 @@ function Show-PodeWebNotification
 
 function Move-PodeWebPage
 {
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -505,6 +506,7 @@ function Move-PodeWebPage
 
 function Move-PodeWebUrl
 {
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -515,5 +517,26 @@ function Move-PodeWebUrl
         Operation = 'Move'
         ElementType = 'Href'
         Url = $Url
+    }
+}
+
+function Move-PodeWebTab
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Move'
+        ElementType = 'Tab'
+        ID = $Id
+        Name = $Name
     }
 }

@@ -27,13 +27,28 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div id='pode-social' class='text-light'>
+            <div id='pode-social'>
+                $(
+                    $socials = Get-PodeWebState -Name 'social'
+                    foreach ($key in $socials.Keys) {
+                        $social = $socials[$key]
+
+                        "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
+                            <span data-feather='$($key.ToLowerInvariant())'></span>
+                        </a>"
+                    }
+                )
             </div>
 
             $(if ($data.Auth.Enabled) {
                 if ($data.Auth.Authenticated) {
                     "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
-                        <span class='navbar-text mRight05 welcome-msg'>Hello, $($data.Auth.Username)</span>
+                        <span class='navbar-text mRight1 welcome-msg'>"
+                            if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
+                                "<img src='$($data.Auth.Avatar)'>"
+                            }
+                            "Hello, $($data.Auth.Username)
+                        </span>
                         <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
                             <span data-feather='log-out' class='mRight02'></span>
                             Sign out
@@ -59,8 +74,8 @@
                         <input type='text' class='form-control pode-nav-filter' id="filter_sidebar" placeholder='Filter' for="sidebar-list">
                     </div>
 
-                    <footer class="footer mt-auto py-3">
-                        <div class="container">
+                    <footer class="footer powered-by mt-auto py-3">
+                        <div>
                             <span class="text-muted">
                                 🧡 Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
                             </span>
@@ -70,8 +85,10 @@
                         <ul id="sidebar-list" class="nav flex-column">
                             <li class="nav-item nav-page-item">
                                 <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="/">
-                                    <span data-feather="home"></span>
-                                    Home
+                                    <div>
+                                        <span data-feather="home"></span>
+                                        Home
+                                    </div>
                                 </a>
                             </li>
 
@@ -83,10 +100,12 @@
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
                                         "<li class='nav-item mTop1 nav-group-title'>
                                             <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
-                                                <span data-feather='arrow-right'></span>
-                                                <span data-feather='arrow-down-right' style='display:none;'></span>
-                                                <span class='h6'>$($pageGroup.Name)</span>
-                                                <span class='badge badge-$($bsColour)'>$($pageGroup.Count)</span>
+                                                <div>
+                                                    <span data-feather='arrow-right'></span>
+                                                    <span data-feather='arrow-down-right' style='display:none;'></span>
+                                                    <span class='h6'>$($pageGroup.Name)</span>
+                                                    <span class='badge badge-$($bsColour)'>$($pageGroup.Count)</span>
+                                                </div>
                                             </a>
                                         </li>"
 
@@ -100,8 +119,10 @@
 
                                         "<li class='nav-item nav-page-item'>
                                             <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' href='/pages/$($page.Name)'>
-                                                <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
-                                                $($page.Name)
+                                                <div>
+                                                    <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
+                                                    $($page.Name)
+                                                </div>
                                             </a>
                                         </li>"
                                     }
@@ -122,31 +143,25 @@
                 </div>
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                    <div id="pode-page-title" class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">
-                            $(
+                    $(if (!$data.Page.NoTitle) {
+                        "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom'>
+                            <h1 class='h2'>"
                                 if ($data.Page.ShowBack) {
                                     "<a href='/pages/$($data.Page.Name)'><span data-feather='arrow-left'></span></a>"
                                 }
-                            )
-                            $($data.Page.Name)
-                        </h1>
-                    </div>
-
-                    $(foreach ($component in $data.Components) {
-                        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
-                            continue
-                        }
-
-                        Use-PodeWebPartialView -Path "components/$($component.ComponentType.ToLowerInvariant())" -Data @{
-                            Name = $data.Page.Name
-                            Meta = $component
-                        }
+                                $data.Page.Title
+                            "</h1>
+                        </div>"
+                    }
+                    else {
+                        "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2'></div>"
                     })
+
+                    $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Layouts })
                 </main>
             </div>
         </div>
 
-        $(Use-PodeWebPartialView -Path 'shared/scripts' -Data @{ Components = $data.Components })
+        $(Use-PodeWebPartialView -Path 'shared/scripts')
     </body>
 </html>

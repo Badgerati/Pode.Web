@@ -2,25 +2,48 @@ function New-PodeWebGrid
 {
     [CmdletBinding()]
     param(
-        [Parameter()]
+        [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Components,
+        $Cells,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
 
         [switch]
         $Vertical
     )
 
-    # ensure components are correct
-    foreach ($component in $Components) {
-        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
-            throw "Invalid component supplied: $($component)"
-        }
+    if (!(Test-PodeWebContent -Content $Cells -ComponentType Layout -LayoutType Cell)) {
+        throw 'A Grid can only contain Cell layouts'
     }
 
     return @{
-        ComponentType = 'Grid'
-        Components = $Components
+        ComponentType = 'Layout'
+        LayoutType = 'Grid'
+        Cells = $Cells
         Vertical = $Vertical.IsPresent
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebCell
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Layouts
+    )
+
+    if (!(Test-PodeWebContent -Content $Layouts -ComponentType Layout)) {
+        throw 'A Grid Cell can only contain layouts'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Cell'
+        Layouts = $Layouts
     }
 }
 
@@ -30,12 +53,37 @@ function New-PodeWebTabs
     param(
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Tabs
+        $Tabs,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [int]
+        $CycleInterval = 15,
+
+        [switch]
+        $Cycle
     )
 
+    if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout -LayoutType Tab)) {
+        throw 'Tabs can only contain Tab layouts'
+    }
+
+    if ($CycleInterval -lt 10) {
+        $CycleInterval = 10
+    }
+
     return @{
-        ComponentType = 'Tabs'
+        ComponentType = 'Layout'
+        LayoutType = 'Tabs'
         Tabs = $Tabs
+        CssClasses = ($CssClass -join ' ')
+        Cycle = @{
+            Enabled = $Cycle.IsPresent
+            Interval = ($CycleInterval * 1000)
+        }
     }
 }
 
@@ -47,22 +95,411 @@ function New-PodeWebTab
         [string]
         $Name,
 
-        [Parameter()]
+        [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Components
+        $Layouts
     )
 
-    # ensure components are correct
-    foreach ($component in $Components) {
-        if ([string]::IsNullOrWhiteSpace($component.ComponentType)) {
-            throw "Invalid component supplied: $($component)"
+    if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout)) {
+        throw 'A Tab can only contain layouts'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Tab'
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Tab -Name $Name)
+        Layouts = $Layouts
+    }
+}
+
+function New-PodeWebCard
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [switch]
+        $NoTitle
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Card can only contain layouts and/or elements'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Card'
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name -NameAsToken)
+        Content = $Content
+        NoTitle = $NoTitle.IsPresent
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebContainer
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string[]]
+        $CssClass
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Container can only contain layouts and/or elements'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Container'
+        ID = (Get-PodeWebElementId -Tag Container -Id $Id -NameAsToken)
+        Content = $Content
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebModal
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $SubmitText = 'Submit',
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $CloseText = 'Close',
+
+        [Parameter()]
+        [ValidateSet('Small', 'Medium', 'Large')]
+        [string]
+        $Size = 'Small',
+
+        [Parameter()]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [switch]
+        $AsForm,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Modal can only contain layouts and/or elements'
+    }
+
+    # generate ID
+    $Id = Get-PodeWebElementId -Tag Modal -Id $Id -Name $Name
+
+    $routePath = "/layouts/modal/$($Id)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value $result
         }
     }
 
     return @{
-        ComponentType = 'Tab'
+        ComponentType = 'Layout'
+        LayoutType = 'Modal'
         Name = $Name
-        ID = (Get-PodeWebElementId -Tag Tab -Name $Name)
-        Components = $Components
+        ID = $Id
+        Content = $Content
+        CloseText = [System.Net.WebUtility]::HtmlEncode($CloseText)
+        SubmitText = [System.Net.WebUtility]::HtmlEncode($SubmitText)
+        Size = $Size
+        AsForm = $AsForm.IsPresent
+        ShowSubmit = ($null -ne $ScriptBlock)
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebHero
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Title,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Message,
+
+        [Parameter()]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string[]]
+        $CssClass
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Hero can only contain layouts and/or elements'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Hero'
+        Title = [System.Net.WebUtility]::HtmlEncode($Title)
+        Message = [System.Net.WebUtility]::HtmlEncode($Message)
+        Content = $Content
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebCarousel
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Slides,
+
+        [Parameter()]
+        [string[]]
+        $CssClass
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Slide)) {
+        throw 'A Carousel can only contain Slide layouts'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Carousel'
+        ID = (Get-PodeWebElementId -Tag Carousel -Id $Id -NameAsToken)
+        Slides = $Slides
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebSlide
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string]
+        $Title,
+
+        [Parameter()]
+        [string]
+        $Message
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Slide can only contain layouts and/or elements'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Slide'
+        Content = $Content
+        Title = [System.Net.WebUtility]::HtmlEncode($Title)
+        Message = [System.Net.WebUtility]::HtmlEncode($Message)
+    }
+}
+
+function New-PodeWebSteps
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Steps,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter(Mandatory=$true)]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Step)) {
+        throw 'Steps can only contain Step layouts'
+    }
+
+    # generate ID
+    $Id = Get-PodeWebElementId -Tag Steps -Id $Id -Name $Name
+
+    # add route
+    $routePath = "/layouts/steps/$($Id)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value $result
+        }
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Steps'
+        ID = $Id
+        Steps = $Steps
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebStep
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
+        [string]
+        $Icon,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Step can only contain layouts and/or elements'
+    }
+
+    # generate ID
+    $Id = Get-PodeWebElementId -Tag Step -Name $Name
+
+    # add route
+    $routePath = "/layouts/step/$($Id)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value $result
+        }
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Step'
+        Name = $Name
+        ID = $Id
+        Content = $Content
+        Icon = $Icon
+        IsDynamic = ($null -ne $ScriptBlock)
     }
 }

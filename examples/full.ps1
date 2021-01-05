@@ -21,6 +21,7 @@ Start-PodeServer -StatusPageExceptions Show {
                     Name = 'Morty'
                     Type = 'Human'
                     Groups = @('Developer')
+                    AvatarUrl = '/pode.web/images/icon.png'
                 }
             }
         }
@@ -31,11 +32,17 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # set the use of templates, and set a login page
     Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
-    Set-PodeWebLoginPage -Authentication Example
+    Set-PodeWebLoginPage -Authentication Example -AvatarProperty AvatarUrl
 
+
+    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
+        $rand = Get-Random -Minimum 0 -Maximum 3
+        $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
+        Out-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
+    }
 
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
-    $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Elements @(
+    $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Elements @(
             New-PodeWebText -Value 'Using some '
@@ -48,7 +55,8 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebText -Value "! "
             New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan
         )
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Location Right
+        $timer1
+        New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
         New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon Command -Colour Green -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
@@ -57,13 +65,7 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebAlert -Type Note -Value 'Hello, world'
     )
 
-    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
-        $rand = Get-Random -Minimum 0 -Maximum 3
-        $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
-        Out-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
-    }
-
-    $section2 = New-PodeWebSection -Name 'Code' -NoHeader -Elements @(
+    $section2 = New-PodeWebCard -Name 'Code' -NoTitle -Content @(
         New-PodeWebCodeBlock -Value "Write-Host 'hello, world!'" -NoHighlight
         New-PodeWebCodeBlock -Value "
             function Write-SomeStuff
@@ -81,12 +83,12 @@ Start-PodeServer -StatusPageExceptions Show {
         " -Language PowerShell
     )
 
-    $section3 = New-PodeWebSection -Name 'Comments' -Elements @(
+    $section3 = New-PodeWebCard -Name 'Comments' -Content @(
         New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
         New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )
 
-    $codeEditor = New-PodeWebCodeEditor -Language PowerShell -Name 'Code Editor'
+    $codeEditor = New-PodeWebCodeEditor -Language PowerShell -Name 'Code Editor' -AsCard
 
     $chartData = {
         $count = 1
@@ -118,38 +120,56 @@ Start-PodeServer -StatusPageExceptions Show {
             ConvertTo-PodeWebChartDataset -Label ProcessName -Dataset CPU, Handles
     }
 
-    $grid1 = New-PodeWebGrid -Components @(
-        New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh
-        New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData
-        New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth
+    $grid1 = New-PodeWebGrid -Cells @(
+        New-PodeWebCell -Layouts @(
+            New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -AsCard
+        )
+        New-PodeWebCell -Layouts @(
+            New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData -AsCard
+        )
+        New-PodeWebCell -Layouts @(
+            New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth -AsCard
+        )
     )
 
-    $hero = New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page for the full.ps1 example' -Elements @(
-        New-PodeWebText -Value 'Here you will see examples for close to everything Pode.Web can do.' -InParagraph
-        New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web'
+    $hero = New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page for the full.ps1 example' -Content @(
+        New-PodeWebText -Value 'Here you will see examples for close to everything Pode.Web can do.' -InParagraph -Alignment Center
+        New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -Alignment Center
     )
 
-    Set-PodeWebHomePage -NoAuth -Components $hero, $section, $section2, $section3, $codeEditor, $grid1, $timer1 -Title 'Awesome Homepage'
+    $carousel = New-PodeWebCarousel -Slides @(
+        New-PodeWebSlide -Title 'First Slide' -Message 'First slide message' -Content @(
+            New-PodeWebText -Value 'Slide 1'
+        )
+        New-PodeWebSlide -Title 'Second Slide' -Message 'Second slide message' -Content @(
+            New-PodeWebText -Value 'Slide 2'
+        )
+        New-PodeWebSlide -Title 'Third Slide' -Message 'Third slide message' -Content @(
+            New-PodeWebText -Value 'Slide 3'
+        )
+    )
+
+    Set-PodeWebHomePage -NoAuth -Layouts $hero, $section, $carousel, $section2, $section3, $codeEditor, $grid1 -NoTitle
 
 
     # tabs and charts
-    $tabs1 = New-PodeWebTabs -Tabs @(
-        New-PodeWebTab -Name 'Line' -Components @(
-            New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -NoHeader -Height 250
+    $tabs1 = New-PodeWebTabs -Cycle -Tabs @(
+        New-PodeWebTab -Name 'Line' -Layouts @(
+            New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -Height 250 -AsCard
         )
-        New-PodeWebTab -Name 'Bar' -Components @(
-            New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -NoHeader
+        New-PodeWebTab -Name 'Bar' -Layouts @(
+            New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard
         )
-        New-PodeWebTab -Name 'Doughnut' -Components @(
-            New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -NoHeader
+        New-PodeWebTab -Name 'Doughnut' -Layouts @(
+            New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Components $tabs1
+    Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts $tabs1 -Title 'Cycling Tabs'
 
 
-    # add a page to search and filter services (output in a new table component) [note: requires auth]
-    $modal = New-PodeWebModal -Name 'Edit Service' -Id 'modal_edit_svc' -Form -Elements @(
+    # add a page to search and filter services (output in a new table element) [note: requires auth]
+    $modal = New-PodeWebModal -Name 'Edit Service' -Id 'modal_edit_svc' -AsForm -Content @(
         New-PodeWebAlert -Type Info -Value 'This does nothing, it is just an example'
         New-PodeWebCheckbox -Name Running -Id 'chk_svc_running' -AsSwitch
     ) -ScriptBlock {
@@ -157,17 +177,17 @@ Start-PodeServer -StatusPageExceptions Show {
         Hide-PodeWebModal
     }
 
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -NoHeader -Filter -Sort -Click -Paginate -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
-            Sync-PodeWebTable -Id $ElementData.Component.ID
+            Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
         $startBtn = New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
-            Sync-PodeWebTable -Id $ElementData.Component.ID
+            Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
         $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'Edit' -IconOnly -ScriptBlock {
@@ -196,36 +216,44 @@ Start-PodeServer -StatusPageExceptions Show {
         }
     }
 
-    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Components $modal, $table -ScriptBlock {
+    Add-PodeStaticRoute -Path '/download' -Source '.\storage' -DownloadOnly
+
+    $table | Add-PodeWebTableButton -Name 'Excel' -Icon 'Bar-Chart' -ScriptBlock {
+        $path = Join-Path (Get-PodeServerPath) '.\storage\test.csv'
+        $WebEvent.Data | Export-Csv -Path $path -NoTypeInformation
+        Set-PodeResponseAttachment -Path '/download/test.csv'
+    }
+
+    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Layouts $modal, $table -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
         }
-        
+
         $svc = Get-Service -Name $name | Out-String
 
-        New-PodeWebSection -Name "$($name) Details" -Elements @(
+        New-PodeWebCard -Name "$($name) Details" -Content @(
             New-PodeWebCodeBlock -Value $svc -NoHighlight
         )
     }
 
 
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
-    $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
+    $form = New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
         if ($WebEvent.Data.Name.Length -le 3) {
             Out-PodeWebValidation -Name 'Name' -Message 'Name must be greater than 3 characters'
             return
         }
 
         Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
-    } -Elements @(
+    } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Group Tools -AccessGroups Developer -Components $form
+    Add-PodeWebPage -Name Processes -Icon Activity -Group Tools -AccessGroups Developer -Layouts $form
 
 
     # page with table showing csv data
-    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv'
-    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Components $table2
+    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv' -AsCard
+    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Layouts $table2
 }
