@@ -876,7 +876,10 @@ function New-PodeWebCredential
         $CssClass,
 
         [switch]
-        $ReadOnly
+        $ReadOnly,
+
+        [switch]
+        $NoLabels
     )
 
     $Id = Get-PodeWebElementId -Tag Cred -Id $Id -Name $Name
@@ -889,6 +892,49 @@ function New-PodeWebCredential
         ID = $Id
         HelpText = $HelpText
         ReadOnly = $ReadOnly.IsPresent
+        NoLabels = $NoLabels.IsPresent
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebDateTime
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $HelpText,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [switch]
+        $ReadOnly,
+
+        [switch]
+        $NoLabels
+    )
+
+    $Id = Get-PodeWebElementId -Tag DateTime -Id $Id -Name $Name
+
+    return @{
+        ComponentType = 'Element'
+        ElementType = 'DateTime'
+        Parent = $ElementData
+        Name = $Name
+        ID = $Id
+        HelpText = $HelpText
+        ReadOnly = $ReadOnly.IsPresent
+        NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
     }
 }
@@ -1392,6 +1438,7 @@ function New-PodeWebTable
         [switch]
         $Click,
 
+        [Parameter(ParameterSetName='Default')]
         [Parameter(ParameterSetName='Dynamic')]
         [Parameter(ParameterSetName='Csv')]
         [switch]
