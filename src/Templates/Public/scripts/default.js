@@ -4,14 +4,6 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
-$.ajaxSetup({
-    converters: {
-        "text json": function(response) {
-            return (response == "" || response == '"N') ? null : JSON.parse(response);
-        },
-    },
-});
-
 Chart.Legend.prototype.afterFit = function() {
     this.height = this.height + 10;
 };
@@ -213,7 +205,11 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
         url: url,
         method: 'post',
         data: data,
+        dataType: 'binary',
         contentType: opts.contentType,
+        xhrFields: {
+            responseType: 'blob'
+        },
         success: function(res, status, xhr) {
             // attempt to hide any spinners
             hideSpinner(sender);
@@ -228,11 +224,15 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
 
             // run any actions, if we need to
             else if (useActions) {
-                invokeActions(res, sender);
+                res.text().then((v) => {
+                    invokeActions(JSON.parse(v), sender);
+                });
             }
 
             if (successCallback) {
-                successCallback(res, sender);
+                res.text().then((v) => {
+                    successCallback(JSON.parse(v), sender);
+                });
             }
         },
         error: function(err, msg, stack) {
@@ -243,10 +243,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     });
 }
 
-function downloadAjaxFile(filename, response, xhr) {
-    var type = xhr.getResponseHeader('Content-Type');
-    var blob = new Blob([response], { type: type });
-
+function downloadAjaxFile(filename, blob, xhr) {
     // from: https://gist.github.com/jasonweng/393aef0c05c425d8dcfdb2fc1a8188e5
     // IE workaround for "HTML7007
     if (typeof window.navigator.msSaveBlob !== 'undefined') {
