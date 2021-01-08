@@ -537,6 +537,11 @@ function loadTable(tableId, pageNumber, pageAmount) {
         url = form.attr('method');
     }
 
+    // add current query string
+    if (window.location.search) {
+        url = `${url}${window.location.search}`;
+    }
+
     // invoke and load table content
     sendAjaxReq(url, data, table, true);
 }
@@ -580,6 +585,11 @@ function loadChart(chartId) {
 
         data += form.serialize();
         url = form.attr('method');
+    }
+
+    // add current query string
+    if (window.location.search) {
+        url = `${url}${window.location.search}`;
     }
 
     sendAjaxReq(url, data, chart, true);
