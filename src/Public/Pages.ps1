@@ -34,24 +34,43 @@ function Set-PodeWebLoginPage
         Avatar = $AvatarProperty
     }
 
+    # set a default icon
     if ([string]::IsNullOrWhiteSpace($Icon)) {
         $Icon = '/pode.web/images/icon.png'
     }
 
+    # set default failure/success urls
     $auth = Get-PodeAuth -Name $Authentication
     $auth.Failure.Url = '/login'
     $auth.Success.Url = '/'
 
+    # is this auto-redirect oauth2?
+    $isOAuth2 = ($auth.Scheme.Scheme -ieq 'oauth2')
+
+    $grantType = 'authorization_code'
+    if ($isOAuth2 -and !(Test-PodeIsEmpty $auth.Scheme.InnerScheme)) {
+        $grantType = 'password'
+    }
+
+    # add the login route
     Add-PodeRoute -Method Get -Path '/login' -Authentication $Authentication -Login -ScriptBlock {
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Icon = $using:Icon
             Copyright = $using:Copyright
+            Auth = @{
+                Name = $using:Authentication
+                IsOAuth2 = $using:isOAuth2
+                GrantType = $using:grantType
+            }
         }
     }
 
     Add-PodeRoute -Method Post -Path '/login' -Authentication $Authentication -Login
+
+    # add the logout route
     Add-PodeRoute -Method Post -Path '/logout' -Authentication $Authentication -Logout
 
+    # add an authenticated home route
     Remove-PodeRoute -Method Get -Path '/'
     Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
