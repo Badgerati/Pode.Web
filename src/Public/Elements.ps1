@@ -1402,7 +1402,7 @@ function New-PodeWebTable
 
         [Parameter()]
         [string]
-        $DataColumn,
+        $IdentityColumn,
 
         [Parameter()]
         [hashtable[]]
@@ -1476,7 +1476,7 @@ function New-PodeWebTable
         Parent = $ElementData
         Name = $Name
         ID = $Id
-        DataColumn = $DataColumn
+        IdentityColumn = $IdentityColumn
         Columns = $Columns
         Buttons = @()
         Message = $Message

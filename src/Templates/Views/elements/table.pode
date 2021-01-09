@@ -27,7 +27,7 @@ $(if ($data.Filter) {
                 name='$($data.Name)'
                 class='table table-striped table-hover $($theme) $($click)'
                 pode-dynamic='$($data.IsDynamic)'
-                pode-data-column='$($data.DataColumn)'
+                pode-identity-column='$($data.IdentityColumn)'
                 pode-auto-refresh='$($data.AutoRefresh)'
                 pode-sort='$($data.Sort)'
                 pode-paginate='$($data.Paging.Enabled)'>

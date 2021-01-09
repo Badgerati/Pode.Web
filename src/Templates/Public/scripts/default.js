@@ -427,7 +427,7 @@ function bindTablePagination() {
 }
 
 function bindTableSort(tableId) {
-    $(`${tableId}[pode-sort='True'] thead th`).click(function() {
+    $(`${tableId}[pode-sort='True'] thead th`).unbind('click').click(function() {
         var table = $(this).parents('table').eq(0);
         var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
 
@@ -610,6 +610,10 @@ function invokeActions(actions, sender) {
         switch (_type) {
             case 'table':
                 actionTable(action, sender);
+                break;
+
+            case 'tablerow':
+                actionTableRow(action, sender);
                 break;
 
             case 'chart':
@@ -943,6 +947,75 @@ function bindChartRefresh() {
     });
 }
 
+function actionTableRow(action, sender) {
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTableRow(action);
+            break;
+    }
+}
+
+function updateTableRow(action) {
+    if (!action.TableId || !action.Data) {
+        return;
+    }
+
+    // ensure the table exists
+    var table = $(`table#${action.TableId}`);
+    if (table.length == 0) {
+        return;
+    }
+
+    // get the table row
+    var row = null;
+    switch (action.Row.Type) {
+        case 'id':
+            row = table.find(`tbody tr[pode-data-value="${action.Row.ID}"]`);
+            break;
+
+        case 'index':
+            row = table.find('tbody tr').eq(action.Row.Index);
+            break;
+    }
+
+    // do nothing if no row
+    if (row.length == 0) {
+        return;
+    }
+
+    // update the rows cells
+    var keys = Object.keys(action.Data);
+
+    keys.forEach((key) => {
+        var _html = '';
+        var _value = action.Data[key];
+
+        if ($.isArray(_value) || _value.ElementType) {
+            _html += buildElements(_value);
+        }
+        else {
+            _html += _value;
+        }
+
+        row.find(`td[pode-column="${key}"]`).html(_html);
+    });
+
+    // binds sort/buttons/etc
+    feather.replace();
+    $('[data-toggle="tooltip"]').tooltip();
+    bindButtons();
+
+    // setup clickable rows
+    bindTableClickableRows(action.TableId);
+}
+
+function bindTableClickableRows(tableId) {
+    $(`${tableId}.pode-table-click tbody tr`).unbind('click').click(function() {
+        var rowId = $(this).attr('pode-data-value');
+        window.location = `${window.location.href}?value=${rowId}`;
+    });
+}
+
 function actionTable(action, sender) {
     switch (action.Operation.toLowerCase()) {
         case 'output':
@@ -1006,7 +1079,7 @@ function updateTable(action, sender) {
     }
 
     // is there a data column?
-    var dataColumn = table.attr('pode-data-column');
+    var identityColumn = table.attr('pode-identity-column');
 
     // table headers
     tableHead.empty();
@@ -1028,10 +1101,10 @@ function updateTable(action, sender) {
     tableBody.empty();
 
     action.Data.forEach((item) => {
-        _value = `<tr pode-data-value="${item[dataColumn]}">`;
+        _value = `<tr pode-data-value="${item[identityColumn]}">`;
 
         keys.forEach((key) => {
-            _value += `<td>`;
+            _value += `<td pode-column='${key}'>`;
 
             if ($.isArray(item[key]) || item[key].ElementType) {
                 _value += buildElements(item[key]);
@@ -1127,10 +1200,7 @@ function updateTable(action, sender) {
     filterTable(table.closest('div.card-body').find('input.pode-table-filter'));
 
     // setup clickable rows
-    $(`${tableId}.pode-table-click tbody tr`).click(function() {
-        var dataValue = $(this).attr('pode-data-value');
-        window.location = `${window.location.href}?value=${dataValue}`;
-    });
+    bindTableClickableRows(tableId);
 }
 
 function writeTable(action, sender) {
