@@ -1703,7 +1703,12 @@ function buildButton(element) {
 }
 
 function buildIcon(element) {
-    return `<span data-feather='${element.Name.toLowerCase()}'></span>`;
+    var colour = '';
+    if (element.Colour) {
+        colour = `style="color:${element.Colour};"`
+    }
+
+    return `<span data-feather='${element.Name.toLowerCase()}' ${colour}></span>`;
 }
 
 function buildBadge(element) {
@@ -1711,7 +1716,12 @@ function buildBadge(element) {
 }
 
 function buildSpinner(element) {
-    return `<span class="spinner-border spinner-border-sm" role="status"></span>`;
+    var colour = '';
+    if (element.Colour) {
+        colour = `style="color:${element.Colour};"`
+    }
+
+    return `<span class="spinner-border spinner-border-sm" role="status" ${colour}></span>`;
 }
 
 function buildLink(element) {

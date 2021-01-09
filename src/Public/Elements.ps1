@@ -1067,7 +1067,7 @@ function New-PodeWebAlert
         $Id,
 
         [Parameter()]
-        [ValidateSet('Note', 'Tip', 'Important', 'Info', 'Warning', 'Error')]
+        [ValidateSet('Note', 'Tip', 'Important', 'Info', 'Warning', 'Error', 'Success')]
         [string]
         $Type = 'Note',
 
@@ -1116,15 +1116,24 @@ function New-PodeWebIcon
         $Name,
 
         [Parameter()]
+        [string]
+        $Colour,
+
+        [Parameter()]
         [string[]]
         $CssClass
     )
+
+    if (![string]::IsNullOrWhiteSpace($Colour)) {
+        $Colour = $Colour.ToLowerInvariant()
+    }
 
     return @{
         ComponentType = 'Element'
         ElementType = 'Icon'
         Parent = $ElementData
         Name = $Name
+        Colour = $Colour
         CssClasses = ($CssClass -join ' ')
     }
 }
@@ -1134,14 +1143,23 @@ function New-PodeWebSpinner
     [CmdletBinding()]
     param(
         [Parameter()]
+        [string]
+        $Colour,
+
+        [Parameter()]
         [string[]]
         $CssClass
     )
+
+    if (![string]::IsNullOrWhiteSpace($Colour)) {
+        $Colour = $Colour.ToLowerInvariant()
+    }
 
     return @{
         ComponentType = 'Element'
         ElementType = 'Spinner'
         Parent = $ElementData
+        Colour = $Colour
         CssClasses = ($CssClass -join ' ')
     }
 }

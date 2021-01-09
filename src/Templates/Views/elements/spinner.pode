@@ -1,1 +1,8 @@
-<span class="spinner-border spinner-border-sm $($data.CssClasses)" role="status"></span>
+$(
+    $colour = [string]::Empty
+    if (![string]::IsNullOrWhiteSpace($data.Colour)) {
+        $colour = "style='color:$($data.Colour);'"
+    }
+
+    "<span class='spinner-border spinner-border-sm $($data.CssClasses)' role='status' $($colour)></span>"
+)

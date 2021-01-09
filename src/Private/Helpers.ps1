@@ -348,6 +348,10 @@ function Convert-PodeWebAlertTypeToClass
             return 'success'
         }
 
+        'success' {
+            return 'success'
+        }
+
         'note' {
             return 'secondary'
         }
@@ -387,6 +391,10 @@ function Convert-PodeWebAlertTypeToIcon
             return 'thumbs-up'
         }
 
+        'success' {
+            return 'check-circle'
+        }
+
         'note' {
             return 'book-open'
         }
@@ -396,11 +404,11 @@ function Convert-PodeWebAlertTypeToIcon
         }
 
         'important' {
-            return 'paperclip'
+            return 'bell'
         }
 
         default {
-            return 'paperclip'
+            return 'bell'
         }
     }
 }
