@@ -24,7 +24,11 @@ function Set-PodeWebLoginPage
 
         [Parameter()]
         [string]
-        $AvatarProperty
+        $AvatarProperty,
+
+        [Parameter()]
+        [string]
+        $ThemeProperty
     )
 
     Set-PodeWebState -Name 'auth' -Value $Authentication
@@ -32,6 +36,7 @@ function Set-PodeWebLoginPage
         Username = $UsernameProperty
         Group = $GroupProperty
         Avatar = $AvatarProperty
+        Theme = $ThemeProperty
     }
 
     # set a default icon
@@ -55,6 +60,7 @@ function Set-PodeWebLoginPage
     # add the login route
     Add-PodeRoute -Method Get -Path '/login' -Authentication $Authentication -Login -ScriptBlock {
         Write-PodeWebViewResponse -Path 'login' -Data @{
+            Theme = Get-PodeWebTheme
             Icon = $using:Icon
             Copyright = $using:Copyright
             Auth = @{
@@ -82,12 +88,14 @@ function Set-PodeWebLoginPage
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
-        $avatar = Get-PodeWebAuthAvatar -AuthData $authData
+        $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
+        $theme = Get-PodeWebTheme -AuthData $authData
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
             }
+            Theme = $theme
             Auth = @{
                 Enabled = $true
                 Authenticated = $authData.IsAuthenticated
@@ -149,7 +157,8 @@ function Set-PodeWebHomePage
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
-        $avatar = Get-PodeWebAuthAvatar -AuthData $authData
+        $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
+        $theme = Get-PodeWebTheme -AuthData $authData
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
@@ -157,6 +166,7 @@ function Set-PodeWebHomePage
                 Title = $using:Title
                 NoTitle = $using:NoTitle
             }
+            Theme = $theme
             Layouts = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -260,7 +270,8 @@ function Add-PodeWebPage
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
-        $avatar = Get-PodeWebAuthAvatar -AuthData $authData
+        $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
+        $theme = Get-PodeWebTheme -AuthData $authData
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -289,6 +300,7 @@ function Add-PodeWebPage
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $using:Title
+                Theme = $Theme
                 Layouts = $comps
                 Auth = $authMeta
             }

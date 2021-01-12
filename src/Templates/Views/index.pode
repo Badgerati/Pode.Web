@@ -1,10 +1,10 @@
 <html>
-    $(Use-PodeWebPartialView -Path 'shared/head' -Data @{ Title = $data.Page.Name })
+    $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
+        Title = $data.Page.Name
+        Theme = $data.Theme
+    })
 
-    $(
-        $theme = (Get-PodeWebState -Name 'theme')
-        "<body id='normal-page' pode-theme='$($theme)'>"
-    )
+    <body id="normal-page" pode-theme="$($data.Theme)">
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
                 <span data-feather='menu' class='mRight02'></span>
@@ -94,7 +94,6 @@
 
                             $(
                                 $pageGroups = (Get-PodeWebState -Name 'pages' | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
-                                $bsColour = Get-PodeWebState -Name 'default-bs-colour'
 
                                 foreach ($pageGroup in $pageGroups) {
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
@@ -104,7 +103,7 @@
                                                     <span data-feather='arrow-right'></span>
                                                     <span data-feather='arrow-down-right' style='display:none;'></span>
                                                     <span class='h6'>$($pageGroup.Name)</span>
-                                                    <span class='badge badge-$($bsColour)'>$($pageGroup.Count)</span>
+                                                    <span class='badge badge-inbuilt-theme'>$($pageGroup.Count)</span>
                                                 </div>
                                             </a>
                                         </li>"

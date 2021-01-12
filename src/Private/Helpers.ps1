@@ -97,7 +97,35 @@ function Get-PodeWebAuthGroups
     return @()
 }
 
-function Get-PodeWebAuthAvatar
+function Get-PodeWebAuthAvatarUrl
+{
+    param(
+        [Parameter()]
+        $AuthData
+    )
+
+    # nothing if no auth data
+    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+        return [string]::Empty
+    }
+
+    $user = $AuthData.User
+
+    # nothing if no property set
+    $prop = (Get-PodeWebState -Name 'auth-props').Avatar
+    if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
+        return $user.$prop
+    }
+
+    # avatar url
+    if (![string]::IsNullOrWhiteSpace($user.AvatarUrl)) {
+        return $user.AvatarUrl
+    }
+
+    return [string]::Empty
+}
+
+function Get-PodeWebAuthTheme
 {
     param(
         [Parameter()]
@@ -109,14 +137,40 @@ function Get-PodeWebAuthAvatar
         return $null
     }
 
+    $user = $AuthData.User
+
     # nothing if no property set
-    $prop = (Get-PodeWebState -Name 'auth-props').Avatar
-    if ([string]::IsNullOrWhiteSpace($prop)) {
-        return $null
+    $prop = (Get-PodeWebState -Name 'auth-props').Theme
+    if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
+        return $user.$prop
     }
 
-    # get avatar url
-    return $AuthData.User.$prop
+    # theme
+    if (![string]::IsNullOrWhiteSpace($user.Theme)) {
+        return $user.Theme
+    }
+
+    return [string]::Empty
+}
+
+function Get-PodeWebTheme
+{
+    param(
+        [Parameter()]
+        $AuthData
+    )
+
+    $theme = Get-PodeWebAuthTheme -AuthData $AuthData
+    if (![string]::IsNullOrWhiteSpace($theme)) {
+        return $theme.ToLowerInvariant()
+    }
+
+    $theme = Get-PodeWebCookie -Name 'theme'
+    if (![string]::IsNullOrWhiteSpace($theme)) {
+        return $theme.ToLowerInvariant()
+    }
+
+    return (Get-PodeWebState -Name 'theme').ToLowerInvariant()
 }
 
 function Test-PodeWebArrayEmpty
@@ -220,6 +274,17 @@ function Get-PodeWebState
     )
 
     return (Get-PodeState -Name "pode.web.$($Name)")
+}
+
+function Get-PodeWebCookie
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name
+    )
+
+    return (Get-PodeCookie -Name "pode.web.$($Name)")
 }
 
 function Get-PodeWebRandomName

@@ -40,12 +40,6 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
 
-    $defaultBSColour = 'primary'
-    if ($Theme -ieq 'terminal') {
-        $defaultBSColour = 'success'
-    }
-    Set-PodeWebState -Name 'default-bs-colour' -Value $defaultBSColour
-
     $templatePath = Get-PodeWebTemplatePath
 
     Add-PodeStaticRoute -Path '/pode.web' -Source (Join-Path $templatePath 'Public')

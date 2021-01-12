@@ -20,6 +20,8 @@ Chart.Legend.prototype.afterFit = function() {
 })();
 
 $(document).ready(() => {
+    mapElementThemes();
+
     loadTables();
     loadCharts();
     loadAutoCompletes();
@@ -50,6 +52,27 @@ $(document).ready(() => {
     bindTabCycling();
     bindTimers();
 });
+
+function mapElementThemes() {
+    var bodyTheme = getPodeTheme();
+
+    var defTheme = 'primary';
+    if (bodyTheme == 'terminal') {
+        defTheme = 'success';
+    }
+
+    var types = ['badge', 'btn'];
+    types.forEach((type) => {
+        $(`.${type}-inbuilt-theme`).each((i, e) => {
+            $(e).removeClass(`${type}-inbuilt-theme`);
+            $(e).addClass(`${type}-${defTheme}`);
+        });
+    });
+}
+
+function getPodeTheme() {
+    return $('body').attr('pode-theme');
+}
 
 function serializeInputs(element) {
     return element.find('input, textarea, select').serialize();
@@ -330,10 +353,30 @@ function bindCodeEditors() {
 
     require(["vs/editor/editor.main"], function() {
         $('.code-editor').each((i, e) => {
+            var theme = $(e).attr('pode-theme');
+            if (!theme) {
+                var bodyTheme = getPodeTheme();
+
+                switch (bodyTheme) {
+                    case 'dark':
+                        theme = 'vs-dark';
+                        break;
+
+                    case 'terminal':
+                        theme = 'hc-black';
+                        break;
+
+                    default:
+                        theme = 'vs';
+                        break;
+                }
+            }
+
+
             var editor = monaco.editor.create(e, {
                 value: '',
                 language: $(e).attr('pode-language'),
-                theme: $(e).attr('pode-theme')
+                theme: theme
             });
         });
     });
@@ -1503,7 +1546,7 @@ function createTheChart(canvas, action, sender) {
     // get the chart's canvas and type
     var ctx = document.getElementById(action.ID).getContext('2d');
     var chartType = (canvas.attr('pode-chart-type') || action.ChartType);
-    var theme = $('body').attr('pode-theme');
+    var theme = getPodeTheme();
     var _append = (canvas.attr('pode-append') == 'True');
     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 

@@ -1667,22 +1667,6 @@ function New-PodeWebCodeEditor
 
     $Id = Get-PodeWebElementId -Tag CodeEditor -Id $Id -Name $Name -NameAsToken
 
-    if ([string]::IsNullOrWhiteSpace($Theme)) {
-        switch ((Get-PodeWebState -Name 'theme')) {
-            'dark' {
-                $Theme = 'vs-dark'
-            }
-
-            'terminal' {
-                $Theme = 'hc-black'
-            }
-
-            default {
-                $Theme = 'vs'
-            }
-        }
-    }
-
     $element = @{
         ComponentType = 'Element'
         ElementType = 'Code-Editor'
