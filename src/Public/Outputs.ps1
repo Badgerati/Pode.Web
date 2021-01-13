@@ -540,3 +540,14 @@ function Move-PodeWebTab
         Name = $Name
     }
 }
+
+function Reset-PodeWebPage
+{
+    [CmdletBinding()]
+    param()
+
+    return @{
+        Operation = 'Reset'
+        ElementType = 'Page'
+    }
+}

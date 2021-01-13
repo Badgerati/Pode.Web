@@ -703,6 +703,10 @@ function invokeActions(actions, sender) {
                 actionTab(action);
                 break;
 
+            case 'page':
+                actionPage(action);
+                break;
+
             default:
                 break;
         }
@@ -1848,4 +1852,16 @@ function actionTab(action) {
 
 function moveTab(tabId) {
     $(`a.nav-link#${tabId}`).click();
+}
+
+function actionPage(action) {
+    if (!action) {
+        return;
+    }
+
+    refreshPage();
+}
+
+function refreshPage() {
+    window.location.reload();
 }
