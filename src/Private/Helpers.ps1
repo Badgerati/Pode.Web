@@ -153,26 +153,6 @@ function Get-PodeWebAuthTheme
     return [string]::Empty
 }
 
-function Get-PodeWebTheme
-{
-    param(
-        [Parameter()]
-        $AuthData
-    )
-
-    $theme = Get-PodeWebAuthTheme -AuthData $AuthData
-    if (![string]::IsNullOrWhiteSpace($theme)) {
-        return $theme.ToLowerInvariant()
-    }
-
-    $theme = Get-PodeWebCookie -Name 'theme'
-    if (![string]::IsNullOrWhiteSpace($theme)) {
-        return $theme.ToLowerInvariant()
-    }
-
-    return (Get-PodeWebState -Name 'theme').ToLowerInvariant()
-}
-
 function Test-PodeWebArrayEmpty
 {
     param(

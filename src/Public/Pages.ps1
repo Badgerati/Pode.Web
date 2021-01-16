@@ -89,7 +89,7 @@ function Set-PodeWebLoginPage
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
-        $theme = Get-PodeWebTheme -AuthData $authData
+        $theme = Get-PodeWebTheme
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
@@ -158,7 +158,7 @@ function Set-PodeWebHomePage
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
-        $theme = Get-PodeWebTheme -AuthData $authData
+        $theme = Get-PodeWebTheme
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
@@ -271,7 +271,7 @@ function Add-PodeWebPage
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
-        $theme = Get-PodeWebTheme -AuthData $authData
+        $theme = Get-PodeWebTheme
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))

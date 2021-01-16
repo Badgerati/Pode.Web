@@ -20,6 +20,10 @@ Chart.Legend.prototype.afterFit = function() {
 })();
 
 $(document).ready(() => {
+    if (checkAutoTheme()) {
+        return;
+    }
+
     mapElementThemes();
 
     loadTables();
@@ -52,6 +56,26 @@ $(document).ready(() => {
     bindTabCycling();
     bindTimers();
 });
+
+function checkAutoTheme() {
+    var bodyTheme = getPodeTheme();
+    if (bodyTheme != 'auto') {
+        return false;
+    }
+
+    // check if the system is dark/light
+    var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)');
+    var systemTheme = (isSystemDark ? 'dark' : 'light');
+
+    // set the cookie, expire after 1 month
+    var d = new Date();
+    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+    document.cookie = `pode.web.theme=${systemTheme}; expires=${d.toUTCString()}; path=/`
+
+    // force a refresh
+    refreshPage();
+    return true;
+}
 
 function mapElementThemes() {
     var bodyTheme = getPodeTheme();

@@ -15,9 +15,9 @@ function Use-PodeWebTemplates
         $FavIcon,
 
         [Parameter()]
-        [ValidateSet('Light', 'Dark', 'Terminal')]
+        [ValidateSet('Auto', 'Light', 'Dark', 'Terminal')]
         [string]
-        $Theme = 'Light'
+        $Theme = 'Auto'
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore)
@@ -111,4 +111,22 @@ function Set-PodeWebSocial
         Url = $Url
         Tooltip = $Tooltip
     }
+}
+
+function Get-PodeWebTheme
+{
+    [CmdletBinding()]
+    param()
+
+    $theme = Get-PodeWebAuthTheme -AuthData (Get-PodeWebAuthData)
+    if (![string]::IsNullOrWhiteSpace($theme)) {
+        return $theme.ToLowerInvariant()
+    }
+
+    $theme = Get-PodeWebCookie -Name 'theme'
+    if (($null -ne $theme) -and ![string]::IsNullOrWhiteSpace($theme.Value)) {
+        return $theme.Value.ToLowerInvariant()
+    }
+
+    return (Get-PodeWebState -Name 'theme').ToLowerInvariant()
 }
