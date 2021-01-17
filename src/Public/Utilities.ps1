@@ -35,6 +35,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
+    Set-PodeWebState -Name 'theme-auto' -Value ($Theme -ieq 'auto')
     Set-PodeWebState -Name 'social' -Value @{}
     Set-PodeWebState -Name 'pages' -Value @()
     Set-PodeWebState -Name 'custom-css' -Value @()

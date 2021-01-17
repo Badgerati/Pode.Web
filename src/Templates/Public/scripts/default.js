@@ -58,14 +58,21 @@ $(document).ready(() => {
 });
 
 function checkAutoTheme() {
-    var bodyTheme = getPodeTheme();
-    if (bodyTheme != 'auto') {
+    // is the them auto-switchable?
+    var isAutoTheme = $('body').attr('pode-theme-auto');
+    if (isAutoTheme == 'False') {
         return false;
     }
 
     // check if the system is dark/light
     var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     var systemTheme = (isSystemDark ? 'dark' : 'light');
+
+    // get the body theme, do we need to switch?
+    var bodyTheme = getPodeTheme();
+    if (bodyTheme == systemTheme) {
+        return false;
+    }
 
     // set the cookie, expire after 1 month
     var d = new Date();

@@ -4,7 +4,7 @@
         Theme = $data.Theme
     })
 
-    <body id="login-page" pode-theme="$($data.Theme)">
+    <body id="login-page" pode-theme="$($data.Theme)" pode-theme-auto="$(Get-PodeWebState -Name 'theme-auto')">
         <form class="form-signin" action='/login' method='POST'>
             <div class='text-center mb-4'>
                 <img class='mb-4' src='$($data.Icon)' alt='' width='72' height='72'>
