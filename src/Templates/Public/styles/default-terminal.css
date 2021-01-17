@@ -282,9 +282,12 @@ hr {
     color: #33ff00 !important;
 }
 
-.pode-container {
+.pode-container:not([pode-transparent='True']) {
     background-color: #111;
     border-color: #33ff00;
+}
+
+.pode-container {
     color: #33ff00;
 }
 

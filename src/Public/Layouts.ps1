@@ -166,7 +166,10 @@ function New-PodeWebContainer
 
         [Parameter()]
         [string[]]
-        $CssClass
+        $CssClass,
+
+        [switch]
+        $NoBackground
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -179,6 +182,7 @@ function New-PodeWebContainer
         ID = (Get-PodeWebElementId -Tag Container -Id $Id -NameAsToken)
         Content = $Content
         CssClasses = ($CssClass -join ' ')
+        NoBackground = $NoBackground.IsPresent
     }
 }
 
