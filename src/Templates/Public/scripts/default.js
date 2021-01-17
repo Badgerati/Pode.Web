@@ -64,7 +64,7 @@ function checkAutoTheme() {
     }
 
     // check if the system is dark/light
-    var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)');
+    var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     var systemTheme = (isSystemDark ? 'dark' : 'light');
 
     // set the cookie, expire after 1 month
