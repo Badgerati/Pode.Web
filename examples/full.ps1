@@ -121,13 +121,13 @@ Start-PodeServer -StatusPageExceptions Show {
     }
 
     $grid1 = New-PodeWebGrid -Cells @(
-        New-PodeWebCell -Layouts @(
+        New-PodeWebCell -Content @(
             New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -AsCard
         )
-        New-PodeWebCell -Layouts @(
+        New-PodeWebCell -Content @(
             New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData -AsCard
         )
-        New-PodeWebCell -Layouts @(
+        New-PodeWebCell -Content @(
             New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth -AsCard
         )
     )

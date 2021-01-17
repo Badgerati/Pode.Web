@@ -33,17 +33,17 @@ function New-PodeWebCell
     param(
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Layouts
+        $Content
     )
 
-    if (!(Test-PodeWebContent -Content $Layouts -ComponentType Layout)) {
-        throw 'A Grid Cell can only contain layouts'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Grid Cell can only contain layouts and/or elements'
     }
 
     return @{
         ComponentType = 'Layout'
         LayoutType = 'Cell'
-        Layouts = $Layouts
+        Content = $Content
     }
 }
 
