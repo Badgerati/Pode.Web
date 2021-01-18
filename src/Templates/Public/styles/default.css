@@ -126,6 +126,10 @@ div#pode-social a:hover {
     word-break: break-word;
 }
 
+.modal-header button.close {
+    outline: none;
+}
+
 .modal-dialog.pode-modal-small {
     max-width: 600px;
 }
@@ -333,6 +337,11 @@ table tbody td {
     font-size: 1.5em !important;
     text-overflow: ellipsis;
     overflow-x: hidden;
+}
+
+.form-group .pode-button,
+.form-group .pode-link-button {
+    margin-bottom: 1rem;
 }
 
 .form-control.is-invalid {

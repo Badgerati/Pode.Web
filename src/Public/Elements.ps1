@@ -994,11 +994,6 @@ function New-PodeWebButton
         $Colour = 'Blue',
 
         [Parameter()]
-        [ValidateSet('Left', 'Right', 'Center')]
-        [string]
-        $Alignment = 'Left',
-
-        [Parameter()]
         [string[]]
         $CssClass,
 
@@ -1008,7 +1003,10 @@ function New-PodeWebButton
         $NoAuthentication,
 
         [switch]
-        $IconOnly
+        $IconOnly,
+
+        [switch]
+        $NewLine
     )
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
@@ -1027,8 +1025,8 @@ function New-PodeWebButton
         IconOnly = $IconOnly.IsPresent
         Colour = $Colour
         ColourType = $ColourType
-        Alignment = $Alignment.ToLowerInvariant()
         CssClasses = ($CssClass -join ' ')
+        NewLine = $NewLine.IsPresent
     }
 
     $routePath = "/elements/button/$($Id)"

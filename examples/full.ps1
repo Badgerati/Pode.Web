@@ -134,7 +134,9 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $hero = New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page for the full.ps1 example' -Content @(
         New-PodeWebText -Value 'Here you will see examples for close to everything Pode.Web can do.' -InParagraph -Alignment Center
-        New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -Alignment Center
+        New-PodeWebParagraph -Alignment Center -Elements @(
+            New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web'
+        )
     )
 
     $carousel = New-PodeWebCarousel -Slides @(
