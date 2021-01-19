@@ -386,8 +386,15 @@ function New-PodeWebSelect
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string]
+        $ChooseOptionValue,
+
         [switch]
-        $Multiple
+        $Multiple,
+
+        [switch]
+        $NoChooseOption
     )
 
     if (Test-PodeIsEmpty $Options) {
@@ -405,6 +412,8 @@ function New-PodeWebSelect
         Options = @($Options)
         SelectedValue = $SelectedValue
         Multiple = $Multiple.IsPresent
+        ChooseOptionValue = $ChooseOptionValue
+        NoChooseOption = $NoChooseOption.IsPresent
         CssClasses = ($CssClass -join ' ')
     }
 }
