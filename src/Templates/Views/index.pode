@@ -4,7 +4,7 @@
         Theme = $data.Theme
     })
 
-    <body id="normal-page" pode-theme="$($data.Theme)" pode-theme-auto="$(Get-PodeWebState -Name 'theme-auto')">
+    <body id="normal-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)">
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
                 <span data-feather='menu' class='mRight02'></span>

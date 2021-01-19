@@ -59,25 +59,24 @@ $(document).ready(() => {
 
 function checkAutoTheme() {
     // is the them auto-switchable?
-    var isAutoTheme = $('body').attr('pode-theme-auto');
-    if (isAutoTheme == 'False') {
-        return false;
-    }
+    var targetTheme = $('body').attr('pode-theme-target');
 
     // check if the system is dark/light
-    var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var systemTheme = (isSystemDark ? 'dark' : 'light');
+    if (targetTheme == 'auto') {
+        var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        targetTheme = (isSystemDark ? 'dark' : 'light');
+    }
 
     // get the body theme, do we need to switch?
     var bodyTheme = getPodeTheme();
-    if (bodyTheme == systemTheme) {
+    if (bodyTheme == targetTheme) {
         return false;
     }
 
     // set the cookie, expire after 1 month
     var d = new Date();
     d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
-    document.cookie = `pode.web.theme=${systemTheme}; expires=${d.toUTCString()}; path=/`
+    document.cookie = `pode.web.theme=${targetTheme}; expires=${d.toUTCString()}; path=/`
 
     // force a refresh
     refreshPage();
