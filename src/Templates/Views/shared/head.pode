@@ -9,25 +9,23 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bs-stepper@1.7.0/dist/css/bs-stepper.min.css">
 
     $(
-        $theme = (Get-PodeWebState -Name 'theme')
-        if ($theme -iin @('dark', 'terminal')) {
+        # highlight theme
+        if ($data.Theme -iin @('dark', 'terminal')) {
             "<link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.4.1/build/styles/tomorrow-night-blue.min.css'>"
         }
         else {
             "<link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.4.1/build/styles/default.min.css'>"
         }
-    )
 
-    <link rel="stylesheet" href="/pode.web/styles/default.css">
+        # main pode.web base theme - light
+        "<link rel='stylesheet' href='/pode.web/styles/default.css'>"
 
-    $(
-        $theme = (Get-PodeWebState -Name 'theme')
-        if ($theme -ine 'light') {
-            "<link rel='stylesheet' href='/pode.web/styles/default-$($theme).css'>"
+        # pode.web theme
+        if ($data.Theme -ine 'light') {
+            "<link rel='stylesheet' href='/pode.web/styles/default-$($data.Theme).css'>"
         }
-    )
 
-    $(
+        # custom stylesheets
         $styles = @(Get-PodeWebState -Name 'custom-css')
         foreach ($style in $styles) {
             "<link rel='stylesheet' href='$($style)'>"

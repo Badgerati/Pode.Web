@@ -32,7 +32,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # set the use of templates, and set a login page
     Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
-    Set-PodeWebLoginPage -Authentication Example -AvatarProperty AvatarUrl
+    Set-PodeWebLoginPage -Authentication Example
 
 
     $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {

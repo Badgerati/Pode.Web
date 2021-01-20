@@ -15,9 +15,9 @@ function Use-PodeWebTemplates
         $FavIcon,
 
         [Parameter()]
-        [ValidateSet('Light', 'Dark', 'Terminal')]
+        [ValidateSet('Auto', 'Light', 'Dark', 'Terminal')]
         [string]
-        $Theme = 'Light'
+        $Theme = 'Auto'
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore)
@@ -39,12 +39,6 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'pages' -Value @()
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
-
-    $defaultBSColour = 'primary'
-    if ($Theme -ieq 'terminal') {
-        $defaultBSColour = 'success'
-    }
-    Set-PodeWebState -Name 'default-bs-colour' -Value $defaultBSColour
 
     $templatePath = Get-PodeWebTemplatePath
 
@@ -117,4 +111,27 @@ function Set-PodeWebSocial
         Url = $Url
         Tooltip = $Tooltip
     }
+}
+
+function Get-PodeWebTheme
+{
+    [CmdletBinding()]
+    param(
+        [switch]
+        $IgnoreCookie
+    )
+
+    if (!$IgnoreCookie) {
+        $theme = Get-PodeWebCookie -Name 'theme'
+        if (($null -ne $theme) -and ![string]::IsNullOrWhiteSpace($theme.Value)) {
+            return $theme.Value.ToLowerInvariant()
+        }
+    }
+
+    $theme = Get-PodeWebAuthTheme -AuthData (Get-PodeWebAuthData)
+    if (![string]::IsNullOrWhiteSpace($theme)) {
+        return $theme.ToLowerInvariant()
+    }
+
+    return (Get-PodeWebState -Name 'theme').ToLowerInvariant()
 }

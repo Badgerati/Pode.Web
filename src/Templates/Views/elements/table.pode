@@ -12,11 +12,6 @@ $(if ($data.Filter) {
 <div role='table' class="$($data.CssClasses)">
     <div class="table-responsive">
         $(
-            $theme = (Get-PodeWebState -Name 'theme')
-            if ($theme -iin @('dark', 'terminal')) {
-                $theme = 'table-dark'
-            }
-
             $click = [string]::Empty
             if ($data.Click) {
                 $click = 'pode-table-click'
@@ -25,7 +20,7 @@ $(if ($data.Filter) {
             "<table
                 id='$($data.ID)'
                 name='$($data.Name)'
-                class='table table-striped table-hover $($theme) $($click)'
+                class='table table-striped table-hover $($click)'
                 pode-dynamic='$($data.IsDynamic)'
                 pode-data-column='$($data.DataColumn)'
                 pode-auto-refresh='$($data.AutoRefresh)'

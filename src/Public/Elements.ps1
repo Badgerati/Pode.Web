@@ -386,8 +386,15 @@ function New-PodeWebSelect
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string]
+        $ChooseOptionValue,
+
         [switch]
-        $Multiple
+        $Multiple,
+
+        [switch]
+        $NoChooseOption
     )
 
     if (Test-PodeIsEmpty $Options) {
@@ -405,6 +412,8 @@ function New-PodeWebSelect
         Options = @($Options)
         SelectedValue = $SelectedValue
         Multiple = $Multiple.IsPresent
+        ChooseOptionValue = $ChooseOptionValue
+        NoChooseOption = $NoChooseOption.IsPresent
         CssClasses = ($CssClass -join ' ')
     }
 }
@@ -1664,22 +1673,6 @@ function New-PodeWebCodeEditor
     )
 
     $Id = Get-PodeWebElementId -Tag CodeEditor -Id $Id -Name $Name -NameAsToken
-
-    if ([string]::IsNullOrWhiteSpace($Theme)) {
-        switch ((Get-PodeWebState -Name 'theme')) {
-            'dark' {
-                $Theme = 'vs-dark'
-            }
-
-            'terminal' {
-                $Theme = 'hc-black'
-            }
-
-            default {
-                $Theme = 'vs'
-            }
-        }
-    }
 
     $element = @{
         ComponentType = 'Element'

@@ -183,29 +183,32 @@ pre code {
     border-color: #214981 !important;
 }
 
-.table-dark {
+body[pode-theme='dark'] .table {
     color: #ccc !important;
 }
 
-.table-dark thead th {
+body[pode-theme='dark'] .table thead th {
     background-color: #090d13 !important;
     color: #ccc !important;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(odd) {
+body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(odd) {
     background-color: #142440 !important;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(even) {
+body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(even) {
     background-color: #121d2f !important;
 }
 
-.table-dark td, .table-dark th, .table-dark thead th {
+body[pode-theme='dark'] .table td,
+body[pode-theme='dark'] .table th,
+body[pode-theme='dark'] .table thead th {
     border-color: #214981 !important;
 }
 
-.table-dark.table-striped tbody tr:hover {
+body[pode-theme='dark'] .table.table-striped tbody tr:hover {
     background-color: #090d13 !important;
+    color: #ccc;
 }
 
 .nav-item.nav-page-item a.nav-link.active {

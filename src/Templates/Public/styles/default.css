@@ -32,9 +32,9 @@ button#menu-toggle .feather {
     background-color: #f5f5f5;
     border: #bbb 1px solid;
     border-radius: 0.25rem;
-    margin-left: 1em;
+    margin-left: 5%;
     text-align: center;
-    width: 20em;
+    width: 90%;
     display: block;
     margin-bottom: 0.5rem;
 }
@@ -283,7 +283,7 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
 .footer {
     z-index: 9999;
     bottom: 0;
-    position: fixed;
+    position: absolute;
 }
 
 table {

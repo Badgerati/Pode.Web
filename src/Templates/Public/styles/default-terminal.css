@@ -205,28 +205,30 @@ pre code {
     border-color: #33ff00 !important;
 }
 
-.table-dark {
+body[pode-theme='terminal'] .table {
     color: #33ff00 !important;
 }
 
-.table-dark thead th {
+body[pode-theme='terminal'] .table thead th {
     background-color: #000 !important;
     color: #33ff00 !important;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(odd) {
+body[pode-theme='terminal'] .table.table-striped tbody tr:nth-of-type(odd) {
     background-color: #111 !important;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(even) {
+body[pode-theme='terminal'] .table.table-striped tbody tr:nth-of-type(even) {
     background-color: #000 !important;
 }
 
-.table-dark td, .table-dark th, .table-dark thead th {
+body[pode-theme='terminal'] .table td,
+body[pode-theme='terminal'] .table th,
+body[pode-theme='terminal'] .table thead th {
     border-color: #33ff00 !important;
 }
 
-.table-dark.table-striped tbody tr:hover {
+body[pode-theme='terminal'] .table.table-striped tbody tr:hover {
     background-color: #000 !important;
     color: #ffb000;
 }
@@ -255,8 +257,10 @@ nav .pagination .page-link {
     color: #33ff00 !important;
 }
 
-nav .pagination .page-link.active, nav .pagination .page-link:hover {
-    background-color: #222 !important;
+nav .pagination .page-link.active,
+nav .pagination .page-link:hover {
+    background-color: #33ff00 !important;
+    color: #111 !important;
 }
 
 hr {
