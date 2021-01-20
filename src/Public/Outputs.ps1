@@ -110,6 +110,39 @@ function Sync-PodeWebTable
     }
 }
 
+function Update-PodeWebTableRow
+{
+    [CmdletBinding(DefaultParameterSetName='DataValue')]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        $Data,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $TableId,
+
+        [Parameter(Mandatory=$true, ParameterSetName='DataValue')]
+        [string]
+        $DataValue,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Index')]
+        [int]
+        $Index
+    )
+
+    return @{
+        Operation = 'Update'
+        ElementType = 'TableRow'
+        TableId = $TableId
+        Row = @{
+            Type = $PSCmdlet.ParameterSetName.ToLowerInvariant()
+            DataValue = $DataValue
+            Index = $Index
+        }
+        Data = $Data
+    }
+}
+
 function Out-PodeWebChart
 {
     [CmdletBinding(DefaultParameterSetName='New')]
