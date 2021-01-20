@@ -177,7 +177,7 @@ Start-PodeServer -StatusPageExceptions Show {
         Hide-PodeWebModal
     }
 
-    $table = New-PodeWebTable -Name 'Static' -IdentityColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
@@ -254,6 +254,6 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # page with table showing csv data
-    $table2 = New-PodeWebTable -Name 'Users' -IdentityColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv' -AsCard
+    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv' -AsCard
     Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Layouts $table2
 }

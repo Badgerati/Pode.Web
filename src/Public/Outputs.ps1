@@ -112,7 +112,7 @@ function Sync-PodeWebTable
 
 function Update-PodeWebTableRow
 {
-    [CmdletBinding(DefaultParameterSetName='Id')]
+    [CmdletBinding(DefaultParameterSetName='DataValue')]
     param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         $Data,
@@ -121,9 +121,9 @@ function Update-PodeWebTableRow
         [string]
         $TableId,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory=$true, ParameterSetName='DataValue')]
         [string]
-        $Id,
+        $DataValue,
 
         [Parameter(Mandatory=$true, ParameterSetName='Index')]
         [int]
@@ -136,7 +136,7 @@ function Update-PodeWebTableRow
         TableId = $TableId
         Row = @{
             Type = $PSCmdlet.ParameterSetName.ToLowerInvariant()
-            ID = $Id
+            DataValue = $DataValue
             Index = $Index
         }
         Data = $Data

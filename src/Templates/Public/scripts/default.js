@@ -969,8 +969,8 @@ function updateTableRow(action) {
     // get the table row
     var row = null;
     switch (action.Row.Type) {
-        case 'id':
-            row = table.find(`tbody tr[pode-data-value="${action.Row.ID}"]`);
+        case 'datavalue':
+            row = table.find(`tbody tr[pode-data-value="${action.Row.DataValue}"]`);
             break;
 
         case 'index':
@@ -1079,7 +1079,7 @@ function updateTable(action, sender) {
     }
 
     // is there a data column?
-    var identityColumn = table.attr('pode-identity-column');
+    var dataColumn = table.attr('pode-data-column');
 
     // table headers
     tableHead.empty();
@@ -1101,7 +1101,7 @@ function updateTable(action, sender) {
     tableBody.empty();
 
     action.Data.forEach((item) => {
-        _value = `<tr pode-data-value="${item[identityColumn]}">`;
+        _value = `<tr pode-data-value="${item[dataColumn]}">`;
 
         keys.forEach((key) => {
             _value += `<td pode-column='${key}'>`;

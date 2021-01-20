@@ -9,7 +9,7 @@ Start-PodeServer {
     # set the use of templates, and set a login page
     Use-PodeWebTemplates -Title 'CatFacts' -Theme Dark
 
-    $table = New-PodeWebTable -Name 'Static' -IdentityColumn ID -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Static' -DataColumn ID -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
         # refresh button, to refresh the current row
         $refreshBtn = New-PodeWebButton -Name 'Refresh' -Icon 'refresh-cw' -IconOnly -ScriptBlock {
             $response = (Invoke-RestMethod -Uri 'https://catfact.ninja/facts?limit=1' -Method Get).data.fact
@@ -19,7 +19,7 @@ Start-PodeServer {
                 Fact = $response
             }
 
-            $data | Update-PodeWebTableRow -TableId $ElementData.Parent.ID -Id $WebEvent.Data['value']
+            $data | Update-PodeWebTableRow -TableId $ElementData.Parent.ID -DataValue $WebEvent.Data['value']
         }
 
         # load all catfacts
