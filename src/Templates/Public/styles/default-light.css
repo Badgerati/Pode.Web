@@ -1,120 +1,118 @@
 nav#sidebarMenu {
-    background-color: #121d2f !important;
-    border-color: #214981 !important;
-    border-right-style: solid;
-    border-right-width: 1px
+    background-color: #f8f9fa !important;
+    border-color: #bbb !important;
 }
 
 .sidebar .nav-link {
-    color: #ccc !important;
+    color: #333 !important;
 }
 
 .welcome-msg {
-    color: #ccc !important;
+    color: rgba(255,255,255,.5) !important;
 }
 
 .welcome-msg img {
-    border-color: dodgerblue;
+    border-color: #bbb;
 }
 
 .media {
-    border-color: dodgerblue;
-    background-color: #121d2f;
+    border-color: #bbb;
+    background-color: #f5f5f5;
 }
 
 .media img {
-    border-color: dodgerblue;
+    border-color: #bbb;
 }
 
 .media .media-head {
-    border-bottom-color: dodgerblue;
+    border-bottom-color: #bbb;
 }
 
 body, main[role="main"], body#login-page, body#normal-page {
-    background-color: #161b22;
-    color: #aaa;
+    background-color: #f5f5f5;
+    color: #333;
 }
 
-.modal-content {
+/* .modal-content {
     border-color: #214981 !important;
     border-width: 2px !important;
-}
+} */
 
-.modal-header {
+/* .modal-header {
     background-color: #121d2f !important;
     border-bottom: 2px solid #214981 !important;
     color: #aaa !important;
-}
+} */
 
-.modal-header button.close {
+/* .modal-header button.close {
     color: #ccc !important;
     text-shadow: none;
-}
+} */
 
-.modal-body {
+/* .modal-body {
     background-color: #142440 !important;
     color: #aaa !important;
-}
+} */
 
-.modal-footer {
+/* .modal-footer {
     background-color: #121d2f !important;
     border-top: 2px solid #214981 !important;
     color: #aaa !important;
-}
+} */
 
 .btn-icon-only {
-    color: #ccc !important;
+    color: #f5f5f5 !important;
 }
 
-.btn-icon-only:hover {
+/* .btn-icon-only:hover {
     color: dodgerblue !important;
-}
+} */
 
-.toast-body {
+/* .toast-body {
     color: #444a50 !important;
-}
+} */
 
-nav.navbar {
+/* nav.navbar {
     box-shadow: 0 .5rem 2rem rgba(100, 100, 100, 0.15) !important;
     border-bottom: #214981 1px solid;
-}
+} */
 
-nav.navbar-dark {
+/* nav.navbar-dark {
     background-color: #142440 !important;
-}
+} */
 
-a.navbar-brand {
+/* a.navbar-brand {
     color: #fff !important;
-}
+} */
 
 .card {
-    background-color: #142440 !important;
-    border-color: #214981 !important;
-    color: #ccc !important;
+    /* background-color: #142440 !important; */
+    border-color: #bbb !important;
+    /* color: #ccc !important; */
 }
 
-.card .card-header {
+/* .card .card-header {
     background-color: #121d2f !important;
     border-bottom-color: #214981 !important;
-}
+} */
 
-.card .card-body {
+/* .card .card-body {
     background-color: #142440 !important;
-}
+} */
 
-cite {
+/* cite {
     color: #999 !important;
-}
+} */
 
-a {
+/* a {
     color: deepskyblue;
 }
 
 a:hover {
     color: dodgerblue;
-}
+} */
 
-.btn-outline-secondary {
+/* .btn-outline-secondary {
     border-color: #214981;
     border-width: 2px;
     background-color: #090d13 !important;
@@ -124,20 +122,20 @@ a:hover {
 .btn-outline-secondary:hover, .btn-outline-secondary:active {
     border-color: dodgerblue !important;
     color: dodgerblue !important;
-}
+} */
 
-.btn-outline-secondary:focus {
+/* .btn-outline-secondary:focus {
     box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.5);
-}
+} */
 
-.btn-secondary.pode-btn-solid {
+/* .btn-secondary.pode-btn-solid {
     border-width: 2px;
     background-color: #090d13 !important;
     border-color: dodgerblue;
     color: dodgerblue
-}
+} */
 
-.nav-tabs {
+/* .nav-tabs {
     border-bottom: 1px solid #214981 !important;
 }
 
@@ -145,9 +143,9 @@ a:hover {
     background-color: #142440 !important;
     border-color: #214981 !important;
     color: #ccc !important
-}
+} */
 
-.nav-tabs .nav-link {
+/* .nav-tabs .nav-link {
     color: #ccc !important
 }
 
@@ -155,137 +153,136 @@ a:hover {
     background-color: #142440 !important;
     border-color: #214981 !important;
     color: #ccc !important
-}
+} */
 
-input, textarea, select, .progress {
+/* input, textarea, select, .progress {
     background-color: #090d13 !important;
     border-color: #214981 !important;
     color: #999 !important;
-}
+} */
 
 pre code {
-    background-color: #090d13 !important;
-    border-color: #214981 !important;
-    color: #ccc !important;
+    background-color: #f0f0f0 !important;
+    border-color: #bbb !important;
 }
 
-.pode-code-copy {
+/* .pode-code-copy {
     color: #fff !important;
-}
+} */
 
-.input-group-prepend .input-group-text {
+/* .input-group-prepend .input-group-text {
     background-color: #121d2f !important;
     border-color: #214981 !important;
     color: #999 !important
-}
+} */
 
-#pode-page-title {
+/* #pode-page-title {
     border-color: #214981 !important;
-}
+} */
 
-body[pode-theme='dark'] .table {
+/* body[pode-theme='dark'] .table {
     color: #ccc !important;
 }
 
 body[pode-theme='dark'] .table thead th {
     background-color: #090d13 !important;
     color: #ccc !important;
-}
+} */
 
-body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(odd) {
+/* body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(odd) {
     background-color: #142440 !important;
 }
 
 body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(even) {
     background-color: #121d2f !important;
-}
+} */
 
-body[pode-theme='dark'] .table td,
+/* body[pode-theme='dark'] .table td,
 body[pode-theme='dark'] .table th,
 body[pode-theme='dark'] .table thead th {
     border-color: #214981 !important;
-}
+} */
 
-body[pode-theme='dark'] .table.table-striped tbody tr:hover {
+/* body[pode-theme='dark'] .table.table-striped tbody tr:hover {
     background-color: #090d13 !important;
     color: #ccc;
-}
+} */
 
-.nav-item.nav-page-item a.nav-link.active {
+/* .nav-item.nav-page-item a.nav-link.active {
     color: dodgerblue !important;
-}
+} */
 
 .ui-autocomplete {
-    border-color: #214981 !important;
-    background-color: #121d2f !important;
-    color: #999 !important;
+    border-color: #bbb !important;
+    background-color: #f0f0f0 !important;
+    color: #333 !important;
 }
 
-nav .pagination .page-link {
+/* nav .pagination .page-link {
     border-color: #214981 !important;
     background-color: #121d2f !important;
     color: #ccc !important;
-}
+} */
 
-nav .pagination .page-link.active, nav .pagination .page-link:hover {
+/* nav .pagination .page-link.active, nav .pagination .page-link:hover {
     background-color: #214981 !important;
-}
+} */
 
 .jumbotron {
-    background-color: #214981;
-    border-color: dodgerblue;
-    color: #ccc;
+    /* background-color: #214981; */
+    border-color: #bbb;
+    /* color: #ccc; */
 }
 
-hr {
+/* hr {
     border-color: dodgerblue;
-}
+} */
 
 .footer.powered-by {
-    background-color: #142440;
-    border-color: #214981;
+    background-color: #f5f5f5;
+    border-color: #bbb;
 }
 
-.footer.powered-by .text-muted {
+/* .footer.powered-by .text-muted {
     color: #ccc !important;
-}
+} */
 
 .pode-container:not([pode-transparent='True']) {
-    background-color: #142440;
-    border-color: #214981;
+    background-color: #f5f5f5;
+    border-color: #bbb;
 }
 
 .pode-container {
-    color: #ccc;
+    color: #333;
 }
 
 .carousel {
-    background-color: #142440;
-    border-color: #214981;
-    color: #ccc;
+    background-color: #f5f5f5;
+    border-color: #bbb;
+    color: #333;
 }
 
 .carousel .carousel-caption {
-    color: #ccc;
+    color: #333;
 }
 
 .carousel .carousel-indicators li {
-    background-color: #ccc;
+    background-color: #333;
 }
 
-.carousel .carousel-indicators li.active {
+/* .carousel .carousel-indicators li.active {
     background-color: dodgerblue;
-}
+} */
 
 .step.active .bs-stepper-circle {
     background-color: dodgerblue;
 }
 
-.bs-stepper-line {
+/* .bs-stepper-line {
     background-color: #214981;
-}
+} */
 
-input[type=date]::-webkit-calendar-picker-indicator,
+/* input[type=date]::-webkit-calendar-picker-indicator,
 input[type=time]::-webkit-calendar-picker-indicator,
 input[type=datetime-local]::-webkit-calendar-picker-indicator {
     filter: invert(100%) brightness(60%);
@@ -295,4 +292,4 @@ input[type=date]::-webkit-calendar-picker-indicator:hover,
 input[type=time]::-webkit-calendar-picker-indicator:hover,
 input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
     filter: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(140deg);
-}
+} */
