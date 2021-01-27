@@ -373,16 +373,19 @@ function hideSpinner(sender) {
     }
 }
 
+var _editors = {};
+
 function bindCodeEditors() {
-    if ($('.code-editor').length == 0) {
+    if ($('.pode-code-editor').length == 0) {
         return;
     }
 
     var src = $('script[role="monaco"]').attr('src');
     require.config({ paths: { 'vs': src.substring(0, src.lastIndexOf('/')) }});
 
+    // create the editors
     require(["vs/editor/editor.main"], function() {
-        $('.code-editor').each((i, e) => {
+        $('.pode-code-editor .code-editor').each((i, e) => {
             var theme = $(e).attr('pode-theme');
             if (!theme) {
                 var bodyTheme = getPodeTheme();
@@ -402,12 +405,31 @@ function bindCodeEditors() {
                 }
             }
 
-
             var editor = monaco.editor.create(e, {
-                value: '',
+                value: $(e).attr('pode-value'),
                 language: $(e).attr('pode-language'),
-                theme: theme
+                theme: theme,
+                readOnly: ($(e).attr('pode-read-only') == 'True')
             });
+
+            $(e).attr('pode-value', '');
+            _editors[$(e).attr('for')] = editor;
+        });
+    });
+
+    // bind upload buttons
+    $('.pode-code-editor .pode-upload').unbind('click').click(function(e) {
+        var button = getButton(e);
+        var editorId = button.attr('for');
+
+        var url = `/elements/code-editor/${editorId}/upload`;
+        var data = JSON.stringify({
+            language: $(`#${editorId} .code-editor`).attr('pode-language'),
+            value: _editors[editorId].getValue()
+        });
+
+        sendAjaxReq(url, data, null, true, null, {
+            contentType: 'application/json; charset=UTF-8'
         });
     });
 }
