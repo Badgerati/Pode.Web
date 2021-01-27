@@ -17,12 +17,17 @@
             "<link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.4.1/build/styles/default.min.css'>"
         }
 
-        # main pode.web base theme - light
+        # main pode.web base styles
         "<link rel='stylesheet' href='/pode.web/styles/default.css'>"
 
         # pode.web theme
-        if ($data.Theme -ine 'light') {
-            "<link rel='stylesheet' href='/pode.web/styles/default-$($data.Theme).css'>"
+        if (Test-PodeWebThemeCustom -Name $data.Theme) {
+            "<link rel='stylesheet' href='$((Get-PodeWebState -Name 'custom-themes').Themes[$data.Theme].Url)'>"
+        }
+        else {
+            if ($data.Theme -inotin @('auto', 'custom')) {
+                "<link rel='stylesheet' href='/pode.web/styles/default-$($data.Theme).css'>"
+            }
         }
 
         # custom stylesheets

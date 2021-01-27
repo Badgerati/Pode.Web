@@ -153,6 +153,32 @@ function Get-PodeWebAuthTheme
     return [string]::Empty
 }
 
+function Get-PodeWebInbuiltThemes
+{
+    return @('Auto', 'Light', 'Dark', 'Terminal', 'Custom')
+}
+
+function Test-PodeWebThemeCustom
+{
+    param(
+        [Parameter()]
+        [string]
+        $Name
+    )
+
+    $inbuildThemes = Get-PodeWebInbuiltThemes
+    if ($Name -iin $inbuildThemes) {
+        return $false
+    }
+
+    $customThemes = Get-PodeWebState -Name 'custom-themes'
+    if ($customThemes.Themes.Keys -icontains $Name) {
+        return $true
+    }
+
+    return $false
+}
+
 function Test-PodeWebArrayEmpty
 {
     param(

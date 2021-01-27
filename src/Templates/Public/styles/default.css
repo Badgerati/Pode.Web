@@ -10,12 +10,10 @@ body#login-page {
     align-items: center;
     padding-top: 40px;
     padding-bottom: 40px;
-    background-color: #f5f5f5;
 }
 
 body#normal-page {
     font-size: .875rem !important;
-    background-color: #f5f5f5;
 }
 
 button#menu-toggle {
@@ -29,8 +27,8 @@ button#menu-toggle .feather {
 }
 
 .footer.powered-by {
-    background-color: #f5f5f5;
-    border: #bbb 1px solid;
+    border-width: 1px;
+    border-style: solid;
     border-radius: 0.25rem;
     margin-left: 5%;
     text-align: center;
@@ -40,33 +38,23 @@ button#menu-toggle .feather {
 }
 
 .pode-container:not([pode-transparent='True']) {
-    background-color: #f5f5f5;
-    border: #bbb 1px solid;
+    border-width: 1px;
+    border-style: solid;
     border-radius: 0.25rem;
 }
 
 .pode-container {
-    color: #333;
     padding: 1.25rem;
     margin-bottom: 2em;
 }
 
 .carousel {
     min-height: 10em;
-    background-color: #f5f5f5;
-    color: #333;
-    border: #bbb 1px solid;
+    border-width: 1px;
+    border-style: solid;
     border-radius: 0.25rem;
     padding: 1.25rem;
     margin-bottom: 2em;
-}
-
-.carousel .carousel-caption {
-    color: #333;
-}
-
-.carousel .carousel-indicators li {
-    background-color: #333;
 }
 
 .carousel .carousel-arrow:hover {
@@ -119,7 +107,8 @@ div#pode-social a:hover {
 }
 
 .jumbotron {
-    border: #bbb 1px solid;
+    border-width: 1px;
+    border-style: solid;
 }
 
 .modal-body {
@@ -141,8 +130,6 @@ div#pode-social a:hover {
 }
 
 .media {
-    border-color: #bbb;
-    background-color: #f5f5f5;
     border-width: 1px;
     border-style: solid;
     border-radius: 0.5em;
@@ -154,11 +141,13 @@ div#pode-social a:hover {
     width: 64px;
     height: 64px;
     border-radius: 0.4rem;
-    border: #bbb 2px solid;
+    border-width: 2px;
+    border-style: solid;
 }
 
 .media .media-head {
-    border-bottom: #bbb 1px dashed;
+    border-width: 1px;
+    border-bottom-style: dashed;
 }
 
 .media .media-head small {
@@ -173,17 +162,13 @@ div#pode-social a:hover {
 }
 
 .btn-icon-only {
-    color: #f5f5f5;
     margin-left: -1em;
 }
 
 .ui-autocomplete {
-    border-color: #bbb;
-    background-color: #f0f0f0;
     border-width: 2px;
     margin-top: -1px;
     border-radius: 5px;
-    color: #333;
 }
 
 table .btn-icon-only {
@@ -197,8 +182,6 @@ pre.code-block {
 }
 
 pre code {
-    background-color: #f0f0f0;
-    border-color: #bbb;
     border-radius: 1em;
     border-width: 1px;
     border-style: solid;
@@ -304,7 +287,6 @@ table tbody td {
 
 .card {
     margin-bottom: 2em;
-    border-color: #bbb;
 }
 
 .toast {
@@ -330,7 +312,6 @@ table tbody td {
     margin-bottom: 2px;
     border-style: solid;
     border-width: 3px;
-    border-color: #bbb;
 }
 
 .navbar-brand {
@@ -485,7 +466,7 @@ h6 .feather, .h6 .feather {
  */
 
 .sidebar {
-    position: fixed;
+    position: fixed !important;
     top: 0;
     bottom: 0;
     left: 0;
@@ -511,7 +492,6 @@ h6 .feather, .h6 .feather {
 
 .sidebar .nav-link {
     font-weight: 500;
-    color: #333;
     padding: 0;
 }
 

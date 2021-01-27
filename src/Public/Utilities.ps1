@@ -15,7 +15,7 @@ function Use-PodeWebTemplates
         $FavIcon,
 
         [Parameter()]
-        [ValidateSet('Auto', 'Light', 'Dark', 'Terminal')]
+        [ValidateSet('Auto', 'Light', 'Dark', 'Terminal', 'Custom')]
         [string]
         $Theme = 'Auto'
     )
@@ -34,11 +34,16 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'title' -Value $Title
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
-    Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
-    Set-PodeWebState -Name 'social' -Value @{}
+    Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @()
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
+
+    Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
+    Set-PodeWebState -Name 'custom-themes' -Value @{
+        Default = $null
+        Themes = [ordered]@{}
+    }
 
     $templatePath = Get-PodeWebTemplatePath
 
@@ -121,17 +126,77 @@ function Get-PodeWebTheme
         $IgnoreCookie
     )
 
+    $theme = [string]::Empty
+
+    # check cookies
     if (!$IgnoreCookie) {
         $theme = Get-PodeWebCookie -Name 'theme'
         if (($null -ne $theme) -and ![string]::IsNullOrWhiteSpace($theme.Value)) {
-            return $theme.Value.ToLowerInvariant()
+            $theme = $theme.Value
         }
     }
 
-    $theme = Get-PodeWebAuthTheme -AuthData (Get-PodeWebAuthData)
-    if (![string]::IsNullOrWhiteSpace($theme)) {
-        return $theme.ToLowerInvariant()
+    # check auth data
+    if ([string]::IsNullOrWhiteSpace($theme)) {
+        $theme = Get-PodeWebAuthTheme -AuthData (Get-PodeWebAuthData)
     }
 
-    return (Get-PodeWebState -Name 'theme').ToLowerInvariant()
+    # check state
+    if ([string]::IsNullOrWhiteSpace($theme)) {
+        $theme = (Get-PodeWebState -Name 'theme')
+    }
+
+    # if 'custom', set as default custom theme
+    if ($theme -ieq 'custom') {
+        $theme = (Get-PodeWebState -Name 'custom-themes').Default
+    }
+
+    if ([string]::IsNullOrWhiteSpace($theme)) {
+        $theme = 'Auto'
+    }
+
+    return $theme.ToLowerInvariant()
+}
+
+function Add-PodeWebCustomTheme
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    $Name = $Name.ToLowerInvariant()
+
+    # is the theme already inbuilt?
+    $inbuildThemes = Get-PodeWebInbuiltThemes
+    if ($Name -iin $inbuildThemes) {
+        throw "There is already an inbuilt theme for $($Name) defined"
+    }
+
+    # is the theme already defined?
+    $customThemes = Get-PodeWebState -Name 'custom-themes'
+    if ($customThemes.Themes.Keys -icontains $Name) {
+        throw "There is already a custom theme for $($Name) defined"
+    }
+
+    # add the custom theme
+    $customThemes.Themes[$Name] = @{
+        Url = $Url
+    }
+
+    # set as theme if first one
+    $currentTheme = Get-PodeWebState -Name 'theme'
+    if ($currentTheme -ieq 'custom') {
+        Set-PodeWebState -Name 'theme' -Value $Name
+    }
+
+    if ([string]::IsNullOrWhiteSpace($customThemes.Default)) {
+        $customThemes.Default = $Name
+    }
 }

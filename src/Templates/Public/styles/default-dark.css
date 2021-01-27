@@ -233,7 +233,7 @@ nav .pagination .page-link.active, nav .pagination .page-link:hover {
 
 .jumbotron {
     background-color: #214981;
-    border: dodgerblue 1px solid;
+    border-color: dodgerblue;
     color: #ccc;
 }
 

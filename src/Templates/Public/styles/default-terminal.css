@@ -269,7 +269,7 @@ hr {
 
 .jumbotron {
     background-color: #33ff00;
-    border: darkgreen 1px solid;
+    border-color: darkgreen;
     color: #222;
 }
 
