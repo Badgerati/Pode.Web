@@ -17,7 +17,11 @@ function Use-PodeWebTemplates
         [Parameter()]
         [ValidateSet('Auto', 'Light', 'Dark', 'Terminal', 'Custom')]
         [string]
-        $Theme = 'Auto'
+        $Theme = 'Auto',
+
+        [Parameter()]
+        [string[]]
+        $EndpointName
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore)
@@ -36,6 +40,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @()
+    Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
 
@@ -50,7 +55,7 @@ function Use-PodeWebTemplates
     Add-PodeStaticRoute -Path '/pode.web' -Source (Join-Path $templatePath 'Public')
     Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-Path $templatePath 'Views')
 
-    Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
+    Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
         if (($null -ne $pages) -and ($pages.Length -gt 0)) {
             Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"

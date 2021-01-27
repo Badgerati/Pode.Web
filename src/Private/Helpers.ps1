@@ -585,3 +585,29 @@ function Test-PodeWebContent
 
     return $true
 }
+
+function Remove-PodeWebRoute
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Method,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Path,
+
+        [Parameter()]
+        [string[]]
+        $EndpointName
+    )
+
+    if (Test-PodeIsEmpty $EndpointName) {
+        Remove-PodeRoute -Method $Method -Path $Path
+    }
+    else {
+        foreach ($endpoint in $EndpointName) {
+            Remove-PodeRoute -Method $Method -Path $Path -EndpointName $endpoint
+        }
+    }
+}

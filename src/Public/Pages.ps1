@@ -57,8 +57,11 @@ function Set-PodeWebLoginPage
         $grantType = 'password'
     }
 
+    # get the endpoints to bind
+    $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+
     # add the login route
-    Add-PodeRoute -Method Get -Path '/login' -Authentication $Authentication -Login -ScriptBlock {
+    Add-PodeRoute -Method Get -Path '/login' -Authentication $Authentication -EndpointName $endpointNames -Login -ScriptBlock {
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Theme = Get-PodeWebTheme
             Icon = $using:Icon
@@ -71,14 +74,15 @@ function Set-PodeWebLoginPage
         }
     }
 
-    Add-PodeRoute -Method Post -Path '/login' -Authentication $Authentication -Login
+    Add-PodeRoute -Method Post -Path '/login' -Authentication $Authentication -EndpointName $endpointNames -Login
 
     # add the logout route
-    Add-PodeRoute -Method Post -Path '/logout' -Authentication $Authentication -Logout
+    Add-PodeRoute -Method Post -Path '/logout' -Authentication $Authentication -EndpointName $endpointNames -Logout
 
     # add an authenticated home route
-    Remove-PodeRoute -Method Get -Path '/'
-    Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -ScriptBlock {
+    Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
+
+    Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
         if (($null -ne $pages) -and ($pages.Length -gt 0)) {
             Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
@@ -138,13 +142,15 @@ function Set-PodeWebHomePage
         $auth = (Get-PodeWebState -Name 'auth')
     }
 
+    $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+
     if ([string]::IsNullOrWhiteSpace($Title)) {
         $Title = 'Home'
     }
 
-    Remove-PodeRoute -Method Get -Path '/'
+    Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
 
-    Add-PodeRoute -Method Get -Path '/' -Authentication $auth -ScriptBlock {
+    Add-PodeRoute -Method Get -Path '/' -Authentication $auth -EndpointName $endpointNames -ScriptBlock {
         $comps = $using:Layouts
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
             $pages = @(Get-PodeWebState -Name 'pages')
@@ -261,8 +267,11 @@ function Add-PodeWebPage
         $auth = (Get-PodeWebState -Name 'auth')
     }
 
+    # get the endpoints to bind
+    $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+
     # add the page route
-    Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -ScriptBlock {
+    Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -EndpointName $endpointNames -ScriptBlock {
         $global:PageData = $using:pageMeta
         $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
 

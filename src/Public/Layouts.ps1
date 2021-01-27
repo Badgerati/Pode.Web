@@ -252,7 +252,9 @@ function New-PodeWebModal
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
@@ -419,7 +421,9 @@ function New-PodeWebSteps
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
@@ -485,7 +489,9 @@ function New-PodeWebStep
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
