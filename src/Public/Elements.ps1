@@ -1646,7 +1646,7 @@ function New-PodeWebCodeEditor
 {
     [CmdletBinding()]
     param(
-        [Parameter()]
+        [Parameter(Mandatory=$true)]
         [string]
         $Name,
 
@@ -1665,14 +1665,30 @@ function New-PodeWebCodeEditor
         $Theme,
 
         [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
         [string[]]
         $CssClass,
+
+        [Parameter()]
+        [scriptblock]
+        $Upload,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [switch]
+        $ReadOnly,
 
         [switch]
         $AsCard
     )
 
-    $Id = Get-PodeWebElementId -Tag CodeEditor -Id $Id -Name $Name -NameAsToken
+    $Id = Get-PodeWebElementId -Tag CodeEditor -Id $Id -Name $Name
+    $uploadable = ($null -ne $Upload)
 
     $element = @{
         ComponentType = 'Element'
@@ -1682,7 +1698,30 @@ function New-PodeWebCodeEditor
         ID = $Id
         Language = $Language.ToLowerInvariant()
         Theme = $Theme
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        ReadOnly = $ReadOnly.IsPresent
+        Uploadable = $uploadable
         CssClasses = ($CssClass -join ' ')
+    }
+
+    # upload route
+    $routePath = "/elements/code-editor/$($Id)/upload"
+    if ($uploadable -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+            param($Data)
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:Upload -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            Write-PodeJsonResponse -Value $result
+        }
     }
 
     if ($AsCard) {
