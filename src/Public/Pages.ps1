@@ -223,6 +223,10 @@ function Add-PodeWebPage
         $AccessUsers = @(),
 
         [Parameter()]
+        [string[]]
+        $EndpointName,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -268,10 +272,12 @@ function Add-PodeWebPage
     }
 
     # get the endpoints to bind
-    $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+    if (Test-PodeIsEmpty $EndpointName) {
+        $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+    }
 
     # add the page route
-    Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -EndpointName $endpointNames -ScriptBlock {
+    Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
         $global:PageData = $using:pageMeta
         $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
 

@@ -47,6 +47,10 @@ function New-PodeWebTextbox
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string[]]
+        $EndpointName,
+
         [Parameter(ParameterSetName='Multi')]
         [switch]
         $Multiline,
@@ -99,9 +103,11 @@ function New-PodeWebTextbox
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -EndpointName $endpointNames -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
             $global:ElementData = $using:element
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:AutoComplete -Return
@@ -1008,6 +1014,10 @@ function New-PodeWebButton
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string[]]
+        $EndpointName,
+
         [Parameter(ParameterSetName='ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
@@ -1047,9 +1057,11 @@ function New-PodeWebButton
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:ElementData = $using:element
 
@@ -1295,6 +1307,10 @@ function New-PodeWebChart
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string[]]
+        $EndpointName,
+
         [switch]
         $Append,
 
@@ -1324,9 +1340,11 @@ function New-PodeWebChart
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
@@ -1460,6 +1478,10 @@ function New-PodeWebTable
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string[]]
+        $EndpointName,
+
         [switch]
         $Filter,
 
@@ -1535,9 +1557,11 @@ function New-PodeWebTable
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:ElementData = $using:element
 
@@ -1613,6 +1637,10 @@ function Add-PodeWebTableButton
         [object[]]
         $ArgumentList,
 
+        [Parameter()]
+        [string[]]
+        $EndpointName,
+
         [switch]
         $WithText
     )
@@ -1628,9 +1656,11 @@ function Add-PodeWebTableButton
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
@@ -1690,6 +1720,10 @@ function New-PodeWebCodeEditor
         [object[]]
         $ArgumentList,
 
+        [Parameter()]
+        [string[]]
+        $EndpointName,
+
         [switch]
         $ReadOnly,
 
@@ -1722,9 +1756,11 @@ function New-PodeWebCodeEditor
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:Upload -Arguments $Data.Data -Splat -Return
@@ -1776,6 +1812,10 @@ function New-PodeWebForm
         $CssClass,
 
         [Parameter()]
+        [string[]]
+        $EndpointName,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -1799,9 +1839,11 @@ function New-PodeWebForm
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
@@ -1861,6 +1903,10 @@ function New-PodeWebTimer
         $CssClass,
 
         [Parameter()]
+        [string[]]
+        $EndpointName,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication
@@ -1879,9 +1925,11 @@ function New-PodeWebTimer
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $endpointNames -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
