@@ -229,6 +229,10 @@ function New-PodeWebModal
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string[]]
+        $EndpointName,
+
         [switch]
         $AsForm,
 
@@ -252,7 +256,11 @@ function New-PodeWebModal
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
@@ -399,6 +407,10 @@ function New-PodeWebSteps
         $ArgumentList,
 
         [Parameter()]
+        [string[]]
+        $EndpointName,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication
@@ -419,7 +431,11 @@ function New-PodeWebSteps
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
@@ -465,6 +481,10 @@ function New-PodeWebStep
         $Icon,
 
         [Parameter()]
+        [string[]]
+        $EndpointName,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication
@@ -485,7 +505,11 @@ function New-PodeWebStep
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -ScriptBlock {
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
