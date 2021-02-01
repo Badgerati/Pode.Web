@@ -249,9 +249,10 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     // remove validation errors
     removeValidationErrors(sender);
 
-    // set default content type
+    // set default opts
     opts = (opts ?? {});
-    opts.contentType = (opts.contentType ?? 'application/x-www-form-urlencoded; charset=UTF-8');
+    opts.contentType = (opts.contentType == null ? 'application/x-www-form-urlencoded; charset=UTF-8' : opts.contentType);
+    opts.processData = (opts.processData == null ? true : opts.processData);
 
     // make the call
     $.ajax({
@@ -259,7 +260,9 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
         method: 'post',
         data: data,
         dataType: 'binary',
+        processData: opts.processData,
         contentType: opts.contentType,
+        mimeType: opts.mimeType,
         xhrFields: {
             responseType: 'blob'
         },
@@ -820,8 +823,27 @@ function bindFormSubmits() {
         e.preventDefault();
         e.stopPropagation();
 
+        // get the form
         var form = $(e.target);
-        sendAjaxReq(form.attr('method'), form.serialize(), form, true);
+
+        // submit the form
+        var data = null;
+        var opts = null;
+
+        if (form.find('input[type=file]').length > 0) {
+            data = new FormData(form[0]);
+            opts = {
+                mimeType: 'multipart/form-data',
+                contentType: false,
+                processData: false
+            }
+        }
+        else {
+            data = form.serialize();
+        }
+
+        // submit the form
+        sendAjaxReq(form.attr('method'), data, form, true, null, opts);
     });
 }
 
