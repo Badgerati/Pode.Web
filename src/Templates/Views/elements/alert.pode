@@ -4,7 +4,7 @@
         <strong>$($data.Type)</strong>
     </h6>
 
-    <div class='pode-alert-body'>
+    <div class='pode-alert-body pode-text'>
         $(
             if (![string]::IsNullOrWhiteSpace($data.Value)) {
                 $data.Value
