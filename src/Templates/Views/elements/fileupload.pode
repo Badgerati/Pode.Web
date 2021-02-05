@@ -1,4 +1,4 @@
-<div class="form-group row pode-form-upload">
+<div class="form-group row pode-form-upload $($data.CssClasses)">
     <label for="$($data.ID)" class="col-sm-2 col-form-label">$($data.Name)</label>
     <div class="col-sm-10">
         <input type='file' class='form-control-file' id="$($data.ID)" name="$($data.Name)">

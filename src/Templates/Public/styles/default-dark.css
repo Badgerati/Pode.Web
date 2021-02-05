@@ -13,6 +13,10 @@ nav#sidebarMenu {
     color: #ccc !important;
 }
 
+.welcome-msg img {
+    border-color: dodgerblue;
+}
+
 .media {
     border-color: dodgerblue;
     background-color: #121d2f;
@@ -179,29 +183,32 @@ pre code {
     border-color: #214981 !important;
 }
 
-.table-dark {
+body[pode-theme='dark'] .table {
     color: #ccc !important;
 }
 
-.table-dark thead th {
+body[pode-theme='dark'] .table thead th {
     background-color: #090d13 !important;
     color: #ccc !important;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(odd) {
+body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(odd) {
     background-color: #142440 !important;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(even) {
+body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(even) {
     background-color: #121d2f !important;
 }
 
-.table-dark td, .table-dark th, .table-dark thead th {
+body[pode-theme='dark'] .table td,
+body[pode-theme='dark'] .table th,
+body[pode-theme='dark'] .table thead th {
     border-color: #214981 !important;
 }
 
-.table-dark.table-striped tbody tr:hover {
+body[pode-theme='dark'] .table.table-striped tbody tr:hover {
     background-color: #090d13 !important;
+    color: #ccc;
 }
 
 .nav-item.nav-page-item a.nav-link.active {
@@ -226,10 +233,66 @@ nav .pagination .page-link.active, nav .pagination .page-link:hover {
 
 .jumbotron {
     background-color: #214981;
-    border: dodgerblue 1px solid;
+    border-color: dodgerblue;
     color: #ccc;
 }
 
 hr {
     border-color: dodgerblue;
+}
+
+.footer.powered-by {
+    background-color: #142440;
+    border-color: #214981;
+}
+
+.footer.powered-by .text-muted {
+    color: #ccc !important;
+}
+
+.pode-container:not([pode-transparent='True']) {
+    background-color: #142440;
+    border-color: #214981;
+}
+
+.pode-container {
+    color: #ccc;
+}
+
+.carousel {
+    background-color: #142440;
+    border-color: #214981;
+    color: #ccc;
+}
+
+.carousel .carousel-caption {
+    color: #ccc;
+}
+
+.carousel .carousel-indicators li {
+    background-color: #ccc;
+}
+
+.carousel .carousel-indicators li.active {
+    background-color: dodgerblue;
+}
+
+.step.active .bs-stepper-circle {
+    background-color: dodgerblue;
+}
+
+.bs-stepper-line {
+    background-color: #214981;
+}
+
+input[type=date]::-webkit-calendar-picker-indicator,
+input[type=time]::-webkit-calendar-picker-indicator,
+input[type=datetime-local]::-webkit-calendar-picker-indicator {
+    filter: invert(100%) brightness(60%);
+}
+
+input[type=date]::-webkit-calendar-picker-indicator:hover,
+input[type=time]::-webkit-calendar-picker-indicator:hover,
+input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(140deg);
 }

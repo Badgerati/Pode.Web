@@ -10,16 +10,15 @@ body#login-page {
     align-items: center;
     padding-top: 40px;
     padding-bottom: 40px;
-    background-color: #f5f5f5;
 }
 
 body#normal-page {
     font-size: .875rem !important;
-    background-color: #f5f5f5;
 }
 
 button#menu-toggle {
     margin-left: 0;
+    width: 50px;
 }
 
 button#menu-toggle .feather {
@@ -27,11 +26,76 @@ button#menu-toggle .feather {
     height: 25px;
 }
 
+.footer.powered-by {
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 0.25rem;
+    margin-left: 5%;
+    text-align: center;
+    width: 90%;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.pode-container:not([pode-transparent='True']) {
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 0.25rem;
+}
+
+.pode-container {
+    padding: 1.25rem;
+    margin-bottom: 2em;
+}
+
+.carousel {
+    min-height: 10em;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 0.25rem;
+    padding: 1.25rem;
+    margin-bottom: 2em;
+}
+
+.carousel .carousel-arrow:hover {
+    background-color: rgba(51, 51, 51, 0.1);
+}
+
+.carousel .carousel-item {
+    max-height: 30em;
+    height: 100%;
+}
+
+div[role="chart"] div[role="controls"] {
+    float: left;
+    margin-bottom: -3px;
+    margin-top: -4px;
+}
+
 main[role="main"].fullscreen {
     width: 100% !important;
     max-width: 100% !important;
     flex: 0 0 100.0% !important;
     margin-left: 0 !important;
+}
+
+nav[role="pagination"] {
+    float: right;
+}
+
+div#pode-social .feather {
+    height: 22px;
+    width: 22px;
+    margin-right: 0.3rem;
+}
+
+div#pode-social a {
+    color: #bbb;
+}
+
+div#pode-social a:hover {
+    color: #007bff;
+    text-decoration: none;
 }
 
 .hide {
@@ -43,11 +107,16 @@ main[role="main"].fullscreen {
 }
 
 .jumbotron {
-    border: #bbb 1px solid;
+    border-width: 1px;
+    border-style: solid;
 }
 
 .modal-body {
     word-break: break-word;
+}
+
+.modal-header button.close {
+    outline: none;
 }
 
 .modal-dialog.pode-modal-small {
@@ -61,8 +130,6 @@ main[role="main"].fullscreen {
 }
 
 .media {
-    border-color: #bbb;
-    background-color: #f5f5f5;
     border-width: 1px;
     border-style: solid;
     border-radius: 0.5em;
@@ -74,11 +141,13 @@ main[role="main"].fullscreen {
     width: 64px;
     height: 64px;
     border-radius: 0.4rem;
-    border: #bbb 2px solid;
+    border-width: 2px;
+    border-style: solid;
 }
 
 .media .media-head {
-    border-bottom: #bbb 1px dashed;
+    border-width: 1px;
+    border-bottom-style: dashed;
 }
 
 .media .media-head small {
@@ -93,17 +162,13 @@ main[role="main"].fullscreen {
 }
 
 .btn-icon-only {
-    color: #f5f5f5;
     margin-left: -1em;
 }
 
 .ui-autocomplete {
-    border-color: #bbb;
-    background-color: #f0f0f0;
     border-width: 2px;
     margin-top: -1px;
     border-radius: 5px;
-    color: #333;
 }
 
 table .btn-icon-only {
@@ -117,8 +182,6 @@ pre.code-block {
 }
 
 pre code {
-    background-color: #f0f0f0;
-    border-color: #bbb;
     border-radius: 1em;
     border-width: 1px;
     border-style: solid;
@@ -185,19 +248,25 @@ input[type="number"].pode-range-value {
     width: 6% !important;
 }
 
+input[type=date]::-webkit-calendar-picker-indicator:hover,
+input[type=time]::-webkit-calendar-picker-indicator:hover,
+input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
+    cursor: pointer;
+}
+
 .sidebar-sticky {
     margin-bottom: -8.5em !important;
     height: calc(100vh - 7em) !important;
 }
 
 .sidebar-sticky ul {
-    margin-bottom: 5em !important;
+    margin-bottom: 7em !important;
 }
 
 .footer {
     z-index: 9999;
     bottom: 0;
-    position: fixed;
+    position: absolute;
 }
 
 table {
@@ -218,7 +287,6 @@ table tbody td {
 
 .card {
     margin-bottom: 2em;
-    border-color: #bbb;
 }
 
 .toast {
@@ -236,10 +304,25 @@ table tbody td {
     font-size: 1.2em;
 }
 
+.welcome-msg img {
+    width: 35px;
+    height: 35px;
+    margin-right: 0.3rem;
+    border-radius: 5em;
+    margin-bottom: 2px;
+    border-style: solid;
+    border-width: 3px;
+}
+
 .navbar-brand {
     font-size: 1.5em !important;
     text-overflow: ellipsis;
     overflow-x: hidden;
+}
+
+.form-group .pode-button,
+.form-group .pode-link-button {
+    margin-bottom: 1rem;
 }
 
 .form-control.is-invalid {
@@ -383,7 +466,7 @@ h6 .feather, .h6 .feather {
  */
 
 .sidebar {
-    position: fixed;
+    position: fixed !important;
     top: 0;
     bottom: 0;
     left: 0;
@@ -409,7 +492,11 @@ h6 .feather, .h6 .feather {
 
 .sidebar .nav-link {
     font-weight: 500;
-    color: #333;
+    padding: 0;
+}
+
+.sidebar .nav-link div {
+    padding: 0.5rem 1rem;
 }
 
 .sidebar .nav-link .feather {
@@ -431,7 +518,7 @@ h6 .feather, .h6 .feather {
     text-transform: uppercase;
 }
 
-.nav-item.nav-page-item a.nav-link:hover {
+.nav-item.nav-page-item a.nav-link:hover > div {
     width: fit-content !important;
     background-color: rgba(29, 161, 242, 0.1) !important;
     padding-right: 2em !important;
@@ -487,6 +574,10 @@ h6 .feather, .h6 .feather {
     width: 90%;
 }
 
+.mLeft02 {
+    margin-left: 0.2em;
+}
+
 .mLeft05 {
     margin-left: 0.5em;
 }
@@ -501,6 +592,10 @@ h6 .feather, .h6 .feather {
 
 .mRight02 {
     margin-right: 0.2em;
+}
+
+.mRight1 {
+    margin-right: 1em;
 }
 
 .mTop-05 {

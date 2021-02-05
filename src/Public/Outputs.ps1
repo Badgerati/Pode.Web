@@ -47,12 +47,12 @@ function Out-PodeWebTable
             $pageNumber = 1
             $pageAmount = 20
 
-            if ($null -ne $ComponentData) {
-                if (!$ComponentData.Paging.Enabled) {
-                    throw "You cannot paginate a table that does not have paging enabled: $($ComponentData.ID)"
+            if ($null -ne $ElementData) {
+                if (!$ElementData.Paging.Enabled) {
+                    throw "You cannot paginate a table that does not have paging enabled: $($ElementData.ID)"
                 }
 
-                $pageAmount = $ComponentData.Paging.Amount
+                $pageAmount = $ElementData.Paging.Amount
             }
 
             if ($null -ne $WebEvent) {
@@ -107,6 +107,39 @@ function Sync-PodeWebTable
         Operation = 'Sync'
         ElementType = 'Table'
         ID = $Id
+    }
+}
+
+function Update-PodeWebTableRow
+{
+    [CmdletBinding(DefaultParameterSetName='DataValue')]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        $Data,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $TableId,
+
+        [Parameter(Mandatory=$true, ParameterSetName='DataValue')]
+        [string]
+        $DataValue,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Index')]
+        [int]
+        $Index
+    )
+
+    return @{
+        Operation = 'Update'
+        ElementType = 'TableRow'
+        TableId = $TableId
+        Row = @{
+            Type = $PSCmdlet.ParameterSetName.ToLowerInvariant()
+            DataValue = $DataValue
+            Index = $Index
+        }
+        Data = $Data
     }
 }
 
@@ -480,6 +513,7 @@ function Show-PodeWebNotification
 
 function Move-PodeWebPage
 {
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -505,6 +539,7 @@ function Move-PodeWebPage
 
 function Move-PodeWebUrl
 {
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -515,5 +550,37 @@ function Move-PodeWebUrl
         Operation = 'Move'
         ElementType = 'Href'
         Url = $Url
+    }
+}
+
+function Move-PodeWebTab
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Move'
+        ElementType = 'Tab'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Reset-PodeWebPage
+{
+    [CmdletBinding()]
+    param()
+
+    return @{
+        Operation = 'Reset'
+        ElementType = 'Page'
     }
 }

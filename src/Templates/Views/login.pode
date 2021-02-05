@@ -1,30 +1,38 @@
 <html>
-    $(Use-PodeWebPartialView -Path 'shared/head' -Data @{ Title = 'Login' })
+    $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
+        Title = 'Login'
+        Theme = $data.Theme
+    })
 
-    <body id="login-page">
+    <body id="login-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)">
         <form class="form-signin" action='/login' method='POST'>
-            <div class="text-center mb-4">
+            <div class='text-center mb-4'>
                 <img class='mb-4' src='$($data.Icon)' alt='' width='72' height='72'>
                 <h1 class='h3 mb-3 font-weight-normal'>Please sign in</h1>
             </div>
 
-            <div class="form-label-group">
-                <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
-                <label for="username">Username</label>
-            </div>
+            $(if (!$data.Auth.IsOAuth2 -or  ($data.Auth.GrantType -ieq 'password')) {
+                "<div class='form-label-group'>
+                    <input type='text' id='username' name='username' class='form-control' placeholder='Username' required autofocus>
+                    <label for='username'>Username</label>
+                </div>
 
-            <div class="form-label-group">
-                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
-                <label for="password">Password</label>
-            </div>
-
-            $(if ($data.Flash['auth-error']) {
-                "<div class='alert alert-danger' role='alert'>
-                    $($data.Flash['auth-error'])
+                <div class='form-label-group'>
+                    <input type='password' id='password' name='password' class='form-control' placeholder='Password' required>
+                    <label for='password'>Password</label>
                 </div>"
-            })
 
-            <button class="btn btn-lg btn-$(Get-PodeWebState -Name 'default-bs-colour') btn-block" type="submit">Sign in</button>
+                if ($data.Flash['auth-error']) {
+                    "<div class='alert alert-danger' role='alert'>
+                        $($data.Flash['auth-error'])
+                    </div>"
+                }
+
+                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>Sign in</button>"
+            }
+            else {
+                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>Sign in using OAuth2 ($($data.Auth.Name))</button>"
+            })
 
             $(if (![string]::IsNullOrWhiteSpace($data.Copyright)) {
                 "<p class='mt-5 mb-3 text-muted'>&copy; $($data.Copyright)</p>"

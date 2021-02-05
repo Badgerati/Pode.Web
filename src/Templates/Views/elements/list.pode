@@ -4,7 +4,7 @@ $(
         $tag = 'ol'
     }
 
-    "<$($tag) class='list-unstyled' id='$($data.ID)'>"
+    "<$($tag) class='list-unstyled $($data.CssClasses)' id='$($data.ID)'>"
 
 
     foreach ($item in $data.Items) {

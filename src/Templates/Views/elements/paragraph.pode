@@ -1,10 +1,10 @@
-<p id='$($data.ID)'>
+<p id="$($data.ID)" class="text-$($data.Alignment) $($data.CssClasses)">
     $(
         if (![string]::IsNullOrWhiteSpace($data.Value)) {
             $data.Value
         }
         else {
-            Use-PodeWebPartialView -Path 'elements/_load' -Data @{ Elements = $data.Elements }
+            Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Elements }
         }
     )
 </p>

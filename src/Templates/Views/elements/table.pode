@@ -1,0 +1,68 @@
+$(if (![string]::IsNullOrWhiteSpace($data.Message)) {
+    "<p class='card-text'>$($data.Message)</p>"
+})
+
+$(if ($data.Filter) {
+    "<div class='input-group mb-2'>
+        <div class='input-group-prepend'><div class='input-group-text'><span data-feather='filter'></span></div></div>
+        <input type='text' class='form-control mBottom1 pode-table-filter' id='filter_$($data.ID)' placeholder='Filter' for='$($data.ID)'>
+    </div>"
+})
+
+<div role='table' class="$($data.CssClasses)">
+    <div class="table-responsive">
+        $(
+            $click = [string]::Empty
+            if ($data.Click) {
+                $click = 'pode-table-click'
+            }
+
+            "<table
+                id='$($data.ID)'
+                name='$($data.Name)'
+                class='table table-striped table-hover $($click)'
+                pode-dynamic='$($data.IsDynamic)'
+                pode-data-column='$($data.DataColumn)'
+                pode-auto-refresh='$($data.AutoRefresh)'
+                pode-sort='$($data.Sort)'
+                pode-paginate='$($data.Paging.Enabled)'>
+                <thead></thead>
+                <tbody></tbody>
+            </table>"
+        )
+    </div>
+
+    <div role='controls'>
+        <div class="btn-group mr-2">
+            $(if (!$data.AutoRefresh -and !$data.NoRefresh) {
+                "<button type='button' class='btn btn btn-outline-secondary pode-table-refresh' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
+                    <span data-feather='refresh-cw'></span>
+                </button>"
+            })
+
+            $(if (!$data.NoExport) {
+                "<button type='button' class='btn btn btn-outline-secondary pode-table-export' for='$($data.ID)' title='Export' data-toggle='tooltip'>
+                    <span data-feather='download'></span>
+                </button>"
+            })
+
+            $(foreach ($btn in $data.Buttons) {
+                "<button type='button' class='btn btn btn-outline-secondary pode-table-button' for='$($data.ID)' title='$($btn.Name)' data-toggle='tooltip' name='$($btn.Name)'>
+                    <span data-feather='$($btn.Icon.ToLowerInvariant())' class='$(if ($btn.WithText) { "mRight02" })'></span>"
+
+                    if ($btn.WithText) {
+                        $btn.Name
+                    }
+
+                "</button>"
+            })
+        </div>
+
+        $(if ($data.Paging.Enabled) {
+            "<nav role='pagination' aria-label='$($data.Name) Pages' for='$($data.ID)' pode-amount='$($data.Paging.Amount)'>
+                <ul class='pagination justify-content-end'>
+                </ul>
+            </nav>"
+        })
+    </div>
+</div>

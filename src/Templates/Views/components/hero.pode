@@ -1,9 +1,0 @@
-<div class="jumbotron">
-    <h1 class="display-4">$($data.Meta.Title)</h1>
-    <p class="lead">$($data.Meta.Message)</p>
-
-    $(if (!(Test-PodeWebArrayEmpty -Array $data.Meta.Elements)) {
-        "<hr class='my-4'>"
-        Use-PodeWebPartialView -Path 'elements/_load' -Data @{ Elements = $data.Meta.Elements }
-    })
-</div>

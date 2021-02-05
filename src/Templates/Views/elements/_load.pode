@@ -1,9 +1,0 @@
-$(
-    $value = [string]::Empty
-
-    foreach ($element in $data.Elements) {
-        $value += (Use-PodeWebPartialView -Path "elements/$($element.ElementType.ToLowerInvariant())" -Data $element)
-    }
-
-    $value
-)

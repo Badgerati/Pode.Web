@@ -1,1 +1,8 @@
-<span data-feather="$($data.Name)"></span>
+$(
+    $colour = [string]::Empty
+    if (![string]::IsNullOrWhiteSpace($data.Colour)) {
+        $colour = "style='color:$($data.Colour);'"
+    }
+
+    "<span data-feather='$($data.Name)' class='$($data.CssClasses)' $($colour)></span>"
+)

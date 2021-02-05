@@ -4,23 +4,28 @@ Import-Module ..\src\Pode.Web.psm1 -Force
 Start-PodeServer {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
+    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Basic Example'
+    Use-PodeWebTemplates -Title 'Basic Example' -Theme Dark
+
+    # social
+    Set-PodeWebSocial -Type GitHub -Url 'https://github.com/badgerati'
+    Set-PodeWebSocial -Type Twitter -Url 'https://twitter.com/Badgerati' -Tooltip '@Badgerati'
 
     # set the home page controls (just a simple paragraph)
-    $section = New-PodeWebSection -Name 'Welcome' -NoHeader -Elements @(
+    $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
-    Set-PodeWebHomePage -Components $section -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
 
     # add a page to search process (output as json in an appended textbox)
-    $form = New-PodeWebForm -Name 'Search' -ScriptBlock {
+    $form = New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
         Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -AsJson
-    } -Elements @(
+    } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Components $form
+    Add-PodeWebPage -Name Processes -Icon Activity -Layouts $form
 }

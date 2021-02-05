@@ -4,6 +4,11 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
+Chart.Legend.prototype.afterFit = function() {
+    this.height = this.height + 10;
+};
+
+
 (function() {
     feather.replace();
 })();
@@ -15,9 +20,17 @@ $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
 })();
 
 $(document).ready(() => {
+    if (checkAutoTheme()) {
+        return;
+    }
+
+    mapElementThemes();
+
     loadTables();
     loadCharts();
     loadAutoCompletes();
+
+    setupSteppers();
 
     bindSidebarFilter();
     bindMenuToggle();
@@ -30,6 +43,7 @@ $(document).ready(() => {
     bindTableFilters();
     bindTableExports();
     bindTableRefresh();
+    bindTableButtons();
 
     bindChartRefresh();
     bindRangeValue();
@@ -39,34 +53,396 @@ $(document).ready(() => {
     bindPageGroupCollapse();
     bindCardCollapse();
 
+    bindTabCycling();
     bindTimers();
 });
 
+function checkAutoTheme() {
+    // is the them auto-switchable?
+    var targetTheme = $('body').attr('pode-theme-target');
+
+    // check if the system is dark/light
+    if (targetTheme == 'auto') {
+        var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        targetTheme = (isSystemDark ? 'dark' : 'light');
+    }
+
+    // get the body theme, do we need to switch?
+    var bodyTheme = getPodeTheme();
+    if (bodyTheme == targetTheme) {
+        return false;
+    }
+
+    // set the cookie, expire after 1 month
+    var d = new Date();
+    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+    document.cookie = `pode.web.theme=${targetTheme}; expires=${d.toUTCString()}; path=/`
+
+    // force a refresh
+    refreshPage();
+    return true;
+}
+
+function mapElementThemes() {
+    var bodyTheme = getPodeTheme();
+
+    var defTheme = 'primary';
+    if (bodyTheme == 'terminal') {
+        defTheme = 'success';
+    }
+
+    var types = ['badge', 'btn'];
+    types.forEach((type) => {
+        $(`.${type}-inbuilt-theme`).each((i, e) => {
+            $(e).removeClass(`${type}-inbuilt-theme`);
+            $(e).addClass(`${type}-${defTheme}`);
+        });
+    });
+}
+
+function getPodeTheme() {
+    return $('body').attr('pode-theme');
+}
+
+function serializeInputs(element) {
+    return element.find('input, textarea, select').serialize();
+}
+
+var _steppers = {};
+
+function setupSteppers() {
+    $('div.bs-stepper[role="stepper"]').each((i, e) => {
+        var stepper = $(e);
+        _steppers[stepper.attr('id')] = new Stepper(e, { linear: true });
+
+        // override form enter-key
+        stepper.find('form.pode-stepper-form').unbind('keypress').keypress(function(e) {
+            if (e.which != 13 && e.keyCode != 13) {
+                return;
+            }
+
+            var btn = stepper.find('.bs-stepper-content .bs-stepper-pane.active button.step-next');
+            if (!btn) {
+                btn = stepper.find('.bs-stepper-content .bs-stepper-pane.active button.step-submit');
+            }
+
+            if (btn) {
+                btn.click();
+            }
+        });
+
+        // previous buttons
+        stepper.find('.bs-stepper-content button.step-previous').unbind('click').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // get the button and step
+            var btn = getButton(e);
+            var step = btn.closest(`div#${btn.attr('for')}`);
+
+            // not need for validation, just go back
+            _steppers[step.attr('for')].previous();
+        });
+
+        // next buttons
+        stepper.find('.bs-stepper-content button.step-next').unbind('click').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // get the button and step
+            var btn = getButton(e);
+            var step = btn.closest(`div#${btn.attr('for')}`);
+
+            // skip if step not active
+            if (!step.hasClass('active')) {
+                return;
+            }
+
+            // call ajax, or move along?
+            if (step.attr('pode-dynamic') == 'True') {
+                // serialize any step-form data
+                var data = serializeInputs(step);
+                var url = `/layouts/step/${step.attr('id')}`;
+
+                // send ajax req, and call next on no validation errors
+                sendAjaxReq(url, data, step, true, (res, sender) => {
+                    if (!hasValidationErrors(sender)) {
+                        _steppers[sender.attr('for')].next();
+                    }
+                });
+            }
+            else {
+                _steppers[step.attr('for')].next();
+            }
+        });
+
+        // submit buttons
+        stepper.find('.bs-stepper-content button.step-submit').unbind('click').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // get the button and step
+            var btn = getButton(e);
+            var step = btn.closest(`div#${btn.attr('for')}`);
+
+            // skip if step not active
+            if (!step.hasClass('active')) {
+                return;
+            }
+
+            // call ajax, or move along?
+            if (step.attr('pode-dynamic') == 'True') {
+                // serialize any step-form data
+                var data = serializeInputs(step);
+                var url = `/layouts/step/${step.attr('id')}`;
+
+                // send ajax req, if not validation errors, send ajax for all steps
+                sendAjaxReq(url, data, step, true, (res, sender) => {
+                    if (!hasValidationErrors(sender)) {
+                        var _steps = sender.attr('for');
+                        var _data = sender.closest('form.pode-stepper-form').serialize();
+                        var _url = `/layouts/steps/${_steps}`;
+
+                        sendAjaxReq(_url, _data, sender, true);
+                    }
+                });
+            }
+            else {
+                var steps = step.attr('for');
+                var data = step.closest('form.pode-stepper-form').serialize();
+                var url = `/layouts/steps/${steps}`;
+
+                sendAjaxReq(url, data, step, true);
+            }
+        });
+    });
+}
+
+function hasValidationErrors(element) {
+    if (!element) {
+        return;
+    }
+
+    return (element.find('.is-invalid').length > 0)
+}
+
+function removeValidationErrors(element) {
+    if (!element) {
+        return;
+    }
+
+    element.find('.is-invalid').removeClass('is-invalid');
+}
+
+function setValidationError(element) {
+    if (!element) {
+        return;
+    }
+
+    element.addClass('is-invalid');
+}
+
+function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
+    // show the spinner
+    showSpinner(sender);
+
+    // remove validation errors
+    removeValidationErrors(sender);
+
+    // set default opts
+    opts = (opts ?? {});
+    opts.contentType = (opts.contentType == null ? 'application/x-www-form-urlencoded; charset=UTF-8' : opts.contentType);
+    opts.processData = (opts.processData == null ? true : opts.processData);
+
+    // make the call
+    $.ajax({
+        url: url,
+        method: 'post',
+        data: data,
+        dataType: 'binary',
+        processData: opts.processData,
+        contentType: opts.contentType,
+        mimeType: opts.mimeType,
+        xhrFields: {
+            responseType: 'blob'
+        },
+        success: function(res, status, xhr) {
+            // attempt to hide any spinners
+            hideSpinner(sender);
+
+            // attempt to get a filename, for downloading
+            var filename = getAjaxFileName(xhr);
+
+            // do we have a file to download?
+            if (filename) {
+                downloadAjaxFile(filename, res, xhr);
+            }
+
+            // run any actions, if we need to
+            else if (useActions) {
+                res.text().then((v) => {
+                    invokeActions(JSON.parse(v), sender);
+                });
+            }
+
+            if (successCallback) {
+                res.text().then((v) => {
+                    successCallback(JSON.parse(v), sender);
+                });
+            }
+        },
+        error: function(err, msg, stack) {
+            hideSpinner(sender);
+            console.log(err);
+            console.log(stack);
+        }
+    });
+}
+
+function downloadAjaxFile(filename, blob, xhr) {
+    // from: https://gist.github.com/jasonweng/393aef0c05c425d8dcfdb2fc1a8188e5
+    // IE workaround for "HTML7007
+    if (typeof window.navigator.msSaveBlob !== 'undefined') {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else {
+        var URL = (window.URL || window.webkitURL);
+        var downloadUrl = URL.createObjectURL(blob);
+
+        if (filename) {
+            // use HTML5 a[download] attribute to specify filename
+            var a = document.createElement('a');
+
+            // safari doesn't support this yet
+            if (typeof a.download === 'undefined') {
+                window.location = downloadUrl;
+            }
+            else {
+                a.href = downloadUrl;
+                a.download = filename;
+                a.style.display = 'none';
+
+                document.body.appendChild(a);
+                a.click();
+
+                $(a).remove();
+            }
+        }
+        else {
+            window.location = downloadUrl;
+        }
+
+        // cleanup the blob url
+        setTimeout(function() {
+            URL.revokeObjectURL(downloadUrl);
+        }, 100);
+    }
+}
+
+function getAjaxFileName(xhr) {
+    var filename = '';
+    var disposition = xhr.getResponseHeader('Content-Disposition');
+
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        var matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+            filename = matches[1].replace(/['"]/g, '');
+        }
+    }
+
+    return filename;
+}
+
+function showSpinner(sender) {
+    if (!sender) {
+        return;
+    }
+
+    var spinner = sender.find('span.spinner-border');
+    if (spinner) {
+        spinner.show();
+    }
+}
+
+function hideSpinner(sender) {
+    if (!sender) {
+        return;
+    }
+
+    var spinner = sender.find('span.spinner-border');
+    if (spinner) {
+        spinner.hide();
+    }
+}
+
+var _editors = {};
+
 function bindCodeEditors() {
-    if ($('.code-editor').length == 0) {
+    if ($('.pode-code-editor').length == 0) {
         return;
     }
 
     var src = $('script[role="monaco"]').attr('src');
     require.config({ paths: { 'vs': src.substring(0, src.lastIndexOf('/')) }});
 
+    // create the editors
     require(["vs/editor/editor.main"], function() {
-        $('.code-editor').each((i, e) => {
+        $('.pode-code-editor .code-editor').each((i, e) => {
+            var theme = $(e).attr('pode-theme');
+            if (!theme) {
+                var bodyTheme = getPodeTheme();
+
+                switch (bodyTheme) {
+                    case 'dark':
+                        theme = 'vs-dark';
+                        break;
+
+                    case 'terminal':
+                        theme = 'hc-black';
+                        break;
+
+                    default:
+                        theme = 'vs';
+                        break;
+                }
+            }
+
             var editor = monaco.editor.create(e, {
-                value: '',
+                value: $(e).attr('pode-value'),
                 language: $(e).attr('pode-language'),
-                theme: $(e).attr('pode-theme')
+                theme: theme,
+                readOnly: ($(e).attr('pode-read-only') == 'True')
             });
+
+            $(e).attr('pode-value', '');
+            _editors[$(e).attr('for')] = editor;
+        });
+    });
+
+    // bind upload buttons
+    $('.pode-code-editor .pode-upload').unbind('click').click(function(e) {
+        var button = getButton(e);
+        var editorId = button.attr('for');
+
+        var url = `/elements/code-editor/${editorId}/upload`;
+        var data = JSON.stringify({
+            language: $(`#${editorId} .code-editor`).attr('pode-language'),
+            value: _editors[editorId].getValue()
+        });
+
+        sendAjaxReq(url, data, null, true, null, {
+            contentType: 'application/json; charset=UTF-8'
         });
     });
 }
 
 function bindCardCollapse() {
-    $('button.pode-card-collapse').click(function(e) {
+    $('button.pode-card-collapse').unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        var button = $(e.currentTarget);
+        var button = getButton(e);
         button.find('.feather-eye').toggle();
         button.find('.feather-eye-off').toggle();
 
@@ -74,34 +450,33 @@ function bindCardCollapse() {
     });
 }
 
+function bindTabCycling() {
+    $('ul.nav-tabs[pode-cycle="True"]').each((i, e) => {
+        setInterval(() => {
+            var tabId = $(e).find('li.nav-item a.nav-link.active').attr('pode-next');
+            moveTab(tabId);
+        }, $(e).attr('pode-interval'));
+    });
+}
+
 function bindTimers() {
     $('span.pode-timer').each((i, e) => {
-        var interval = $(e).attr('pode-interval');
         var id = $(e).attr('id');
 
         invokeTimer(id);
 
         setInterval(() => {
             invokeTimer(id);
-        }, interval);
+        }, $(e).attr('pode-interval'));
     });
 }
 
 function invokeTimer(timerId) {
-    $.ajax({
-        url: `/components/timer/${timerId}`,
-        method: 'post',
-        success: function(res) {
-            invokeActions(res);
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
+    sendAjaxReq(`/elements/timer/${timerId}`, null, null, true);
 }
 
 function bindMenuToggle() {
-    $('button#menu-toggle').click(function(e) {
+    $('button#menu-toggle').unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -111,7 +486,7 @@ function bindMenuToggle() {
 }
 
 function bindTablePagination() {
-    $('nav .pagination a.page-link').click(function(e) {
+    $('nav .pagination a.page-link').unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
         var link = $(this);
@@ -150,7 +525,7 @@ function bindTablePagination() {
 }
 
 function bindTableSort(tableId) {
-    $(`${tableId}[pode-sort='True'] thead th`).click(function() {
+    $(`${tableId}[pode-sort='True'] thead th`).unbind('click').click(function() {
         var table = $(this).parents('table').eq(0);
         var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
 
@@ -229,6 +604,12 @@ function loadTable(tableId, pageNumber, pageAmount) {
         return;
     }
 
+    // ensure the table is dynamic, or has the 'for' attr set
+    var table = $(`table#${tableId}`);
+    if (table.attr('pode-dynamic') != 'True' && !table.attr('for')) {
+        return;
+    }
+
     // define any table paging
     var data = '';
     if (pageNumber || pageAmount) {
@@ -239,8 +620,7 @@ function loadTable(tableId, pageNumber, pageAmount) {
 
     // things get funky here if we have a table with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var table = $(`table#${tableId}`);
-    var url = `/components/table/${tableId}`;
+    var url = `/elements/table/${tableId}`;
 
     if (table.attr('for')) {
         var form = $(`#${table.attr('for')}`);
@@ -252,32 +632,19 @@ function loadTable(tableId, pageNumber, pageAmount) {
         url = form.attr('method');
     }
 
+    // add current query string
+    if (window.location.search) {
+        url = `${url}${window.location.search}`;
+    }
+
     // invoke and load table content
-    $.ajax({
-        url: url,
-        method: 'post',
-        data: data,
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        success: function(res) {
-            invokeActions(res, table);
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
+    sendAjaxReq(url, data, table, true);
 }
 
 function loadAutoCompletes() {
     $(`input[pode-autocomplete='True']`).each((i, e) => {
-        $.ajax({
-            url: `/elements/autocomplete/${$(e).attr('id')}`,
-            method: 'post',
-            success: function(res) {
-                $(e).autocomplete({ source: res.Values });
-            },
-            error: function(err) {
-                console.log(err);
-            }
+        sendAjaxReq(`/elements/autocomplete/${$(e).attr('id')}`, null, null, false, (res) => {
+            $(e).autocomplete({ source: res.Values });
         });
     });
 }
@@ -303,7 +670,7 @@ function loadChart(chartId) {
 
     // things get funky here if we have a chart with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var url = `/components/chart/${chartId}`;
+    var url = `/elements/chart/${chartId}`;
 
     if (chart.attr('for')) {
         var form = $(`#${chart.attr('for')}`);
@@ -315,18 +682,12 @@ function loadChart(chartId) {
         url = form.attr('method');
     }
 
-    $.ajax({
-        url: url,
-        method: 'post',
-        data: data,
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        success: function(res) {
-            invokeActions(res, $(`canvas#${chartId}`));
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
+    // add current query string
+    if (window.location.search) {
+        url = `${url}${window.location.search}`;
+    }
+
+    sendAjaxReq(url, data, chart, true);
 }
 
 function invokeActions(actions, sender) {
@@ -347,6 +708,10 @@ function invokeActions(actions, sender) {
         switch (_type) {
             case 'table':
                 actionTable(action, sender);
+                break;
+
+            case 'tablerow':
+                actionTableRow(action, sender);
                 break;
 
             case 'chart':
@@ -391,6 +756,14 @@ function invokeActions(actions, sender) {
 
             case 'badge':
                 actionBadge(action);
+                break;
+
+            case 'tab':
+                actionTab(action);
+                break;
+
+            case 'page':
+                actionPage(action);
                 break;
 
             default:
@@ -446,49 +819,41 @@ function buildElements(elements) {
 }
 
 function bindFormSubmits() {
-    $("form.pode-component-form").submit(function(e) {
+    $("form.pode-form").unbind('submit').submit(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
+        // get the form
         var form = $(e.target);
-        var spinner = form.find('button span.spinner-border');
 
-        form.find('.is-invalid').removeClass('is-invalid');
-        if (spinner) {
-            spinner.show();
+        // submit the form
+        var data = null;
+        var opts = null;
+
+        if (form.find('input[type=file]').length > 0) {
+            data = new FormData(form[0]);
+            opts = {
+                mimeType: 'multipart/form-data',
+                contentType: false,
+                processData: false
+            }
+        }
+        else {
+            data = form.serialize();
         }
 
-        $.ajax({
-            url: form.attr('method'),
-            method: form.attr('action'),
-            data: form.serialize(),
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            success: function(res) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                invokeActions(res, form);
-            },
-            error: function(err) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                console.log(err);
-            }
-        });
+        // submit the form
+        sendAjaxReq(form.attr('method'), data, form, true, null, opts);
     });
 }
 
 function bindModalSubmits() {
-    $("div.modal-footer button.pode-modal-submit").click(function(e) {
+    $("div.modal-footer button.pode-modal-submit").unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
         // get the button
-        var button = $(e.target);
-        if (button.prop('nodeName').toLowerCase() != 'button') {
-            button = button.closest('button');
-        }
+        var button = getButton(e);
 
         // get url
         var url = button.attr('pode-url');
@@ -509,7 +874,7 @@ function bindModalSubmits() {
         if (button.attr('pode-modal-form') == 'True') {
             form = modal.find('div.modal-body form');
             formData = form.serialize();
-            form.find('.is-invalid').removeClass('is-invalid');
+            removeValidationErrors(form);
         }
 
         // get a data value
@@ -531,24 +896,7 @@ function bindModalSubmits() {
         }
 
         // invoke url
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: formData,
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            success: function(res) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                invokeActions(res, (form ?? button));
-            },
-            error: function(err) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                console.log(err);
-            }
-        });
+        sendAjaxReq(url, formData, (form ?? button), true);
     });
 }
 
@@ -562,21 +910,29 @@ function getDataValue(element) {
 }
 
 function bindCodeCopy() {
-    $('pre button.pode-code-copy').click(function(e) {
+    $('pre button.pode-code-copy').unbind('click').click(function(e) {
         var value = $(e.target).closest('pre').find('code').text().trim();
         navigator.clipboard.writeText(value);
     });
 }
 
+function getButton(event) {
+    var button = $(event.target);
+    if (!testTagName(button, 'button')) {
+        button = button.closest('button');
+    }
+
+    return button;
+}
+
 function bindButtons() {
-    $("button.pode-button").click(function(e) {
+    $("button.pode-button").unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        var button = $(e.target);
-        if (button.prop('nodeName').toLowerCase() != 'button') {
-            button = button.closest('button');
-        }
+        // get the button
+        var button = getButton(e);
+        button.tooltip('hide');
 
         // default data value
         var dataValue = getDataValue(button);
@@ -595,29 +951,13 @@ function bindButtons() {
             spinner.show();
         }
 
-        $.ajax({
-            url: `/elements/button/${button.attr('id')}`,
-            method: 'POST',
-            data: data,
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            success: function(res) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                invokeActions(res, button);
-            },
-            error: function(err) {
-                if (spinner) {
-                    spinner.hide();
-                }
-                console.log(err);
-            }
-        });
+        var url = `/elements/button/${button.attr('id')}`;
+        sendAjaxReq(url, data, button, true);
     });
 }
 
 function bindTableFilters() {
-    $("input.pode-table-filter").keyup(function(e) {
+    $("input.pode-table-filter").unbind('keyup').keyup(function(e) {
         e.preventDefault();
         filterTable($(e.target));
     });
@@ -636,7 +976,7 @@ function filterTable(filter) {
 }
 
 function bindSidebarFilter() {
-    $("input.pode-nav-filter").keyup(function(e) {
+    $("input.pode-nav-filter").unbind('keyup').keyup(function(e) {
         e.preventDefault();
 
         var input = $(e.target);
@@ -658,20 +998,27 @@ function bindSidebarFilter() {
 }
 
 function bindTableExports() {
-    $("button.pode-table-export").click(function(e) {
+    $("button.pode-table-export").unbind('click').click(function(e) {
         e.preventDefault();
+        e.stopPropagation();
 
-        var input = $(e.target);
-        var tableId = input.attr('for');
+        var button = getButton(e);
+        button.tooltip('hide');
 
-        exportTableAsCSV(tableId);
+        var tableId = button.attr('for');
+        var csv = exportTableAsCSV(tableId);
+        downloadCSV(csv, getTableFileName(tableId));
     });
 }
 
 function bindTableRefresh() {
-    $("button.pode-table-refresh").click(function(e) {
+    $("button.pode-table-refresh").unbind('click').click(function(e) {
         e.preventDefault();
-        loadTable($(e.target).attr('for'));
+        e.stopPropagation();
+
+        var button = getButton(e);
+        button.tooltip('hide');
+        loadTable(button.attr('for'));
     });
 
     $("table[pode-auto-refresh='True']").each((index, item) => {
@@ -684,10 +1031,31 @@ function bindTableRefresh() {
     });
 }
 
-function bindChartRefresh() {
-    $("button.pode-chart-refresh").click(function(e) {
+function bindTableButtons() {
+    $("button.pode-table-button").unbind('click').click(function(e) {
         e.preventDefault();
-        loadChart($(e.target).attr('for'));
+        e.stopPropagation();
+
+        var button = getButton(e);
+        button.tooltip('hide');
+
+        var tableId = button.attr('for');
+        var table = $(`table#${tableId}`);
+        var csv = exportTableAsCSV(tableId);
+
+        var url = `/elements/table/${tableId}/button/${button.attr('name')}`;
+        sendAjaxReq(url, csv, table, true, null, { contentType: 'text/csv' });
+    });
+}
+
+function bindChartRefresh() {
+    $("button.pode-chart-refresh").unbind('click').click(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var button = getButton(e);
+        button.tooltip('hide');
+        loadChart(button.attr('for'));
     });
 
     $("canvas[pode-auto-refresh='True']").each((index, item) => {
@@ -697,6 +1065,75 @@ function bindChartRefresh() {
                 loadChart($(item).attr('id'));
             }, 60000);
         }, (60 - (new Date()).getSeconds()) * 1000);
+    });
+}
+
+function actionTableRow(action, sender) {
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTableRow(action);
+            break;
+    }
+}
+
+function updateTableRow(action) {
+    if (!action.TableId || !action.Data) {
+        return;
+    }
+
+    // ensure the table exists
+    var table = $(`table#${action.TableId}`);
+    if (table.length == 0) {
+        return;
+    }
+
+    // get the table row
+    var row = null;
+    switch (action.Row.Type) {
+        case 'datavalue':
+            row = table.find(`tbody tr[pode-data-value="${action.Row.DataValue}"]`);
+            break;
+
+        case 'index':
+            row = table.find('tbody tr').eq(action.Row.Index);
+            break;
+    }
+
+    // do nothing if no row
+    if (row.length == 0) {
+        return;
+    }
+
+    // update the rows cells
+    var keys = Object.keys(action.Data);
+
+    keys.forEach((key) => {
+        var _html = '';
+        var _value = action.Data[key];
+
+        if ($.isArray(_value) || _value.ElementType) {
+            _html += buildElements(_value);
+        }
+        else {
+            _html += _value;
+        }
+
+        row.find(`td[pode-column="${key}"]`).html(_html);
+    });
+
+    // binds sort/buttons/etc
+    feather.replace();
+    $('[data-toggle="tooltip"]').tooltip();
+    bindButtons();
+
+    // setup clickable rows
+    bindTableClickableRows(action.TableId);
+}
+
+function bindTableClickableRows(tableId) {
+    $(`${tableId}.pode-table-click tbody tr`).unbind('click').click(function() {
+        var rowId = $(this).attr('pode-data-value');
+        window.location = `${window.location.href}?value=${rowId}`;
     });
 }
 
@@ -725,32 +1162,32 @@ function syncTable(action) {
     loadTable(action.ID);
 }
 
-function updateTable(component, sender) {
-    if (!component.Data) {
+function updateTable(action, sender) {
+    if (!action.Data) {
         return;
     }
 
     // convert data to array
-    if (!$.isArray(component.Data)) {
-        component.Data = [component.Data];
+    if (!$.isArray(action.Data)) {
+        action.Data = [action.Data];
     }
 
     // do nothing if no data
-    if (component.Data.length <= 0) {
+    if (action.Data.length <= 0) {
         return;
     }
 
     // get data keys for table columns
-    var keys = Object.keys(component.Data[0]);
+    var keys = Object.keys(action.Data[0]);
 
     // get custom column meta - for widths etc
     var columns = {};
-    if (component.Columns) {
-        columns = component.Columns;
+    if (action.Columns) {
+        columns = action.Columns;
     }
 
     // table meta
-    var tableId = `table#${component.ID}`;
+    var tableId = `table#${action.ID}`;
     var table = $(tableId);
 
     var tableHead = $(`${tableId} thead`);
@@ -784,11 +1221,11 @@ function updateTable(component, sender) {
     // table body
     tableBody.empty();
 
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         _value = `<tr pode-data-value="${item[dataColumn]}">`;
 
         keys.forEach((key) => {
-            _value += `<td>`;
+            _value += `<td pode-column='${key}'>`;
 
             if ($.isArray(item[key]) || item[key].ElementType) {
                 _value += buildElements(item[key]);
@@ -806,7 +1243,7 @@ function updateTable(component, sender) {
     // is the table paginated?
     var isPaginated = (table.attr('pode-paginate') == 'True');
     if (isPaginated) {
-        var paging = table.closest('.card-body').find('nav ul');
+        var paging = table.closest('div[role="table"]').find('nav ul');
         paging.empty();
 
         // previous
@@ -820,14 +1257,14 @@ function updateTable(component, sender) {
         var pageActive = '';
 
         // first page
-        pageActive = (1 == component.Paging.Number ? 'active' : '');
+        pageActive = (1 == action.Paging.Number ? 'active' : '');
         paging.append(`
             <li class="page-item">
                 <a class="page-link ${pageActive}" href="#">1</a>
             </li>`);
 
         // ...
-        if (component.Paging.Number > 4) {
+        if (action.Paging.Number > 4) {
             paging.append(`
                 <li class="page-item">
                     <a class="page-link disabled" href="#">...</a>
@@ -835,12 +1272,12 @@ function updateTable(component, sender) {
         }
 
         // pages
-        for (var i = (component.Paging.Number - 2); i <= (component.Paging.Number + 2); i++) {
-            if (i <= 1 || i >= component.Paging.Max) {
+        for (var i = (action.Paging.Number - 2); i <= (action.Paging.Number + 2); i++) {
+            if (i <= 1 || i >= action.Paging.Max) {
                 continue;
             }
 
-            pageActive = (i == component.Paging.Number ? 'active' : '');
+            pageActive = (i == action.Paging.Number ? 'active' : '');
             paging.append(`
                 <li class="page-item">
                     <a class="page-link ${pageActive}" href="#">${i}</a>
@@ -848,7 +1285,7 @@ function updateTable(component, sender) {
         }
 
         // ...
-        if (component.Paging.Number < component.Paging.Max - 3) {
+        if (action.Paging.Number < action.Paging.Max - 3) {
             paging.append(`
                 <li class="page-item">
                     <a class="page-link disabled" href="#">...</a>
@@ -856,18 +1293,18 @@ function updateTable(component, sender) {
         }
 
         // last page
-        if (component.Paging.Max > 1) {
-            pageActive = (component.Paging.Max == component.Paging.Number ? 'active' : '');
+        if (action.Paging.Max > 1) {
+            pageActive = (action.Paging.Max == action.Paging.Number ? 'active' : '');
             paging.append(`
                 <li class="page-item">
-                    <a class="page-link ${pageActive}" href="#">${component.Paging.Max}</a>
+                    <a class="page-link ${pageActive}" href="#">${action.Paging.Max}</a>
                 </li>`);
         }
 
         // next
         paging.append(`
             <li class="page-item">
-                <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${component.Paging.Max}">
+                <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${action.Paging.Max}">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>`);
@@ -884,24 +1321,18 @@ function updateTable(component, sender) {
     filterTable(table.closest('div.card-body').find('input.pode-table-filter'));
 
     // setup clickable rows
-    $(`${tableId}.pode-table-click tbody tr`).click(function() {
-        var dataValue = $(this).attr('pode-data-value');
-        window.location = `${window.location.href}?value=${dataValue}`;
-    });
+    bindTableClickableRows(tableId);
 }
 
-function writeTable(component, sender) {
+function writeTable(action, sender) {
     var senderId = getId(sender);
     var tableId = `table_${senderId}`;
-
-    // card
-    var card = sender.closest('.card-body');
 
     // create table
     var table = $(`table#${tableId}`);
     if (table.length == 0) {
-        card.append(`
-            <table id="${tableId}" class="table table-striped table-sm" pode-sort="${component.Sort}">
+        sender.after(`
+            <table id="${tableId}" class="table table-striped table-sm" pode-sort="${action.Sort}">
                 <thead></thead>
                 <tbody></tbody>
             </table>
@@ -909,8 +1340,8 @@ function writeTable(component, sender) {
     }
 
     // update
-    component.ID = tableId;
-    updateTable(component, sender);
+    action.ID = tableId;
+    updateTable(action, sender);
 }
 
 function getId(element) {
@@ -927,6 +1358,10 @@ function getTagName(element) {
     }
 
     return $(element).prop('nodeName').toLowerCase();
+}
+
+function testTagName(element, tagName) {
+    return (getTagName(element) == tagName.toLowerCase());
 }
 
 function actionForm(action) {
@@ -990,7 +1425,16 @@ function actionText(action) {
         return;
     }
 
-    text.text(action.Value);
+    text = text.find('.pode-text') ?? text;
+    text.text(decodeHTML(action.Value));
+}
+
+function decodeHTML(value) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = value;
+    value = textArea.value;
+    textArea.remove();
+    return value;
 }
 
 function actionCheckbox(action) {
@@ -1051,7 +1495,7 @@ function actionValidation(action, sender) {
     var validationId = `div#${$(input).attr('id')}_validation`;
     $(validationId).text(action.Message);
 
-    $(input).addClass('is-invalid');
+    setValidationError(input);
 }
 
 function actionTextbox(action, sender) {
@@ -1063,25 +1507,25 @@ function actionTextbox(action, sender) {
     }
 }
 
-function updateTextbox(component) {
-    if (!component.Data) {
+function updateTextbox(action) {
+    if (!action.Data) {
         return;
     }
 
-    if (component.AsJson) {
-        component.Data = JSON.stringify(component.Data, null, 4);
+    if (action.AsJson) {
+        action.Data = JSON.stringify(action.Data, null, 4);
     }
 
-    var txtId = `input#${component.ID}`;
-    if (component.Multiline) {
-        txtId = `textarea#${component.ID}`;
+    var txtId = `input#${action.ID}`;
+    if (action.Multiline) {
+        txtId = `textarea#${action.ID}`;
     }
 
     var txt = $(txtId);
-    txt.val(component.Data);
+    txt.val(action.Data);
 }
 
-function writeTextbox(component, sender) {
+function writeTextbox(action, sender) {
     var senderId = getId(sender);
     var txtId = `txt_${senderId}`;
 
@@ -1091,14 +1535,15 @@ function writeTextbox(component, sender) {
 
     // default attrs
     var readOnly = '';
-    if (component.ReadOnly) {
+    if (action.ReadOnly) {
         readOnly ='readonly';
     }
 
-    if (component.Multiline) {
+    // build the element
+    if (action.Multiline) {
         txt = $(`textarea#${txtId}`);
         if (txt.length == 0) {
-            element = `<textarea class='form-control' id='${txtId}' rows='${component.Height}' ${readOnly}></textarea>`;
+            element = `<textarea class='form-control' id='${txtId}' rows='${action.Height}' ${readOnly}></textarea>`;
         }
     }
     else {
@@ -1109,17 +1554,16 @@ function writeTextbox(component, sender) {
     }
 
     if (element) {
-        if (component.Preformat) {
+        if (action.Preformat) {
             element = `<pre>${element}</pre>`;
         }
 
-        var card = sender.closest('.card-body');
-        card.append(element);
+        sender.after(element);
     }
 
     // update
-    component.ID = txtId;
-    updateTextbox(component);
+    action.ID = txtId;
+    updateTextbox(action);
 }
 
 function exportTableAsCSV(tableId) {
@@ -1141,14 +1585,17 @@ function exportTableAsCSV(tableId) {
         csv.push(row.join(","));
     }
 
-    // download
+    return csv.join("\n");
+}
+
+function getTableFileName(tableId) {
     var tableName = $(`table#${tableId}`).attr('name').replace(' ', '_');
-    downloadCSV(csv.join("\n"), `${tableName}.csv`);
+    return `${tableName}.csv`
 }
 
 function downloadCSV(csv, filename) {
     // the csv file
-    var csvFile = new Blob([csv], {type: "text/csv"});
+    var csvFile = new Blob([csv], { type: "text/csv" });
 
     // build a hidden download link
     var downloadLink = document.createElement('a');
@@ -1175,40 +1622,40 @@ function actionChart(action, sender) {
 
 var _charts = {};
 
-function updateChart(component, sender) {
-    if (!component.Data) {
+function updateChart(action, sender) {
+    if (!action.Data) {
         return;
     }
 
-    if (!$.isArray(component.Data)) {
-        component.Data = [component.Data];
+    if (!$.isArray(action.Data)) {
+        action.Data = [action.Data];
     }
 
-    if (component.Data.length <= 0) {
+    if (action.Data.length <= 0) {
         return;
     }
 
-    var canvas = $(`canvas#${component.ID}`)
+    var canvas = $(`canvas#${action.ID}`)
     var _append = (canvas.attr('pode-append') == 'True');
 
     // apend new data, rather than rebuild the chart
-    if (_append && _charts[component.ID]) {
-        appendToChart(canvas, component);
+    if (_append && _charts[action.ID]) {
+        appendToChart(canvas, action);
     }
 
     // build the chart
     else {
-        createTheChart(canvas, component, sender);
+        createTheChart(canvas, action, sender);
     }
 }
 
-function appendToChart(canvas, component) {
-    var _chart = _charts[component.ID];
+function appendToChart(canvas, action) {
+    var _chart = _charts[action.ID];
     var _max = canvas.attr('pode-max');
     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
     // labels (x-axis)
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         if (_timeLabels) {
             _chart.canvas.data.labels.push(getTimeString());
         }
@@ -1220,7 +1667,7 @@ function appendToChart(canvas, component) {
     _chart.canvas.data.labels = truncateArray(_chart.canvas.data.labels, _max);
 
     // data (y-axis)
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         item.Values.forEach((set, index) => {
             _chart.canvas.data.datasets[index].data.push(set.Value);
         });
@@ -1246,17 +1693,17 @@ function truncateArray(array, maxItems) {
     return array.slice(array.length - maxItems, array.length);
 }
 
-function createTheChart(canvas, component, sender) {
+function createTheChart(canvas, action, sender) {
     // remove chart
-    var _chart = _charts[component.ID];
+    var _chart = _charts[action.ID];
     if (_chart) {
         _chart.canvas.destroy();
     }
 
     // get the chart's canvas and type
-    var ctx = document.getElementById(component.ID).getContext('2d');
-    var chartType = (canvas.attr('pode-chart-type') || component.ChartType);
-    var theme = $('body').attr('pode-theme');
+    var ctx = document.getElementById(action.ID).getContext('2d');
+    var chartType = (canvas.attr('pode-chart-type') || action.ChartType);
+    var theme = getPodeTheme();
     var _append = (canvas.attr('pode-append') == 'True');
     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
@@ -1274,7 +1721,7 @@ function createTheChart(canvas, component, sender) {
 
     // x-axis labels
     var xAxis = [];
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         if (_timeLabels) {
             xAxis = xAxis.concat(getTimeString());
         }
@@ -1285,14 +1732,14 @@ function createTheChart(canvas, component, sender) {
 
     // y-axis labels - need to support datasets
     var yAxises = {};
-    component.Data[0].Values.forEach((item) => {
+    action.Data[0].Values.forEach((item) => {
         yAxises[item.Key] = {
             data: [],
             label: item.Key
         };
     });
 
-    component.Data.forEach((item) => {
+    action.Data.forEach((item) => {
         item.Values.forEach((set) => {
             yAxises[set.Key].data = yAxises[set.Key].data.concat(set.Value);
         });
@@ -1350,7 +1797,7 @@ function createTheChart(canvas, component, sender) {
     });
 
     // save chart for later appending, or resetting
-    _charts[component.ID] = {
+    _charts[action.ID] = {
         canvas: chart,
         append: _append
     };
@@ -1420,22 +1867,19 @@ function getChartColourPalette(theme) {
     ]);
 }
 
-function writeChart(component, sender) {
+function writeChart(action, sender) {
     var senderId = getId(sender);
     var chartId = `chart_${senderId}`;
-
-    // card
-    var card = sender.closest('.card-body');
 
     // create canvas
     var canvas = $(`canvas#${chartId}`);
     if (canvas.length == 0) {
-        card.append(`<canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${component.ChartType}"></canvas>`);
+        sender.after(`<canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${action.ChartType}"></canvas>`);
     }
 
     // update
-    component.ID = chartId;
-    updateChart(component, sender);
+    action.ID = chartId;
+    updateChart(action, sender);
 }
 
 function getTimeString() {
@@ -1459,7 +1903,12 @@ function buildButton(element) {
 }
 
 function buildIcon(element) {
-    return `<span data-feather='${element.Name.toLowerCase()}'></span>`;
+    var colour = '';
+    if (element.Colour) {
+        colour = `style="color:${element.Colour};"`
+    }
+
+    return `<span data-feather='${element.Name.toLowerCase()}' ${colour}></span>`;
 }
 
 function buildBadge(element) {
@@ -1467,7 +1916,12 @@ function buildBadge(element) {
 }
 
 function buildSpinner(element) {
-    return `<span class="spinner-border spinner-border-sm" role="status"></span>`;
+    var colour = '';
+    if (element.Colour) {
+        colour = `style="color:${element.Colour};"`
+    }
+
+    return `<span class="spinner-border spinner-border-sm" role="status" ${colour}></span>`;
 }
 
 function buildLink(element) {
@@ -1539,4 +1993,28 @@ function actionBadge(action) {
         badge.removeClass();
         badge.addClass(`badge badge-${action.ColourType}`);
     }
+}
+
+function actionTab(action) {
+    if (!action) {
+        return;
+    }
+
+    moveTab(action.ID ?? `tab_${action.Name}`);
+}
+
+function moveTab(tabId) {
+    $(`a.nav-link#${tabId}`).click();
+}
+
+function actionPage(action) {
+    if (!action) {
+        return;
+    }
+
+    refreshPage();
+}
+
+function refreshPage() {
+    window.location.reload();
 }

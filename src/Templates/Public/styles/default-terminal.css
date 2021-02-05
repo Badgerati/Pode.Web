@@ -13,6 +13,10 @@ nav#sidebarMenu {
     color: #33ff00 !important;
 }
 
+.welcome-msg img {
+    border-color: #33ff00;
+}
+
 .media {
     border-color: #33ff00;
     background-color: #111;
@@ -201,28 +205,30 @@ pre code {
     border-color: #33ff00 !important;
 }
 
-.table-dark {
+body[pode-theme='terminal'] .table {
     color: #33ff00 !important;
 }
 
-.table-dark thead th {
+body[pode-theme='terminal'] .table thead th {
     background-color: #000 !important;
     color: #33ff00 !important;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(odd) {
+body[pode-theme='terminal'] .table.table-striped tbody tr:nth-of-type(odd) {
     background-color: #111 !important;
 }
 
-.table-dark.table-striped tbody tr:nth-of-type(even) {
+body[pode-theme='terminal'] .table.table-striped tbody tr:nth-of-type(even) {
     background-color: #000 !important;
 }
 
-.table-dark td, .table-dark th, .table-dark thead th {
+body[pode-theme='terminal'] .table td,
+body[pode-theme='terminal'] .table th,
+body[pode-theme='terminal'] .table thead th {
     border-color: #33ff00 !important;
 }
 
-.table-dark.table-striped tbody tr:hover {
+body[pode-theme='terminal'] .table.table-striped tbody tr:hover {
     background-color: #000 !important;
     color: #ffb000;
 }
@@ -251,8 +257,10 @@ nav .pagination .page-link {
     color: #33ff00 !important;
 }
 
-nav .pagination .page-link.active, nav .pagination .page-link:hover {
-    background-color: #222 !important;
+nav .pagination .page-link.active,
+nav .pagination .page-link:hover {
+    background-color: #33ff00 !important;
+    color: #111 !important;
 }
 
 hr {
@@ -261,10 +269,83 @@ hr {
 
 .jumbotron {
     background-color: #33ff00;
-    border: darkgreen 1px solid;
+    border-color: darkgreen;
     color: #222;
 }
 
 .jumbotron hr {
     border-color: #222;
+}
+
+.footer.powered-by {
+    background-color: #111;
+    border-color: #33ff00;
+}
+
+.footer.powered-by .text-muted {
+    color: #33ff00 !important;
+}
+
+.pode-container:not([pode-transparent='True']) {
+    background-color: #111;
+    border-color: #33ff00;
+}
+
+.pode-container {
+    color: #33ff00;
+}
+
+.carousel {
+    background-color: #111;
+    border-color: #33ff00;
+    color: #33ff00;
+}
+
+.carousel .carousel-caption {
+    color: #33ff00;
+}
+
+.carousel .carousel-indicators li {
+    background-color: #33ff00;
+}
+
+.carousel .carousel-indicators li.active {
+    background-color: #ffb000;
+}
+
+.step .bs-stepper-circle {
+    background-color: #33ff00;
+    color: #222;
+}
+
+.step.active .bs-stepper-circle {
+    background-color: #ffb000;
+}
+
+.bs-stepper-line {
+    background-color: #33ff00;
+}
+
+div#pode-social a {
+    color: #33ff00;
+}
+
+div#pode-social a:hover {
+    color: #ffb000;
+}
+
+.footer.powered-by a {
+    color: #ffb000 !important;
+}
+
+input[type=date]::-webkit-calendar-picker-indicator,
+input[type=time]::-webkit-calendar-picker-indicator,
+input[type=datetime-local]::-webkit-calendar-picker-indicator {
+    filter: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(120deg);
+}
+
+input[type=date]::-webkit-calendar-picker-indicator:hover,
+input[type=time]::-webkit-calendar-picker-indicator:hover,
+input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(240deg);
 }

@@ -1,0 +1,28 @@
+$(if (![string]::IsNullOrWhiteSpace($data.Message)) {
+    "<p class='card-text'>$($data.Message)</p>"
+})
+
+<div role='chart' class="$($data.CssClasses)">
+    <div role='controls'>
+        <div class="btn-group mr-2">
+            $(if (!$data.AutoRefresh -and !$data.NoRefresh) {
+                "<button type='button' class='btn btn btn-outline-secondary pode-chart-refresh' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
+                    <span data-feather='refresh-cw'></span>
+                </button>"
+            })
+        </div>
+    </div>
+
+    <canvas
+        class="my-4 w-100"
+        id="$($data.ID)"
+        name="$($data.Name)"
+        style="$(if ($data.Height -gt 0) { "height:$($data.Height)px;" })"
+        pode-chart-type="$($data.ChartType)"
+        pode-dynamic="$($data.IsDynamic)"
+        pode-append="$($data.Append)"
+        pode-max="$($data.MaxItems)"
+        pode-time-labels="$($data.TimeLabels)"
+        pode-auto-refresh="$($data.AutoRefresh)">
+    </canvas>
+</div>

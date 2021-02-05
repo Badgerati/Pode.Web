@@ -1,0 +1,16 @@
+<div id="$($data.ID)" class="pode-code-editor $($data.CssClasses)">
+    $(if ($data.Uploadable) {
+        "<button class='btn btn-inbuilt-theme pode-upload mBottom1' type='button' title='Upload' data-toggle='tooltip' for='$($data.ID)'>
+            <span data-feather='upload' class='mRight02'></span>
+        </button>"
+    })
+
+    <div
+        class="code-editor"
+        for="$($data.ID)"
+        pode-language="$($data.Language)"
+        pode-theme="$($data.Theme)"
+        pode-read-only="$($data.ReadOnly)"
+        pode-value="$($data.Value)">
+    </div>
+</div>

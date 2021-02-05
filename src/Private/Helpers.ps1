@@ -29,7 +29,7 @@ function Get-PodeWebAuthUsername
     $user = $AuthData.User
 
     # check username prop
-    $prop = Get-PodeWebState -Name 'auth-username-prop'
+    $prop = (Get-PodeWebState -Name 'auth-props').Username
     if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
         return $user.$prop
     }
@@ -73,7 +73,7 @@ function Get-PodeWebAuthGroups
     $user = $AuthData.User
 
     # check group prop
-    $prop = Get-PodeWebState -Name 'auth-group-prop'
+    $prop = (Get-PodeWebState -Name 'auth-props').Group
     if (![string]::IsNullOrWhiteSpace($prop) -and !(Test-PodeWebArrayEmpty -Array $user.$prop)) {
         return @($user.$prop)
     }
@@ -97,6 +97,88 @@ function Get-PodeWebAuthGroups
     return @()
 }
 
+function Get-PodeWebAuthAvatarUrl
+{
+    param(
+        [Parameter()]
+        $AuthData
+    )
+
+    # nothing if no auth data
+    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+        return [string]::Empty
+    }
+
+    $user = $AuthData.User
+
+    # nothing if no property set
+    $prop = (Get-PodeWebState -Name 'auth-props').Avatar
+    if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
+        return $user.$prop
+    }
+
+    # avatar url
+    if (![string]::IsNullOrWhiteSpace($user.AvatarUrl)) {
+        return $user.AvatarUrl
+    }
+
+    return [string]::Empty
+}
+
+function Get-PodeWebAuthTheme
+{
+    param(
+        [Parameter()]
+        $AuthData
+    )
+
+    # nothing if no auth data
+    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+        return $null
+    }
+
+    $user = $AuthData.User
+
+    # nothing if no property set
+    $prop = (Get-PodeWebState -Name 'auth-props').Theme
+    if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
+        return $user.$prop
+    }
+
+    # theme
+    if (![string]::IsNullOrWhiteSpace($user.Theme)) {
+        return $user.Theme
+    }
+
+    return [string]::Empty
+}
+
+function Get-PodeWebInbuiltThemes
+{
+    return @('Auto', 'Light', 'Dark', 'Terminal', 'Custom')
+}
+
+function Test-PodeWebThemeCustom
+{
+    param(
+        [Parameter()]
+        [string]
+        $Name
+    )
+
+    $inbuildThemes = Get-PodeWebInbuiltThemes
+    if ($Name -iin $inbuildThemes) {
+        return $false
+    }
+
+    $customThemes = Get-PodeWebState -Name 'custom-themes'
+    if ($customThemes.Themes.Keys -icontains $Name) {
+        return $true
+    }
+
+    return $false
+}
+
 function Test-PodeWebArrayEmpty
 {
     param(
@@ -105,35 +187,6 @@ function Test-PodeWebArrayEmpty
     )
 
     return (($null -eq $Array) -or (@($Array).Length -eq 0))
-}
-
-function Test-PodeWebComponent
-{
-    param(
-        [Parameter()]
-        [hashtable[]]
-        $Components,
-
-        [Parameter()]
-        [string]
-        $Type
-    )
-
-    if (($null -eq $Components) -or ($Components.Length -eq 0)) {
-        return $false
-    }
-
-    if ([string]::IsNullOrWhiteSpace($Type)) {
-        return $true
-    }
-
-    foreach ($comp in $Components) {
-        if ($comp.ComponentType -ieq $Type) {
-            return $true
-        }
-    }
-
-    return $false
 }
 
 function Test-PodeWebPageAccess
@@ -229,6 +282,17 @@ function Get-PodeWebState
     return (Get-PodeState -Name "pode.web.$($Name)")
 }
 
+function Get-PodeWebCookie
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name
+    )
+
+    return (Get-PodeCookie -Name "pode.web.$($Name)")
+}
+
 function Get-PodeWebRandomName
 {
     param(
@@ -273,8 +337,8 @@ function Test-PodeWebRoute
 
     $route = (Get-PodeRoute -Method Post -Path $Path)
 
-    if ([string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ComponentData.Name) -and ($null -ne $route)) {
-        throw "A component/element with ID '$(Split-Path -Path $Path -Leaf)' already exists"
+    if ([string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ElementData.Name) -and ($null -ne $route)) {
+        throw "An element with ID '$(Split-Path -Path $Path -Leaf)' already exists"
     }
 
     return ($null -ne $route)
@@ -306,10 +370,10 @@ function Get-PodeWebElementId
         return $Id
     }
 
-    # prepend the parent component's ID
+    # prepend the parent element's ID
     $_id = [string]::Empty
-    if (![string]::IsNullOrWhiteSpace($ComponentData.ID)) {
-        $_id = "$($ComponentData.ID)_"
+    if (![string]::IsNullOrWhiteSpace($ElementData.ID)) {
+        $_id = "$($ElementData.ID)_"
     }
 
     # start with element tag
@@ -355,6 +419,10 @@ function Convert-PodeWebAlertTypeToClass
             return 'success'
         }
 
+        'success' {
+            return 'success'
+        }
+
         'note' {
             return 'secondary'
         }
@@ -394,6 +462,10 @@ function Convert-PodeWebAlertTypeToIcon
             return 'thumbs-up'
         }
 
+        'success' {
+            return 'check-circle'
+        }
+
         'note' {
             return 'book-open'
         }
@@ -403,11 +475,11 @@ function Convert-PodeWebAlertTypeToIcon
         }
 
         'important' {
-            return 'paperclip'
+            return 'bell'
         }
 
         default {
-            return 'paperclip'
+            return 'bell'
         }
     }
 }
@@ -459,17 +531,83 @@ function Convert-PodeWebColourToClass
     }
 }
 
-function Test-PodeWebElements
+function Test-PodeWebContent
 {
     param(
         [Parameter()]
         [hashtable[]]
-        $Elements
+        $Content,
+
+        [Parameter()]
+        [string[]]
+        $ComponentType,
+
+        [Parameter()]
+        [string[]]
+        $ElementType,
+
+        [Parameter()]
+        [string[]]
+        $LayoutType
     )
 
-    foreach ($element in $Elements) {
-        if ([string]::IsNullOrWhiteSpace($element.ElementType)) {
-            throw "Invalid element supplied: $($element)"
+    # if no content, then it's true
+    if (Test-PodeWebArrayEmpty -Array $Content) {
+        return $true
+    }
+
+    # ensure the content ComponentTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $ComponentType)) {
+        foreach ($item in $Content) {
+            if ($item.ComponentType -inotin $ComponentType) {
+                return $false
+            }
+        }
+    }
+
+    # ensure the content ElementTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $ElementType)) {
+        foreach ($item in $Content) {
+            if ($item.ElementType -inotin $ElementType) {
+                return $false
+            }
+        }
+    }
+
+    # ensure the content LayoutTypes are correct
+    if (!(Test-PodeWebArrayEmpty -Array $LayoutType)) {
+        foreach ($item in $Content) {
+            if ($item.LayoutType -inotin $LayoutType) {
+                return $false
+            }
+        }
+    }
+
+    return $true
+}
+
+function Remove-PodeWebRoute
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Method,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Path,
+
+        [Parameter()]
+        [string[]]
+        $EndpointName
+    )
+
+    if (Test-PodeIsEmpty $EndpointName) {
+        Remove-PodeRoute -Method $Method -Path $Path
+    }
+    else {
+        foreach ($endpoint in $EndpointName) {
+            Remove-PodeRoute -Method $Method -Path $Path -EndpointName $endpoint
         }
     }
 }
