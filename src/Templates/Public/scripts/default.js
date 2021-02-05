@@ -1425,7 +1425,16 @@ function actionText(action) {
         return;
     }
 
-    text.text(action.Value);
+    text = text.find('.pode-text') ?? text;
+    text.text(decodeHTML(action.Value));
+}
+
+function decodeHTML(value) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = value;
+    value = textArea.value;
+    textArea.remove();
+    return value;
 }
 
 function actionCheckbox(action) {

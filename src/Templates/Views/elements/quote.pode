@@ -2,7 +2,7 @@ $(
     $value = $data.Value
 
     $quote = "<blockquote class='blockquote text-$($data.Alignment) $($data.CssClasses)' id='$($data.ID)'>
-        <p class='mb-0'>$($value)</p>"
+        <p class='pode-text mb-0'>$($value)</p>"
 
     if (![string]::IsNullOrWhiteSpace($data.Source)) {
         $src = $data.Source
