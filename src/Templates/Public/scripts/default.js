@@ -1133,7 +1133,7 @@ function updateTableRow(action) {
 function bindTableClickableRows(tableId) {
     $(`${tableId}.pode-table-click tbody tr`).unbind('click').click(function() {
         var rowId = $(this).attr('pode-data-value');
-        window.location = `${window.location.href}?value=${rowId}`;
+        window.location = `${window.location.origin}${window.location.pathname}?value=${rowId}`;
     });
 }
 
