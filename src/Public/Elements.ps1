@@ -1070,7 +1070,7 @@ function New-PodeWebButton
                 $result = @()
             }
 
-            if ($WebEvent.Response.ContentLength64 -eq 0) {
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
 
@@ -1668,7 +1668,7 @@ function Add-PodeWebTableButton
                 $result = @()
             }
 
-            if ($WebEvent.Response.ContentLength64 -eq 0) {
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
         }
