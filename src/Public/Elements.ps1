@@ -1352,7 +1352,7 @@ function New-PodeWebChart
                 $result = @()
             }
 
-            if (!(($result -is [hashtable]) -and ($result.Operation -ieq 'Output') -and ($result.ElementType -ieq 'Chart'))) {
+            if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $result = ($result | Out-PodeWebChart -Id $using:Id)
             }
 
@@ -1577,7 +1577,7 @@ function New-PodeWebTable
                 $result = @()
             }
 
-            if (!(($result -is [hashtable]) -and ($result.Operation -ieq 'Output') -and ($result.ElementType -ieq 'Table'))) {
+            if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $paginate = $ElementData.Paging.Enabled
                 $result = ($result | Out-PodeWebTable -Id $using:Id -Columns $ElementData.Columns -Paginate:$paginate)
             }
