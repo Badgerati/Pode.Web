@@ -1163,7 +1163,7 @@ function syncTable(action) {
 }
 
 function updateTable(action, sender) {
-    if (!action.Data) {
+    if (action.Data == null) {
         return;
     }
 
@@ -1172,8 +1172,16 @@ function updateTable(action, sender) {
         action.Data = [action.Data];
     }
 
-    // do nothing if no data
+    // table meta
+    var tableId = `table#${action.ID}`;
+    var table = $(tableId);
+
+    var tableHead = $(`${tableId} thead`);
+    var tableBody = $(`${tableId} tbody`);
+
+    // clear the table if no data
     if (action.Data.length <= 0) {
+        tableBody.empty();
         return;
     }
 
@@ -1185,13 +1193,6 @@ function updateTable(action, sender) {
     if (action.Columns) {
         columns = action.Columns;
     }
-
-    // table meta
-    var tableId = `table#${action.ID}`;
-    var table = $(tableId);
-
-    var tableHead = $(`${tableId} thead`);
-    var tableBody = $(`${tableId} tbody`);
 
     // get senderId if present, and set on table as 'for'
     var senderId = getId(sender);
