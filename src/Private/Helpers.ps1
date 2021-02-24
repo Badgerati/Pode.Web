@@ -611,3 +611,21 @@ function Remove-PodeWebRoute
         }
     }
 }
+
+function Test-PodeWebOutputWrapped
+{
+    param(
+        [Parameter()]
+        $Output
+    )
+
+    if ($null -eq $Output) {
+        return $false
+    }
+
+    if ($Output -is [array]) {
+        $Output = $Output[0]
+    }
+
+    return (($Output -is [hashtable]) -and ($Output.Operation -ieq 'Output') -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
+}

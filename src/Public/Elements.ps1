@@ -1352,7 +1352,7 @@ function New-PodeWebChart
                 $result = @()
             }
 
-            if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
+            if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $result = ($result | Out-PodeWebChart -Id $using:Id)
             }
 
@@ -1577,7 +1577,7 @@ function New-PodeWebTable
                 $result = @()
             }
 
-            if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
+            if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $paginate = $ElementData.Paging.Enabled
                 $result = ($result | Out-PodeWebTable -Id $using:Id -Columns $ElementData.Columns -Paginate:$paginate)
             }
