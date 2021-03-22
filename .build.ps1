@@ -8,7 +8,10 @@ task Build {
 
 task MoveLibs {
     $libs_path = "$($dest_path)/libs"
-    Remove-Item -Path $libs_path -Recurse -Force | Out-Null
+    if (Test-Path $libs_path) {
+        Remove-Item -Path $libs_path -Recurse -Force | Out-Null
+    }
+
     New-Item -Path $libs_path -ItemType Directory -Force | Out-Null
 
     # jquery
