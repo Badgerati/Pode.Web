@@ -6,7 +6,7 @@
 [![Gitter](https://badges.gitter.im/Badgerati/Pode.svg)](https://gitter.im/Badgerati/Pode?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![PowerShell](https://img.shields.io/powershellgallery/dt/pode.web.svg?label=PowerShell&colorB=085298)](https://www.powershellgallery.com/packages/Pode.Web)
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (version 2.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.2.0+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
 
@@ -15,8 +15,6 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 ## Libraries
 
 The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
-
-At present these are loaded using the jsDelivr CDN.
 
 > Note: where a `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
 
