@@ -130,7 +130,10 @@ task MoveLibs {
     }
 
     $vs_maps_path = "$($dest_path)/min-maps/vs"
-    Remove-Item -Path $vs_maps_path -Recurse -Force | Out-Null
+    if (Test-Path $vs_maps_path) {
+        Remove-Item -Path $vs_maps_path -Recurse -Force | Out-Null
+    }
+
     New-Item -Path "$($vs_maps_path)/editor" -ItemType Directory -Force | Out-Null
     New-Item -Path "$($vs_maps_path)/base/worker" -ItemType Directory -Force | Out-Null
 
