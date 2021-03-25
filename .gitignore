@@ -7,6 +7,8 @@ ps_modules/
 docs/[Ff]unctions/
 examples/state.json
 pkg/
+yarn.lock
+min-maps/
 
 
 # Code Runner

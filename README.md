@@ -6,7 +6,7 @@
 [![Gitter](https://badges.gitter.im/Badgerati/Pode.svg)](https://gitter.im/Badgerati/Pode?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![PowerShell](https://img.shields.io/powershellgallery/dt/pode.web.svg?label=PowerShell&colorB=085298)](https://www.powershellgallery.com/packages/Pode.Web)
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (version 2.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.2.0+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
 
@@ -16,9 +16,33 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 
 The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
-At present these are loaded using the jsDelivr CDN.
+To speed-up loading of pages, enable caching within your `server.psd1` file:
+
+```powershell
+@{
+    Web = @{
+        Static = @{
+            Cache = @{
+                Enable = $true
+            }
+        }
+    }
+}
+```
 
 > Note: where a `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
+
+## Contributing
+
+Pull Requests, Bug Reports and Feature Requests are welcome! Feel free to help out with Issues and Projects!
+
+To build Pode.Web, before running any examples, run the following:
+
+```powershell
+Invoke-Build Build
+```
+
+To work on issues you can fork Pode.Web, and then open a Pull Request for approval. Pull Requests should be made against the `develop` branch. Each Pull Request should also have an appropriate issue created.
 
 ## Usage
 

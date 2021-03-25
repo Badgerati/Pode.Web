@@ -16,7 +16,7 @@ Chart.Legend.prototype.afterFit = function() {
     $('[data-toggle="tooltip"]').tooltip();
 })();
 (function() {
-    hljs.initHighlightingOnLoad();
+    hljs.highlightAll();
 })();
 
 $(document).ready(() => {
