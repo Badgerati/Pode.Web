@@ -32,6 +32,18 @@ To speed-up loading of pages, enable caching within your `server.psd1` file:
 
 > Note: where a `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
 
+## Contributing
+
+Pull Requests, Bug Reports and Feature Requests are welcome! Feel free to help out with Issues and Projects!
+
+To build Pode.Web, before running any examples, run the following:
+
+```powershell
+Invoke-Build Build
+```
+
+To work on issues you can fork Pode.Web, and then open a Pull Request for approval. Pull Requests should be made against the `develop` branch. Each Pull Request should also have an appropriate issue created.
+
 ## Usage
 
 To use the Pode.Web templates, you first need to call `Use-PodeWebTemplates`; you can supply a Title, Logo, FavIcon, or change the Theme:
