@@ -16,6 +16,20 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 
 The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
+To speed-up loading of pages, enable caching within your `server.psd1` file:
+
+```powershell
+@{
+    Web = @{
+        Static = @{
+            Cache = @{
+                Enable = $true
+            }
+        }
+    }
+}
+```
+
 > Note: where a `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
 
 ## Usage
