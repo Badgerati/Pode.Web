@@ -232,7 +232,10 @@ function Add-PodeWebPage
         $NoAuthentication,
 
         [switch]
-        $NoTitle
+        $NoTitle,
+
+        [switch]
+        $NoBackArrow
     )
 
     # ensure layouts are correct
@@ -255,6 +258,7 @@ function Add-PodeWebPage
         Name = $Name
         Title = $Title
         NoTitle = $NoTitle.IsPresent
+        NoBackArrow = $NoBackArrow.IsPresent
         Icon = $Icon
         Group = $Group
         Access = @{
@@ -279,7 +283,13 @@ function Add-PodeWebPage
     # add the page route
     Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
         $global:PageData = $using:pageMeta
-        $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
+
+        if (!$global:PageData.NoBackArrow) {
+            $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
+        }
+        else {
+            $global:PageData.ShowBack = $false
+        }
 
         # get auth details of a user
         $authData = Get-PodeWebAuthData

@@ -1482,6 +1482,10 @@ function New-PodeWebTable
         [string[]]
         $EndpointName,
 
+        [Parameter()]
+        [scriptblock]
+        $ClickScriptBlock,
+
         [switch]
         $Filter,
 
@@ -1523,6 +1527,10 @@ function New-PodeWebTable
         $CsvFilePath = Join-Path (Get-PodeServerPath) $CsvFilePath
     }
 
+    if (!$Click -and ($null -ne $ClickScriptBlock)) {
+        throw "Cannot set a -ClickScriptBlock without passing -Click"
+    }
+
     $element = @{
         ComponentType = 'Element'
         ElementType = 'Table'
@@ -1536,6 +1544,7 @@ function New-PodeWebTable
         Filter = $Filter.IsPresent
         Sort = $Sort.IsPresent
         Click = $Click.IsPresent
+        ClickIsDynamic = ($null -ne $ClickScriptBlock)
         IsDynamic = ($PSCmdlet.ParameterSetName -iin @('dynamic', 'csv'))
         NoExport = $NoExport.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
@@ -1561,6 +1570,7 @@ function New-PodeWebTable
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
+        # main table data script
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:ElementData = $using:element
@@ -1584,6 +1594,20 @@ function New-PodeWebTable
 
             Write-PodeJsonResponse -Value $result
             $global:ElementData = $null
+        }
+
+        # table row click
+        if ($null -ne $ClickScriptBlock) {
+            Add-PodeRoute -Method Post -Path "$($routePath)/click" -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+                $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Return
+                if ($null -eq $result) {
+                    $result = @()
+                }
+
+                if ($WebEvent.Response.ContentLength64 -eq 0) {
+                    Write-PodeJsonResponse -Value $result
+                }
+            }
         }
     }
 
