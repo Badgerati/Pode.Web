@@ -83,6 +83,10 @@ nav[role="pagination"] {
     float: right;
 }
 
+.breadcrumb {
+    background-color: transparent;
+}
+
 div#pode-social .feather {
     height: 22px;
     width: 22px;

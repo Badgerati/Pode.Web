@@ -150,7 +150,13 @@
                                 }
                                 $data.Page.Title
                             "</h1>
-                        </div>"
+                        </div>
+                        <nav aria-label='breadcrumb'>
+                            <ol class='breadcrumb'>
+                                <li class='breadcrumb-item active' aria-current='page'>Home</li>
+                                <li class='breadcrumb-item'><a href='#'>File</a></li>
+                            </ol>
+                        </nav>"
                     }
                     else {
                         "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2'></div>"
