@@ -52,8 +52,8 @@ function Use-PodeWebTemplates
 
     $templatePath = Get-PodeWebTemplatePath
 
-    Add-PodeStaticRoute -Path '/pode.web' -Source (Join-Path $templatePath 'Public')
-    Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-Path $templatePath 'Views')
+    Add-PodeStaticRoute -Path '/pode.web' -Source (Join-PodeWebPath $templatePath 'Public')
+    Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-PodeWebPath $templatePath 'Views')
 
     Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
@@ -204,4 +204,36 @@ function Add-PodeWebCustomTheme
     if ([string]::IsNullOrWhiteSpace($customThemes.Default)) {
         $customThemes.Default = $Name
     }
+}
+
+function Join-PodeWebPath
+{
+    param(
+        [Parameter()]
+        [string]
+        $Path,
+
+        [Parameter()]
+        [string]
+        $ChildPath,
+
+        [switch]
+        $ReplaceSlashes
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        $result = $ChildPath
+    }
+    elseif ([string]::IsNullOrWhiteSpace($ChildPath)) {
+        $result = $Path
+    }
+    else {
+        $result = (Join-Path $Path $ChildPath)
+    }
+
+    if ($ReplaceSlashes) {
+        $result = ($result -ireplace '\\', '/')
+    }
+
+    return $result
 }

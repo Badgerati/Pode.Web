@@ -26,6 +26,7 @@ $(document).ready(() => {
 
     mapElementThemes();
 
+    loadBreadcrumb();
     loadTables();
     loadCharts();
     loadAutoCompletes();
@@ -56,6 +57,56 @@ $(document).ready(() => {
     bindTabCycling();
     bindTimers();
 });
+
+function loadBreadcrumb() {
+    // get breadcrumb
+    var breadcrumb = $('nav ol.breadcrumb');
+    if (!breadcrumb) {
+        return;
+    }
+
+    breadcrumb.empty();
+
+    // get base and current value query
+    var base = getQueryStringValue('base');
+    var value = getQueryStringValue('value');
+
+    // do nothing with no values
+    if (!base && !value) {
+        return;
+    }
+
+    // add page name
+    var title = getPageTitle();
+    breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}'>${title}</a></li>`);
+
+    // add base values
+    if (base) {
+        var newBase = '';
+        var data = null;
+
+        base.split('/').forEach((i) => {
+            data = `value=${i}`;
+            if (newBase) {
+                data = `base=${newBase}&${data}`;
+            }
+
+            breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}?${data}'>${i}</a></li>`);
+
+            if (newBase) {
+                newBase = `${newBase}/${i}`;
+            }
+            else {
+                newBase = i;
+            }
+        });
+    }
+
+    // add current value
+    if (value) {
+        breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${value}</li>`);
+    }
+}
 
 function checkAutoTheme() {
     // is the them auto-switchable?
@@ -1130,18 +1181,42 @@ function updateTableRow(action) {
     bindTableClickableRows(action.TableId);
 }
 
+function getQueryStringValue(name) {
+    if (!window.location.search) {
+        return null;
+    }
+
+    return (new URLSearchParams(window.location.search)).get(name);
+}
+
 function bindTableClickableRows(tableId) {
     $(`${tableId}.pode-table-click tbody tr`).unbind('click').click(function() {
         var rowId = $(this).attr('pode-data-value');
         var table = $(tableId);
 
+        // check if we have a base path
+        var base = getQueryStringValue('base');
+        var value = getQueryStringValue('value');
+
+        if (base) {
+            base = `${base}/${value}`;
+        }
+        else {
+            base = value;
+        }
+
+        // build the data to send
+        var data = `value=${rowId}`;
+        if (base) {
+            data = `base=${base}&${data}`;
+        }
+
         if (table.attr('pode-click-dynamic') == 'True') {
             var url = `/elements/table/${table.attr('id')}/click`;
-            var data = `value=${rowId}`;
             sendAjaxReq(url, data, null, true);
         }
         else {
-            window.location = `${window.location.origin}${window.location.pathname}?value=${rowId}`;
+            window.location = `${window.location.origin}${window.location.pathname}?${data}`;
         }
     });
 }
@@ -2027,4 +2102,8 @@ function actionPage(action) {
 
 function refreshPage() {
     window.location.reload();
+}
+
+function getPageTitle() {
+    return $('#pode-page-title h1').text().trim();
 }

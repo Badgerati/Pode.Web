@@ -1524,7 +1524,7 @@ function New-PodeWebTable
     $Id = Get-PodeWebElementId -Tag Table -Id $Id -Name $Name
 
     if (![string]::IsNullOrWhiteSpace($CsvFilePath) -and $CsvFilePath.StartsWith('.')) {
-        $CsvFilePath = Join-Path (Get-PodeServerPath) $CsvFilePath
+        $CsvFilePath = Join-PodeWebPath (Get-PodeServerPath) $CsvFilePath
     }
 
     if (!$Click -and ($null -ne $ClickScriptBlock)) {
@@ -1557,20 +1557,21 @@ function New-PodeWebTable
         }
     }
 
+    # auth an endpoint
+    $auth = $null
+    if (!$NoAuthentication) {
+        $auth = (Get-PodeWebState -Name 'auth')
+    }
+
+    if (Test-PodeIsEmpty $EndpointName) {
+        $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+    }
+
+    # main table data script
     $routePath = "/elements/table/$($Id)"
     $buildRoute = (($null -ne $ScriptBlock) -or ![string]::IsNullOrWhiteSpace($CsvFilePath))
 
     if ($buildRoute -and !(Test-PodeWebRoute -Path $routePath)) {
-        $auth = $null
-        if (!$NoAuthentication) {
-            $auth = (Get-PodeWebState -Name 'auth')
-        }
-
-        if (Test-PodeIsEmpty $EndpointName) {
-            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
-        }
-
-        # main table data script
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:ElementData = $using:element
@@ -1595,18 +1596,20 @@ function New-PodeWebTable
             Write-PodeJsonResponse -Value $result
             $global:ElementData = $null
         }
+    }
 
-        # table row click
-        if ($null -ne $ClickScriptBlock) {
-            Add-PodeRoute -Method Post -Path "$($routePath)/click" -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
-                $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Return
-                if ($null -eq $result) {
-                    $result = @()
-                }
+    # table row click
+    $clickPath = "$($routePath)/click"
 
-                if ($WebEvent.Response.ContentLength64 -eq 0) {
-                    Write-PodeJsonResponse -Value $result
-                }
+    if (($null -ne $ClickScriptBlock) -and !(Test-PodeWebRoute -Path $clickPath)) {
+        Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if ($WebEvent.Response.ContentLength64 -eq 0) {
+                Write-PodeJsonResponse -Value $result
             }
         }
     }
