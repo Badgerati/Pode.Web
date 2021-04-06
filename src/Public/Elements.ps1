@@ -1144,7 +1144,11 @@ function New-PodeWebIcon
 
         [Parameter()]
         [string[]]
-        $CssClass
+        $CssClass,
+
+        [Parameter()]
+        [string]
+        $Title
     )
 
     if (![string]::IsNullOrWhiteSpace($Colour)) {
@@ -1158,6 +1162,7 @@ function New-PodeWebIcon
         Name = $Name
         Colour = $Colour
         CssClasses = ($CssClass -join ' ')
+        Title = $Title
     }
 }
 
@@ -1171,7 +1176,11 @@ function New-PodeWebSpinner
 
         [Parameter()]
         [string[]]
-        $CssClass
+        $CssClass,
+
+        [Parameter()]
+        [string]
+        $Title
     )
 
     if (![string]::IsNullOrWhiteSpace($Colour)) {
@@ -1184,6 +1193,7 @@ function New-PodeWebSpinner
         Parent = $ElementData
         Colour = $Colour
         CssClasses = ($CssClass -join ' ')
+        Title = $Title
     }
 }
 
@@ -1631,12 +1641,28 @@ function Initialize-PodeWebTableColumn
 
         [Parameter()]
         [int]
-        $Width = 0
+        $Width = 0,
+
+        [Parameter()]
+        [ValidateSet('Left', 'Right', 'Center')]
+        [string]
+        $Alignment = 'Left',
+
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Icon
     )
 
     return @{
         Key = $Key
         Width = $Width
+        Alignment = $Alignment.ToLowerInvariant()
+        Name = $Name
+        Icon = $Icon
     }
 }
 

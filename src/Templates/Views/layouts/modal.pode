@@ -1,9 +1,14 @@
-<div class="modal fade $($data.CssClasses)" id="$($data.ID)" tabindex="-1" aria-labelledby="$($data.ID)_lbl" aria-hidden="true" pode-data-value="">
+<div class="modal fade $($data.CssClasses)" id="$($data.ID)" name="$($data.Name)" tabindex="-1" aria-labelledby="$($data.ID)_lbl" aria-hidden="true" pode-data-value="">
     <div class="modal-dialog modal-dialog-scrollable pode-modal-$($data.Size.ToLowerInvariant())">
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title" id="$($data.ID)_lbl">$($data.Name)</h5>
+                <h5 class="modal-title" id="$($data.ID)_lbl">
+                    $(if (![string]::IsNullOrWhiteSpace($data.Icon)) {
+                        "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight02'></span>"
+                    })
+                    $($data.Name)
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

@@ -150,11 +150,13 @@
                                 }
                                 $data.Page.Title
                             "</h1>
-                        </div>
-                        <nav aria-label='breadcrumb'>
-                            <ol class='breadcrumb'>
-                            </ol>
-                        </nav>"
+                        </div>"
+                        if (!$data.Page.NoBreadcrumb) {
+                            "<nav aria-label='breadcrumb'>
+                                <ol class='breadcrumb'>
+                                </ol>
+                            </nav>"
+                        }
                     }
                     else {
                         "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2'></div>"

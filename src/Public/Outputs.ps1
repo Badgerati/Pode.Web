@@ -96,17 +96,22 @@ function Out-PodeWebTable
 
 function Sync-PodeWebTable
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Id')]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
-        $Id
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
     )
 
     return @{
         Operation = 'Sync'
         ElementType = 'Table'
         ID = $Id
+        Name = $Name
     }
 }
 
@@ -445,11 +450,15 @@ function Out-PodeWebCheckbox
 
 function Show-PodeWebModal
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Id')]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
 
         [Parameter()]
         [string]
@@ -464,6 +473,7 @@ function Show-PodeWebModal
         Operation = 'Show'
         ElementType = 'Modal'
         ID = $Id
+        Name = $Name
         DataValue = $DataValue
         Actions = $Actions
     }
@@ -471,17 +481,38 @@ function Show-PodeWebModal
 
 function Hide-PodeWebModal
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Id')]
     param(
-        [Parameter()]
+        [Parameter(ParameterSetName='Id')]
         [string]
-        $Id
+        $Id,
+
+        [Parameter(ParameterSetName='Name')]
+        [string]
+        $Name
     )
 
     return @{
         Operation = 'Hide'
         ElementType = 'Modal'
         ID = $Id
+        Name = $Name
+    }
+}
+
+function Show-PodeWebError
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Message
+    )
+
+    return @{
+        Operation = 'Show'
+        ElementType = 'Error'
+        Message = $Message
     }
 }
 

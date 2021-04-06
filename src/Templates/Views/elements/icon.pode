@@ -4,5 +4,10 @@ $(
         $colour = "style='color:$($data.Colour);'"
     }
 
-    "<span data-feather='$($data.Name)' class='$($data.CssClasses)' $($colour)></span>"
+    $title = [string]::Empty
+    if (![string]::IsNullOrWhiteSpace($data.Title)) {
+        $title = "title='$($data.Title)' data-toggle='tooltip'"
+    }
+
+    "<span data-feather='$($data.Name)' class='$($data.CssClasses)' $($colour) $($title)></span>"
 )

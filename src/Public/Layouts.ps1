@@ -203,6 +203,10 @@ function New-PodeWebModal
         $Content,
 
         [Parameter()]
+        [string]
+        $Icon,
+
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
         $SubmitText = 'Submit',
@@ -277,6 +281,7 @@ function New-PodeWebModal
         LayoutType = 'Modal'
         Name = $Name
         ID = $Id
+        Icon = $Icon
         Content = $Content
         CloseText = [System.Net.WebUtility]::HtmlEncode($CloseText)
         SubmitText = [System.Net.WebUtility]::HtmlEncode($SubmitText)

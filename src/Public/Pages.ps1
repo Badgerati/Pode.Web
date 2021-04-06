@@ -235,7 +235,10 @@ function Add-PodeWebPage
         $NoTitle,
 
         [switch]
-        $NoBackArrow
+        $NoBackArrow,
+
+        [switch]
+        $NoBreadcrumb
     )
 
     # ensure layouts are correct
@@ -259,6 +262,7 @@ function Add-PodeWebPage
         Title = $Title
         NoTitle = $NoTitle.IsPresent
         NoBackArrow = $NoBackArrow.IsPresent
+        NoBreadcrumb = $NoBreadcrumb.IsPresent
         Icon = $Icon
         Group = $Group
         Access = @{
