@@ -158,7 +158,7 @@
                     }
 
                     if (!$data.Page.NoBreadcrumb) {
-                        Use-PodeWebView -View $data.Breadcrumb
+                        Use-PodeWebPartialView -Path "elements/breadcrumb" -Data $data.Breadcrumb
                     })
 
                     $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Layouts })

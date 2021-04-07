@@ -338,10 +338,6 @@ function Add-PodeWebPage
                 }
             }
 
-            if ($null -eq $breadcrumb) {
-                $breadcrumb = Set-PodeWebBreadcrumb -Items @()
-            }
-
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $using:Title
