@@ -629,26 +629,3 @@ function Test-PodeWebOutputWrapped
 
     return (($Output -is [hashtable]) -and ($Output.Operation -ieq 'Output') -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
 }
-
-function Use-PodeWebView
-{
-    param(
-        [Parameter()]
-        [hashtable]
-        $View
-    )
-
-    if (($null -eq $View) -or [string]::IsNullOrEmpty($View.ComponentType)) {
-        return
-    }
-
-    switch ($View.ComponentType.ToLowerInvariant()) {
-        'layout' {
-            Use-PodeWebPartialView -Path "layouts/$($View.LayoutType.ToLowerInvariant())" -Data $View
-        }
-
-        'element' {
-            Use-PodeWebPartialView -Path "elements/$($View.ElementType.ToLowerInvariant())" -Data $View
-        }
-    }
-}
