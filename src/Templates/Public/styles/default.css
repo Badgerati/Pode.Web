@@ -125,6 +125,10 @@ span.link-divider {
     margin-top: 1px;
 }
 
+a.pode-nav-link[pode-dynamic='True'] {
+    cursor: pointer;
+}
+
 .dropdown-submenu {
     position: relative;
 }
@@ -661,6 +665,10 @@ h6 .feather, .h6 .feather {
     margin-right: 0.5em;
 }
 
+.mRight04 {
+    margin-right: 0.4em;
+}
+
 .mRight02 {
     margin-right: 0.2em;
 }
@@ -671,6 +679,10 @@ h6 .feather, .h6 .feather {
 
 .mTop-05 {
     margin-top: -0.5em;
+}
+
+.mTop-02 {
+    margin-top: -0.2em;
 }
 
 .mTop05 {

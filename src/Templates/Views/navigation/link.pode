@@ -7,14 +7,24 @@ $(
         $disabledAria = 'tabindex="-1" aria-disabled="true"'
     }
 
+    $icon = [string]::Empty
+    if (![string]::IsNullOrWhiteSpace($data.Icon)) {
+        $icon = "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight04 mTop-02'></span>"
+    }
+
+    $href = [string]::Empty
+    if (!$data.IsDynamic) {
+        $href = "href='$($data.Url)'"
+    }
+
     if ($data.InDropdown) {
         "<li>
-            <a class='dropdown-item $($disabled)' id='$($data.ID)' href='$($data.Url)' $($disabledAria)>$($data.Name)</a>
+            <a class='dropdown-item pode-nav-link $($disabled)' id='$($data.ID)' $($href) pode-dynamic='$($data.IsDynamic)' $($disabledAria)>$($icon)$($data.Name)</a>
         <li>"
     }
     else {
         "<li class='nav-item'>
-            <a class='nav-link $($disabled)' id='$($data.ID)' href='$($data.Url)' $($disabledAria)>$($data.Name)</a>
+            <a class='nav-link pode-nav-link $($disabled)' id='$($data.ID)' $($href) pode-dynamic='$($data.IsDynamic)' $($disabledAria)>$($icon)$($data.Name)</a>
         </li>"
     }
 )

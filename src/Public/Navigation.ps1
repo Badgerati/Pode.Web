@@ -1,6 +1,6 @@
 function New-PodeWebNavLink
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Url')]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -10,23 +10,74 @@ function New-PodeWebNavLink
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Url')]
         [string]
         $Url,
 
+        [Parameter(Mandatory=$true, ParameterSetName='ScriptBlock')]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
+        [string]
+        $Icon,
+
         [switch]
-        $Disabled
+        $Disabled,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication
     )
 
-    return @{
+    $Id = (Get-PodeWebElementId -Tag 'Nav-Link' -Id $Id -Name $Name)
+
+    $nav = @{
         ComponentType = 'Navigation'
         NavType = 'Link'
         Name = $Name
-        ID = (Get-PodeWebElementId -Tag 'Nav-Link' -Id $Id -Name $Name)
+        ID = $Id
         Url = $Url
+        Icon = $Icon
+        IsDynamic = ($null -ne $ScriptBlock)
         Disabled = $Disabled.IsPresent
         InDropdown = $false
     }
+
+    $routePath = "/nav/link/$($Id)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+            $global:NavData = $using:nav
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                Write-PodeJsonResponse -Value $result
+            }
+
+            $global:NavData = $null
+        }
+    }
+
+    return $nav
 }
 
 function New-PodeWebNavDropdown
@@ -45,6 +96,10 @@ function New-PodeWebNavDropdown
         [hashtable[]]
         $Items,
 
+        [Parameter()]
+        [string]
+        $Icon,
+
         [switch]
         $Disabled,
 
@@ -62,6 +117,7 @@ function New-PodeWebNavDropdown
         Name = $Name
         ID = (Get-PodeWebElementId -Tag 'Nav-Dropdown' -Id $Id -Name $Name)
         Items = $Items
+        Icon = $Icon
         Disabled = $Disabled.IsPresent
         Hover = $Hover.IsPresent
         InDropdown = $false

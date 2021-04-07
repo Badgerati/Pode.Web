@@ -35,6 +35,7 @@ $(document).ready(() => {
 
     bindSidebarFilter();
     bindMenuToggle();
+    bindNavLinks();
 
     bindFormSubmits();
     bindButtons();
@@ -567,8 +568,8 @@ function bindMenuToggle() {
         $('nav#sidebarMenu').toggleClass('hide');
         $('main[role="main"]').toggleClass('fullscreen');
     });
+    
 }
-
 function bindTablePagination() {
     $('nav .pagination a.page-link').unbind('click').click(function(e) {
         e.preventDefault();
@@ -1034,6 +1035,16 @@ function bindButtons() {
 
         var url = `/elements/button/${button.attr('id')}`;
         sendAjaxReq(url, data, button, true);
+    });
+}
+
+function bindNavLinks() {
+    $("a.pode-nav-link").unbind('click').click(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var url = `/nav/link/${$(this).attr('id')}`;
+        sendAjaxReq(url, null, null, true);
     });
 }
 

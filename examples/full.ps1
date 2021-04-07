@@ -34,11 +34,13 @@ Start-PodeServer -StatusPageExceptions Show {
     Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
     Set-PodeWebLoginPage -Authentication Example
 
-    $link1 = New-PodeWebNavLink -Name 'Home' -Url '/'
-    $link2 = New-PodeWebNavLink -Name 'Google' -Url 'https://google.com'
+    $link1 = New-PodeWebNavLink -Name 'Home' -Url '/' -Icon Home
+    $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Settings -NoAuth -ScriptBlock {
+        Show-PodeWebToast -Message "I'm from a nav link!"
+    }
     $div1 = New-PodeWebNavDivider
     $link3 = New-PodeWebNavLink -Name 'Disabled' -Url '/' -Disabled
-    $dd1 = New-PodeWebNavDropdown -Name 'Dropdown' -Items @(
+    $dd1 = New-PodeWebNavDropdown -Name 'Dropdown' -Icon 'maximize-2' -Items @(
         New-PodeWebNavLink -Name 'Twitter' -Url 'https://twitter.com'
         New-PodeWebNavLink -Name 'Facebook' -Url 'https://facebook.com' -Disabled
         New-PodeWebNavDivider
