@@ -163,6 +163,41 @@ input, textarea, select, .progress {
     color: #999 !important;
 }
 
+div#pode-nav-social a,
+div#pode-nav-items a.nav-link:not(.disabled) {
+    color: #ccc;
+}
+
+div#pode-nav-social a:hover,
+div#pode-nav-items a.nav-link:hover {
+    color: dodgerblue;
+    text-decoration: none;
+}
+
+ul.dropdown-menu {
+    background-color: #142440;
+    border: 0.1rem solid dodgerblue;
+}
+
+hr.dropdown-divider {
+    border-color: dodgerblue;
+}
+
+ul.dropdown-menu a.dropdown-item:not(.disabled) {
+    color: #ccc;
+}
+
+ul.dropdown-menu a.dropdown-item.disabled {
+    color: #777;
+}
+
+ul.dropdown-menu a.dropdown-item:hover,
+ul.dropdown-menu a.dropdown-item:active,
+ul.dropdown-menu a.dropdown-item:focus {
+    background-color: dodgerblue;
+    color: #eee;
+}
+
 pre code {
     background-color: #090d13 !important;
     border-color: #214981 !important;

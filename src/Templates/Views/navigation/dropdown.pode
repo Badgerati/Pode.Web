@@ -1,0 +1,32 @@
+$(
+    $disabled = [string]::Empty
+    $disabledAria = [string]::Empty
+
+    if ($data.Disabled) {
+        $disabled = 'disabled'
+        $disabledAria = 'tabindex="-1" aria-disabled="true"'
+    }
+
+    if ($data.InDropdown) {
+        "<li class='dropdown-submenu'>
+            <a class='dropdown-item dropdown-toggle $($disabled)' id='$($data.ID)' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' $($disabledAria)>
+                $($data.Name)
+            </a>"
+
+            "<ul class='dropdown-menu' aria-labelledby='$($data.ID)'>"
+                Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Items }
+            "</ul>
+        </li>"
+    }
+    else {
+        "<li class='nav-item dropdown' pode-hover='$($data.Hover)'>
+            <a class='nav-link dropdown-toggle $($disabled)' id='$($data.ID)' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' $($disabledAria)>
+                $($data.Name)
+            </a>"
+
+            "<ul class='dropdown-menu' aria-labelledby='$($data.ID)'>"
+                Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Items }
+            "</ul>
+        </li>"
+    }
+)

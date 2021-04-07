@@ -94,12 +94,14 @@ function Set-PodeWebLoginPage
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
         $theme = Get-PodeWebTheme
+        $navigation = Get-PodeWebNavDefault
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
             }
             Theme = $theme
+            Navigation = $navigation
             Auth = @{
                 Enabled = $true
                 Authenticated = $authData.IsAuthenticated
@@ -124,6 +126,10 @@ function Set-PodeWebHomePage
         $Title,
 
         [Parameter()]
+        [hashtable[]]
+        $Navigation,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -137,20 +143,33 @@ function Set-PodeWebHomePage
         throw 'The Home Page can only contain layouts'
     }
 
+    # does the page need auth?
     $auth = $null
     if (!$NoAuthentication) {
         $auth = (Get-PodeWebState -Name 'auth')
     }
 
+    # get the endpoints to bind
     $endpointNames = Get-PodeWebState -Name 'endpoint-name'
 
+    # set page title
     if ([string]::IsNullOrWhiteSpace($Title)) {
         $Title = 'Home'
+    }
+
+    # setup page meta
+    $pageMeta = @{
+        Name = 'Home'
+        Title = $Title
+        NoTitle = $NoTitle.IsPresent
     }
 
     Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
 
     Add-PodeRoute -Method Get -Path '/' -Authentication $auth -EndpointName $endpointNames -ScriptBlock {
+        $global:PageData = $using:pageMeta
+
+        # we either render the home page, or move to the first page if home page is blank
         $comps = $using:Layouts
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
             $pages = @(Get-PodeWebState -Name 'pages')
@@ -165,14 +184,12 @@ function Set-PodeWebHomePage
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
         $theme = Get-PodeWebTheme
+        $navigation = Get-PodeWebNavDefault -Items $using:Navigation
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = @{
-                Name = 'Home'
-                Title = $using:Title
-                NoTitle = $using:NoTitle
-            }
+            Page = $global:PageData
             Theme = $theme
+            Navigation = $navigation
             Layouts = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -182,6 +199,8 @@ function Set-PodeWebHomePage
                 Avatar = $avatar
             }
         }
+
+        $global:PageData = $null
     }
 }
 
@@ -225,6 +244,10 @@ function Add-PodeWebPage
         [Parameter()]
         [string[]]
         $EndpointName,
+
+        [Parameter()]
+        [hashtable[]]
+        $Navigation,
 
         [Parameter()]
         [Alias('NoAuth')]
@@ -301,6 +324,7 @@ function Add-PodeWebPage
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
         $theme = Get-PodeWebTheme
+        $navigation = Get-PodeWebNavDefault -Items $using:Navigation
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -342,6 +366,7 @@ function Add-PodeWebPage
                 Page = $global:PageData
                 Title = $using:Title
                 Theme = $Theme
+                Navigation = $navigation
                 Breadcrumb = $breadcrumb
                 Layouts = $layouts
                 Auth = $authMeta

@@ -5,7 +5,7 @@
     })
 
     <body id="normal-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)">
-        <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+        <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
                 <span data-feather='menu' class='mRight02'></span>
             </button>
@@ -27,17 +27,25 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div id='pode-social'>
-                $(
-                    $socials = Get-PodeWebState -Name 'social'
-                    foreach ($key in $socials.Keys) {
-                        $social = $socials[$key]
+            <div id='pode-nav'>
+                <div id='pode-nav-social'>
+                    $(
+                        $socials = Get-PodeWebState -Name 'social'
+                        foreach ($key in $socials.Keys) {
+                            $social = $socials[$key]
 
-                        "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
-                            <span data-feather='$($key.ToLowerInvariant())'></span>
-                        </a>"
-                    }
-                )
+                            "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
+                                <span data-feather='$($key.ToLowerInvariant())'></span>
+                            </a>"
+                        }
+                    )
+                </div>
+
+                <div id='pode-nav-items'>
+                    <ul class="navbar-nav mr-auto">
+                        $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Navigation })
+                    </ul>
+                </div>
             </div>
 
             $(if ($data.Auth.Enabled) {
