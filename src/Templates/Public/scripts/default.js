@@ -26,6 +26,7 @@ $(document).ready(() => {
 
     mapElementThemes();
 
+    loadBreadcrumb();
     loadTables();
     loadCharts();
     loadAutoCompletes();
@@ -56,6 +57,56 @@ $(document).ready(() => {
     bindTabCycling();
     bindTimers();
 });
+
+function loadBreadcrumb() {
+    // get breadcrumb
+    var breadcrumb = $('nav ol.breadcrumb');
+    if (!breadcrumb || isDynamic(breadcrumb)) {
+        return;
+    }
+
+    breadcrumb.empty();
+
+    // get base and current value query
+    var base = getQueryStringValue('base');
+    var value = getQueryStringValue('value');
+
+    // do nothing with no values
+    if (!base && !value) {
+        return;
+    }
+
+    // add page name
+    var title = getPageTitle();
+    breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}'>${title}</a></li>`);
+
+    // add base values
+    if (base) {
+        var newBase = '';
+        var data = null;
+
+        base.split('/').forEach((i) => {
+            data = `value=${i}`;
+            if (newBase) {
+                data = `base=${newBase}&${data}`;
+            }
+
+            breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}?${data}'>${i}</a></li>`);
+
+            if (newBase) {
+                newBase = `${newBase}/${i}`;
+            }
+            else {
+                newBase = i;
+            }
+        });
+    }
+
+    // add current value
+    if (value) {
+        breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${value}</li>`);
+    }
+}
 
 function checkAutoTheme() {
     // is the them auto-switchable?
@@ -108,6 +159,14 @@ function serializeInputs(element) {
     return element.find('input, textarea, select').serialize();
 }
 
+function isEnterKey(event) {
+    if (!event) {
+        return false;
+    }
+
+    return (event.which == 13 && event.keyCode == 13)
+}
+
 var _steppers = {};
 
 function setupSteppers() {
@@ -117,7 +176,7 @@ function setupSteppers() {
 
         // override form enter-key
         stepper.find('form.pode-stepper-form').unbind('keypress').keypress(function(e) {
-            if (e.which != 13 && e.keyCode != 13) {
+            if (!isEnterKey(e)) {
                 return;
             }
 
@@ -159,7 +218,7 @@ function setupSteppers() {
             }
 
             // call ajax, or move along?
-            if (step.attr('pode-dynamic') == 'True') {
+            if (isDynamic(step)) {
                 // serialize any step-form data
                 var data = serializeInputs(step);
                 var url = `/layouts/step/${step.attr('id')}`;
@@ -191,7 +250,7 @@ function setupSteppers() {
             }
 
             // call ajax, or move along?
-            if (step.attr('pode-dynamic') == 'True') {
+            if (isDynamic(step)) {
                 // serialize any step-form data
                 var data = serializeInputs(step);
                 var url = `/layouts/step/${step.attr('id')}`;
@@ -216,6 +275,14 @@ function setupSteppers() {
             }
         });
     });
+}
+
+function isDynamic(element) {
+    if (!element) {
+        return false;
+    }
+
+    return ($(element).attr('pode-dynamic') == 'True');
 }
 
 function hasValidationErrors(element) {
@@ -245,9 +312,15 @@ function setValidationError(element) {
 function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     // show the spinner
     showSpinner(sender);
+    $('.alert.pode-error').remove();
 
     // remove validation errors
     removeValidationErrors(sender);
+
+    // add current query string
+    if (window.location.search) {
+        url = `${url}${window.location.search}`;
+    }
 
     // set default opts
     opts = (opts ?? {});
@@ -269,6 +342,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
         success: function(res, status, xhr) {
             // attempt to hide any spinners
             hideSpinner(sender);
+            unfocus(sender);
 
             // attempt to get a filename, for downloading
             var filename = getAjaxFileName(xhr);
@@ -293,6 +367,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
         },
         error: function(err, msg, stack) {
             hideSpinner(sender);
+            unfocus(sender);
             console.log(err);
             console.log(stack);
         }
@@ -376,6 +451,14 @@ function hideSpinner(sender) {
     }
 }
 
+function unfocus(sender) {
+    if (!sender) {
+        return;
+    }
+
+    sender.blur();
+}
+
 var _editors = {};
 
 function bindCodeEditors() {
@@ -447,6 +530,7 @@ function bindCardCollapse() {
         button.find('.feather-eye-off').toggle();
 
         button.closest('.card').find('.card-body').slideToggle();
+        button.blur();
     });
 }
 
@@ -606,7 +690,7 @@ function loadTable(tableId, pageNumber, pageAmount) {
 
     // ensure the table is dynamic, or has the 'for' attr set
     var table = $(`table#${tableId}`);
-    if (table.attr('pode-dynamic') != 'True' && !table.attr('for')) {
+    if (!isDynamic(table) && !table.attr('for')) {
         return;
     }
 
@@ -630,11 +714,6 @@ function loadTable(tableId, pageNumber, pageAmount) {
 
         data += form.serialize();
         url = form.attr('method');
-    }
-
-    // add current query string
-    if (window.location.search) {
-        url = `${url}${window.location.search}`;
     }
 
     // invoke and load table content
@@ -682,11 +761,6 @@ function loadChart(chartId) {
         url = form.attr('method');
     }
 
-    // add current query string
-    if (window.location.search) {
-        url = `${url}${window.location.search}`;
-    }
-
     sendAjaxReq(url, data, chart, true);
 }
 
@@ -695,9 +769,7 @@ function invokeActions(actions, sender) {
         return;
     }
 
-    if (!$.isArray(actions)) {
-        actions = [actions];
-    }
+    actions = convertToArray(actions);
 
     actions.forEach((action) => {
         var _type = action.ElementType;
@@ -766,6 +838,14 @@ function invokeActions(actions, sender) {
                 actionPage(action);
                 break;
 
+            case 'error':
+                actionError(action, sender);
+                break;
+
+            case 'breadcrumb':
+                actionBreadcrumb(action);
+                break;
+
             default:
                 break;
         }
@@ -779,9 +859,7 @@ function buildElements(elements) {
         return html;
     }
 
-    if (!$.isArray(elements)) {
-        elements = [elements];
-    }
+    elements = convertToArray(elements);
 
     elements.forEach((ele) => {
         var _type = ele.ElementType;
@@ -848,6 +926,20 @@ function bindFormSubmits() {
 }
 
 function bindModalSubmits() {
+    $("div.modal-content form.pode-form").unbind('keypress').keypress(function(e) {
+        if (!isEnterKey(e)) {
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var btn = $(this).closest('div.modal-content').find('div.modal-footer button.pode-modal-submit')
+        if (btn) {
+            btn.click();
+        }
+    });
+
     $("div.modal-footer button.pode-modal-submit").unbind('click').click(function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -887,12 +979,6 @@ function bindModalSubmits() {
             }
 
             formData += `Value=${dataValue}`;
-        }
-
-        // show spinner
-        var spinner = button.find('span.spinner-border');
-        if (spinner) {
-            spinner.show();
         }
 
         // invoke url
@@ -944,11 +1030,6 @@ function bindButtons() {
             if (form) {
                 data = form.serialize();
             }
-        }
-
-        var spinner = button.find('span.spinner-border');
-        if (spinner) {
-            spinner.show();
         }
 
         var url = `/elements/button/${button.attr('id')}`;
@@ -1130,18 +1211,42 @@ function updateTableRow(action) {
     bindTableClickableRows(action.TableId);
 }
 
+function getQueryStringValue(name) {
+    if (!window.location.search) {
+        return null;
+    }
+
+    return (new URLSearchParams(window.location.search)).get(name);
+}
+
 function bindTableClickableRows(tableId) {
     $(`${tableId}.pode-table-click tbody tr`).unbind('click').click(function() {
         var rowId = $(this).attr('pode-data-value');
         var table = $(tableId);
 
+        // check if we have a base path
+        var base = getQueryStringValue('base');
+        var value = getQueryStringValue('value');
+
+        if (base) {
+            base = `${base}/${value}`;
+        }
+        else {
+            base = value;
+        }
+
+        // build the data to send
+        var data = `value=${rowId}`;
+        if (base) {
+            data = `base=${base}&${data}`;
+        }
+
         if (table.attr('pode-click-dynamic') == 'True') {
             var url = `/elements/table/${table.attr('id')}/click`;
-            var data = `value=${rowId}`;
             sendAjaxReq(url, data, null, true);
         }
         else {
-            window.location = `${window.location.origin}${window.location.pathname}?value=${rowId}`;
+            window.location = `${window.location.origin}${window.location.pathname}?${data}`;
         }
     });
 }
@@ -1164,11 +1269,16 @@ function actionTable(action, sender) {
 }
 
 function syncTable(action) {
-    if (!action.ID) {
+    if (!action.ID && !action.Name) {
         return;
     }
 
-    loadTable(action.ID);
+    var id = action.ID;
+    if (!id) {
+        id = $(`table[name="${action.Name}"]`).attr('id');
+    }
+
+    loadTable(id);
 }
 
 function updateTable(action, sender) {
@@ -1177,9 +1287,7 @@ function updateTable(action, sender) {
     }
 
     // convert data to array
-    if (!$.isArray(action.Data)) {
-        action.Data = [action.Data];
-    }
+    action.Data = convertToArray(action.Data);
 
     // table meta
     var tableId = `table#${action.ID}`;
@@ -1216,9 +1324,27 @@ function updateTable(action, sender) {
     tableHead.empty();
 
     var _value = '<tr>';
+    var _col = null;
     keys.forEach((key) => {
-        if ((key in columns) && (columns[key].Width > 0)) {
-            _value += `<th style='width:${columns[key].Width}%'>${key}</th>`;
+        if (key in columns) {
+            _col = columns[key];
+            _value += `<th style='`;
+
+            if (_col.Width > 0) {
+                _value += `width:${_col.Width}%;`;
+            }
+
+            if (_col.Alignment) {
+                _value += `text-align:${_col.Alignment};`;
+            }
+
+            _value += `'>`;
+
+            if (_col.Icon) {
+                _value += `<span data-feather='${_col.Icon.toLowerCase()}' class='mRight02'></span>`;
+            }
+
+            _value += `${_col.Name ? _col.Name : key}</th>`;
         }
         else {
             _value += `<th>${key}</th>`;
@@ -1235,12 +1361,25 @@ function updateTable(action, sender) {
         _value = `<tr pode-data-value="${item[dataColumn]}">`;
 
         keys.forEach((key) => {
-            _value += `<td pode-column='${key}'>`;
+            var col = columns[key];
+            if (key in columns) {
+                _col = columns[key];
+                _value += `<td pode-column='${key}' style='`;
 
-            if ($.isArray(item[key]) || item[key].ElementType) {
-                _value += buildElements(item[key]);
+                if (col.Alignment) {
+                    _value += `text-align:${col.Alignment};`;
+                }
+
+                _value += `'>`;
             }
             else {
+                _value += `<td pode-column='${key}'>`;
+            }
+
+            if ($.isArray(item[key]) || (item[key] && item[key].ElementType)) {
+                _value += buildElements(item[key]);
+            }
+            else if (item[key]) {
                 _value += item[key];
             }
 
@@ -1380,7 +1519,20 @@ function actionForm(action) {
         return;
     }
 
-    form[0].reset();
+    resetForm(form);
+}
+
+function resetForm(form) {
+    if (!form) {
+        return
+    }
+
+    if (testTagName(form, 'form')) {
+        form[0].reset();
+    }
+    else {
+        resetForm(form.find('form'));
+    }
 }
 
 function actionModal(action, sender) {
@@ -1396,7 +1548,10 @@ function actionModal(action, sender) {
 }
 
 function showModal(action) {
-    var modal = $(`div#${action.ID}.modal`);
+    var modal = action.ID
+        ? $(`div#${action.ID}.modal`)
+        : $(`div.modal[name="${action.Name}"]`);
+
     if (!modal) {
         return;
     }
@@ -1404,6 +1559,9 @@ function showModal(action) {
     if (action.DataValue) {
         modal.attr('pode-data-value', action.DataValue);
     }
+
+    resetForm(modal);
+    removeValidationErrors(modal);
 
     invokeActions(action.Actions);
     modal.modal('show');
@@ -1414,6 +1572,9 @@ function hideModal(action, sender) {
     if (action.ID) {
         modal = $(`div#${action.ID}.modal`);
     }
+    else if (action.Name) {
+        modal = $(`div.modal[name="${action.Name}"]`);
+    }
     else {
         modal = sender.closest('div.modal');
     }
@@ -1421,6 +1582,9 @@ function hideModal(action, sender) {
     if (!modal) {
         return;
     }
+
+    resetForm(modal);
+    removeValidationErrors(modal);
 
     modal.modal('hide');
 }
@@ -1637,10 +1801,7 @@ function updateChart(action, sender) {
         return;
     }
 
-    if (!$.isArray(action.Data)) {
-        action.Data = [action.Data];
-    }
-
+    action.Data = convertToArray(action.Data);
     if (action.Data.length <= 0) {
         return;
     }
@@ -1918,7 +2079,12 @@ function buildIcon(element) {
         colour = `style="color:${element.Colour};"`
     }
 
-    return `<span data-feather='${element.Name.toLowerCase()}' ${colour}></span>`;
+    var title = '';
+    if (element.Title) {
+        title = `title='${element.Title}' data-toggle='tooltip'`;
+    }
+
+    return `<span data-feather='${element.Name.toLowerCase()}' ${colour} ${title}></span>`;
 }
 
 function buildBadge(element) {
@@ -1931,7 +2097,12 @@ function buildSpinner(element) {
         colour = `style="color:${element.Colour};"`
     }
 
-    return `<span class="spinner-border spinner-border-sm" role="status" ${colour}></span>`;
+    var title = '';
+    if (element.Title) {
+        title = `title='${element.Title}' data-toggle='tooltip'`;
+    }
+
+    return `<span class="spinner-border spinner-border-sm" role="status" ${colour} ${title}></span>`;
 }
 
 function buildLink(element) {
@@ -2027,4 +2198,60 @@ function actionPage(action) {
 
 function refreshPage() {
     window.location.reload();
+}
+
+function actionError(action, sender) {
+    if (!action || !sender) {
+        return;
+    }
+
+    sender.append(`<div class="alert alert-danger pode-error" role="alert">
+        <h6 class='pode-alert-header'>
+            <span data-feather="alert-circle"></span>
+            <strong>Error</strong>
+        </h6>
+
+        <div class='pode-alert-body pode-text'>
+            ${action.Message}
+        </div>
+    </div>`);
+}
+
+function getPageTitle() {
+    return $('#pode-page-title h1').text().trim();
+}
+
+function actionBreadcrumb(action) {
+    if (!action) {
+        return;
+    }
+
+    var breadcrumb = $('nav ol.breadcrumb');
+    if (!breadcrumb) {
+        return;
+    }
+
+    breadcrumb.empty();
+
+    action.Items = convertToArray(action.Items);
+    if (action.Items.length <= 0) {
+        return;
+    }
+
+    action.Items.forEach((i) => {
+        if (i.Active) {
+            breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${i.Name}</li>`);
+        }
+        else {
+            breadcrumb.append(`<li class='breadcrumb-item'><a href='${i.Url}'>${i.Name}</a></li>`);
+        }
+    });
+}
+
+function convertToArray(element) {
+    if (!$.isArray(element)) {
+        element = [element];
+    }
+
+    return element;
 }

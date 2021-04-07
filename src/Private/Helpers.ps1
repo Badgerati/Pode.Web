@@ -1,7 +1,7 @@
 function Get-PodeWebTemplatePath
 {
     $path = Split-Path -Parent -Path ((Get-Module -Name 'Pode.Web').Path)
-    return (Join-Path $path 'Templates')
+    return (Join-PodeWebPath $path 'Templates')
 }
 
 function Get-PodeWebAuthData

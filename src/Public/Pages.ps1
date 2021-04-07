@@ -235,7 +235,10 @@ function Add-PodeWebPage
         $NoTitle,
 
         [switch]
-        $NoBackArrow
+        $NoBackArrow,
+
+        [switch]
+        $NoBreadcrumb
     )
 
     # ensure layouts are correct
@@ -259,6 +262,7 @@ function Add-PodeWebPage
         Title = $Title
         NoTitle = $NoTitle.IsPresent
         NoBackArrow = $NoBackArrow.IsPresent
+        NoBreadcrumb = $NoBreadcrumb.IsPresent
         Icon = $Icon
         Group = $Group
         Access = @{
@@ -322,11 +326,24 @@ function Add-PodeWebPage
                 $comps = $using:Layouts
             }
 
+            $breadcrumb = $null
+            $layouts = @()
+
+            foreach ($item in $comps) {
+                if ($item.ElementType -ieq 'breadcrumb') {
+                    $breadcrumb = $item
+                }
+                else {
+                    $layouts += $item
+                }
+            }
+
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $using:Title
                 Theme = $Theme
-                Layouts = $comps
+                Breadcrumb = $breadcrumb
+                Layouts = $layouts
                 Auth = $authMeta
             }
         }

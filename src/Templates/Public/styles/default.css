@@ -46,6 +46,7 @@ button#menu-toggle .feather {
 .pode-container {
     padding: 1.25rem;
     margin-bottom: 2em;
+    max-width: 100%;
 }
 
 .carousel {
@@ -81,6 +82,10 @@ main[role="main"].fullscreen {
 
 nav[role="pagination"] {
     float: right;
+}
+
+.breadcrumb {
+    background-color: transparent;
 }
 
 div#pode-social .feather {

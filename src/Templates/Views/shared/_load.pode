@@ -1,4 +1,8 @@
 $(foreach ($item in $data.Content) {
+    if (($null -eq $item) -or [string]::IsNullOrEmpty($item.ComponentType)) {
+        return
+    }
+
     switch ($item.ComponentType.ToLowerInvariant()) {
         'layout' {
             Use-PodeWebPartialView -Path "layouts/$($item.LayoutType.ToLowerInvariant())" -Data $item
