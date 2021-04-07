@@ -81,6 +81,7 @@
                             </span>
                         </div>
                     </footer>
+
                     <div class="sidebar-sticky pt-0">
                         <ul id="sidebar-list" class="nav flex-column">
                             <li class="nav-item nav-page-item">
@@ -151,15 +152,13 @@
                                 $data.Page.Title
                             "</h1>
                         </div>"
-                        if (!$data.Page.NoBreadcrumb) {
-                            "<nav aria-label='breadcrumb'>
-                                <ol class='breadcrumb'>
-                                </ol>
-                            </nav>"
-                        }
                     }
                     else {
                         "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2'></div>"
+                    }
+
+                    if (!$data.Page.NoBreadcrumb) {
+                        Use-PodeWebView -View $data.Breadcrumb
                     })
 
                     $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Layouts })

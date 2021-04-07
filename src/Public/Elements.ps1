@@ -2004,3 +2004,57 @@ function New-PodeWebTimer
         CssClasses = ($CssClass -join ' ')
     }
 }
+
+function Set-PodeWebBreadcrumb
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [hashtable[]]
+        $Items = @()
+    )
+
+    if (($null -eq $Items)) {
+        $Items = @()
+    }
+
+    $foundActive = $false
+    foreach ($item in $Items) {
+        if ($foundActive -and $item.Active) {
+            throw "Cannot have two active breadcrumb items"
+        }
+
+        $foundActive = $item.Active
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ElementType = 'Breadcrumb'
+        Items = $Items
+    }
+}
+
+function New-PodeWebBreadcrumbItem
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url,
+
+        [switch]
+        $Active
+    )
+
+    return @{
+        ComponentType = 'Element'
+        ElementType = 'BreadcrumbItem'
+        Name = $Name
+        Url = $Url
+        Active = $Active.IsPresent
+    }
+}

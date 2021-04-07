@@ -1,0 +1,12 @@
+<nav aria-label='breadcrumb'>
+    <ol class='breadcrumb' pode-dynamic="$($null -ne $data)">
+        $(foreach ($item in $data.Items) {
+            if ($item.Active) {
+                "<li class='breadcrumb-item active' aria-current='page'>$($item.Name)</li>"
+            }
+            else {
+                "<li class='breadcrumb-item'><a href='$($item.Url)'>$($item.Name)</a></li>"
+            }
+        })
+    </ol>
+</nav>

@@ -61,7 +61,7 @@ $(document).ready(() => {
 function loadBreadcrumb() {
     // get breadcrumb
     var breadcrumb = $('nav ol.breadcrumb');
-    if (!breadcrumb) {
+    if (!breadcrumb || isDynamic(breadcrumb)) {
         return;
     }
 
@@ -218,7 +218,7 @@ function setupSteppers() {
             }
 
             // call ajax, or move along?
-            if (step.attr('pode-dynamic') == 'True') {
+            if (isDynamic(step)) {
                 // serialize any step-form data
                 var data = serializeInputs(step);
                 var url = `/layouts/step/${step.attr('id')}`;
@@ -250,7 +250,7 @@ function setupSteppers() {
             }
 
             // call ajax, or move along?
-            if (step.attr('pode-dynamic') == 'True') {
+            if (isDynamic(step)) {
                 // serialize any step-form data
                 var data = serializeInputs(step);
                 var url = `/layouts/step/${step.attr('id')}`;
@@ -275,6 +275,14 @@ function setupSteppers() {
             }
         });
     });
+}
+
+function isDynamic(element) {
+    if (!element) {
+        return false;
+    }
+
+    return ($(element).attr('pode-dynamic') == 'True');
 }
 
 function hasValidationErrors(element) {
@@ -682,7 +690,7 @@ function loadTable(tableId, pageNumber, pageAmount) {
 
     // ensure the table is dynamic, or has the 'for' attr set
     var table = $(`table#${tableId}`);
-    if (table.attr('pode-dynamic') != 'True' && !table.attr('for')) {
+    if (!isDynamic(table) && !table.attr('for')) {
         return;
     }
 
@@ -761,9 +769,7 @@ function invokeActions(actions, sender) {
         return;
     }
 
-    if (!$.isArray(actions)) {
-        actions = [actions];
-    }
+    actions = convertToArray(actions);
 
     actions.forEach((action) => {
         var _type = action.ElementType;
@@ -836,6 +842,10 @@ function invokeActions(actions, sender) {
                 actionError(action, sender);
                 break;
 
+            case 'breadcrumb':
+                actionBreadcrumb(action);
+                break;
+
             default:
                 break;
         }
@@ -849,9 +859,7 @@ function buildElements(elements) {
         return html;
     }
 
-    if (!$.isArray(elements)) {
-        elements = [elements];
-    }
+    elements = convertToArray(elements);
 
     elements.forEach((ele) => {
         var _type = ele.ElementType;
@@ -1279,9 +1287,7 @@ function updateTable(action, sender) {
     }
 
     // convert data to array
-    if (!$.isArray(action.Data)) {
-        action.Data = [action.Data];
-    }
+    action.Data = convertToArray(action.Data);
 
     // table meta
     var tableId = `table#${action.ID}`;
@@ -1795,10 +1801,7 @@ function updateChart(action, sender) {
         return;
     }
 
-    if (!$.isArray(action.Data)) {
-        action.Data = [action.Data];
-    }
-
+    action.Data = convertToArray(action.Data);
     if (action.Data.length <= 0) {
         return;
     }
@@ -2216,4 +2219,39 @@ function actionError(action, sender) {
 
 function getPageTitle() {
     return $('#pode-page-title h1').text().trim();
+}
+
+function actionBreadcrumb(action) {
+    if (!action) {
+        return;
+    }
+
+    var breadcrumb = $('nav ol.breadcrumb');
+    if (!breadcrumb) {
+        return;
+    }
+
+    breadcrumb.empty();
+
+    action.Items = convertToArray(action.Items);
+    if (action.Items.length <= 0) {
+        return;
+    }
+
+    action.Items.forEach((i) => {
+        if (i.Active) {
+            breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${i.Name}</li>`);
+        }
+        else {
+            breadcrumb.append(`<li class='breadcrumb-item'><a href='${i.Url}'>${i.Name}</a></li>`);
+        }
+    });
+}
+
+function convertToArray(element) {
+    if (!$.isArray(element)) {
+        element = [element];
+    }
+
+    return element;
 }

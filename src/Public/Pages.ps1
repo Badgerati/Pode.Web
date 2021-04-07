@@ -326,11 +326,28 @@ function Add-PodeWebPage
                 $comps = $using:Layouts
             }
 
+            $breadcrumb = $null
+            $layouts = @()
+
+            foreach ($item in $comps) {
+                if ($item.ElementType -ieq 'breadcrumb') {
+                    $breadcrumb = $item
+                }
+                else {
+                    $layouts += $item
+                }
+            }
+
+            if ($null -eq $breadcrumb) {
+                $breadcrumb = Set-PodeWebBreadcrumb -Items @()
+            }
+
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $using:Title
                 Theme = $Theme
-                Layouts = $comps
+                Breadcrumb = $breadcrumb
+                Layouts = $layouts
                 Auth = $authMeta
             }
         }
