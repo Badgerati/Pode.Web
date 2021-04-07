@@ -24,7 +24,7 @@ function Use-PodeWebTemplates
         $EndpointName
     )
 
-    $mod = (Get-Module -Name Pode -ErrorAction Ignore)
+    $mod = (Get-Module -Name Pode -ErrorAction Ignore | Sort-Object -Property Version -Descending | Select-Object -First 1)
     if (($null -eq $mod) -or ($mod.Version.Major -lt 2)) {
         throw "The Pode module is not loaded. You need at least Pode 2.0 to use the Pode.Web module."
     }
