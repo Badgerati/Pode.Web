@@ -531,7 +531,7 @@ function bindCardCollapse() {
         button.find('.feather-eye-off').toggle();
 
         button.closest('.card').find('.card-body').slideToggle();
-        button.blur();
+        unfocus(button);
     });
 }
 
@@ -568,8 +568,8 @@ function bindMenuToggle() {
         $('nav#sidebarMenu').toggleClass('hide');
         $('main[role="main"]').toggleClass('fullscreen');
     });
-    
 }
+
 function bindTablePagination() {
     $('nav .pagination a.page-link').unbind('click').click(function(e) {
         e.preventDefault();
