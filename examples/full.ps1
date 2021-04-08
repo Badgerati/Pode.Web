@@ -34,6 +34,25 @@ Start-PodeServer -StatusPageExceptions Show {
     Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
     Set-PodeWebLoginPage -Authentication Example
 
+    $link1 = New-PodeWebNavLink -Name 'Home' -Url '/' -Icon Home
+    $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Settings -NoAuth -ScriptBlock {
+        Show-PodeWebToast -Message "I'm from a nav link!"
+    }
+    $div1 = New-PodeWebNavDivider
+    $link3 = New-PodeWebNavLink -Name 'Disabled' -Url '/' -Disabled
+    $dd1 = New-PodeWebNavDropdown -Name 'Dropdown' -Icon 'maximize-2' -Items @(
+        New-PodeWebNavLink -Name 'Twitter' -Url 'https://twitter.com'
+        New-PodeWebNavLink -Name 'Facebook' -Url 'https://facebook.com' -Disabled
+        New-PodeWebNavDivider
+        New-PodeWebNavLink -Name 'YouTube' -Url 'https://youtube.com'
+        New-PodeWebNavDropdown -Name 'InnerDrop' -Items @(
+            New-PodeWebNavLink -Name 'Twitch' -Url 'https://twitch.tv'
+            New-PodeWebNavLink -Name 'Pode' -Url 'https://github.com/Badgerati/Pode'
+        )
+    )
+
+    Set-PodeWebNavDefault -Items $link1, $link2, $div1, $link3, $dd1
+
 
     $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
         $rand = Get-Random -Minimum 0 -Maximum 3
@@ -226,7 +245,9 @@ Start-PodeServer -StatusPageExceptions Show {
         Set-PodeResponseAttachment -Path '/download/test.csv'
     }
 
-    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Layouts $modal, $table -ScriptBlock {
+    $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
+
+    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Layouts $modal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return

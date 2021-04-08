@@ -11,5 +11,9 @@ $(foreach ($item in $data.Content) {
         'element' {
             Use-PodeWebPartialView -Path "elements/$($item.ElementType.ToLowerInvariant())" -Data $item
         }
+
+        'navigation' {
+            Use-PodeWebPartialView -Path "navigation/$($item.NavType.ToLowerInvariant())" -Data $item
+        }
     }
 })
