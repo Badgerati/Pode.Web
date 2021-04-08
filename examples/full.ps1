@@ -10,7 +10,7 @@ Start-PodeServer -StatusPageExceptions Show {
     # enable sessions and authentication
     Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
 
-    New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
+    New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -SuccessUseOrigin -ScriptBlock {
         param($username, $password)
 
         # here you'd check a real user storage, this is just for example

@@ -30,7 +30,7 @@ To speed-up loading of pages, enable caching within your `server.psd1` file:
 }
 ```
 
-> Note: where a `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
+> Note: where an `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
 
 ## Contributing
 
@@ -99,7 +99,7 @@ Accessing any page will auto-redirect to a login page. If you want a page to be 
 
 ### Module to Pages
 
-Like how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: `ConvertTo-PodeWebPage`!
+Similar to how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: `ConvertTo-PodeWebPage`!
 
 For example, if you wanted to make a web portal for the Pester module:
 
@@ -190,6 +190,7 @@ These are the base elements that can be used in most layouts. In some cases, som
 * Line
 * Hidden
 * Credentials
+* DateTime
 * Raw
 * Button
 * Alert (can either be a value, or contain other elements)
@@ -202,6 +203,7 @@ These are the base elements that can be used in most layouts. In some cases, som
 * Monaco Code Editor (WIP)
 * Forms (can either be a value, or contain other elements)
 * Timers
+* Breadcrumbs (used to set the breadcrumb items at the top of the page)
 
 > Tables, Forms, and Charts each have an `-AsCard` switch, is auto-wraps the element in a Card layout.
 
@@ -210,6 +212,7 @@ These are the base elements that can be used in most layouts. In some cases, som
 Outputs allow you to manipulate the frontend from action ScriptBlocks - such as submitting a form which renders a Toast, and outputs to a Table:
 
 * Tables (out/sync)
+* Table Row (update)
 * Charts (out)
 * Textbox (out)
 * Toast (show)
@@ -219,10 +222,12 @@ Outputs allow you to manipulate the frontend from action ScriptBlocks - such as 
 * Badge (out)
 * Checkbox (out)
 * Modal (show/hide)
+* Error (show)
 * Desktop Notifications (show)
-* Page (move)
+* Page (move/refresh)
 * URL (move)
 * Tabs (move)
+* Breadcrumb (out)
 
 ## Examples
 
