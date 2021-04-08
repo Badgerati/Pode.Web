@@ -46,6 +46,7 @@ button#menu-toggle .feather {
 .pode-container {
     padding: 1.25rem;
     margin-bottom: 2em;
+    max-width: 100%;
 }
 
 .carousel {
@@ -83,19 +84,85 @@ nav[role="pagination"] {
     float: right;
 }
 
-div#pode-social .feather {
+.breadcrumb {
+    background-color: transparent;
+}
+
+div#pode-nav-social .feather {
     height: 22px;
     width: 22px;
     margin-right: 0.3rem;
 }
 
-div#pode-social a {
+div#pode-nav-social a,
+div#pode-nav-items a.nav-link:not(.disabled) {
     color: #bbb;
 }
 
-div#pode-social a:hover {
+div#pode-nav-social a:hover,
+div#pode-nav-items a.nav-link:hover {
     color: #007bff;
     text-decoration: none;
+}
+
+li.nav-item {
+    margin-right: 0.4rem;
+}
+
+ul.dropdown-menu {
+    border-radius: 0.3rem;
+    border: 0.1rem solid #ccc;
+}
+
+hr.dropdown-divider {
+    border-color: #ccc;
+}
+
+span.link-divider {
+    font-size: 1.3rem;
+    margin-left: 0.2rem;
+    margin-right: 0.4rem;
+    margin-top: 1px;
+}
+
+a.pode-nav-link[pode-dynamic='True'] {
+    cursor: pointer;
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu a::after {
+    transform: rotate(-90deg);
+    position: absolute;
+    right: 10px;
+    top: 44% !important;
+}
+
+.dropdown-submenu:hover .dropdown-menu, .dropdown-submenu:focus .dropdown-menu {
+    display: flex;
+    flex-direction: column;
+    position: absolute !important;
+    margin-top: -40px;
+    left: 100% !important;
+}
+
+@media (max-width: 992px) {
+    .dropdown-menu {
+        width: 50%;
+    }
+    .dropdown-menu .dropdown-submenu {
+        width: auto;
+    }
+}
+
+.dropdown[pode-hover='True']:hover > .dropdown-menu {
+    display: block;
+}
+
+.dropdown[pode-hover='True'] > .dropdown-toggle:active {
+    pointer-events: none;
 }
 
 .hide {
@@ -207,7 +274,15 @@ pre code {
     box-shadow: none !important;
 }
 
-div#pode-social {
+div#pode-nav-social {
+    margin-left: 1em;
+}
+
+div#pode-nav-items {
+    margin-left: 1em;
+}
+
+div#pode-nav {
     margin-right: auto;
     margin-left: 1em;
 }
@@ -590,6 +665,10 @@ h6 .feather, .h6 .feather {
     margin-right: 0.5em;
 }
 
+.mRight04 {
+    margin-right: 0.4em;
+}
+
 .mRight02 {
     margin-right: 0.2em;
 }
@@ -600,6 +679,10 @@ h6 .feather, .h6 .feather {
 
 .mTop-05 {
     margin-top: -0.5em;
+}
+
+.mTop-02 {
+    margin-top: -0.2em;
 }
 
 .mTop05 {

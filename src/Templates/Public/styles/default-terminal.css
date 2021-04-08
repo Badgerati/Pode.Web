@@ -326,12 +326,42 @@ hr {
     background-color: #33ff00;
 }
 
-div#pode-social a {
+div#pode-nav-social a,
+div#pode-nav-items a.nav-link:not(.disabled) {
     color: #33ff00;
 }
 
-div#pode-social a:hover {
+div#pode-nav-social a:hover,
+div#pode-nav-items a.nav-link:hover {
     color: #ffb000;
+}
+
+ul.dropdown-menu {
+    background-color: #111;
+    border: 0.1rem solid #33ff00;
+}
+
+hr.dropdown-divider {
+    border-color: #33ff00;
+}
+
+ul.dropdown-menu a.dropdown-item:not(.disabled) {
+    color: #33ff00;
+}
+
+ul.dropdown-menu a.dropdown-item.disabled {
+    color: #777;
+}
+
+ul.dropdown-menu a.dropdown-item:hover,
+ul.dropdown-menu a.dropdown-item:active,
+ul.dropdown-menu a.dropdown-item:focus {
+    background-color: #ffb000;
+    color: #111;
+}
+
+span.link-divider {
+    margin-top: 2px;
 }
 
 .footer.powered-by a {

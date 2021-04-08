@@ -6,7 +6,7 @@
 [![Gitter](https://badges.gitter.im/Badgerati/Pode.svg)](https://gitter.im/Badgerati/Pode?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![PowerShell](https://img.shields.io/powershellgallery/dt/pode.web.svg?label=PowerShell&colorB=085298)](https://www.powershellgallery.com/packages/Pode.Web)
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (version 2.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.2.0+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
 
@@ -16,9 +16,33 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 
 The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
-At present these are loaded using the jsDelivr CDN.
+To speed-up loading of pages, enable caching within your `server.psd1` file:
 
-> Note: where a `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
+```powershell
+@{
+    Web = @{
+        Static = @{
+            Cache = @{
+                Enable = $true
+            }
+        }
+    }
+}
+```
+
+> Note: where an `-Icon` parameter is available, refer to [Feather icons](https://feathericons.com) for names
+
+## Contributing
+
+Pull Requests, Bug Reports and Feature Requests are welcome! Feel free to help out with Issues and Projects!
+
+To build Pode.Web, before running any examples, run the following:
+
+```powershell
+Invoke-Build Build
+```
+
+To work on issues you can fork Pode.Web, and then open a Pull Request for approval. Pull Requests should be made against the `develop` branch. Each Pull Request should also have an appropriate issue created.
 
 ## Usage
 
@@ -75,7 +99,7 @@ Accessing any page will auto-redirect to a login page. If you want a page to be 
 
 ### Module to Pages
 
-Like how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: `ConvertTo-PodeWebPage`!
+Similar to how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: `ConvertTo-PodeWebPage`!
 
 For example, if you wanted to make a web portal for the Pester module:
 
@@ -166,6 +190,7 @@ These are the base elements that can be used in most layouts. In some cases, som
 * Line
 * Hidden
 * Credentials
+* DateTime
 * Raw
 * Button
 * Alert (can either be a value, or contain other elements)
@@ -178,6 +203,7 @@ These are the base elements that can be used in most layouts. In some cases, som
 * Monaco Code Editor (WIP)
 * Forms (can either be a value, or contain other elements)
 * Timers
+* Breadcrumbs (used to set the breadcrumb items at the top of the page)
 
 > Tables, Forms, and Charts each have an `-AsCard` switch, is auto-wraps the element in a Card layout.
 
@@ -186,6 +212,7 @@ These are the base elements that can be used in most layouts. In some cases, som
 Outputs allow you to manipulate the frontend from action ScriptBlocks - such as submitting a form which renders a Toast, and outputs to a Table:
 
 * Tables (out/sync)
+* Table Row (update)
 * Charts (out)
 * Textbox (out)
 * Toast (show)
@@ -195,10 +222,12 @@ Outputs allow you to manipulate the frontend from action ScriptBlocks - such as 
 * Badge (out)
 * Checkbox (out)
 * Modal (show/hide)
+* Error (show)
 * Desktop Notifications (show)
-* Page (move)
+* Page (move/refresh)
 * URL (move)
 * Tabs (move)
+* Breadcrumb (out)
 
 ## Examples
 

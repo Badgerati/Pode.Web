@@ -1,7 +1,7 @@
 function Get-PodeWebTemplatePath
 {
     $path = Split-Path -Parent -Path ((Get-Module -Name 'Pode.Web').Path)
-    return (Join-Path $path 'Templates')
+    return (Join-PodeWebPath $path 'Templates')
 }
 
 function Get-PodeWebAuthData
@@ -610,4 +610,22 @@ function Remove-PodeWebRoute
             Remove-PodeRoute -Method $Method -Path $Path -EndpointName $endpoint
         }
     }
+}
+
+function Test-PodeWebOutputWrapped
+{
+    param(
+        [Parameter()]
+        $Output
+    )
+
+    if ($null -eq $Output) {
+        return $false
+    }
+
+    if ($Output -is [array]) {
+        $Output = $Output[0]
+    }
+
+    return (($Output -is [hashtable]) -and ($Output.Operation -ieq 'Output') -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
 }

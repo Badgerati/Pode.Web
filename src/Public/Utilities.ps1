@@ -24,7 +24,7 @@ function Use-PodeWebTemplates
         $EndpointName
     )
 
-    $mod = (Get-Module -Name Pode -ErrorAction Ignore)
+    $mod = (Get-Module -Name Pode -ErrorAction Ignore | Sort-Object -Property Version -Descending | Select-Object -First 1)
     if (($null -eq $mod) -or ($mod.Version.Major -lt 2)) {
         throw "The Pode module is not loaded. You need at least Pode 2.0 to use the Pode.Web module."
     }
@@ -40,6 +40,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @()
+    Set-PodeWebState -Name 'default-nav' -Value $null
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
@@ -52,8 +53,8 @@ function Use-PodeWebTemplates
 
     $templatePath = Get-PodeWebTemplatePath
 
-    Add-PodeStaticRoute -Path '/pode.web' -Source (Join-Path $templatePath 'Public')
-    Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-Path $templatePath 'Views')
+    Add-PodeStaticRoute -Path '/pode.web' -Source (Join-PodeWebPath $templatePath 'Public')
+    Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-PodeWebPath $templatePath 'Views')
 
     Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
@@ -204,4 +205,36 @@ function Add-PodeWebCustomTheme
     if ([string]::IsNullOrWhiteSpace($customThemes.Default)) {
         $customThemes.Default = $Name
     }
+}
+
+function Join-PodeWebPath
+{
+    param(
+        [Parameter()]
+        [string]
+        $Path,
+
+        [Parameter()]
+        [string]
+        $ChildPath,
+
+        [switch]
+        $ReplaceSlashes
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        $result = $ChildPath
+    }
+    elseif ([string]::IsNullOrWhiteSpace($ChildPath)) {
+        $result = $Path
+    }
+    else {
+        $result = (Join-Path $Path $ChildPath)
+    }
+
+    if ($ReplaceSlashes) {
+        $result = ($result -ireplace '\\', '/')
+    }
+
+    return $result
 }

@@ -1070,7 +1070,7 @@ function New-PodeWebButton
                 $result = @()
             }
 
-            if ($WebEvent.Response.ContentLength64 -eq 0) {
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
 
@@ -1144,7 +1144,11 @@ function New-PodeWebIcon
 
         [Parameter()]
         [string[]]
-        $CssClass
+        $CssClass,
+
+        [Parameter()]
+        [string]
+        $Title
     )
 
     if (![string]::IsNullOrWhiteSpace($Colour)) {
@@ -1158,6 +1162,7 @@ function New-PodeWebIcon
         Name = $Name
         Colour = $Colour
         CssClasses = ($CssClass -join ' ')
+        Title = $Title
     }
 }
 
@@ -1171,7 +1176,11 @@ function New-PodeWebSpinner
 
         [Parameter()]
         [string[]]
-        $CssClass
+        $CssClass,
+
+        [Parameter()]
+        [string]
+        $Title
     )
 
     if (![string]::IsNullOrWhiteSpace($Colour)) {
@@ -1184,6 +1193,7 @@ function New-PodeWebSpinner
         Parent = $ElementData
         Colour = $Colour
         CssClasses = ($CssClass -join ' ')
+        Title = $Title
     }
 }
 
@@ -1352,7 +1362,7 @@ function New-PodeWebChart
                 $result = @()
             }
 
-            if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
+            if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $result = ($result | Out-PodeWebChart -Id $using:Id)
             }
 
@@ -1482,6 +1492,10 @@ function New-PodeWebTable
         [string[]]
         $EndpointName,
 
+        [Parameter()]
+        [scriptblock]
+        $ClickScriptBlock,
+
         [switch]
         $Filter,
 
@@ -1520,7 +1534,11 @@ function New-PodeWebTable
     $Id = Get-PodeWebElementId -Tag Table -Id $Id -Name $Name
 
     if (![string]::IsNullOrWhiteSpace($CsvFilePath) -and $CsvFilePath.StartsWith('.')) {
-        $CsvFilePath = Join-Path (Get-PodeServerPath) $CsvFilePath
+        $CsvFilePath = Join-PodeWebPath (Get-PodeServerPath) $CsvFilePath
+    }
+
+    if (!$Click -and ($null -ne $ClickScriptBlock)) {
+        throw "Cannot set a -ClickScriptBlock without passing -Click"
     }
 
     $element = @{
@@ -1536,6 +1554,7 @@ function New-PodeWebTable
         Filter = $Filter.IsPresent
         Sort = $Sort.IsPresent
         Click = $Click.IsPresent
+        ClickIsDynamic = ($null -ne $ClickScriptBlock)
         IsDynamic = ($PSCmdlet.ParameterSetName -iin @('dynamic', 'csv'))
         NoExport = $NoExport.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
@@ -1548,19 +1567,21 @@ function New-PodeWebTable
         }
     }
 
+    # auth an endpoint
+    $auth = $null
+    if (!$NoAuthentication) {
+        $auth = (Get-PodeWebState -Name 'auth')
+    }
+
+    if (Test-PodeIsEmpty $EndpointName) {
+        $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+    }
+
+    # main table data script
     $routePath = "/elements/table/$($Id)"
     $buildRoute = (($null -ne $ScriptBlock) -or ![string]::IsNullOrWhiteSpace($CsvFilePath))
 
     if ($buildRoute -and !(Test-PodeWebRoute -Path $routePath)) {
-        $auth = $null
-        if (!$NoAuthentication) {
-            $auth = (Get-PodeWebState -Name 'auth')
-        }
-
-        if (Test-PodeIsEmpty $EndpointName) {
-            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
-        }
-
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:ElementData = $using:element
@@ -1577,13 +1598,29 @@ function New-PodeWebTable
                 $result = @()
             }
 
-            if (($result.Length -gt 0) -and [string]::IsNullOrWhiteSpace($result[0].OutputType)) {
+            if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $paginate = $ElementData.Paging.Enabled
                 $result = ($result | Out-PodeWebTable -Id $using:Id -Columns $ElementData.Columns -Paginate:$paginate)
             }
 
             Write-PodeJsonResponse -Value $result
             $global:ElementData = $null
+        }
+    }
+
+    # table row click
+    $clickPath = "$($routePath)/click"
+
+    if (($null -ne $ClickScriptBlock) -and !(Test-PodeWebRoute -Path $clickPath)) {
+        Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if ($WebEvent.Response.ContentLength64 -eq 0) {
+                Write-PodeJsonResponse -Value $result
+            }
         }
     }
 
@@ -1604,12 +1641,28 @@ function Initialize-PodeWebTableColumn
 
         [Parameter()]
         [int]
-        $Width = 0
+        $Width = 0,
+
+        [Parameter()]
+        [ValidateSet('Left', 'Right', 'Center')]
+        [string]
+        $Alignment = 'Left',
+
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Icon
     )
 
     return @{
         Key = $Key
         Width = $Width
+        Alignment = $Alignment.ToLowerInvariant()
+        Name = $Name
+        Icon = $Icon
     }
 }
 
@@ -1668,7 +1721,7 @@ function Add-PodeWebTableButton
                 $result = @()
             }
 
-            if ($WebEvent.Response.ContentLength64 -eq 0) {
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
         }
@@ -1949,5 +2002,59 @@ function New-PodeWebTimer
         ID = $Id
         Interval = ($Interval * 1000)
         CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function Set-PodeWebBreadcrumb
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [hashtable[]]
+        $Items = @()
+    )
+
+    if (($null -eq $Items)) {
+        $Items = @()
+    }
+
+    $foundActive = $false
+    foreach ($item in $Items) {
+        if ($foundActive -and $item.Active) {
+            throw "Cannot have two active breadcrumb items"
+        }
+
+        $foundActive = $item.Active
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ElementType = 'Breadcrumb'
+        Items = $Items
+    }
+}
+
+function New-PodeWebBreadcrumbItem
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url,
+
+        [switch]
+        $Active
+    )
+
+    return @{
+        ComponentType = 'Element'
+        ElementType = 'BreadcrumbItem'
+        Name = $Name
+        Url = $Url
+        Active = $Active.IsPresent
     }
 }

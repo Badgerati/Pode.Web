@@ -1,0 +1,10 @@
+$(
+    if ($data.InDropdown) {
+        "<li>
+            <hr class='dropdown-divider'>
+        </li>"
+    }
+    else {
+        "<span class='link-divider'>|</span>"
+    }
+)
