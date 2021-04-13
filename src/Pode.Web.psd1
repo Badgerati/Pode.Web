@@ -42,7 +42,7 @@
             ProjectUri = 'https://github.com/Badgerati/Pode.Web'
 
             # A URL to an icon representing this module.
-            IconUri = 'https://cdn.rawgit.com/Badgerati/Pode.Web/master/images/icon.png'
+            IconUri = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/images/icon.png'
 
         }
     }

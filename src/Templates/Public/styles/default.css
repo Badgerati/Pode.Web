@@ -67,6 +67,10 @@ button#menu-toggle .feather {
     height: 100%;
 }
 
+.carousel .carousel-item div {
+    align-items: center;
+}
+
 div[role="chart"] div[role="controls"] {
     float: left;
     margin-bottom: -3px;

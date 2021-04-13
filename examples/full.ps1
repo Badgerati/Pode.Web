@@ -160,17 +160,23 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $carousel = New-PodeWebCarousel -Slides @(
         New-PodeWebSlide -Title 'First Slide' -Message 'First slide message' -Content @(
-            New-PodeWebText -Value 'Slide 1'
+            New-PodeWebContainer -Nobackground -Content @(
+                New-PodeWebText -Value 'Slide 1' -Alignment Center
+            )
         )
         New-PodeWebSlide -Title 'Second Slide' -Message 'Second slide message' -Content @(
-            New-PodeWebText -Value 'Slide 2'
+            New-PodeWebContainer -Nobackground -Content @(
+                New-PodeWebText -Value 'Slide 2' -Alignment Center
+            )
         )
         New-PodeWebSlide -Title 'Third Slide' -Message 'Third slide message' -Content @(
-            New-PodeWebText -Value 'Slide 3'
+            New-PodeWebContainer -Nobackground -Content @(
+                New-PodeWebText -Value 'Slide 3' -Alignment Center
+            )
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $section, $carousel, $section2, $section3, $codeEditor, $grid1 -NoTitle
+    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle
 
 
     # tabs and charts
