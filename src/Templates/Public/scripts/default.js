@@ -811,6 +811,10 @@ function invokeActions(actions, sender) {
                 actionText(action);
                 break;
 
+            case 'select':
+                actionSelect(action);
+                break;
+
             case 'checkbox':
                 actionCheckbox(action);
                 break;
@@ -1517,7 +1521,12 @@ function getTagName(element) {
         return null;
     }
 
-    return $(element).prop('nodeName').toLowerCase();
+    var tagName = $(element).prop('nodeName');
+    if (!tagName) {
+        return null;
+    }
+
+    return tagName.toLowerCase();
 }
 
 function testTagName(element, tagName) {
@@ -1533,16 +1542,19 @@ function actionForm(action) {
     resetForm(form);
 }
 
-function resetForm(form) {
+function resetForm(form, isInner = false) {
     if (!form) {
-        return
+        return;
     }
 
     if (testTagName(form, 'form')) {
         form[0].reset();
     }
+    else if (isInner) {
+        return;
+    }
     else {
-        resetForm(form.find('form'));
+        resetForm(form.find('form'), true);
     }
 }
 
@@ -1610,8 +1622,27 @@ function actionText(action) {
         return;
     }
 
-    text = text.find('.pode-text') ?? text;
+    if (!text.hasClass('pode-text')) {
+        text = text.find('.pode-text') ?? text;
+    }
+
     text.text(decodeHTML(action.Value));
+}
+
+function actionSelect(action) {
+    if (!action) {
+        return;
+    }
+
+    var select = action.ID
+        ? $(`select#${action.ID}`)
+        : $(`select[name="${action.Name}"]`);
+
+    if (!select) {
+        return;
+    }
+
+    select.val(decodeHTML(action.Value));
 }
 
 function decodeHTML(value) {

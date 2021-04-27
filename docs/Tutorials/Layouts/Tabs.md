@@ -6,7 +6,7 @@ The tabs take an array of layouts, that can only be other layouts and *not* raw 
 
 ## Usage
 
-To create a tabs layouts you use [`New-PodeWebTabs`](../../../Functions/Layouts/New-PodeWebTabs), and supply it an array of `-Tabs` using [`New-PodeWebTab`](../../../Functions/Layouts/New-PodeWebTab). The tabs themselves accept an array of other `-Layouts`.
+To create a tabs layout you use [`New-PodeWebTabs`](../../../Functions/Layouts/New-PodeWebTabs), and supply it an array of `-Tabs` using [`New-PodeWebTab`](../../../Functions/Layouts/New-PodeWebTab). The tabs themselves accept an array of other `-Layouts`.
 
 For example, the below renders a layout with 3 tabs each containing an image:
 

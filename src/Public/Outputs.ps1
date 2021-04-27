@@ -397,6 +397,32 @@ function Out-PodeWebText
     }
 }
 
+function Set-PodeWebSelectOption
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string]
+        $Value
+    )
+
+    return @{
+        Operation = 'Set'
+        ElementType = 'Select'
+        Name = $Name
+        ID = $Id
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+    }
+}
+
 function Out-PodeWebBadge
 {
     [CmdletBinding()]
