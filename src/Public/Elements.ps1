@@ -577,8 +577,9 @@ function New-PodeWebImage
         $Source,
 
         [Parameter()]
+        [Alias('Alt')]
         [string]
-        $Alt,
+        $Title,
 
         [Parameter()]
         [ValidateSet('Left', 'Right', 'Center')]
@@ -614,7 +615,7 @@ function New-PodeWebImage
         Parent = $ElementData
         ID = $Id
         Source = $Source
-        Alt = $Alt
+        Title = $Title
         Alignment = $Alignment.ToLowerInvariant()
         Height = $Height
         Width = $Width
@@ -1994,7 +1995,7 @@ function New-PodeWebTimer
         }
     }
 
-    return @{
+    $element = @{
         ComponentType = 'Element'
         ElementType = 'Timer'
         Parent = $ElementData
@@ -2003,6 +2004,9 @@ function New-PodeWebTimer
         Interval = ($Interval * 1000)
         CssClasses = ($CssClass -join ' ')
     }
+
+    $element = New-PodeWebContainer -Content $element -Hide
+    return $element
 }
 
 function Set-PodeWebBreadcrumb

@@ -1,10 +1,10 @@
 # File Upload
 
-This input element is mostly only used with Forms, and can be created using [`New-PodeWebFileUpload`](../../../Functions/Elements/New-PodeWebFileUpload). It allows users to upload files from your page forms:
+The File Upload element is a form input element, and can be created using [`New-PodeWebFileUpload`](../../../Functions/Elements/New-PodeWebFileUpload). It allows users to upload files from your page forms:
 
 ```powershell
 New-PodeWebCard -Content @(
-    New-PodeWebForm -Name 'Example'  -ScriptBlock {
+    New-PodeWebForm -Name 'Example' -ScriptBlock {
         Save-PodeRequestFile -Key 'File' -Path 'C:\some\path\file.png'
     } -Content @(
         New-PodeWebFileUpload -Name 'File'

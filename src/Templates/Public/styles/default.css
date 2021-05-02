@@ -49,6 +49,10 @@ button#menu-toggle .feather {
     max-width: 100%;
 }
 
+[pode-hidden='True'] {
+    display: none !important;
+}
+
 .carousel {
     min-height: 10em;
     border-width: 1px;

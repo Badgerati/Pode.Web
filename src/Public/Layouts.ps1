@@ -169,7 +169,10 @@ function New-PodeWebContainer
         $CssClass,
 
         [switch]
-        $NoBackground
+        $NoBackground,
+
+        [switch]
+        $Hide
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -183,6 +186,7 @@ function New-PodeWebContainer
         Content = $Content
         CssClasses = ($CssClass -join ' ')
         NoBackground = $NoBackground.IsPresent
+        Hide = $Hide.IsPresent
     }
 }
 
