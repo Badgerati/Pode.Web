@@ -14,6 +14,24 @@ New-PodeWebCard -Content @(
 )
 ```
 
+When using singular checkboxes like above, the value in `$WebEvent` will be `true` or `false` strings.
+
 Which looks like below:
 
 ![checkbox](../../../images/checkbox.png)
+
+You can also setup a checkbox to have multiple options like below; in this case, the value will be a comma separated list of the selected options:
+
+```powershell
+New-PodeWebCard -Content @(
+    New-PodeWebForm -Name 'Example' -ScriptBlock {
+        $langs = $WebEvent.Data['Spoken Languages']
+    } -Content @(
+        New-PodeWebCheckbox -Name 'Spoken Languages' -Options 'English', 'French', 'Japanese', 'Chinese', 'Other' -AsSwitch
+    )
+)
+```
+
+Which looks like below:
+
+![checkbox_multi](../../../images/checkbox_multi.png)

@@ -341,24 +341,28 @@ function Add-PodeWebPage
 
         else {
             # if we have a scriptblock, invoke that to get dynamic components
-            $comps =$null
+            $layouts =$null
             if ($null -ne $using:ScriptBlock) {
-                $comps = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+                $layouts = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
             }
 
-            if (($null -eq $comps) -or ($comps.Length -eq 0)) {
-                $comps = $using:Layouts
+            if (($null -eq $layouts) -or ($layouts.Length -eq 0)) {
+                $layouts = $using:Layouts
             }
 
             $breadcrumb = $null
-            $layouts = @()
+            $filteredLayouts = @()
 
-            foreach ($item in $comps) {
-                if ($item.ElementType -ieq 'breadcrumb') {
+            foreach ($item in $layouts) {
+                if ($item.LayoutType -ieq 'breadcrumb') {
+                    if ($null -ne $breadcrumb) {
+                        throw "Cannot set two brecrumb trails on one page"
+                    }
+
                     $breadcrumb = $item
                 }
                 else {
-                    $layouts += $item
+                    $filteredLayouts += $item
                 }
             }
 
@@ -368,7 +372,7 @@ function Add-PodeWebPage
                 Theme = $Theme
                 Navigation = $navigation
                 Breadcrumb = $breadcrumb
-                Layouts = $layouts
+                Layouts = $filteredLayouts
                 Auth = $authMeta
             }
         }

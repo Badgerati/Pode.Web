@@ -540,3 +540,61 @@ function New-PodeWebStep
         IsDynamic = ($null -ne $ScriptBlock)
     }
 }
+
+function Set-PodeWebBreadcrumb
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [hashtable[]]
+        $Items = @()
+    )
+
+    if (($null -eq $Items)) {
+        $Items = @()
+    }
+
+    if (!(Test-PodeWebContent -Content $Items -ComponentType Layout -LayoutType BreadcrumbItem)) {
+        throw 'A Breadcrumb can only contain breadcrumb item layouts'
+    }
+
+    $foundActive = $false
+    foreach ($item in $Items) {
+        if ($foundActive -and $item.Active) {
+            throw "Cannot have two active breadcrumb items"
+        }
+
+        $foundActive = $item.Active
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Breadcrumb'
+        Items = $Items
+    }
+}
+
+function New-PodeWebBreadcrumbItem
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url,
+
+        [switch]
+        $Active
+    )
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'BreadcrumbItem'
+        Name = $Name
+        Url = $Url
+        Active = $Active.IsPresent
+    }
+}
