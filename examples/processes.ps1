@@ -27,7 +27,7 @@ Start-PodeServer {
     $table = New-PodeWebTable -Name 'Results' -Id 'tbl_process_results' -Filter -AsCard
     $form = New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
         $processes = Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU
-        $processes | Out-PodeWebTable -Id 'tbl_process_results'
+        $processes | Update-PodeWebTable -Id 'tbl_process_results'
         Show-PodeWebToast -Message "Found $($processes.Length) processes"
     } -Content @(
         New-PodeWebTextbox -Name 'Name'

@@ -1364,7 +1364,7 @@ function New-PodeWebChart
             }
 
             if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                $result = ($result | Out-PodeWebChart -Id $using:Id)
+                $result = ($result | Update-PodeWebChart -Id $using:Id)
             }
 
             Write-PodeJsonResponse -Value $result
@@ -1601,7 +1601,7 @@ function New-PodeWebTable
 
             if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $paginate = $ElementData.Paging.Enabled
-                $result = ($result | Out-PodeWebTable -Id $using:Id -Columns $ElementData.Columns -Paginate:$paginate)
+                $result = ($result | Update-PodeWebTable -Id $using:Id -Columns $ElementData.Columns -Paginate:$paginate)
             }
 
             Write-PodeJsonResponse -Value $result

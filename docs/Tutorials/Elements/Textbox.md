@@ -1,6 +1,6 @@
 # Textbox
 
-A textbox element is a form input element; you can render a textbox, single and multiline, to your page using [`New-PodeWebTextbox`].
+A textbox element is a form input element; you can render a textbox, single and multiline, to your page using [`New-PodeWebTextbox`](../../../Functions/Elements/New-PodeWebTextbox).
 
 A textbox by default is a normal plain single lined textbox, however you can customise its `-Type` to Email/Password/etc. To change the textbox to be multilined you ca supply `-Multiline`.
 

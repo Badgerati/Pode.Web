@@ -1,6 +1,6 @@
 # Button
 
-To display a button on your page you use [`New-PodeWebButton`]; a button can either be dynamic and run custom logic via a `-ScriptBlock`, or it can redirect a user to a `-Url`.
+To display a button on your page you use [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton); a button can either be dynamic and run custom logic via a `-ScriptBlock`, or it can redirect a user to a `-Url`.
 
 ## Dynamic
 

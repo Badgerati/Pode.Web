@@ -1268,13 +1268,12 @@ function bindTableClickableRows(tableId) {
 
 function actionTable(action, sender) {
     switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTable(action, sender);
+            break;
+
         case 'output':
-            if (action.ID) {
-                updateTable(action, sender);
-            }
-            else {
-                writeTable(action, sender);
-            }
+            writeTable(action, sender);
             break;
 
         case 'sync':
@@ -1288,10 +1287,8 @@ function syncTable(action) {
         return;
     }
 
-    var id = action.ID;
-    if (!id) {
-        id = $(`table[name="${action.Name}"]`).attr('id');
-    }
+    var table = getElementByNameOrId(action, 'table');
+    var id = getId(table);
 
     loadTable(id);
 }
@@ -1305,8 +1302,8 @@ function updateTable(action, sender) {
     action.Data = convertToArray(action.Data);
 
     // table meta
-    var tableId = `table#${action.ID}`;
-    var table = $(tableId);
+    var table = getElementByNameOrId(action, 'table');
+    var tableId = `table#${getId(table)}`;
 
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
@@ -1534,7 +1531,7 @@ function testTagName(element, tagName) {
 }
 
 function actionForm(action) {
-    var form = $(action.ID);
+    var form = getElementByNameOrId(action, 'form');
     if (!form) {
         return;
     }
@@ -1558,6 +1555,30 @@ function resetForm(form, isInner = false) {
     }
 }
 
+function getElementByNameOrId(action, tag, sender) {
+    if (!action) {
+        return null;
+    }
+
+    tag = tag ?? '';
+
+    // by ID
+    if (action.ID) {
+        return $(`${tag}#${action.ID}`);
+    }
+
+    // by Name
+    if (action.Name) {
+        if (sender) {
+            return sender.find(`${tag}[name="${action.Name}"]`);
+        }
+
+        return $(`${tag}[name="${action.Name}"]`);
+    }
+
+    return null;
+}
+
 function actionModal(action, sender) {
     switch (action.Operation.toLowerCase()) {
         case 'hide':
@@ -1571,10 +1592,7 @@ function actionModal(action, sender) {
 }
 
 function showModal(action) {
-    var modal = action.ID
-        ? $(`div#${action.ID}.modal`)
-        : $(`div.modal[name="${action.Name}"]`);
-
+    var modal = getElementByNameOrId(action, 'div.modal');
     if (!modal) {
         return;
     }
@@ -1591,14 +1609,8 @@ function showModal(action) {
 }
 
 function hideModal(action, sender) {
-    var modal = null;
-    if (action.ID) {
-        modal = $(`div#${action.ID}.modal`);
-    }
-    else if (action.Name) {
-        modal = $(`div.modal[name="${action.Name}"]`);
-    }
-    else {
+    var modal = getElementByNameOrId(action, 'div.modal');
+    if (!modal) {
         modal = sender.closest('div.modal');
     }
 
@@ -1634,10 +1646,7 @@ function actionSelect(action) {
         return;
     }
 
-    var select = action.ID
-        ? $(`select#${action.ID}`)
-        : $(`select[name="${action.Name}"]`);
-
+    var select = getElementByNameOrId(action, 'select');
     if (!select) {
         return;
     }
@@ -1696,14 +1705,7 @@ function actionToast(action) {
 }
 
 function actionValidation(action, sender) {
-    var input = null;
-    if (action.ID) {
-        input = $(`#${action.ID}`);
-    }
-    else {
-        input = sender.find(`[name="${action.Name}"]`);
-    }
-
+    var input = getElementByNameOrId(action, null, sender);
     if (!input) {
         return;
     }
@@ -1715,30 +1717,31 @@ function actionValidation(action, sender) {
 }
 
 function actionTextbox(action, sender) {
-    if (action.ID) {
-        updateTextbox(action);
-    }
-    else {
-        writeTextbox(action, sender);
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTextbox(action);
+            break;
+
+        case 'output':
+            writeTextbox(action, sender);
+            break;
     }
 }
 
 function updateTextbox(action) {
-    if (!action.Data) {
+    if (!action.Value) {
         return;
     }
 
+    var txt = action.Multiline
+        ? getElementByNameOrId(action, 'textarea')
+        : getElementByNameOrId(action, 'input');
+
     if (action.AsJson) {
-        action.Data = JSON.stringify(action.Data, null, 4);
+        action.Value = JSON.stringify(action.Value, null, 4);
     }
 
-    var txtId = `input#${action.ID}`;
-    if (action.Multiline) {
-        txtId = `textarea#${action.ID}`;
-    }
-
-    var txt = $(txtId);
-    txt.val(action.Data);
+    txt.val(action.Value);
 }
 
 function writeTextbox(action, sender) {
@@ -1828,11 +1831,14 @@ function downloadCSV(csv, filename) {
 }
 
 function actionChart(action, sender) {
-    if (action.ID) {
-        updateChart(action, sender);
-    }
-    else {
-        writeChart(action, sender);
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateChart(action, sender);
+            break;
+
+        case 'output':
+            writeChart(action, sender);
+            break;
     }
 }
 
@@ -1848,10 +1854,12 @@ function updateChart(action, sender) {
         return;
     }
 
-    var canvas = $(`canvas#${action.ID}`)
+    var canvas = getElementByNameOrId(action, 'canvas');
+    action.ID = getId(canvas);
+
     var _append = (canvas.attr('pode-append') == 'True');
 
-    // apend new data, rather than rebuild the chart
+    // append new data, rather than rebuild the chart
     if (_append && _charts[action.ID]) {
         appendToChart(canvas, action);
     }
@@ -2223,7 +2231,8 @@ function actionTab(action) {
         return;
     }
 
-    moveTab(action.ID ?? `tab_${action.Name}`);
+    var tab = getElementByNameOrId(action, 'a.nav-link');
+    moveTab(getId(tab));
 }
 
 function moveTab(tabId) {

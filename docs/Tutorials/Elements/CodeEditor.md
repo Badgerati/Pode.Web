@@ -1,6 +1,6 @@
 # Code Editor
 
-The code editor, which is done using MicroSoft's Monaco Editor, is currently still a WIP but functional. You can add a code editor to your page via [`New-PodeWebCodeEditor`], and specify the language is editor is for via `-Language`.
+The code editor, which is done using MicroSoft's Monaco Editor, is currently still a WIP but functional. You can add a code editor to your page via [`New-PodeWebCodeEditor`](../../../Functions/Elements/New-PodeWebCodeEditor), and specify the language is editor is for via `-Language`.
 
 To display the editor with some initial content you can supply `-Value`:
 
