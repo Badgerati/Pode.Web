@@ -57,7 +57,7 @@ Start-PodeServer -StatusPageExceptions Show {
     $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
         $rand = Get-Random -Minimum 0 -Maximum 3
         $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
-        Out-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
+        Update-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
     }
 
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
@@ -222,7 +222,7 @@ Start-PodeServer -StatusPageExceptions Show {
             $checked = ($svc.Status -ieq 'running')
 
             Show-PodeWebModal -Id 'modal_edit_svc' -DataValue $WebEvent.Data.Value -Actions @(
-                Out-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
+                Update-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
             )
         }
 

@@ -513,7 +513,7 @@ function Reset-PodeWebForm
     }
 }
 
-function Out-PodeWebText
+function Update-PodeWebText
 {
     [CmdletBinding()]
     param(
@@ -527,14 +527,14 @@ function Out-PodeWebText
     )
 
     return @{
-        Operation = 'Output'
+        Operation = 'Update'
         ElementType = 'Text'
         ID = $Id
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
 
-function Set-PodeWebSelectOption
+function Set-PodeWebSelect
 {
     [CmdletBinding(DefaultParameterSetName='Name')]
     param(
@@ -560,7 +560,7 @@ function Set-PodeWebSelectOption
     }
 }
 
-function Out-PodeWebBadge
+function Update-PodeWebBadge
 {
     [CmdletBinding()]
     param(
@@ -581,7 +581,7 @@ function Out-PodeWebBadge
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     return @{
-        Operation = 'Output'
+        Operation = 'Update'
         ElementType = 'Badge'
         ID = $Id
         Colour = $Colour
@@ -590,13 +590,21 @@ function Out-PodeWebBadge
     }
 }
 
-function Out-PodeWebCheckbox
+function Update-PodeWebCheckbox
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Id')]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [int]
+        $OptionId = 0,
 
         [Parameter()]
         [switch]
@@ -604,9 +612,11 @@ function Out-PodeWebCheckbox
     )
 
     return @{
-        Operation = 'Output'
+        Operation = 'Update'
         ElementType = 'Checkbox'
         ID = $Id
+        Name = $Name
+        OptionId = $OptionId
         Checked = $Checked.IsPresent
     }
 }
@@ -663,7 +673,7 @@ function Hide-PodeWebModal
     }
 }
 
-function Show-PodeWebError
+function Out-PodeWebError
 {
     [CmdletBinding()]
     param(
@@ -673,7 +683,7 @@ function Show-PodeWebError
     )
 
     return @{
-        Operation = 'Show'
+        Operation = 'Output'
         ElementType = 'Error'
         Message = $Message
     }
@@ -805,5 +815,40 @@ function Out-PodeWebBreadcrumb
         Operation = 'Output'
         ElementType = 'Breadcrumb'
         Items = $Items
+    }
+}
+
+function Update-PodeWebProgress
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [int]
+        $Value = -1,
+
+        [Parameter()]
+        [ValidateSet('', 'Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = ''
+    )
+
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
+
+    return @{
+        Operation = 'Update'
+        ElementType = 'Progress'
+        ID = $Id
+        Name = $Name
+        Colour = $Colour
+        ColourType = $ColourType.ToLowerInvariant()
+        Value = $Value
     }
 }

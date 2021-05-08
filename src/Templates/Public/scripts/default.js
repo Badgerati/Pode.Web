@@ -308,6 +308,17 @@ function setValidationError(element) {
     }
 
     element.addClass('is-invalid');
+
+    // form-row? flag inside inputs
+    if (element.hasClass('form-row')) {
+        element.find('input').addClass('is-invalid');
+    }
+
+    // input? find parent input-group/form-row
+    if (testTagName(element, 'input')) {
+        element.closest('div.input-group').addClass('is-invalid');
+        element.closest('div.form-row').addClass('is-invalid');
+    }
 }
 
 function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
@@ -833,6 +844,10 @@ function invokeActions(actions, sender) {
 
             case 'badge':
                 actionBadge(action);
+                break;
+
+            case 'progress':
+                actionProgress(action);
                 break;
 
             case 'tab':
@@ -1555,25 +1570,26 @@ function resetForm(form, isInner = false) {
     }
 }
 
-function getElementByNameOrId(action, tag, sender) {
+function getElementByNameOrId(action, tag, sender, filter) {
     if (!action) {
         return null;
     }
 
     tag = tag ?? '';
+    filter = filter ?? '';
 
     // by ID
     if (action.ID) {
-        return $(`${tag}#${action.ID}`);
+        return $(`${tag}#${action.ID}${filter}`);
     }
 
     // by Name
     if (action.Name) {
         if (sender) {
-            return sender.find(`${tag}[name="${action.Name}"]`);
+            return sender.find(`${tag}[name="${action.Name}"]${filter}`);
         }
 
-        return $(`${tag}[name="${action.Name}"]`);
+        return $(`${tag}[name="${action.Name}"]${filter}`);
     }
 
     return null;
@@ -1663,7 +1679,11 @@ function decodeHTML(value) {
 }
 
 function actionCheckbox(action) {
-    var checkbox = $(`#${action.ID}_option0`);
+    if (action.ID) {
+        action.ID = `${action.ID}_option${action.OptionId}`;
+    }
+
+    var checkbox = getElementByNameOrId(action, 'input', null, `[pode-option-id="${action.OptionId}"]`);
     if (!checkbox) {
         return;
     }
@@ -2221,8 +2241,57 @@ function actionBadge(action) {
 
     // change colour
     if (action.Colour) {
-        badge.removeClass();
-        badge.addClass(`badge badge-${action.ColourType}`);
+        removeClass(badge, 'badge-\\w+');
+        badge.addClass(`badge-${action.ColourType}`);
+    }
+}
+
+function actionProgress(action) {
+    if (!action) {
+        return;
+    }
+
+    var progress = getElementByNameOrId(action, 'div');
+    if (!progress) {
+        return;
+    }
+
+    // change value
+    if (action.Value >= 0) {
+        progress.attr('aria-valuenow', action.Value);
+
+        var max = progress.attr('aria-valuemax');
+        var percentage = (action.Value / max) * 100.0;
+
+        progress.css('width', `${percentage}%`);
+    }
+
+    // change colour
+    if (action.Colour) {
+        removeClass(progress, 'bg-\\w+');
+        progress.addClass(`bg-${action.ColourType}`);
+    }
+}
+
+function getClass(element, filter) {
+    if (!element || !filter) {
+        return null;
+    }
+
+    var result = element.attr('class').match(new RegExp(filter));
+    return (result ? result[0] : null);
+}
+
+function removeClass(element, filter) {
+    if (!element) {
+        return;
+    }
+
+    if (!filter) {
+        element.removeClass();
+    }
+    else {
+        element.removeClass(getClass(element, filter));
     }
 }
 
@@ -2256,7 +2325,7 @@ function actionError(action, sender) {
         return;
     }
 
-    sender.append(`<div class="alert alert-danger pode-error" role="alert">
+    sender.append(`<div class="alert alert-danger pode-error mTop1" role="alert">
         <h6 class='pode-alert-header'>
             <span data-feather="alert-circle"></span>
             <strong>Error</strong>

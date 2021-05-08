@@ -8,7 +8,7 @@ A modal takes an array of content, that can be either other layouts or raw eleme
 
 To create a modal layout you use [`New-PodeWebModal`](../../../Functions/Layouts/New-PodeWebModal), supplying a `-Name` and any `-Content`. The modal will then be on the page, but will be hidden until required. You can also supply a `-ScriptBlock` with logic to be invoked when the modal's Submit button is clicked.
 
-To show the modal, you can use the output action [`Show-PodeWebModal`](../../../Functions/Outputs/Show-PodeWebModal), and supply the `-Name` of the modal to show. You can populate elements within the modal just prior to it being shown by using `-Actions`; this takes more output actions to invoke such as [`Out-PodeWebCheckbox`](../../../Functions/Outputs/Out-PodeWebCheckbox) and [`Out-PodeWebTextbox`](../../../Functions/Outputs/Out-PodeWebTextbox), which reference elements within the modal.
+To show the modal, you can use the output action [`Show-PodeWebModal`](../../../Functions/Outputs/Show-PodeWebModal), and supply the `-Name` of the modal to show. You can populate elements within the modal just prior to it being shown by using `-Actions`; this takes more output actions to invoke such as [`Update-PodeWebCheckbox`](../../../Functions/Outputs/Update-PodeWebCheckbox) and [`Out-PodeWebTextbox`](../../../Functions/Outputs/Out-PodeWebTextbox), which reference elements within the modal.
 
 On [`Show-PodeWebModal`](../../../Functions/Outputs/Show-PodeWebModal) you can also supply a `-DataValue`, such as a UserId, Service Name, etc., and this value will be supplied on Submit via `$WebEvent.Data['Value']` in [`New-PodeWebModal`](../../../Functions/Layouts/New-PodeWebModal)'s scriptblock. This can be useful if showing a modal from a table using `-DataColumn`.
 
@@ -23,7 +23,7 @@ New-PodeWebCard -Content @(
     New-PodeWebTable -Name 'Services' -DataColumn Name -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
             Show-PodeWebModal -Name 'Stop Service' -DataValue $WebEvent.Data.Value -Actions @(
-                Out-PodeWebText -Id 'svc_name' -Value $WebEvent.Data.Value
+                Update-PodeWebText -Id 'svc_name' -Value $WebEvent.Data.Value
             )
         }
 
@@ -66,7 +66,7 @@ New-PodeWebCard -Content @(
         $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'Edit' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
             Show-PodeWebModal -Name 'Edit Service' -DataValue $WebEvent.Data.Value -Actions @(
-                Set-PodeWebSelectOption -Name 'StartType' -Value $svc.StartType
+                Set-PodeWebSelect -Name 'StartType' -Value $svc.StartType
             )
         }
 

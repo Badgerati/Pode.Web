@@ -1,4 +1,4 @@
-# Forms
+# Form
 
 This page details the available output actions available to Forms.
 

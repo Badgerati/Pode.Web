@@ -8,7 +8,7 @@ The below example sets up a timer that will update the badge's value and colour 
 New-PodeWebTimer -Name ExampleTimer -Interval 10 -ScriptBlock {
     $rand = Get-Random -Minimum 0 -Maximum 3
     $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
-    Out-PodeWebBadge -Id 'bdg_example' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
+    Update-PodeWebBadge -Id 'bdg_example' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
 }
 
 New-PodeWebCard -Content @(

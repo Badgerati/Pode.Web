@@ -1,4 +1,4 @@
-# Modals
+# Modal
 
 This page details the available output actions available to Modals.
 
