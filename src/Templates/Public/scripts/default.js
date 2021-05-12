@@ -2115,7 +2115,7 @@ function writeChart(action, sender) {
     // create canvas
     var canvas = $(`canvas#${chartId}`);
     if (canvas.length == 0) {
-        sender.after(`<canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${action.ChartType}"></canvas>`);
+        sender.after(`<div><canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${action.ChartType}" style="height:400px;"></canvas></div>`);
     }
 
     // update
