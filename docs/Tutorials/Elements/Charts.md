@@ -7,7 +7,7 @@ You can display data rendered as a chart by using [`New-PodeWebChart`](../../../
 * Pie
 * Doughnut
 
-A chart get its data from a supplied `-ScriptBlock`, more information below, and you can set a `-MaxItems` to be shown, and whether new data points should `-Append` to the chart. You can also `-AutoRefresh` a chart, to fetch new data every minute.
+A chart gets its data from a supplied `-ScriptBlock`, more information below, and you can set a `-MaxItems` to be shown, and whether new data points should `-Append` to the chart. You can also `-AutoRefresh` a chart, to fetch new data every minute.
 
 ## Data
 
