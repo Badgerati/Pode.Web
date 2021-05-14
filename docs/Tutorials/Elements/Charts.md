@@ -11,7 +11,7 @@ A chart gets its data from a supplied `-ScriptBlock`, more information below, an
 
 ## Data
 
-To supply data to be rendered on a chart, you have to supply a `-ScritpBlock` which returns the appropriate data in the correct format; fortunately there's [`ConvertTo-PodeWebChartDataset`](../../../Functions/Outputs/ConvertTo-PodeWebChartDataset) to help with this format.
+To supply data to be rendered on a chart, you have to supply a `-ScritpBlock` which returns the appropriate data in the correct format; fortunately there's [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData) to help with this format.
 
 ### Raw
 
@@ -52,7 +52,7 @@ If you click the refresh button in the top-left corner, the `-ScriptBlock` will 
 
 ### ConvertTo
 
-The [`ConvertTo-PodeWebChartDataset`](../../../Functions/Outputs/ConvertTo-PodeWebChartDataset) helps to simplify the above a raw format, by letting you convert data at the end of a pipeline. The function takes a `-Label` which is the name of a property in the input that should be used for the X-axis, and then a `-Dataset` with is property names for Y-axis values.
+The [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData) helps to simplify the above a raw format, by letting you convert data at the end of a pipeline. The function takes a `-LabelProperty` which is the name of a property in the input that should be used for the X-axis, and then a `-DatasetProperty` with is property names for Y-axis values.
 
 For example, let's say we want to display the top 10 processes using the most CPU. We want to display the process name, and its CPU and Memory usage, *and* we want it to auto-refresh every minute:
 
@@ -62,7 +62,7 @@ New-PodeWebContainer -Content @(
         Get-Process |
             Sort-Object -Property CPU -Descending |
             Select-Object -First 10 |
-            ConvertTo-PodeWebChartDataset -Label ProcessName -Dataset CPU, Handles
+            ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU, Handles
     }
 )
 ```

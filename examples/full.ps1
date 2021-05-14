@@ -136,7 +136,7 @@ Start-PodeServer -StatusPageExceptions Show {
         Get-Process |
             Sort-Object -Property CPU -Descending |
             Select-Object -First 10 |
-            ConvertTo-PodeWebChartDataset -Label ProcessName -Dataset CPU, Handles
+            ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU, Handles
     }
 
     $grid1 = New-PodeWebGrid -Cells @(

@@ -161,20 +161,28 @@ function Sync-PodeWebTable
 
 function Update-PodeWebTableRow
 {
-    [CmdletBinding(DefaultParameterSetName='DataValue')]
+    [CmdletBinding(DefaultParameterSetName='Name_and_DataValue')]
     param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         $Data,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DataValue')]
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_Index')]
         [string]
-        $TableId,
+        $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='DataValue')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DataValue')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_Index')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DataValue')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DataValue')]
         [string]
         $DataValue,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Index')]
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_Index')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_Index')]
         [int]
         $Index
     )
@@ -182,7 +190,8 @@ function Update-PodeWebTableRow
     return @{
         Operation = 'Update'
         ElementType = 'TableRow'
-        TableId = $TableId
+        ID = $Id
+        Name = $Name
         Row = @{
             Type = $PSCmdlet.ParameterSetName.ToLowerInvariant()
             DataValue = $DataValue
@@ -282,7 +291,7 @@ function Update-PodeWebChart
     }
 }
 
-function ConvertTo-PodeWebChartDataset
+function ConvertTo-PodeWebChartData
 {
     [CmdletBinding()]
     param(
@@ -290,12 +299,14 @@ function ConvertTo-PodeWebChartDataset
         $Data,
 
         [Parameter(Mandatory=$true)]
+        [Alias('Label')]
         [string]
-        $Label,
+        $LabelProperty,
 
         [Parameter(Mandatory=$true)]
+        [Alias('Dataset')]
         [string[]]
-        $Dataset
+        $DatasetProperty
     )
 
     begin {
@@ -309,8 +320,8 @@ function ConvertTo-PodeWebChartDataset
     end {
         foreach ($item in $items) {
             @{
-                Key = $item.$Label
-                Values = @(foreach ($prop in $Dataset) {
+                Key = $item.$LabelProperty
+                Values = @(foreach ($prop in $DataProperty) {
                     @{
                         Key = $prop
                         Value = $item.$prop

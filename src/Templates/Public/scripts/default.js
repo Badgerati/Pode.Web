@@ -1188,30 +1188,34 @@ function actionTableRow(action, sender) {
 }
 
 function updateTableRow(action) {
-    if (!action.TableId || !action.Data) {
+    if ((!action.ID && !action.Name) || !action.Data) {
         return;
     }
 
     // ensure the table exists
-    var table = $(`table#${action.TableId}`);
+    var table = getElementByNameOrId(action, 'table');
     if (table.length == 0) {
         return;
     }
 
+    var tableId = `table#${getId(table)}`;
+
     // get the table row
     var row = null;
     switch (action.Row.Type) {
-        case 'datavalue':
+        case 'id_and_datavalue':
+        case 'name_and_datavalue':
             row = table.find(`tbody tr[pode-data-value="${action.Row.DataValue}"]`);
             break;
 
-        case 'index':
+        case 'id_and_index':
+        case 'name_and_index':
             row = table.find('tbody tr').eq(action.Row.Index);
             break;
     }
 
     // do nothing if no row
-    if (row.length == 0) {
+    if (!row || row.length == 0) {
         return;
     }
 
@@ -1238,7 +1242,7 @@ function updateTableRow(action) {
     bindButtons();
 
     // setup clickable rows
-    bindTableClickableRows(action.TableId);
+    bindTableClickableRows(tableId);
 }
 
 function getQueryStringValue(name) {

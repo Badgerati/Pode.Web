@@ -1,6 +1,6 @@
 # Table
 
-You can display data rendered in a table by using [`New-PodeWebTable`], and you can also render certain other elements within a table such as:
+You can display data rendered in a table by using [`New-PodeWebTable`](../../../Functions/Elements/New-PodeWebTable), and you can also render certain other elements within a table such as:
 
 * Buttons
 * Badges
@@ -40,7 +40,7 @@ which renders a table that looks like below:
 
 ### Elements
 
-Extending on the raw example above, you can also render certain elements within a table. Let's say you want two buttons in the table, one to start the service, and one to stop the service; to do this, we just have to use [`New-PodeWebButton`] within the returned data hashtable. So that the button's scriptblock knows which services we which to stop/start, we'll need to supply `-DataColumn Name` to the table. When a button within the table is clicked, the value of the column in that button's row will be available via `$WebEvent.Data.Value` in the button's scriptblock.
+Extending on the raw example above, you can also render certain elements within a table. Let's say you want two buttons in the table, one to start the service, and one to stop the service; to do this, we just have to use [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton) within the returned data hashtable. So that the button's scriptblock knows which services we which to stop/start, we'll need to supply `-DataColumn Name` to the table. When a button within the table is clicked, the value of the column in that button's row will be available via `$WebEvent.Data.Value` in the button's scriptblock.
 
 ```powershell
 New-PodeWebContainer -Content @(
@@ -102,7 +102,7 @@ You can set the table rows to be sortable by passing `-Sort`. When set, clicking
 
 ## Columns
 
-You can set how certain columns in a table behave, such as: width, alignment, display name, and header icon. You can do this via [`Initialize-PodeWebTableColumn`], and by passing these columns into `-Columns` of [`New-PodeWebTable`].
+You can set how certain columns in a table behave, such as: width, alignment, display name, and header icon. You can do this via [`Initialize-PodeWebTableColumn`](../../../Functions/Elements/Initialize-PodeWebTableColumn), and by passing these columns into `-Columns` of [`New-PodeWebTable`](../../../Functions/Elements/New-PodeWebTable).
 
 For example, using the services examples above, you can centrally align the Status/StartType columns and give them icons:
 
@@ -130,7 +130,7 @@ which renders a table that looks like below:
 
 ## Buttons
 
-At the bottom of a table, there are usually two buttons on the left: Refresh and Export. You can add more buttons to a table by piping a new table into [`Add-PodeWebTableButton`]:
+At the bottom of a table, there are usually two buttons on the left: Refresh and Export. You can add more buttons to a table by piping a new table into [`Add-PodeWebTableButton`](../../../Functions/Elements/Add-PodeWebTableButton):
 
 ```powershell
 $table = New-PodeWebTable -Name 'Services' -ScriptBlock {
