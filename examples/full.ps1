@@ -57,7 +57,7 @@ Start-PodeServer -StatusPageExceptions Show {
     $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
         $rand = Get-Random -Minimum 0 -Maximum 3
         $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
-        Out-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
+        Update-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
     }
 
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
@@ -136,7 +136,7 @@ Start-PodeServer -StatusPageExceptions Show {
         Get-Process |
             Sort-Object -Property CPU -Descending |
             Select-Object -First 10 |
-            ConvertTo-PodeWebChartDataset -Label ProcessName -Dataset CPU, Handles
+            ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU, Handles
     }
 
     $grid1 = New-PodeWebGrid -Cells @(
@@ -160,17 +160,23 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $carousel = New-PodeWebCarousel -Slides @(
         New-PodeWebSlide -Title 'First Slide' -Message 'First slide message' -Content @(
-            New-PodeWebText -Value 'Slide 1'
+            New-PodeWebContainer -Nobackground -Content @(
+                New-PodeWebText -Value 'Slide 1' -Alignment Center
+            )
         )
         New-PodeWebSlide -Title 'Second Slide' -Message 'Second slide message' -Content @(
-            New-PodeWebText -Value 'Slide 2'
+            New-PodeWebContainer -Nobackground -Content @(
+                New-PodeWebText -Value 'Slide 2' -Alignment Center
+            )
         )
         New-PodeWebSlide -Title 'Third Slide' -Message 'Third slide message' -Content @(
-            New-PodeWebText -Value 'Slide 3'
+            New-PodeWebContainer -Nobackground -Content @(
+                New-PodeWebText -Value 'Slide 3' -Alignment Center
+            )
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $section, $carousel, $section2, $section3, $codeEditor, $grid1 -NoTitle
+    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle
 
 
     # tabs and charts
@@ -216,7 +222,7 @@ Start-PodeServer -StatusPageExceptions Show {
             $checked = ($svc.Status -ieq 'running')
 
             Show-PodeWebModal -Id 'modal_edit_svc' -DataValue $WebEvent.Data.Value -Actions @(
-                Out-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
+                Update-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
             )
         }
 

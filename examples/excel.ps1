@@ -42,7 +42,7 @@ Start-PodeServer -StatusPageExceptions Show {
             $checked = ($svc.Status -ieq 'running')
 
             Show-PodeWebModal -Id 'modal_edit_svc' -DataValue $WebEvent.Data.Value -Actions @(
-                Out-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
+                Update-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
             )
         }
 

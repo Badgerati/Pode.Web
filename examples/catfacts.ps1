@@ -19,14 +19,14 @@ Start-PodeServer {
                 Fact = $response
             }
 
-            $data | Update-PodeWebTableRow -TableId $ElementData.Parent.ID -DataValue $WebEvent.Data['value']
+            $data | Update-PodeWebTableRow -Id $ElementData.Parent.ID -DataValue $WebEvent.Data['value']
         }
 
         # load all catfacts
         $response = (Invoke-RestMethod -Uri 'https://catfact.ninja/facts?limit=10' -Method Get).data
         for ($i = 0; $i -lt $response.Length; $i++) {
             [ordered]@{
-                ID     = $i
+                ID     = "$($i)"
                 Fact   = $response[$i].fact
                 Action = $refreshBtn
             }

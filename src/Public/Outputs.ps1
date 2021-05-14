@@ -5,19 +5,63 @@ function Out-PodeWebTable
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         $Data,
 
-        [Parameter(ParameterSetName='Id')]
+        [Parameter()]
+        [hashtable[]]
+        $Columns,
+
+        [Parameter()]
+        [switch]
+        $Sort
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $Data
+    }
+
+    end {
+        # columns
+        $_columns = @{}
+        if (($null -ne $Columns) -and ($Columns.Length -gt 0)) {
+            foreach ($col in $Columns) {
+                $_columns[$col.Key] = $col
+            }
+        }
+
+        # table output
+        return @{
+            Operation = 'Output'
+            ElementType = 'Table'
+            Data = $items
+            Sort = $Sort.IsPresent
+            Columns = $_columns
+        }
+    }
+}
+
+function Update-PodeWebTable
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        $Data,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
 
         [Parameter()]
         [hashtable[]]
         $Columns,
 
-        [Parameter(ParameterSetName='New')]
-        [switch]
-        $Sort,
-
-        [Parameter(ParameterSetName='Id')]
+        [Parameter()]
         [switch]
         $Paginate
     )
@@ -78,11 +122,11 @@ function Out-PodeWebTable
 
         # table output
         return @{
-            Operation = 'Output'
+            Operation = 'Update'
             ElementType = 'Table'
             Data = $items
             ID = $Id
-            Sort = $Sort.IsPresent
+            Name = $Name
             Columns = $_columns
             Paging = @{
                 Number = $pageNumber
@@ -117,20 +161,28 @@ function Sync-PodeWebTable
 
 function Update-PodeWebTableRow
 {
-    [CmdletBinding(DefaultParameterSetName='DataValue')]
+    [CmdletBinding(DefaultParameterSetName='Name_and_DataValue')]
     param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         $Data,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DataValue')]
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_Index')]
         [string]
-        $TableId,
+        $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='DataValue')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DataValue')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_Index')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DataValue')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DataValue')]
         [string]
         $DataValue,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Index')]
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_Index')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_Index')]
         [int]
         $Index
     )
@@ -138,7 +190,8 @@ function Update-PodeWebTableRow
     return @{
         Operation = 'Update'
         ElementType = 'TableRow'
-        TableId = $TableId
+        ID = $Id
+        Name = $Name
         Row = @{
             Type = $PSCmdlet.ParameterSetName.ToLowerInvariant()
             DataValue = $DataValue
@@ -150,16 +203,12 @@ function Update-PodeWebTableRow
 
 function Out-PodeWebChart
 {
-    [CmdletBinding(DefaultParameterSetName='New')]
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         $Data,
 
-        [Parameter(ParameterSetName='Id')]
-        [string]
-        $Id,
-
-        [Parameter(ParameterSetName='New')]
+        [Parameter()]
         [ValidateSet('line', 'pie', 'doughnut', 'bar')]
         [string]
         $Type = 'line'
@@ -190,13 +239,59 @@ function Out-PodeWebChart
             Operation = 'Output'
             ElementType = 'Chart'
             Data = $items
-            ID = $Id
             ChartType = $Type
         }
     }
 }
 
-function ConvertTo-PodeWebChartDataset
+function Update-PodeWebChart
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        $Data,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if ($Data.Values -isnot [array]) {
+            if ($Data.Values -is [hashtable]) {
+                $Data.Values = @($Data.Values)
+            }
+            else {
+                $Data.Values = @(@{
+                    Key = 'Default'
+                    Value = $Data.Values
+                })
+            }
+        }
+
+        $items += $Data
+    }
+
+    end {
+        return @{
+            Operation = 'Update'
+            ElementType = 'Chart'
+            Data = $items
+            ID = $Id
+            Name = $Name
+        }
+    }
+}
+
+function ConvertTo-PodeWebChartData
 {
     [CmdletBinding()]
     param(
@@ -204,12 +299,14 @@ function ConvertTo-PodeWebChartDataset
         $Data,
 
         [Parameter(Mandatory=$true)]
+        [Alias('Label')]
         [string]
-        $Label,
+        $LabelProperty,
 
         [Parameter(Mandatory=$true)]
+        [Alias('Dataset')]
         [string[]]
-        $Dataset
+        $DatasetProperty
     )
 
     begin {
@@ -223,8 +320,8 @@ function ConvertTo-PodeWebChartDataset
     end {
         foreach ($item in $items) {
             @{
-                Key = $item.$Label
-                Values = @(foreach ($prop in $Dataset) {
+                Key = $item.$LabelProperty
+                Values = @(foreach ($prop in $DatasetProperty) {
                     @{
                         Key = $prop
                         Value = $item.$prop
@@ -237,32 +334,29 @@ function ConvertTo-PodeWebChartDataset
 
 function Out-PodeWebTextbox
 {
-    [CmdletBinding(DefaultParameterSetName='New')]
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        $Data,
+        [Alias('Data')]
+        $Value,
 
-        [Parameter(ParameterSetName='Id')]
-        [string]
-        $Id,
-
-        [Parameter(ParameterSetName='New')]
+        [Parameter()]
         [int]
         $Height = 10,
 
-        [Parameter(ParameterSetName='New')]
+        [Parameter()]
         [switch]
         $AsJson,
 
-        [Parameter(ParameterSetName='New')]
+        [Parameter()]
         [switch]
         $Multiline,
 
-        [Parameter(ParameterSetName='New')]
+        [Parameter()]
         [switch]
         $Preformat,
 
-        [Parameter(ParameterSetName='New')]
+        [Parameter()]
         [switch]
         $ReadOnly
     )
@@ -272,7 +366,7 @@ function Out-PodeWebTextbox
     }
 
     process {
-        $items += $Data
+        $items += $Value
     }
 
     end {
@@ -287,13 +381,62 @@ function Out-PodeWebTextbox
         return @{
             Operation = 'Output'
             ElementType = 'Textbox'
-            Data = $items
-            ID = $Id
+            Value = $items
             AsJson = $AsJson.IsPresent
-            Multiline = $Multiline
+            Multiline = $Multiline.IsPresent
             Height = $Height
             Preformat = $Preformat.IsPresent
             ReadOnly = $ReadOnly.IsPresent
+        }
+    }
+}
+
+function Update-PodeWebTextbox
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Alias('Data')]
+        $Value,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [switch]
+        $AsJson,
+
+        [Parameter()]
+        [switch]
+        $Multiline
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $Value
+    }
+
+    end {
+        if (!$AsJson) {
+            $items = ($items | Out-String)
+        }
+
+        return @{
+            Operation = 'Update'
+            ElementType = 'Textbox'
+            Value = $items
+            ID = $Id
+            Name = $Name
+            AsJson = $AsJson.IsPresent
+            Multiline = $Multiline.IsPresent
         }
     }
 }
@@ -362,9 +505,13 @@ function Out-PodeWebValidation
 
 function Reset-PodeWebForm
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Name')]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id
     )
@@ -373,10 +520,11 @@ function Reset-PodeWebForm
         Operation = 'Reset'
         ElementType = 'Form'
         ID = $Id
+        Name = $Name
     }
 }
 
-function Out-PodeWebText
+function Update-PodeWebText
 {
     [CmdletBinding()]
     param(
@@ -390,14 +538,40 @@ function Out-PodeWebText
     )
 
     return @{
-        Operation = 'Output'
+        Operation = 'Update'
         ElementType = 'Text'
         ID = $Id
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
 
-function Out-PodeWebBadge
+function Set-PodeWebSelect
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string]
+        $Value
+    )
+
+    return @{
+        Operation = 'Set'
+        ElementType = 'Select'
+        Name = $Name
+        ID = $Id
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+    }
+}
+
+function Update-PodeWebBadge
 {
     [CmdletBinding()]
     param(
@@ -418,7 +592,7 @@ function Out-PodeWebBadge
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     return @{
-        Operation = 'Output'
+        Operation = 'Update'
         ElementType = 'Badge'
         ID = $Id
         Colour = $Colour
@@ -427,13 +601,21 @@ function Out-PodeWebBadge
     }
 }
 
-function Out-PodeWebCheckbox
+function Update-PodeWebCheckbox
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Id')]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [int]
+        $OptionId = 0,
 
         [Parameter()]
         [switch]
@@ -441,9 +623,11 @@ function Out-PodeWebCheckbox
     )
 
     return @{
-        Operation = 'Output'
+        Operation = 'Update'
         ElementType = 'Checkbox'
         ID = $Id
+        Name = $Name
+        OptionId = $OptionId
         Checked = $Checked.IsPresent
     }
 }
@@ -500,7 +684,7 @@ function Hide-PodeWebModal
     }
 }
 
-function Show-PodeWebError
+function Out-PodeWebError
 {
     [CmdletBinding()]
     param(
@@ -510,7 +694,7 @@ function Show-PodeWebError
     )
 
     return @{
-        Operation = 'Show'
+        Operation = 'Output'
         ElementType = 'Error'
         Message = $Message
     }
@@ -592,7 +776,7 @@ function Move-PodeWebTab
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id
     )
@@ -642,5 +826,40 @@ function Out-PodeWebBreadcrumb
         Operation = 'Output'
         ElementType = 'Breadcrumb'
         Items = $Items
+    }
+}
+
+function Update-PodeWebProgress
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [int]
+        $Value = -1,
+
+        [Parameter()]
+        [ValidateSet('', 'Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = ''
+    )
+
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
+
+    return @{
+        Operation = 'Update'
+        ElementType = 'Progress'
+        ID = $Id
+        Name = $Name
+        Colour = $Colour
+        ColourType = $ColourType.ToLowerInvariant()
+        Value = $Value
     }
 }

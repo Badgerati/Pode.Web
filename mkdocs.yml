@@ -1,0 +1,30 @@
+site_name: Pode.Web
+
+theme:
+  name: material
+  logo: images/icon.png
+  favicon: images/favicon.ico
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+  palette:
+    scheme: preference
+    primary: cyan
+    accent: cyan
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - admonition
+  - meta
+
+repo_name: badgerati/pode.web
+
+repo_url: https://github.com/Badgerati/Pode.Web
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/badgerati
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/badgerati

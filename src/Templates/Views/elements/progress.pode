@@ -18,6 +18,7 @@ $(
             <div
                 class='progress-bar bg-$($data.ColourType) $($showValue) $($striped) $($animated)'
                 id='$($data.ID)'
+                name='$($data.Name)'
                 role='progressbar'
                 style='width: $($data.Percentage)%;'
                 aria-valuenow='$($data.Value)'

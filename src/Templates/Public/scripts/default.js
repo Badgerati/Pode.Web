@@ -308,6 +308,17 @@ function setValidationError(element) {
     }
 
     element.addClass('is-invalid');
+
+    // form-row? flag inside inputs
+    if (element.hasClass('form-row')) {
+        element.find('input').addClass('is-invalid');
+    }
+
+    // input? find parent input-group/form-row
+    if (testTagName(element, 'input')) {
+        element.closest('div.input-group').addClass('is-invalid');
+        element.closest('div.form-row').addClass('is-invalid');
+    }
 }
 
 function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
@@ -811,6 +822,10 @@ function invokeActions(actions, sender) {
                 actionText(action);
                 break;
 
+            case 'select':
+                actionSelect(action);
+                break;
+
             case 'checkbox':
                 actionCheckbox(action);
                 break;
@@ -829,6 +844,10 @@ function invokeActions(actions, sender) {
 
             case 'badge':
                 actionBadge(action);
+                break;
+
+            case 'progress':
+                actionProgress(action);
                 break;
 
             case 'tab':
@@ -1169,30 +1188,34 @@ function actionTableRow(action, sender) {
 }
 
 function updateTableRow(action) {
-    if (!action.TableId || !action.Data) {
+    if ((!action.ID && !action.Name) || !action.Data) {
         return;
     }
 
     // ensure the table exists
-    var table = $(`table#${action.TableId}`);
+    var table = getElementByNameOrId(action, 'table');
     if (table.length == 0) {
         return;
     }
 
+    var tableId = `table#${getId(table)}`;
+
     // get the table row
     var row = null;
     switch (action.Row.Type) {
-        case 'datavalue':
+        case 'id_and_datavalue':
+        case 'name_and_datavalue':
             row = table.find(`tbody tr[pode-data-value="${action.Row.DataValue}"]`);
             break;
 
-        case 'index':
+        case 'id_and_index':
+        case 'name_and_index':
             row = table.find('tbody tr').eq(action.Row.Index);
             break;
     }
 
     // do nothing if no row
-    if (row.length == 0) {
+    if (!row || row.length == 0) {
         return;
     }
 
@@ -1219,7 +1242,7 @@ function updateTableRow(action) {
     bindButtons();
 
     // setup clickable rows
-    bindTableClickableRows(action.TableId);
+    bindTableClickableRows(tableId);
 }
 
 function getQueryStringValue(name) {
@@ -1264,13 +1287,12 @@ function bindTableClickableRows(tableId) {
 
 function actionTable(action, sender) {
     switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTable(action, sender);
+            break;
+
         case 'output':
-            if (action.ID) {
-                updateTable(action, sender);
-            }
-            else {
-                writeTable(action, sender);
-            }
+            writeTable(action, sender);
             break;
 
         case 'sync':
@@ -1284,10 +1306,8 @@ function syncTable(action) {
         return;
     }
 
-    var id = action.ID;
-    if (!id) {
-        id = $(`table[name="${action.Name}"]`).attr('id');
-    }
+    var table = getElementByNameOrId(action, 'table');
+    var id = getId(table);
 
     loadTable(id);
 }
@@ -1301,8 +1321,8 @@ function updateTable(action, sender) {
     action.Data = convertToArray(action.Data);
 
     // table meta
-    var tableId = `table#${action.ID}`;
-    var table = $(tableId);
+    var table = getElementByNameOrId(action, 'table');
+    var tableId = `table#${getId(table)}`;
 
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
@@ -1517,7 +1537,12 @@ function getTagName(element) {
         return null;
     }
 
-    return $(element).prop('nodeName').toLowerCase();
+    var tagName = $(element).prop('nodeName');
+    if (!tagName) {
+        return null;
+    }
+
+    return tagName.toLowerCase();
 }
 
 function testTagName(element, tagName) {
@@ -1525,7 +1550,7 @@ function testTagName(element, tagName) {
 }
 
 function actionForm(action) {
-    var form = $(action.ID);
+    var form = getElementByNameOrId(action, 'form');
     if (!form) {
         return;
     }
@@ -1533,17 +1558,45 @@ function actionForm(action) {
     resetForm(form);
 }
 
-function resetForm(form) {
+function resetForm(form, isInner = false) {
     if (!form) {
-        return
+        return;
     }
 
     if (testTagName(form, 'form')) {
         form[0].reset();
     }
-    else {
-        resetForm(form.find('form'));
+    else if (isInner) {
+        return;
     }
+    else {
+        resetForm(form.find('form'), true);
+    }
+}
+
+function getElementByNameOrId(action, tag, sender, filter) {
+    if (!action) {
+        return null;
+    }
+
+    tag = tag ?? '';
+    filter = filter ?? '';
+
+    // by ID
+    if (action.ID) {
+        return $(`${tag}#${action.ID}${filter}`);
+    }
+
+    // by Name
+    if (action.Name) {
+        if (sender) {
+            return sender.find(`${tag}[name="${action.Name}"]${filter}`);
+        }
+
+        return $(`${tag}[name="${action.Name}"]${filter}`);
+    }
+
+    return null;
 }
 
 function actionModal(action, sender) {
@@ -1559,10 +1612,7 @@ function actionModal(action, sender) {
 }
 
 function showModal(action) {
-    var modal = action.ID
-        ? $(`div#${action.ID}.modal`)
-        : $(`div.modal[name="${action.Name}"]`);
-
+    var modal = getElementByNameOrId(action, 'div.modal');
     if (!modal) {
         return;
     }
@@ -1579,14 +1629,8 @@ function showModal(action) {
 }
 
 function hideModal(action, sender) {
-    var modal = null;
-    if (action.ID) {
-        modal = $(`div#${action.ID}.modal`);
-    }
-    else if (action.Name) {
-        modal = $(`div.modal[name="${action.Name}"]`);
-    }
-    else {
+    var modal = getElementByNameOrId(action, 'div.modal');
+    if (!modal) {
         modal = sender.closest('div.modal');
     }
 
@@ -1610,8 +1654,24 @@ function actionText(action) {
         return;
     }
 
-    text = text.find('.pode-text') ?? text;
+    if (!text.hasClass('pode-text')) {
+        text = text.find('.pode-text') ?? text;
+    }
+
     text.text(decodeHTML(action.Value));
+}
+
+function actionSelect(action) {
+    if (!action) {
+        return;
+    }
+
+    var select = getElementByNameOrId(action, 'select');
+    if (!select) {
+        return;
+    }
+
+    select.val(decodeHTML(action.Value));
 }
 
 function decodeHTML(value) {
@@ -1623,7 +1683,11 @@ function decodeHTML(value) {
 }
 
 function actionCheckbox(action) {
-    var checkbox = $(`#${action.ID}_option0`);
+    if (action.ID) {
+        action.ID = `${action.ID}_option${action.OptionId}`;
+    }
+
+    var checkbox = getElementByNameOrId(action, 'input', null, `[pode-option-id="${action.OptionId}"]`);
     if (!checkbox) {
         return;
     }
@@ -1665,14 +1729,7 @@ function actionToast(action) {
 }
 
 function actionValidation(action, sender) {
-    var input = null;
-    if (action.ID) {
-        input = $(`#${action.ID}`);
-    }
-    else {
-        input = sender.find(`[name="${action.Name}"]`);
-    }
-
+    var input = getElementByNameOrId(action, null, sender);
     if (!input) {
         return;
     }
@@ -1684,30 +1741,31 @@ function actionValidation(action, sender) {
 }
 
 function actionTextbox(action, sender) {
-    if (action.ID) {
-        updateTextbox(action);
-    }
-    else {
-        writeTextbox(action, sender);
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTextbox(action);
+            break;
+
+        case 'output':
+            writeTextbox(action, sender);
+            break;
     }
 }
 
 function updateTextbox(action) {
-    if (!action.Data) {
+    if (!action.Value) {
         return;
     }
 
+    var txt = action.Multiline
+        ? getElementByNameOrId(action, 'textarea')
+        : getElementByNameOrId(action, 'input');
+
     if (action.AsJson) {
-        action.Data = JSON.stringify(action.Data, null, 4);
+        action.Value = JSON.stringify(action.Value, null, 4);
     }
 
-    var txtId = `input#${action.ID}`;
-    if (action.Multiline) {
-        txtId = `textarea#${action.ID}`;
-    }
-
-    var txt = $(txtId);
-    txt.val(action.Data);
+    txt.val(action.Value);
 }
 
 function writeTextbox(action, sender) {
@@ -1797,11 +1855,14 @@ function downloadCSV(csv, filename) {
 }
 
 function actionChart(action, sender) {
-    if (action.ID) {
-        updateChart(action, sender);
-    }
-    else {
-        writeChart(action, sender);
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateChart(action, sender);
+            break;
+
+        case 'output':
+            writeChart(action, sender);
+            break;
     }
 }
 
@@ -1817,10 +1878,12 @@ function updateChart(action, sender) {
         return;
     }
 
-    var canvas = $(`canvas#${action.ID}`)
+    var canvas = getElementByNameOrId(action, 'canvas');
+    action.ID = getId(canvas);
+
     var _append = (canvas.attr('pode-append') == 'True');
 
-    // apend new data, rather than rebuild the chart
+    // append new data, rather than rebuild the chart
     if (_append && _charts[action.ID]) {
         appendToChart(canvas, action);
     }
@@ -2056,7 +2119,7 @@ function writeChart(action, sender) {
     // create canvas
     var canvas = $(`canvas#${chartId}`);
     if (canvas.length == 0) {
-        sender.after(`<canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${action.ChartType}"></canvas>`);
+        sender.after(`<div><canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${action.ChartType}" style="height:400px;"></canvas></div>`);
     }
 
     // update
@@ -2182,8 +2245,57 @@ function actionBadge(action) {
 
     // change colour
     if (action.Colour) {
-        badge.removeClass();
-        badge.addClass(`badge badge-${action.ColourType}`);
+        removeClass(badge, 'badge-\\w+');
+        badge.addClass(`badge-${action.ColourType}`);
+    }
+}
+
+function actionProgress(action) {
+    if (!action) {
+        return;
+    }
+
+    var progress = getElementByNameOrId(action, 'div');
+    if (!progress) {
+        return;
+    }
+
+    // change value
+    if (action.Value >= 0) {
+        progress.attr('aria-valuenow', action.Value);
+
+        var max = progress.attr('aria-valuemax');
+        var percentage = (action.Value / max) * 100.0;
+
+        progress.css('width', `${percentage}%`);
+    }
+
+    // change colour
+    if (action.Colour) {
+        removeClass(progress, 'bg-\\w+');
+        progress.addClass(`bg-${action.ColourType}`);
+    }
+}
+
+function getClass(element, filter) {
+    if (!element || !filter) {
+        return null;
+    }
+
+    var result = element.attr('class').match(new RegExp(filter));
+    return (result ? result[0] : null);
+}
+
+function removeClass(element, filter) {
+    if (!element) {
+        return;
+    }
+
+    if (!filter) {
+        element.removeClass();
+    }
+    else {
+        element.removeClass(getClass(element, filter));
     }
 }
 
@@ -2192,7 +2304,8 @@ function actionTab(action) {
         return;
     }
 
-    moveTab(action.ID ?? `tab_${action.Name}`);
+    var tab = getElementByNameOrId(action, 'a.nav-link');
+    moveTab(getId(tab));
 }
 
 function moveTab(tabId) {
@@ -2216,7 +2329,7 @@ function actionError(action, sender) {
         return;
     }
 
-    sender.append(`<div class="alert alert-danger pode-error" role="alert">
+    sender.append(`<div class="alert alert-danger pode-error mTop1" role="alert">
         <h6 class='pode-alert-header'>
             <span data-feather="alert-circle"></span>
             <strong>Error</strong>
