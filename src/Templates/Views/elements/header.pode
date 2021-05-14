@@ -4,7 +4,7 @@ $(
 
     if (![string]::IsNullOrWhiteSpace($data.Secondary)) {
         $sub = $data.Secondary
-        $header += "<small class='text-muted'>$($sub)</small>"
+        $header += " <small class='text-muted'>$($sub)</small>"
     }
 
     $header += "</h$($data.Size)>"

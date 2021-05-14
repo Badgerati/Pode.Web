@@ -11,7 +11,7 @@
     RootModule = 'Pode.Web.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.4.0'
+    ModuleVersion = '0.4.1'
 
     # ID used to uniquely identify this module
     GUID = '5c6cae5a-8e62-48a4-c2e5-7511ffe2d439'
@@ -42,7 +42,7 @@
             ProjectUri = 'https://github.com/Badgerati/Pode.Web'
 
             # A URL to an icon representing this module.
-            IconUri = 'https://cdn.rawgit.com/Badgerati/Pode.Web/master/images/icon.png'
+            IconUri = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/images/icon.png'
 
         }
     }

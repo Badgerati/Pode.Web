@@ -6,10 +6,12 @@ pode_modules/
 ps_modules/
 docs/[Ff]unctions/
 examples/state.json
+examples/docs.ps1
 examples/issue-*
 pkg/
 yarn.lock
 min-maps/
+.vscode/
 
 
 # Code Runner

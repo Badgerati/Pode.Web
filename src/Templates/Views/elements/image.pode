@@ -32,5 +32,10 @@ $(
         $fluid = 'img-fluid'
     }
 
-    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc) $($data.CssClasses)' alt='$($data.Alt)' $($dim)>"
+    $title = [string]::Empty
+    if (![string]::IsNullOrWhiteSpace($data.Title)) {
+        $title = "title='$($data.Title)' data-toggle='tooltip' data-placement='bottom'"
+    }
+
+    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc) $($data.CssClasses)' $($title) $($dim)>"
 )

@@ -577,8 +577,9 @@ function New-PodeWebImage
         $Source,
 
         [Parameter()]
+        [Alias('Alt')]
         [string]
-        $Alt,
+        $Title,
 
         [Parameter()]
         [ValidateSet('Left', 'Right', 'Center')]
@@ -614,7 +615,7 @@ function New-PodeWebImage
         Parent = $ElementData
         ID = $Id
         Source = $Source
-        Alt = $Alt
+        Title = $Title
         Alignment = $Alignment.ToLowerInvariant()
         Height = $Height
         Width = $Width
@@ -1363,7 +1364,7 @@ function New-PodeWebChart
             }
 
             if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                $result = ($result | Out-PodeWebChart -Id $using:Id)
+                $result = ($result | Update-PodeWebChart -Id $using:Id)
             }
 
             Write-PodeJsonResponse -Value $result
@@ -1600,7 +1601,7 @@ function New-PodeWebTable
 
             if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $paginate = $ElementData.Paging.Enabled
-                $result = ($result | Out-PodeWebTable -Id $using:Id -Columns $ElementData.Columns -Paginate:$paginate)
+                $result = ($result | Update-PodeWebTable -Id $using:Id -Columns $ElementData.Columns -Paginate:$paginate)
             }
 
             Write-PodeJsonResponse -Value $result
@@ -1994,7 +1995,7 @@ function New-PodeWebTimer
         }
     }
 
-    return @{
+    $element = @{
         ComponentType = 'Element'
         ElementType = 'Timer'
         Parent = $ElementData
@@ -2003,58 +2004,7 @@ function New-PodeWebTimer
         Interval = ($Interval * 1000)
         CssClasses = ($CssClass -join ' ')
     }
-}
 
-function Set-PodeWebBreadcrumb
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [hashtable[]]
-        $Items = @()
-    )
-
-    if (($null -eq $Items)) {
-        $Items = @()
-    }
-
-    $foundActive = $false
-    foreach ($item in $Items) {
-        if ($foundActive -and $item.Active) {
-            throw "Cannot have two active breadcrumb items"
-        }
-
-        $foundActive = $item.Active
-    }
-
-    return @{
-        ComponentType = 'Element'
-        ElementType = 'Breadcrumb'
-        Items = $Items
-    }
-}
-
-function New-PodeWebBreadcrumbItem
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]
-        $Name,
-
-        [Parameter(Mandatory=$true)]
-        [string]
-        $Url,
-
-        [switch]
-        $Active
-    )
-
-    return @{
-        ComponentType = 'Element'
-        ElementType = 'BreadcrumbItem'
-        Name = $Name
-        Url = $Url
-        Active = $Active.IsPresent
-    }
+    $element = New-PodeWebContainer -Content $element -Hide
+    return $element
 }
