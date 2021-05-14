@@ -10,6 +10,20 @@ Start-PodeServer {
 }
 ```
 
+To speed-up loading of pages, enable caching within your `server.psd1` file:
+
+```powershell
+@{
+    Web = @{
+        Static = @{
+            Cache = @{
+                Enable = $true
+            }
+        }
+    }
+}
+```
+
 ## Use the Templates
 
 Pode.Web contains extension functions that can be used within your [Pode](https://github.com/Badgerati/Pode) server. To setup the templates, and start using them, you will always first need to call [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates); this will let you define the title of your website, the default theme, and the logo/favicon:
@@ -62,3 +76,7 @@ Add-PodeWebPage -Name 'Services' -Icon 'Settings' -ScriptBlock {
 ```
 
 The above would render a new page with a table, showing all the services on the computer.
+
+## Custom Scripts/Styles
+
+You can reference custom JavaScript and CSS files to use via [`Import-PodeWebJavaScript`](../../Functions/Utilities/Import-PodeWebJavaScript) and [`Import-PodeWebStylesheet`](../../Functions/Utilities/Import-PodeWebStylesheet). Both take a relative/literal `-Url` to the file.

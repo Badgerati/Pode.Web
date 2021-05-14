@@ -1,5 +1,23 @@
 # Release Notes
 
+## v0.4.1
+
+```plain
+### Documentation
+* #3: There's now documentation!!
+
+### Other Changes
+* `Out-PodeWebTable` has been split into `Out-PodeWebTable` and `Update-PodeWebTable`
+* `Update-PodeWebTableRow` `-TableId` has been split into `-Id` and `-Name`
+* `Out-PodeWebChart` has been split into `Out-PodeWebChart` and `Update-PodeWebChart`
+* `ConvertTo-PodeWebChartDataset` has been renamed to `ConvertTo-PodeWebChartData`
+* `Out-PodeWebTextbox` has been split into `Out-PodeWebTextbox` and `Update-PodeWebTextbox`
+* `Out-PodeWebText` has been renamed to `Update-PodeWebText`
+* `Out-PodeWebBadge` has been renamed to `Update-PodeWebBadge`
+* `Out-PodeWebCheckbox` has been renamed to `Update-PodeWebCheckbox`
+* `Show-PodeWebError` has been renamed to `Out-PodeWebError`
+```
+
 ## v0.4.0
 
 ```plain

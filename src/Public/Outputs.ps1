@@ -321,7 +321,7 @@ function ConvertTo-PodeWebChartData
         foreach ($item in $items) {
             @{
                 Key = $item.$LabelProperty
-                Values = @(foreach ($prop in $DataProperty) {
+                Values = @(foreach ($prop in $DatasetProperty) {
                     @{
                         Key = $prop
                         Value = $item.$prop

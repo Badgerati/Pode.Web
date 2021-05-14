@@ -148,3 +148,24 @@ Add-PodeWebPage -Name Services -Icon Settings -Layouts $servicesTable -ScriptBlo
     )
 }
 ```
+
+## Convert Module
+
+Similar to how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: [`ConvertTo-PodeWebPage`](../../Functions/Pages/ConvertTo-PodeWebPage)!
+
+For example, if you wanted to make a web portal for the [Pester](https://github.com/pester/Pester) module:
+
+```powershell
+Import-Module Pode.Web
+
+Start-PodeServer {
+    # add a simple endpoint
+    Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
+
+    # set the use of templates
+    Use-PodeWebTemplates -Title 'Pester'
+
+    # convert module to pages
+    ConvertTo-PodeWebPage -Module Pester -GroupVerbs
+}
+```

@@ -16,7 +16,7 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 
 ## Features
 
-* Like Pode, this is already cross-platform! (with support for PS5)
+* Like [Pode](https://github.com/Badgerati/Pode), this is already cross-platform! (with support for PS5)
 * Easily add pages, with different layouts and elements
 * Support for authentication with a login page!
 * Create line, bar, pie, and doughnut charts
