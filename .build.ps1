@@ -148,8 +148,7 @@ task MoveLibs {
 
     # chart.js
     New-Item -Path "$($libs_path)/chartjs" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/chart.js/dist/Chart.min.js" -Destination "$($libs_path)/chartjs/" -Force
-    Copy-Item -Path "$($src_path)/chart.js/dist/Chart.min.css" -Destination "$($libs_path)/chartjs/" -Force
+    Copy-Item -Path "$($src_path)/chart.js/dist/chart.min.js" -Destination "$($libs_path)/chartjs/" -Force
 
     # feather icons
     New-Item -Path "$($libs_path)/feather-icons" -ItemType Directory -Force | Out-Null
