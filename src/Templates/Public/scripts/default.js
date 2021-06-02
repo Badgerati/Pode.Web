@@ -2064,20 +2064,20 @@ function getChartAxesColours(theme) {
 
         case 'terminal':
             return {
-                gridLines: {
+                grid: {
                     color: 'darkgreen',
                     zeroLineColor: 'darkgreen'
                 },
-                ticks: { fontColor: '#33ff00' }
+                ticks: { color: '#33ff00' }
             };
 
         default:
             return {
-                gridLines: {
+                grid: {
                     color: 'lightgrey',
                     zeroLineColor: 'lightgrey'
                 },
-                ticks: { fontColor: '#333' }
+                ticks: { color: '#333' }
             };
     }
 }
