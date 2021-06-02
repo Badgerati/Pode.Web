@@ -1,4 +1,4 @@
-$.expr[":"].icontains = $.expr.createPseudo(function(arg) {
+$.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     return function(elem) {
         return $(elem).text().toLowerCase().indexOf(arg.toLowerCase()) >= 0;
     };
@@ -19,7 +19,7 @@ Chart.Legend.prototype.afterFit = function() {
     hljs.highlightAll();
 })();
 
-$(document).ready(() => {
+$(() => {
     if (checkAutoTheme()) {
         return;
     }
@@ -176,7 +176,7 @@ function setupSteppers() {
         _steppers[stepper.attr('id')] = new Stepper(e, { linear: true });
 
         // override form enter-key
-        stepper.find('form.pode-stepper-form').unbind('keypress').keypress(function(e) {
+        stepper.find('form.pode-stepper-form').off('keypress').on('keypress', function(e) {
             if (!isEnterKey(e)) {
                 return;
             }
@@ -187,12 +187,12 @@ function setupSteppers() {
             }
 
             if (btn) {
-                btn.click();
+                btn.trigger('click');
             }
         });
 
         // previous buttons
-        stepper.find('.bs-stepper-content button.step-previous').unbind('click').click(function(e) {
+        stepper.find('.bs-stepper-content button.step-previous').off('click').on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -205,7 +205,7 @@ function setupSteppers() {
         });
 
         // next buttons
-        stepper.find('.bs-stepper-content button.step-next').unbind('click').click(function(e) {
+        stepper.find('.bs-stepper-content button.step-next').off('click').on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -237,7 +237,7 @@ function setupSteppers() {
         });
 
         // submit buttons
-        stepper.find('.bs-stepper-content button.step-submit').unbind('click').click(function(e) {
+        stepper.find('.bs-stepper-content button.step-submit').off('click').on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -516,7 +516,7 @@ function bindCodeEditors() {
     });
 
     // bind upload buttons
-    $('.pode-code-editor .pode-upload').unbind('click').click(function(e) {
+    $('.pode-code-editor .pode-upload').off('click').on('click', function(e) {
         var button = getButton(e);
         var editorId = button.attr('for');
 
@@ -533,7 +533,7 @@ function bindCodeEditors() {
 }
 
 function bindCardCollapse() {
-    $('button.pode-card-collapse').unbind('click').click(function(e) {
+    $('button.pode-card-collapse').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -572,7 +572,7 @@ function invokeTimer(timerId) {
 }
 
 function bindMenuToggle() {
-    $('button#menu-toggle').unbind('click').click(function(e) {
+    $('button#menu-toggle').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -582,7 +582,7 @@ function bindMenuToggle() {
 }
 
 function bindTablePagination() {
-    $('nav .pagination a.page-link').unbind('click').click(function(e) {
+    $('nav .pagination a.page-link').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         var link = $(this);
@@ -621,7 +621,7 @@ function bindTablePagination() {
 }
 
 function bindTableSort(tableId) {
-    $(`${tableId}[pode-sort='True'] thead th`).unbind('click').click(function() {
+    $(`${tableId}[pode-sort='True'] thead th`).off('click').on('click', function() {
         var table = $(this).parents('table').eq(0);
         var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
 
@@ -630,21 +630,26 @@ function bindTableSort(tableId) {
             rows = rows.reverse();
         }
 
-        for (var i = 0; i < rows.length; i++) {
-            table.append(rows[i]);
-        }
+        rows.forEach((row) => {
+            table.append(row);
+        });
     });
 
     function comparer(index) {
         return function(a, b) {
-            var valA = getCellValue(a, index), valB = getCellValue(b, index);
-            return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
+            var valA = getCellValue(a, index);
+            var valB = getCellValue(b, index);
+            return isNumeric(valA) && isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
         }
     }
 
     function getCellValue(row, index) {
         return $(row).children('td').eq(index).text();
     }
+}
+
+function isNumeric(value) {
+    return (typeof(value) == 'number' || (typeof(value) == 'string' && value.match(/^\d+$/) != null));
 }
 
 function bindPageGroupCollapse() {
@@ -668,11 +673,11 @@ function bindRangeValue() {
         var target = $(item);
         var value = $(`input#${target.attr('id')}_value`);
 
-        target.change((e) => {
+        target.on('change', (e) => {
             value.val(target.val());
         });
 
-        value.change((e) => {
+        value.on('change', (e) => {
             target.val(value.val());
         });
     });
@@ -683,7 +688,7 @@ function bindProgressValue() {
         var target = $(item);
 
         target.text(`${target.attr('aria-valuenow')} / ${target.attr('aria-valuemax')}`);
-        target.change((e) => {
+        target.on('change', (e) => {
             target.text(`${target.attr('aria-valuenow')} / ${target.attr('aria-valuemax')}`);
         });
     });
@@ -917,7 +922,7 @@ function buildElements(elements) {
 }
 
 function bindFormSubmits() {
-    $("form.pode-form").unbind('submit').submit(function(e) {
+    $("form.pode-form").off('submit').on('submit', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -946,7 +951,7 @@ function bindFormSubmits() {
 }
 
 function bindModalSubmits() {
-    $("div.modal-content form.pode-form").unbind('keypress').keypress(function(e) {
+    $("div.modal-content form.pode-form").off('keypress').on('keypress', function(e) {
         if (!isEnterKey(e)) {
             return;
         }
@@ -956,11 +961,11 @@ function bindModalSubmits() {
 
         var btn = $(this).closest('div.modal-content').find('div.modal-footer button.pode-modal-submit')
         if (btn) {
-            btn.click();
+            btn.trigger('click');
         }
     });
 
-    $("div.modal-footer button.pode-modal-submit").unbind('click').click(function(e) {
+    $("div.modal-footer button.pode-modal-submit").off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1016,7 +1021,7 @@ function getDataValue(element) {
 }
 
 function bindCodeCopy() {
-    $('pre button.pode-code-copy').unbind('click').click(function(e) {
+    $('pre button.pode-code-copy').off('click').on('click', function(e) {
         var value = $(e.target).closest('pre').find('code').text().trim();
         navigator.clipboard.writeText(value);
     });
@@ -1032,7 +1037,7 @@ function getButton(event) {
 }
 
 function bindButtons() {
-    $("button.pode-button").unbind('click').click(function(e) {
+    $("button.pode-button").off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1058,7 +1063,7 @@ function bindButtons() {
 }
 
 function bindNavLinks() {
-    $("a.pode-nav-link").unbind('click').click(function(e) {
+    $("a.pode-nav-link").off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1068,7 +1073,7 @@ function bindNavLinks() {
 }
 
 function bindTableFilters() {
-    $("input.pode-table-filter").unbind('keyup').keyup(function(e) {
+    $("input.pode-table-filter").off('keyup').on('keyup', function(e) {
         e.preventDefault();
         filterTable($(e.target));
     });
@@ -1087,7 +1092,7 @@ function filterTable(filter) {
 }
 
 function bindSidebarFilter() {
-    $("input.pode-nav-filter").unbind('keyup').keyup(function(e) {
+    $("input.pode-nav-filter").off('keyup').on('keyup', function(e) {
         e.preventDefault();
 
         var input = $(e.target);
@@ -1109,7 +1114,7 @@ function bindSidebarFilter() {
 }
 
 function bindTableExports() {
-    $("button.pode-table-export").unbind('click').click(function(e) {
+    $("button.pode-table-export").off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1123,7 +1128,7 @@ function bindTableExports() {
 }
 
 function bindTableRefresh() {
-    $("button.pode-table-refresh").unbind('click').click(function(e) {
+    $("button.pode-table-refresh").off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1143,7 +1148,7 @@ function bindTableRefresh() {
 }
 
 function bindTableButtons() {
-    $("button.pode-table-button").unbind('click').click(function(e) {
+    $("button.pode-table-button").off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1160,7 +1165,7 @@ function bindTableButtons() {
 }
 
 function bindChartRefresh() {
-    $("button.pode-chart-refresh").unbind('click').click(function(e) {
+    $("button.pode-chart-refresh").off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1226,7 +1231,7 @@ function updateTableRow(action) {
         var _html = '';
         var _value = action.Data[key];
 
-        if ($.isArray(_value) || _value.ElementType) {
+        if (Array.isArray(_value) || _value.ElementType) {
             _html += buildElements(_value);
         }
         else {
@@ -1254,7 +1259,7 @@ function getQueryStringValue(name) {
 }
 
 function bindTableClickableRows(tableId) {
-    $(`${tableId}.pode-table-click tbody tr`).unbind('click').click(function() {
+    $(`${tableId}.pode-table-click tbody tr`).off('click').on('click', function() {
         var rowId = $(this).attr('pode-data-value');
         var table = $(tableId);
 
@@ -1407,7 +1412,7 @@ function updateTable(action, sender) {
                 _value += `<td pode-column='${key}'>`;
             }
 
-            if ($.isArray(item[key]) || (item[key] && item[key].ElementType)) {
+            if (Array.isArray(item[key]) || (item[key] && item[key].ElementType)) {
                 _value += buildElements(item[key]);
             }
             else if (item[key]) {
@@ -1817,16 +1822,16 @@ function exportTableAsCSV(tableId) {
         return;
     }
 
-    for (var i = 0; i < rows.length; i++) {
-        var row = [];
-        var cols = $(rows[i]).find('td, th');
+    rows.each((i, row) => {
+        var data = [];
+        var cols = $(row).find('td, th');
 
-        for (var j = 0; j < cols.length; j++) {
-            row.push(cols[j].innerText);
-        }
+        cols.each((i, col) => {
+            data.push(col.innerText);
+        });
 
-        csv.push(row.join(","));
-    }
+        csv.push(data.join(","));
+    });
 
     return csv.join("\n");
 }
@@ -2309,7 +2314,7 @@ function actionTab(action) {
 }
 
 function moveTab(tabId) {
-    $(`a.nav-link#${tabId}`).click();
+    $(`a.nav-link#${tabId}`).trigger('click');
 }
 
 function actionPage(action) {
@@ -2373,7 +2378,7 @@ function actionBreadcrumb(action) {
 }
 
 function convertToArray(element) {
-    if (!$.isArray(element)) {
+    if (!Array.isArray(element)) {
         element = [element];
     }
 
