@@ -4,10 +4,6 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
-Chart.Legend.prototype.afterFit = function() {
-    this.height = this.height + 10;
-};
-
 
 (function() {
     feather.replace();
@@ -2032,16 +2028,18 @@ function createTheChart(canvas, action, sender) {
         },
 
         options: {
-            legend: {
-                display: (Object.keys(yAxises)[0].toLowerCase() != 'default'),
-                labels: {
-                    fontColor: $('body').css('color')
+            plugins: {
+                legend: {
+                    display: (Object.keys(yAxises)[0].toLowerCase() != 'default'),
+                    labels: {
+                        color: $('body').css('color')
+                    }
                 }
             },
 
             scales: {
-                xAxes: axesOpts,
-                yAxes: axesOpts
+                x: axesOpts,
+                y: axesOpts
             }
         }
     });
@@ -2056,31 +2054,31 @@ function createTheChart(canvas, action, sender) {
 function getChartAxesColours(theme) {
     switch (theme) {
         case 'dark':
-            return [{
-                gridLines: {
+            return {
+                grid: {
                     color: '#214981',
                     zeroLineColor: '#214981'
                 },
-                ticks: { fontColor: '#ccc' }
-            }];
+                ticks: { color: '#ccc' }
+            };
 
         case 'terminal':
-            return [{
+            return {
                 gridLines: {
                     color: 'darkgreen',
                     zeroLineColor: 'darkgreen'
                 },
                 ticks: { fontColor: '#33ff00' }
-            }];
+            };
 
         default:
-            return [{
+            return {
                 gridLines: {
                     color: 'lightgrey',
                     zeroLineColor: 'lightgrey'
                 },
                 ticks: { fontColor: '#333' }
-            }];
+            };
     }
 }
 
