@@ -1,6 +1,8 @@
-<div class="media $($data.CssClasses)">
-    <img src="$($data.Icon)" class="align-self-start mr-3" alt="$($data.Username) icon">
-    <div class="media-body">
+<div class="d-flex media">
+    <div class="flex-shrink-0">
+        <img src="$($data.Icon)" class="align-self-start me-3" alt="$($data.Username) icon">
+    </div>
+    <div class="flex-grow-1 ms-3">
         <div class="media-head">
             <h5 class="mt-0">$($data.Username)
             $(if ($data.TimeStamp) {

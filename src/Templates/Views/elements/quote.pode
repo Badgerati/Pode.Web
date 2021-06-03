@@ -1,14 +1,8 @@
-$(
-    $value = $data.Value
-
-    $quote = "<blockquote class='blockquote text-$($data.Alignment) $($data.CssClasses)' id='$($data.ID)'>
-        <p class='pode-text mb-0'>$($value)</p>"
-
-    if (![string]::IsNullOrWhiteSpace($data.Source)) {
-        $src = $data.Source
-        $quote += "<footer class='blockquote-footer'><cite>$($src)</cite></footer>"
-    }
-
-    $quote += "</blockquote>"
-    $quote
-)
+<figure class="$($data.Alignment)">
+    <blockquote class="blockquote $($data.CssClasses)" id="$($data.ID)">
+        <p class="pode-text">$($data.Value)</p>
+    </blockquote>
+    $(if (![string]::IsNullOrWhiteSpace($data.Source)) {
+        "<figcaption class='blockquote-footer'><cite>$($data.Source)</cite></figcaption>"
+    })
+</figure>

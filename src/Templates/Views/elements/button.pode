@@ -11,12 +11,12 @@
 
         if ($data.IconOnly) {
             if ($data.IsDynamic) {
-                "<button type='button' class='btn btn-icon-only pode-button $($data.CssClasses)' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
+                "<button type='button' class='btn btn-icon-only pode-button $($data.CssClasses)' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-bs-toggle='tooltip'>
                     $($icon)
                 </button>"
             }
             else {
-                "<a id='$($data.ID)' class='btn btn-icon-only pode-link-button $($data.CssClasses)' href='$($data.Url)' role='button' title='$($data.Name)' data-toggle='tooltip'>
+                "<a id='$($data.ID)' class='btn btn-icon-only pode-link-button $($data.CssClasses)' href='$($data.Url)' role='button' title='$($data.Name)' data-bs-toggle='tooltip'>
                     $($icon)
                 </a>"
             }

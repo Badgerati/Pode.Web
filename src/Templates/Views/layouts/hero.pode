@@ -1,9 +1,11 @@
-<div class="jumbotron $($data.CssClasses)">
-    <h1 class="display-4">$($data.Title)</h1>
-    <p class="lead">$($data.Message)</p>
+<div class="jumbotron mb-4 bg-light rounded-3 $($data.CssClasses)">
+    <div class="container-fluid py-5">
+        <h1 class="display-4 fw-bold">$($data.Title)</h1>
+        <p class="lead">$($data.Message)</p>
 
-    $(if (!(Test-PodeWebArrayEmpty -Array $data.Content)) {
-        "<hr class='my-4'>"
-        Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content }
-    })
+        $(if (!(Test-PodeWebArrayEmpty -Array $data.Content)) {
+            "<hr class='my-4'>"
+            Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content }
+        })
+    </div>
 </div>

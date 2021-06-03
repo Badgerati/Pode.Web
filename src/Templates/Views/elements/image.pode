@@ -2,11 +2,11 @@ $(
     $loc = [string]::Empty
     switch ($data.Alignment) {
         'left' {
-            $loc = 'float-left'
+            $loc = 'float-start'
         }
 
         'right' {
-            $loc = 'float-right'
+            $loc = 'float-end'
         }
 
         'center' {
@@ -34,7 +34,7 @@ $(
 
     $title = [string]::Empty
     if (![string]::IsNullOrWhiteSpace($data.Title)) {
-        $title = "title='$($data.Title)' data-toggle='tooltip' data-placement='bottom'"
+        $title = "title='$($data.Title)' data-bs-toggle='tooltip' data-bs-placement='bottom'"
     }
 
     "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc) $($data.CssClasses)' $($title) $($dim)>"

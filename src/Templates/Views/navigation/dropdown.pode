@@ -14,7 +14,7 @@ $(
 
     if ($data.InDropdown) {
         "<li class='dropdown-submenu'>
-            <a class='dropdown-item dropdown-toggle $($disabled)' id='$($data.ID)' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' $($disabledAria)>
+            <a class='dropdown-item dropdown-toggle $($disabled)' id='$($data.ID)' href='#' role='button' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false' $($disabledAria)>
                 $($icon)$($data.Name)
             </a>"
 
@@ -25,7 +25,7 @@ $(
     }
     else {
         "<li class='nav-item dropdown' pode-hover='$($data.Hover)'>
-            <a class='nav-link dropdown-toggle $($disabled)' id='$($data.ID)' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' $($disabledAria)>
+            <a class='nav-link dropdown-toggle $($disabled)' id='$($data.ID)' href='#' role='button' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false' $($disabledAria)>
                 $($icon)$($data.Name)
             </a>"
 

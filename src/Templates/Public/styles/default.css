@@ -30,9 +30,9 @@ button#menu-toggle .feather {
     border-width: 1px;
     border-style: solid;
     border-radius: 0.25rem;
-    margin-left: 5%;
+    margin-left: 7%;
     text-align: center;
-    width: 90%;
+    width: 85%;
     display: block;
     margin-bottom: 0.5rem;
 }
@@ -190,7 +190,7 @@ a.pode-nav-link[pode-dynamic='True'] {
     word-break: break-word;
 }
 
-.modal-header button.close {
+.modal-header button.btn-close {
     outline: none;
 }
 
@@ -374,6 +374,7 @@ table tbody td {
 
 .toast {
     width: 25em;
+    z-index: 9999;
 }
 
 #toast-area {
@@ -391,7 +392,6 @@ table tbody td {
     width: 35px;
     height: 35px;
     margin-right: 0.3rem;
-    border-radius: 5em;
     margin-bottom: 2px;
     border-style: solid;
     border-width: 3px;
@@ -406,6 +406,10 @@ table tbody td {
 .form-group .pode-button,
 .form-group .pode-link-button {
     margin-bottom: 1rem;
+}
+
+.custom-select {
+    width: inherit;
 }
 
 .form-control.is-invalid {
@@ -530,6 +534,7 @@ table tbody td {
     height: 16px;
     vertical-align: middle;
     margin-top: -1px;
+    outline: none;
 }
 
 h2 .feather, .h2 .feather {

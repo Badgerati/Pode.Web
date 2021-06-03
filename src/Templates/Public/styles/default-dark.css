@@ -46,9 +46,10 @@ body, main[role="main"], body#login-page, body#normal-page {
     color: #aaa !important;
 }
 
-.modal-header button.close {
+.modal-header button.btn-close {
     color: #ccc !important;
     text-shadow: none;
+    filter: invert(100%);
 }
 
 .modal-body {
@@ -208,7 +209,7 @@ pre code {
     color: #fff !important;
 }
 
-.input-group-prepend .input-group-text {
+.input-group-text {
     background-color: #121d2f !important;
     border-color: #214981 !important;
     color: #999 !important
@@ -229,10 +230,12 @@ body[pode-theme='dark'] .table thead th {
 
 body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(odd) {
     background-color: #142440 !important;
+    color: #ccc !important;
 }
 
 body[pode-theme='dark'] .table.table-striped tbody tr:nth-of-type(even) {
     background-color: #121d2f !important;
+    color: #ccc !important;
 }
 
 body[pode-theme='dark'] .table td,
@@ -266,10 +269,13 @@ nav .pagination .page-link.active, nav .pagination .page-link:hover {
     background-color: #214981 !important;
 }
 
-.jumbotron {
+.jumbotron div {
     background-color: #214981;
-    border-color: dodgerblue;
     color: #ccc;
+}
+
+.jumbotron {
+    border-color: dodgerblue;
 }
 
 hr {

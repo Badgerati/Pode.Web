@@ -34,7 +34,7 @@
                     Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $step.Content }
 
                     if ($i -gt 0) {
-                        "<button class='btn btn-inbuilt-theme step-previous float-left' for='$($step.ID)'>
+                        "<button class='btn btn-inbuilt-theme step-previous float-start' for='$($step.ID)'>
                             <span data-feather='arrow-left' class='mRight02'></span>
                             Previous
                             <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
@@ -42,7 +42,7 @@
                     }
 
                     if ($i -lt ($data.Steps.Length - 1)) {
-                        "<button class='btn btn-inbuilt-theme step-next float-right' for='$($step.ID)'>
+                        "<button class='btn btn-inbuilt-theme step-next float-end' for='$($step.ID)'>
                             <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                             Next
                             <span data-feather='arrow-right' class='mLeft02'></span>
@@ -50,7 +50,7 @@
                     }
 
                     if ($i -eq ($data.Steps.Length - 1)) {
-                        "<button class='btn btn-inbuilt-theme step-submit float-right' for='$($step.ID)'>
+                        "<button class='btn btn-inbuilt-theme step-submit float-end' for='$($step.ID)'>
                             <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                             Submit
                         </button>"

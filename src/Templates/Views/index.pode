@@ -6,79 +6,81 @@
 
     <body id="normal-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)">
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
-            <button type='button' class='btn btn-icon-only' id='menu-toggle'>
-                <span data-feather='menu' class='mRight02'></span>
-            </button>
+            <div class="container-fluid">
+                <button type='button' class='btn btn-icon-only' id='menu-toggle'>
+                    <span data-feather='menu' class='mRight02'></span>
+                </button>
 
-            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">
-                $(
-                    $title = Get-PodeWebState -Name 'title'
-                    $logo = Get-PodeWebState -Name 'logo'
-
-                    if (![string]::IsNullOrWhiteSpace($logo)) {
-                        "<img src='$($logo)' width='30' height='30' class='d-inline-block align-top' alt='$($title)' loading='lazy'>"
-                    }
-
-                    $title
-                )
-            </a>
-
-            <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div id='pode-nav'>
-                <div id='pode-nav-social'>
+                <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">
                     $(
-                        $socials = Get-PodeWebState -Name 'social'
-                        foreach ($key in $socials.Keys) {
-                            $social = $socials[$key]
+                        $title = Get-PodeWebState -Name 'title'
+                        $logo = Get-PodeWebState -Name 'logo'
 
-                            "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
-                                <span data-feather='$($key.ToLowerInvariant())'></span>
-                            </a>"
+                        if (![string]::IsNullOrWhiteSpace($logo)) {
+                            "<img src='$($logo)' width='30' height='30' class='d-inline-block align-top' alt='$($title)' loading='lazy'>"
                         }
+
+                        $title
                     )
-                </div>
+                </a>
 
-                <div id='pode-nav-items'>
-                    <ul class="navbar-nav mr-auto">
-                        $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Navigation })
-                    </ul>
-                </div>
-            </div>
+                <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-            $(if ($data.Auth.Enabled) {
-                if ($data.Auth.Authenticated) {
-                    "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
-                        <span class='navbar-text mRight1 welcome-msg'>"
-                            if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
-                                "<img src='$($data.Auth.Avatar)'>"
+                <div id='pode-nav'>
+                    <div id='pode-nav-social'>
+                        $(
+                            $socials = Get-PodeWebState -Name 'social'
+                            foreach ($key in $socials.Keys) {
+                                $social = $socials[$key]
+
+                                "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-bs-toggle='tooltip'>
+                                    <span data-feather='$($key.ToLowerInvariant())'></span>
+                                </a>"
                             }
-                            "Hello, $($data.Auth.Username)
-                        </span>
-                        <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                            <span data-feather='log-out' class='mRight02'></span>
-                            Sign out
-                        </button>
-                    </form>"
-                }
-                else {
-                    "<form class='form-inline' action='/login' method='GET' style='margin-bottom: 0'>
-                        <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                            <span data-feather='log-in' class='mRight02'></span>
-                            Sign in
-                        </button>
-                    </form>"
-                }
-            })
+                        )
+                    </div>
+
+                    <div id='pode-nav-items'>
+                        <ul class="navbar-nav me-auto">
+                            $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Navigation })
+                        </ul>
+                    </div>
+                </div>
+
+                $(if ($data.Auth.Enabled) {
+                    if ($data.Auth.Authenticated) {
+                        "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
+                            <span class='navbar-text mRight1 welcome-msg'>"
+                                if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
+                                    "<img class='rounded-circle' src='$($data.Auth.Avatar)'>"
+                                }
+                                "Hello, $($data.Auth.Username)
+                            </span>
+                            <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                                <span data-feather='log-out' class='mRight02'></span>
+                                Sign out
+                            </button>
+                        </form>"
+                    }
+                    else {
+                        "<form class='form-inline' action='/login' method='GET' style='margin-bottom: 0'>
+                            <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                                <span data-feather='log-in' class='mRight02'></span>
+                                Sign in
+                            </button>
+                        </form>"
+                    }
+                })
+            </div>
         </nav>
 
         <div class="container-fluid">
             <div class="row">
                 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                     <div class='input-group mb-2 mLeft1 w90 mTop1-8'>
-                        <div class='input-group-prepend'><div class='input-group-text'><span data-feather='filter'></span></div></div>
+                        <div class='input-group-text'><span data-feather='filter'></span></div>
                         <input type='text' class='form-control pode-nav-filter' id="filter_sidebar" placeholder='Filter' for="sidebar-list">
                     </div>
 
@@ -90,7 +92,7 @@
                         </div>
                     </footer>
 
-                    <div class="sidebar-sticky pt-0">
+                    <div class="position-sticky sidebar-sticky pt-3">
                         <ul id="sidebar-list" class="nav flex-column">
                             <li class="nav-item nav-page-item">
                                 <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="/">
@@ -107,12 +109,12 @@
                                 foreach ($pageGroup in $pageGroups) {
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
                                         "<li class='nav-item mTop1 nav-group-title'>
-                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
+                                            <a class='nav-link' data-bs-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
                                                 <div>
                                                     <span data-feather='arrow-right'></span>
                                                     <span data-feather='arrow-down-right' style='display:none;'></span>
                                                     <span class='h6'>$($pageGroup.Name)</span>
-                                                    <span class='badge badge-inbuilt-theme'>$($pageGroup.Count)</span>
+                                                    <span class='badge bg-inbuilt-theme'>$($pageGroup.Count)</span>
                                                 </div>
                                             </a>
                                         </li>"
@@ -145,12 +147,12 @@
 
                 </nav>
 
-                <div aria-live="polite" aria-atomic="true" style="min-height: 200px;" class="sticky">
-                    <div id="toast-area">
+                <div aria-live="polite" aria-atomic="true" class="position-sticky">
+                    <div id="toast-area" class="toast-container p-3">
                     </div>
                 </div>
 
-                <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                     $(if (!$data.Page.NoTitle) {
                         "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom'>
                             <h1 class='h2'>"

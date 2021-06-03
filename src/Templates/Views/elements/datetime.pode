@@ -1,4 +1,4 @@
-<div class="form-group row pode-form-datetime $($data.CssClasses)">
+<div class="form-group row mb-2 pode-form-datetime $($data.CssClasses)">
     <label for="$($data.ID)" class="col-sm-2 col-form-label">$($data.Name)</label>
     <div class="col-sm-10">
         $(
@@ -13,7 +13,7 @@
             }
 
             "<div class='form-row' id='$($data.ID)' name='$($data.Name)'>
-                <div class='form-group col-md-6'>"
+                <div class='form-group col-md-6 mb-1'>"
                     if (!$data.NoLabels) {
                         "<label for='$($data.ID)_date'>Date</label>"
                     }
