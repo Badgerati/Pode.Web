@@ -1538,10 +1538,6 @@ function New-PodeWebTable
         $CsvFilePath = Join-PodeWebPath (Get-PodeServerPath) $CsvFilePath
     }
 
-    if (!$Click -and ($null -ne $ClickScriptBlock)) {
-        throw "Cannot set a -ClickScriptBlock without passing -Click"
-    }
-
     $element = @{
         ComponentType = 'Element'
         ElementType = 'Table'
@@ -1554,7 +1550,7 @@ function New-PodeWebTable
         Message = $Message
         Filter = $Filter.IsPresent
         Sort = $Sort.IsPresent
-        Click = $Click.IsPresent
+        Click = ($Click.IsPresent -or ($null -ne $ClickScriptBlock))
         ClickIsDynamic = ($null -ne $ClickScriptBlock)
         IsDynamic = ($PSCmdlet.ParameterSetName -iin @('dynamic', 'csv'))
         NoExport = $NoExport.IsPresent
