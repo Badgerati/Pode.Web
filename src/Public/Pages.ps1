@@ -555,3 +555,31 @@ function ConvertTo-PodeWebPage
         Add-PodeWebPage -Name $cmd -Icon Settings -Layouts $tabs -Group $group -NoAuthentication:$NoAuthentication
     }
 }
+
+function Use-PodeWebPages
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Path
+    )
+
+    # use default ./pages, or custom path
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        $Path = Join-Path (Get-PodeServerPath) 'pages'
+    }
+    elseif ($Path.StartsWith('.')) {
+        $Path = Join-Path (Get-PodeServerPath) $Path
+    }
+
+    # fail if path not found
+    if (!(Test-Path -Path $Path)) {
+        throw "Path to load pages not found: $($Path)"
+    }
+
+    # get .ps1 files and load them
+    Get-ChildItem -Path $Path -Filter *.ps1 -Force -Recurse | ForEach-Object {
+        Use-PodeScript -Path $_.FullName
+    }
+}

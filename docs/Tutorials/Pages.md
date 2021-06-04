@@ -57,6 +57,8 @@ Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts @(
 )
 ```
 
+You can split up your pages into different .ps1 files, if you do and you place them within a `/pages` directory, then [`Use-PodeWebPages`](../../Functions/Pages/Use-PodeWebPages) will auto-load them all for you.
+
 ### Group
 
 You can group multiple pages together on the sidebar by using the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This will group pages together into a collapsible container.
