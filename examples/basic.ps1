@@ -29,5 +29,5 @@ Start-PodeServer {
 
     Add-PodeWebPage -Name Processes -Icon Activity -Layouts $form
 
-    Use-PodeWebPages -Path './pages'
+    Use-PodeWebPages
 }
