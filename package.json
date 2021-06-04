@@ -12,7 +12,7 @@
     "bs-stepper": "1.7.0",
     "feather-icons": "4.28.0",
     "chart.js": "3.3.2",
-    "@highlightjs/cdn-assets": "11.0.0",
+    "@highlightjs/cdn-assets": "11.0.1",
     "monaco-editor": "0.24.0",
     "moment": "2.29.1"
   }
