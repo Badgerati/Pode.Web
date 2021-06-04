@@ -1,4 +1,4 @@
-# Pode.Web
+# <img src="https://github.com/Badgerati/Pode/blob/develop/images/icon.png?raw=true" width="25" /> Pode.Web
 
 > This is still a work in progress, until v1.0.0 expect possible breaking changes in some releases.
 
@@ -15,11 +15,11 @@ It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaS
 
 You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, and terminal themes, and you can supply a custom CSS file.
 
-## Libraries
+## 📦 Libraries
 
 The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
-## Documentation
+## 📘 Documentation
 
 All documentation and tutorials for Pode.Web can be [found here](https://badgerati.github.io/Pode.Web) - this documentation will be for the latest release.
 
@@ -31,7 +31,7 @@ Invoke-Build Docs
 
 Then navigate to `http://127.0.0.1:8000` in your browser.
 
-## Features
+## 🚀 Features
 
 * Like [Pode](https://github.com/Badgerati/Pode), this is already cross-platform! (with support for PS5)
 * Easily add pages, with different layouts and elements
@@ -46,7 +46,7 @@ Then navigate to `http://127.0.0.1:8000` in your browser.
 * Render code in code-blocks with code highlighting!
 * Support for Light, Dark, Terminal, and custom themes
 
-## Install
+## 📦 Install
 
 You can install Pode.Web from the PowerShell Gallery:
 
@@ -54,7 +54,7 @@ You can install Pode.Web from the PowerShell Gallery:
 Install-Module -Name Pode.Web
 ```
 
-## Contributing
+## 🙌 Contributing
 
 Pull Requests, Bug Reports and Feature Requests are welcome! Feel free to help out with Issues and Projects!
 
@@ -66,7 +66,7 @@ Invoke-Build Build
 
 To work on issues you can fork Pode.Web, and then open a Pull Request for approval. Pull Requests should be made against the `develop` branch. Each Pull Request should also have an appropriate issue created.
 
-## Quick Example
+## 🔥 Quick Example
 
 The below will build a web page that shows a chart with the top 10 processes running on your machine, and that auto-refreshes every minute:
 

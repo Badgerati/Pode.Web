@@ -14,7 +14,7 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 [![GetStarted](https://img.shields.io/badge/-Get%20Started!-green.svg?longCache=true&style=for-the-badge)](./Getting-Started/Installation)
 [![QuickLook](https://img.shields.io/badge/-Quick%20Look!-blue.svg?longCache=true&style=for-the-badge)](#quick-look)
 
-## Features
+## 🚀 Features
 
 * Like [Pode](https://github.com/Badgerati/Pode), this is already cross-platform! (with support for PS5)
 * Easily add pages, with different layouts and elements
@@ -29,11 +29,11 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 * Render code in code-blocks with code highlighting!
 * Support for Light, Dark, Terminal, and custom themes
 
-## Libraries
+## 📦 Libraries
 
 The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Feather icons](https://feathericons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
-## Quick Look!
+## 🔥 Quick Look!
 
 Below is a quick example of using Pode.Web to create a page with a table of all services, and be available at `http://localhost:8080/pages/services`:
 
