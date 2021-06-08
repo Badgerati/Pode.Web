@@ -8,7 +8,7 @@
             "<div class='row'>"
         }
 
-        "<div class='col'>"
+        $(if($cell.Size){"<div class='col-$($cell.Size)'>"}else{"<div class='col'>"})
             Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $cell.Content }
         "</div>"
 

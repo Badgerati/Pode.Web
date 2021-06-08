@@ -33,7 +33,8 @@ function New-PodeWebCell
     param(
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Content
+        $Content,
+        [ValidateRange(1, 12)][int]$Size
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -44,6 +45,7 @@ function New-PodeWebCell
         ComponentType = 'Layout'
         LayoutType = 'Cell'
         Content = $Content
+        Size = $Size
     }
 }
 
