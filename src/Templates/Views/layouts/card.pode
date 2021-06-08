@@ -1,5 +1,5 @@
 <div class="card $($data.CssClasses)">
-    $(if (!$data.NoTitle -or !$data.NoHide) {
+    $(if (!$data.NoTitle) {
         "<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
             <h5>$($data.Name)</h5>"
             if (!$data.NoHide) {
