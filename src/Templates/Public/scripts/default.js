@@ -9,7 +9,7 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     feather.replace();
 })();
 (function() {
-    $('[data-toggle="tooltip"]').tooltip();
+    initTooltips();
 })();
 (function() {
     hljs.highlightAll();
@@ -54,6 +54,13 @@ $(() => {
     bindTabCycling();
     bindTimers();
 });
+
+function initTooltips() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+}
 
 function loadBreadcrumb() {
     // get breadcrumb
@@ -139,7 +146,7 @@ function mapElementThemes() {
         defTheme = 'success';
     }
 
-    var types = ['badge', 'btn'];
+    var types = ['btn', 'bg'];
     types.forEach((type) => {
         $(`.${type}-inbuilt-theme`).each((i, e) => {
             $(e).removeClass(`${type}-inbuilt-theme`);
@@ -1239,7 +1246,7 @@ function updateTableRow(action) {
 
     // binds sort/buttons/etc
     feather.replace();
-    $('[data-toggle="tooltip"]').tooltip();
+    initTooltips();
     bindButtons();
 
     // setup clickable rows
@@ -1360,7 +1367,7 @@ function updateTable(action, sender) {
     keys.forEach((key) => {
         if (key in columns) {
             _col = columns[key];
-            _value += `<th style='`;
+            _value += `<th scope='col' style='`;
 
             if (_col.Width > 0) {
                 _value += `width:${_col.Width}%;`;
@@ -1493,7 +1500,7 @@ function updateTable(action, sender) {
 
     // binds sort/buttons/etc
     feather.replace();
-    $('[data-toggle="tooltip"]').tooltip();
+    initTooltips();
     bindTableSort(tableId);
     bindButtons();
     bindTablePagination();
@@ -1705,14 +1712,13 @@ function actionToast(action) {
     var toastCount = $('.toast').length;
     var toastId = `toast${toastCount + 1}`;
 
+    action.Duration = 999999;
     toastArea.append(`
-        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${action.Duration}">
+        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="${action.Duration}">
             <div class="toast-header">
                 <span data-feather='${action.Icon.toLowerCase()}'></span>
-                <strong class="mr-auto mLeft05">${action.Title}</strong>
-                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <strong class="me-auto mLeft05">${action.Title}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">
                 ${action.Message}
@@ -2141,7 +2147,7 @@ function buildButton(element) {
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-bs-toggle='tooltip'>${icon}</button>`;
     }
 
     return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>
@@ -2158,14 +2164,14 @@ function buildIcon(element) {
 
     var title = '';
     if (element.Title) {
-        title = `title='${element.Title}' data-toggle='tooltip'`;
+        title = `title='${element.Title}' data-bs-toggle='tooltip'`;
     }
 
     return `<span data-feather='${element.Name.toLowerCase()}' ${colour} ${title}></span>`;
 }
 
 function buildBadge(element) {
-    return `<span id='${element.ID}' class='badge badge-${element.ColourType}'>${element.Value}</span>`;
+    return `<span id='${element.ID}' class='badge bg-${element.ColourType}'>${element.Value}</span>`;
 }
 
 function buildSpinner(element) {
@@ -2176,7 +2182,7 @@ function buildSpinner(element) {
 
     var title = '';
     if (element.Title) {
-        title = `title='${element.Title}' data-toggle='tooltip'`;
+        title = `title='${element.Title}' data-bs-toggle='tooltip'`;
     }
 
     return `<span class="spinner-border spinner-border-sm" role="status" ${colour} ${title}></span>`;
@@ -2248,8 +2254,8 @@ function actionBadge(action) {
 
     // change colour
     if (action.Colour) {
-        removeClass(badge, 'badge-\\w+');
-        badge.addClass(`badge-${action.ColourType}`);
+        removeClass(badge, 'bg-\\w+');
+        badge.addClass(`bg-${action.ColourType}`);
     }
 }
 

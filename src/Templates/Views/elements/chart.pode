@@ -4,9 +4,9 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
 
 <div role='chart' class="$($data.CssClasses)">
     <div role='controls'>
-        <div class="btn-group mr-2">
+        <div class="btn-group me-2">
             $(if (!$data.AutoRefresh -and !$data.NoRefresh) {
-                "<button type='button' class='btn btn btn-outline-secondary pode-chart-refresh' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
+                "<button type='button' class='btn btn btn-outline-secondary pode-chart-refresh' for='$($data.ID)' title='Refresh' data-bs-toggle='tooltip'>
                     <span data-feather='refresh-cw'></span>
                 </button>"
             })

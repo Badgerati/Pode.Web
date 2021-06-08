@@ -7,7 +7,7 @@
                 id='$($tab.ID)'
                 name='$($tab.Name)'
                 class='nav-link $(if ($i -eq 0) { "active" })'
-                data-toggle='tab' href='#$($tab.ID)_content'
+                data-bs-toggle='tab' href='#$($tab.ID)_content'
                 role='tab'
                 pode-prev='$($data.Tabs[$i - 1].ID)'
                 pode-next='$($data.Tabs[($i + 1) % $data.Tabs.Length].ID)'

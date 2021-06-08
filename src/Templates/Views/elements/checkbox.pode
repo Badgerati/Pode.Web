@@ -1,4 +1,4 @@
-<div class="form-group row pode-form-checkbox $($data.CssClasses)">
+<div class="form-group row mb-2 pode-form-checkbox $($data.CssClasses)">
     <div class="col-sm-2 col-form-label">$($data.Name)</div>
     <div class="col-sm-10">
         $(
