@@ -18,6 +18,8 @@ Add-PodeWebPage -Name Page2 -Layouts @(
 )
 ```
 
+The Page can be opened in a new tab via the `-NewTab` switch.
+
 ## Reset
 
 You can refresh the current page by using [`Reset-PodeWebPage`](../../../Functions/Outputs/Reset-PodeWebPage):

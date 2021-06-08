@@ -2224,11 +2224,14 @@ function actionHref(action) {
         return;
     }
 
+    // prepend host for relative urls
     if (action.Url.startsWith('/')) {
         action.Url = `${window.location.origin}${action.Url}`;
     }
 
-    window.location = action.Url;
+    // new tab, or current page?
+    var target = action.NewTab ? '_blank' : '_self';
+    window.open(action.Url, target);
 }
 
 function actionBadge(action) {

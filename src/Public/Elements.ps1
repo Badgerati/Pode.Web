@@ -771,7 +771,7 @@ function New-PodeWebLink
         ID = $Id
         Source = $Source
         Value = $Value
-        Newtab = $NewTab.IsPresent
+        NewTab = $NewTab.IsPresent
         CssClasses = ($CssClass -join ' ')
     }
 }
@@ -1028,7 +1028,11 @@ function New-PodeWebButton
         $IconOnly,
 
         [switch]
-        $NewLine
+        $NewLine,
+
+        [Parameter(ParameterSetName='Url')]
+        [switch]
+        $NewTab
     )
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
@@ -1049,6 +1053,7 @@ function New-PodeWebButton
         ColourType = $ColourType
         CssClasses = ($CssClass -join ' ')
         NewLine = $NewLine.IsPresent
+        NewTab = $NewTab.IsPresent
     }
 
     $routePath = "/elements/button/$($Id)"

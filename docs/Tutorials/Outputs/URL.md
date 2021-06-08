@@ -13,3 +13,5 @@ New-PodeWebContainer -NoBackground -Content @(
     }
 )
 ```
+
+The URL can be opened in a new tab via the `-NewTab` switch.
