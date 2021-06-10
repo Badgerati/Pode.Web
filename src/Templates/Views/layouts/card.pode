@@ -1,7 +1,12 @@
 <div class="card $($data.CssClasses)">
-    $(if (!$data.NoTitle) {
-        "<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
-            <h5>$($data.Name)</h5>"
+    $(if ((!$data.NoTitle -and $data.Name) -or !$data.NoHide) {
+        "<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>"
+            if (!$data.NoTitle) {
+                "<h5>$($data.Name)</h5>"
+            }
+            else {
+                "<h5></h5>"
+            }
             if (!$data.NoHide) {
                 "<div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
                     <div class='btn-group mr-2'>
