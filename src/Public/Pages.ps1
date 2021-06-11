@@ -261,7 +261,10 @@ function Add-PodeWebPage
         $NoBackArrow,
 
         [switch]
-        $NoBreadcrumb
+        $NoBreadcrumb,
+
+        [switch]
+        $NewTab
     )
 
     # ensure layouts are correct
@@ -269,9 +272,9 @@ function Add-PodeWebPage
         throw 'A Page can only contain layouts'
     }
 
-    # test if page exists
+    # test if page/page-link exists
     if (Test-PodeWebPage -Name $Name) {
-        throw " Web page already exists: $($Name)"
+        throw "Web page/link already exists: $($Name)"
     }
 
     # set page title
@@ -281,13 +284,17 @@ function Add-PodeWebPage
 
     # setup page meta
     $pageMeta = @{
+        PageType = 'Page'
         Name = $Name
         Title = $Title
         NoTitle = $NoTitle.IsPresent
         NoBackArrow = $NoBackArrow.IsPresent
         NoBreadcrumb = $NoBreadcrumb.IsPresent
+        NewTab = $NewTab.IsPresent
+        IsDynamic = $false
         Icon = $Icon
         Group = $Group
+        Url = "/pages/$($Name)"
         Access = @{
             Groups = @($AccessGroups)
             Users = @($AccessUsers)
@@ -378,6 +385,105 @@ function Add-PodeWebPage
         }
 
         $global:PageData = $null
+    }
+}
+
+function Add-PodeWebPageLink
+{
+    [CmdletBinding(DefaultParameterSetName='ScriptBlock')]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Group,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Icon = 'file',
+
+        [Parameter(Mandatory=$true, ParameterSetName='ScriptBlock')]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Url')]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string[]]
+        $AccessGroups = @(),
+
+        [Parameter()]
+        [string[]]
+        $AccessUsers = @(),
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [string[]]
+        $EndpointName,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication,
+
+        [Parameter(ParameterSetName='Url')]
+        [switch]
+        $NewTab
+    )
+
+    # test if page/page-link exists
+    if (Test-PodeWebPage -Name $Name) {
+        throw "Web page/link already exists: $($Name)"
+    }
+
+    # setup page meta
+    $pageMeta = @{
+        PageType = 'Link'
+        Name = $Name
+        NewTab = $NewTab.IsPresent
+        Icon = $Icon
+        Group = $Group
+        Url = $Url
+        IsDynamic = ($null -ne $ScriptBlock)
+        Access = @{
+            Groups = @($AccessGroups)
+            Users = @($AccessUsers)
+        }
+    }
+
+    Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + $pageMeta)
+
+    $routePath = "/pages/$($Name)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                Write-PodeJsonResponse -Value $result
+            }
+        }
     }
 }
 

@@ -137,6 +137,10 @@ a.pode-nav-link[pode-dynamic='True'] {
     cursor: pointer;
 }
 
+a.nav-link[pode-dynamic='True'] {
+    cursor: pointer;
+}
+
 .dropdown-submenu {
     position: relative;
 }

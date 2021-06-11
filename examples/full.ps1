@@ -285,4 +285,10 @@ Start-PodeServer -StatusPageExceptions Show {
     # page with table showing csv data
     $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv' -AsCard
     Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Layouts $table2
+
+
+    # open twitter
+    Add-PodeWebPageLink -Name Twitter -Icon Twitter -Group Social -NoAuth -ScriptBlock {
+        Move-PodeWebUrl -Url 'https://twitter.com' -NewTab
+    }
 }

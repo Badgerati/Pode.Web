@@ -15,6 +15,10 @@ $(
     $href = [string]::Empty
     if (!$data.IsDynamic) {
         $href = "href='$($data.Url)'"
+
+        if ($data.NewTab) {
+            $href += " target='_blank'"
+        }
     }
 
     if ($data.InDropdown) {

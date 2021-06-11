@@ -59,6 +59,24 @@ Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts @(
 
 You can split up your pages into different .ps1 files, if you do and you place them within a `/pages` directory, then [`Use-PodeWebPages`](../../Functions/Pages/Use-PodeWebPages) will auto-load them all for you.
 
+### Link
+
+If you just need to place a redirect link into the sidebar, then use [`Add-PodeWebPageLink`](../../Functions/Pages/Add-PodeWebPageLink). This works in a similar way to `Add-PodeWebPage`, but takes either a flat `-Url` to redirect to, or a `-ScriptBlock` that you can return output actions from - *not* layouts/elements. Page links can also be grouped, like normal pages.
+
+Flat URLs:
+
+```powershell
+Add-PodeWebPageLink -Name Twitter -Url 'https://twitter.com' -Icon 'twitter' -NewTab
+```
+
+Or a dynamic link:
+
+```powershell
+Add-PodeWebPageLink -Name Twitter -Icon Twitter -ScriptBlock {
+    Move-PodeWebUrl -Url 'https://twitter.com' -NewTab
+}
+```
+
 ### Group
 
 You can group multiple pages together on the sidebar by using the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This will group pages together into a collapsible container.
