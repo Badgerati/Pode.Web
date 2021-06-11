@@ -138,7 +138,10 @@ function New-PodeWebCard
         $CssClass,
 
         [switch]
-        $NoTitle
+        $NoTitle,
+
+        [switch]
+        $NoHide
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -152,6 +155,7 @@ function New-PodeWebCard
         ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name -NameAsToken)
         Content = $Content
         NoTitle = $NoTitle.IsPresent
+        NoHide  = $NoHide.IsPresent
         CssClasses = ($CssClass -join ' ')
     }
 }

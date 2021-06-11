@@ -62,7 +62,7 @@ pre code {
 }
 
 .pode-container:not([pode-transparent='True']) {
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     border-color: #bbb;
 }
 
