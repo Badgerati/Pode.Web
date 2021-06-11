@@ -12,3 +12,11 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![link](../../../images/link.png)
+
+## New Tab
+
+To open the link in a new tab, supply the `-NewTab` switch:
+
+```powershell
+New-PodeWebLink -Source 'https://github.com/Badgerati/Pode' -Value 'Pode' -NewTab
+```

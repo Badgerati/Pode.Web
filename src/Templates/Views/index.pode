@@ -134,8 +134,17 @@
                                             continue
                                         }
 
+                                        $href = [string]::Empty
+                                        if (!$page.IsDynamic) {
+                                            $href = "href='$($page.Url)'"
+
+                                            if ($page.NewTab) {
+                                                $href += " target='_blank'"
+                                            }
+                                        }
+
                                         "<li class='nav-item nav-page-item'>
-                                            <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' href='/pages/$($page.Name)'>
+                                            <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' name='$($page.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
                                                     $($page.Name)

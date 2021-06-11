@@ -736,7 +736,10 @@ function Move-PodeWebPage
 
         [Parameter()]
         [string]
-        $DataValue
+        $DataValue,
+
+        [switch]
+        $NewTab
     )
 
     $page = "/pages/$($Name -replace '\s+', '+')"
@@ -749,6 +752,7 @@ function Move-PodeWebPage
         Operation = 'Move'
         ElementType = 'Href'
         Url = $page
+        NewTab = $NewTab.IsPresent
     }
 }
 
@@ -758,13 +762,17 @@ function Move-PodeWebUrl
     param(
         [Parameter(Mandatory=$true)]
         [string]
-        $Url
+        $Url,
+
+        [switch]
+        $NewTab
     )
 
     return @{
         Operation = 'Move'
         ElementType = 'Href'
         Url = $Url
+        NewTab = $NewTab.IsPresent
     }
 }
 

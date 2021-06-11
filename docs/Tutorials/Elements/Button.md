@@ -31,3 +31,11 @@ New-PodeWebCard -Content @(
     New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web'
 )
 ```
+
+### New Tab
+
+To open the URL in a new tab, supply the `-NewTab` switch:
+
+```powershell
+New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
+```

@@ -32,6 +32,7 @@ $(() => {
     bindSidebarFilter();
     bindMenuToggle();
     bindNavLinks();
+    bindPageLinks();
 
     bindFormSubmits();
     bindButtons();
@@ -1059,11 +1060,21 @@ function bindButtons() {
 }
 
 function bindNavLinks() {
-    $("a.pode-nav-link").off('click').on('click', function(e) {
+    $("a.pode-nav-link[pode-dynamic='True']").off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
         var url = `/nav/link/${$(this).attr('id')}`;
+        sendAjaxReq(url, null, null, true);
+    });
+}
+
+function bindPageLinks() {
+    $(".nav-page-item a.nav-link[pode-dynamic='True']").off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var url = `/pages/${$(this).attr('name')}`;
         sendAjaxReq(url, null, null, true);
     });
 }
@@ -2224,11 +2235,14 @@ function actionHref(action) {
         return;
     }
 
+    // prepend host for relative urls
     if (action.Url.startsWith('/')) {
         action.Url = `${window.location.origin}${action.Url}`;
     }
 
-    window.location = action.Url;
+    // new tab, or current page?
+    var target = action.NewTab ? '_blank' : '_self';
+    window.open(action.Url, target);
 }
 
 function actionBadge(action) {
