@@ -9,7 +9,7 @@ Start-PodeServer {
     # set the use of templates, and set a login page
     Use-PodeWebTemplates -Title 'Basic Example' -Theme Dark
 
-    Add-PodeWebPage -Name Table -Icon Activity -NoBackArrow -ScriptBlock {
+    Add-PodeWebPage -Name Table -Icon 'chart-box-outline' -NoBackArrow -ScriptBlock {
         $value = $WebEvent.Query['value']
         $base = $WebEvent.Query['base']
         $path = (Join-PodeWebPath -Path $base -ChildPath $value -ReplaceSlashes)

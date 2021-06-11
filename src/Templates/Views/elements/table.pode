@@ -4,7 +4,7 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
 
 $(if ($data.Filter) {
     "<div class='input-group mb-2'>
-        <div class='input-group-prepend'><div class='input-group-text'><span data-feather='filter'></span></div></div>
+        <div class='input-group-prepend'><div class='input-group-text'><span class='mdi mdi-filter'></span></div></div>
         <input type='text' class='form-control mBottom1 pode-table-filter' id='filter_$($data.ID)' placeholder='Filter' for='$($data.ID)'>
     </div>"
 })
@@ -36,20 +36,20 @@ $(if ($data.Filter) {
     <div role='controls'>
         <div class="btn-group mr-2">
             $(if (!$data.AutoRefresh -and !$data.NoRefresh) {
-                "<button type='button' class='btn btn btn-outline-secondary pode-table-refresh' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
-                    <span data-feather='refresh-cw'></span>
+                "<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-refresh' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
+                    <span class='mdi mdi-refresh mdi-size-20'></span>
                 </button>"
             })
 
             $(if (!$data.NoExport) {
-                "<button type='button' class='btn btn btn-outline-secondary pode-table-export' for='$($data.ID)' title='Export' data-toggle='tooltip'>
-                    <span data-feather='download'></span>
+                "<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-export' for='$($data.ID)' title='Export' data-toggle='tooltip'>
+                    <span class='mdi mdi-download mdi-size-20'></span>
                 </button>"
             })
 
             $(foreach ($btn in $data.Buttons) {
-                "<button type='button' class='btn btn btn-outline-secondary pode-table-button' for='$($data.ID)' title='$($btn.Name)' data-toggle='tooltip' name='$($btn.Name)'>
-                    <span data-feather='$($btn.Icon.ToLowerInvariant())' class='$(if ($btn.WithText) { "mRight02" })'></span>"
+                "<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-button' for='$($data.ID)' title='$($btn.Name)' data-toggle='tooltip' name='$($btn.Name)'>
+                    <span class='mdi mdi-$($btn.Icon.ToLowerInvariant()) mdi-size-20 $(if ($btn.WithText) { "mRight02" })'></span>"
 
                     if ($btn.WithText) {
                         $btn.Name

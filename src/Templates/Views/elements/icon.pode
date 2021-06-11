@@ -9,5 +9,5 @@ $(
         $title = "title='$($data.Title)' data-toggle='tooltip'"
     }
 
-    "<span data-feather='$($data.Name)' class='$($data.CssClasses)' $($colour) $($title)></span>"
+    "<span class='mdi mdi-$($data.Name) $($data.CssClasses)' $($colour) $($title)></span>"
 )

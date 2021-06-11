@@ -35,12 +35,12 @@ Start-PodeServer -StatusPageExceptions Show {
     Set-PodeWebLoginPage -Authentication Example
 
     $link1 = New-PodeWebNavLink -Name 'Home' -Url '/' -Icon Home
-    $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Settings -NoAuth -ScriptBlock {
+    $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Cogs -NoAuth -ScriptBlock {
         Show-PodeWebToast -Message "I'm from a nav link!"
     }
     $div1 = New-PodeWebNavDivider
     $link3 = New-PodeWebNavLink -Name 'Disabled' -Url '/' -Disabled
-    $dd1 = New-PodeWebNavDropdown -Name 'Dropdown' -Icon 'maximize-2' -Items @(
+    $dd1 = New-PodeWebNavDropdown -Name 'Dropdown' -Icon Expand -Items @(
         New-PodeWebNavLink -Name 'Twitter' -Url 'https://twitter.com'
         New-PodeWebNavLink -Name 'Facebook' -Url 'https://facebook.com' -Disabled
         New-PodeWebNavDivider
@@ -77,7 +77,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $timer1
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
-        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon Command -Colour Green -ScriptBlock {
+        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
         }
@@ -192,7 +192,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts $tabs1 -Title 'Cycling Tabs'
+    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs'
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]
@@ -205,19 +205,19 @@ Start-PodeServer -StatusPageExceptions Show {
     }
 
     $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
-        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
+        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
+        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'Edit' -IconOnly -ScriptBlock {
+        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
             $checked = ($svc.Status -ieq 'running')
 
@@ -245,7 +245,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     Add-PodeStaticRoute -Path '/download' -Source '.\storage' -DownloadOnly
 
-    $table | Add-PodeWebTableButton -Name 'Excel' -Icon 'Bar-Chart' -ScriptBlock {
+    $table | Add-PodeWebTableButton -Name 'Excel' -Icon 'chart-bar' -ScriptBlock {
         $path = Join-Path (Get-PodeServerPath) '.\storage\test.csv'
         $WebEvent.Data | Export-Csv -Path $path -NoTypeInformation
         Set-PodeResponseAttachment -Path '/download/test.csv'
@@ -253,7 +253,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Layouts $modal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $modal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -279,7 +279,7 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Group Tools -AccessGroups Developer -Layouts $form
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Group Tools -AccessGroups Developer -Layouts $form
 
 
     # page with table showing csv data

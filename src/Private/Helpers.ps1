@@ -455,11 +455,11 @@ function Convert-PodeWebAlertTypeToIcon
         }
 
         'warning' {
-            return 'alert-triangle'
+            return 'alert'
         }
 
         'tip' {
-            return 'thumbs-up'
+            return 'thumb-up'
         }
 
         'success' {
@@ -471,7 +471,7 @@ function Convert-PodeWebAlertTypeToIcon
         }
 
         'info' {
-            return 'info'
+            return 'information'
         }
 
         'important' {
