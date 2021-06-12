@@ -703,6 +703,11 @@ a.nav-link .mdi:before {
     top: 3px;
 }
 
+.modal-title .mdi::before {
+    position: relative;
+    top: 2px;
+}
+
 .btn-xs .mdi::before {
     font-size: 18px;
     top: 3px;

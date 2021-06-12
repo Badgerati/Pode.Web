@@ -196,7 +196,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]
-    $modal = New-PodeWebModal -Name 'Edit Service' -Id 'modal_edit_svc' -AsForm -Content @(
+    $modal = New-PodeWebModal -Name 'Edit Service' -Icon 'square-edit-outline' -Id 'modal_edit_svc' -AsForm -Content @(
         New-PodeWebAlert -Type Info -Value 'This does nothing, it is just an example'
         New-PodeWebCheckbox -Name Running -Id 'chk_svc_running' -AsSwitch
     ) -ScriptBlock {
