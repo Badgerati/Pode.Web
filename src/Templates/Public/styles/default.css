@@ -728,7 +728,6 @@ a.nav-link .mdi:before {
 .dropdown-menu .mdi::before {
     position: relative;
     top: 4px;
-    left: -8px;
 }
 
 .nav .mdi::before {

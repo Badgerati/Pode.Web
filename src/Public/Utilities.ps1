@@ -104,7 +104,8 @@ function Set-PodeWebSocial
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
-        [ValidateSet('GitHub', 'Twitter', 'Facebook', 'LinkedIn', 'Twitch', 'GitLab', 'Instagram')]
+        [ValidateSet('GitHub', 'Twitter', 'Facebook', 'LinkedIn', 'Twitch', 'GitLab', 'Instagram', 'Telegram',
+            'Pinterest', 'Slack', 'Discord', 'BitBucket', 'Jira', 'YouTube')]
         [string]
         $Type,
 

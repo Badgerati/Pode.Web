@@ -44,7 +44,7 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebNavLink -Name 'Twitter' -Url 'https://twitter.com'
         New-PodeWebNavLink -Name 'Facebook' -Url 'https://facebook.com' -Disabled
         New-PodeWebNavDivider
-        New-PodeWebNavLink -Name 'YouTube' -Url 'https://youtube.com'
+        New-PodeWebNavLink -Name 'YouTube' -Url 'https://youtube.com' -Icon YouTube
         New-PodeWebNavDropdown -Name 'InnerDrop' -Items @(
             New-PodeWebNavLink -Name 'Twitch' -Url 'https://twitch.tv'
             New-PodeWebNavLink -Name 'Pode' -Url 'https://github.com/Badgerati/Pode'
