@@ -1,7 +1,7 @@
 <div id="$($data.ID)" class="pode-code-editor $($data.CssClasses)">
     $(if ($data.Uploadable) {
         "<button class='btn btn-inbuilt-theme pode-upload mBottom1' type='button' title='Upload' data-toggle='tooltip' for='$($data.ID)'>
-            <span data-feather='upload' class='mRight02'></span>
+            <span class='mdi mdi-upload mRight02'></span>
         </button>"
     })
 

@@ -30,7 +30,7 @@
                         $element += "<div class='input-group-prepend'><div class='input-group-text'>$($data.Prepend.Text)</div></div>"
                     }
                     else {
-                        $element += "<div class='input-group-prepend'><div class='input-group-text'><span data-feather='$($data.Prepend.Icon.ToLowerInvariant())'></span></div></div>"
+                        $element += "<div class='input-group-prepend'><div class='input-group-text'><span class='mdi mdi-$($data.Prepend.Icon.ToLowerInvariant())'></span></div></div>"
                     }
                 }
 

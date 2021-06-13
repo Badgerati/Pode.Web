@@ -1,6 +1,6 @@
 <div id="$($data.ID)" class="alert alert-$($data.ClassType) $($data.CssClasses)" role="alert">
     <h6 class='pode-alert-header'>
-        <span data-feather="$($data.IconType)"></span>
+        <span class="mdi mdi-$($data.IconType)"></span>
         <strong>$($data.Type)</strong>
     </h6>
 

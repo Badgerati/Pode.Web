@@ -7,7 +7,7 @@ $(
     "<pre class='code-block $($scrollable) $($data.CssClasses)'>"
 )
     <button type='button' class='btn btn-icon-only pode-code-copy' title='Copy to clipboard' data-toggle='tooltip'>
-        <span data-feather='copy' class='mRight02'></span>
+        <span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight02'></span>
     </button>
 
     <code id="$($data.ID)" class="$($data.Language)">

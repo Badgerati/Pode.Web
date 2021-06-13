@@ -33,8 +33,8 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Layouts $form, $table
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Layouts $form, $table
 
     # services
-    Add-PodeWebPage -Name Services -Icon Settings
+    Add-PodeWebPage -Name Services -Icon 'cogs'
 }

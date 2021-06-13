@@ -7,7 +7,7 @@
     <body id="normal-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)">
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
-                <span data-feather='menu' class='mRight02'></span>
+                <span class='mdi mdi-menu-open'></span>
             </button>
 
             <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">
@@ -35,7 +35,7 @@
                             $social = $socials[$key]
 
                             "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
-                                <span data-feather='$($key.ToLowerInvariant())'></span>
+                                <span class='mdi mdi-$($key.ToLowerInvariant())'></span>
                             </a>"
                         }
                     )
@@ -58,7 +58,7 @@
                             "Hello, $($data.Auth.Username)
                         </span>
                         <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                            <span data-feather='log-out' class='mRight02'></span>
+                            <span class='mdi mdi-logout mRight02'></span>
                             Sign out
                         </button>
                     </form>"
@@ -66,7 +66,7 @@
                 else {
                     "<form class='form-inline' action='/login' method='GET' style='margin-bottom: 0'>
                         <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                            <span data-feather='log-in' class='mRight02'></span>
+                            <span class='mdi mdi-login mRight02'></span>
                             Sign in
                         </button>
                     </form>"
@@ -82,7 +82,7 @@
 
                         if (!$noPageFilter) {
                             "<div class='input-group mb-2 mLeft1 w90 mTop1-8'>
-                                <div class='input-group-prepend'><div class='input-group-text'><span data-feather='filter'></span></div></div>
+                                <div class='input-group-prepend'><div class='input-group-text'><span class='mdi mdi-filter'></span></div></div>
                                 <input type='text' class='form-control pode-nav-filter' id='filter_sidebar' placeholder='Filter' for='sidebar-list'>
                             </div>"
                         }
@@ -104,7 +104,7 @@
                             <li class="nav-item nav-page-item">
                                 <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="/">
                                     <div>
-                                        <span data-feather="home"></span>
+                                        <span class="mdi mdi-home mdi-size-22 mRight02"></span>
                                         Home
                                     </div>
                                 </a>
@@ -118,8 +118,7 @@
                                         "<li class='nav-item mTop1 nav-group-title'>
                                             <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
                                                 <div>
-                                                    <span data-feather='arrow-right'></span>
-                                                    <span data-feather='arrow-down-right' style='display:none;'></span>
+                                                    <span class='mdi mdi-arrow-collapse mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$($pageGroup.Name)</span>
                                                     <span class='badge badge-inbuilt-theme'>$($pageGroup.Count)</span>
                                                 </div>
@@ -146,7 +145,7 @@
                                         "<li class='nav-item nav-page-item'>
                                             <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' name='$($page.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
-                                                    <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
+                                                    <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
                                                     $($page.Name)
                                                 </div>
                                             </a>
@@ -173,7 +172,7 @@
                         "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom'>
                             <h1 class='h2'>"
                                 if ($data.Page.ShowBack) {
-                                    "<a href='/pages/$($data.Page.Name)'><span data-feather='arrow-left'></span></a>"
+                                    "<a href='/pages/$($data.Page.Name)'><span class='mdi mdi-arrow-left'></span></a>"
                                 }
                                 $data.Page.Title
                             "</h1>

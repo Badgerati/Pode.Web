@@ -6,9 +6,6 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
 
 
 (function() {
-    feather.replace();
-})();
-(function() {
     $('[data-toggle="tooltip"]').tooltip();
 })();
 (function() {
@@ -535,8 +532,8 @@ function bindCardCollapse() {
         e.stopPropagation();
 
         var button = getButton(e);
-        button.find('.feather-eye').toggle();
-        button.find('.feather-eye-off').toggle();
+        button.find('.mdi-eye-outline').toggle();
+        button.find('.mdi-eye-off-outline').toggle();
 
         button.closest('.card').find('.card-body').slideToggle();
         unfocus(button);
@@ -575,6 +572,8 @@ function bindMenuToggle() {
 
         $('nav#sidebarMenu').toggleClass('hide');
         $('main[role="main"]').toggleClass('fullscreen');
+
+        $('button#menu-toggle span').toggleClass('mdi-rotate-180');
     });
 }
 
@@ -651,18 +650,19 @@ function isNumeric(value) {
 
 function bindPageGroupCollapse() {
     $('ul#sidebar-list div.collapse').on('hide.bs.collapse', function(e) {
-        toggleCollapseArrow(e.target, 'arrow-right', 'arrow-down-right');
+        toggleCollapseArrow(e.target, 'mdi-arrow-expand', 'mdi-arrow-collapse');
     });
 
     $('ul#sidebar-list div.collapse').on('show.bs.collapse', function(e) {
-        toggleCollapseArrow(e.target, 'arrow-down-right', 'arrow-right');
+        toggleCollapseArrow(e.target, 'mdi-arrow-collapse', 'mdi-arrow-expand');
     });
 }
 
 function toggleCollapseArrow(element, showIcon, hideIcon) {
     var id = $(element).attr('id');
-    $(`a[aria-controls="${id}"]`).find(`svg.feather-${showIcon}`).show();
-    $(`a[aria-controls="${id}"]`).find(`svg.feather-${hideIcon}`).hide();
+    var icon = $(`a[aria-controls="${id}"] span.mdi`);
+    icon.toggleClass(showIcon);
+    icon.toggleClass(hideIcon);
 }
 
 function bindRangeValue() {
@@ -1249,7 +1249,6 @@ function updateTableRow(action) {
     });
 
     // binds sort/buttons/etc
-    feather.replace();
     $('[data-toggle="tooltip"]').tooltip();
     bindButtons();
 
@@ -1384,7 +1383,7 @@ function updateTable(action, sender) {
             _value += `'>`;
 
             if (_col.Icon) {
-                _value += `<span data-feather='${_col.Icon.toLowerCase()}' class='mRight02'></span>`;
+                _value += `<span class='mdi mdi-${_col.Icon.toLowerCase()} mRight02'></span>`;
             }
 
             _value += `${_col.Name ? _col.Name : key}</th>`;
@@ -1503,7 +1502,6 @@ function updateTable(action, sender) {
     }
 
     // binds sort/buttons/etc
-    feather.replace();
     $('[data-toggle="tooltip"]').tooltip();
     bindTableSort(tableId);
     bindButtons();
@@ -1719,7 +1717,7 @@ function actionToast(action) {
     toastArea.append(`
         <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${action.Duration}">
             <div class="toast-header">
-                <span data-feather='${action.Icon.toLowerCase()}'></span>
+                <span class='mdi mdi-${action.Icon.toLowerCase()}'></span>
                 <strong class="mr-auto mLeft05">${action.Title}</strong>
                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -1730,8 +1728,6 @@ function actionToast(action) {
             </div>
         </div>
     `);
-
-    feather.replace();
 
     $(`div#${toastId}`).on('hidden.bs.toast', function(e) {
         $(e.target).remove();
@@ -2148,7 +2144,7 @@ function getTimeString() {
 function buildButton(element) {
     var icon = '';
     if (element.Icon) {
-        icon = `<span data-feather='${element.Icon.toLowerCase()}' class='mRight02'></span>`
+        icon = `<span class='mdi mdi-${element.Icon.toLowerCase()} mdi-size-20 mRight02'></span>`
     }
 
     if (element.IconOnly) {
@@ -2172,7 +2168,7 @@ function buildIcon(element) {
         title = `title='${element.Title}' data-toggle='tooltip'`;
     }
 
-    return `<span data-feather='${element.Name.toLowerCase()}' ${colour} ${title}></span>`;
+    return `<span class='mdi mdi-${element.Name.toLowerCase()} mdi-size-20' ${colour} ${title}></span>`;
 }
 
 function buildBadge(element) {
@@ -2348,7 +2344,7 @@ function actionError(action, sender) {
 
     sender.append(`<div class="alert alert-danger pode-error mTop1" role="alert">
         <h6 class='pode-alert-header'>
-            <span data-feather="alert-circle"></span>
+            <span class="alert-circle"></span>
             <strong>Error</strong>
         </h6>
 

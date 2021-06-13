@@ -10,9 +10,9 @@
             if (!$data.NoHide) {
                 "<div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
                     <div class='btn-group mr-2'>
-                        <button type='button' class='btn btn btn-outline-secondary pode-card-collapse'>
-                            <span data-feather='eye' title='Hide' data-toggle='tooltip'></span>
-                            <span data-feather='eye-off' style='display: none;' title='Show' data-toggle='tooltip'></span>
+                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-card-collapse'>
+                            <span class='mdi mdi-eye-outline mdi-size-20' title='Hide' data-toggle='tooltip'></span>
+                            <span class='mdi mdi-eye-off-outline mdi-size-20' style='display: none;' title='Show' data-toggle='tooltip'></span>
                         </button>
                     </div>
                 </div>"

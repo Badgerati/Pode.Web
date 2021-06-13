@@ -460,7 +460,7 @@ function Show-PodeWebToast
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
-        $Icon = 'info'
+        $Icon = 'information'
     )
 
     if ($Duration -le 0) {

@@ -237,10 +237,6 @@ li.nav-group-title {
     border-top-color: #33ff00;
 }
 
-.nav-item.nav-page-item, .sidebar .nav-link .feather {
-    color: #33ff00;
-}
-
 .nav-item.nav-page-item a.nav-link.active {
     color: #ffb000 !important;
 }

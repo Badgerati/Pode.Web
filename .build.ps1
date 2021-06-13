@@ -150,9 +150,13 @@ task MoveLibs {
     New-Item -Path "$($libs_path)/chartjs" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/chart.js/dist/chart.min.js" -Destination "$($libs_path)/chartjs/" -Force
 
-    # feather icons
-    New-Item -Path "$($libs_path)/feather-icons" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/feather-icons/dist/feather.min.js*" -Destination "$($libs_path)/feather-icons/" -Force
+    # mdi fonts - icons
+    New-Item -Path "$($libs_path)/mdi-font/css" -ItemType Directory -Force | Out-Null
+    Copy-Item -Path "$($src_path)/@mdi/font/css/materialdesignicons.min.css*" -Destination "$($libs_path)/mdi-font/css/" -Force
+    Copy-Item -Path "$($src_path)/@mdi/font/css/materialdesignicons.css.map" -Destination "$($libs_path)/mdi-font/css/" -Force
+
+    New-Item -Path "$($libs_path)/mdi-font/fonts" -ItemType Directory -Force | Out-Null
+    Copy-Item -Path "$($src_path)/@mdi/font/fonts/materialdesignicons-webfont*" -Destination "$($libs_path)/mdi-font/fonts/" -Force
 
     # highlight.js
     New-Item -Path "$($libs_path)/highlightjs" -ItemType Directory -Force | Out-Null

@@ -9,7 +9,7 @@
 
                     "<span class='bs-stepper-circle'>"
                         if (![string]::IsNullOrWhiteSpace($step.Icon)) {
-                            "<span data-feather='$($step.Icon.ToLowerInvariant())'></span>"
+                            "<span class='mdi mdi-$($step.Icon.ToLowerInvariant())'></span>"
                         }
                         else {
                             "$($i + 1)"
@@ -35,7 +35,7 @@
 
                     if ($i -gt 0) {
                         "<button class='btn btn-inbuilt-theme step-previous float-left' for='$($step.ID)'>
-                            <span data-feather='arrow-left' class='mRight02'></span>
+                            <span class='mdi mdi-arrow-left mRight02'></span>
                             Previous
                             <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                         </button>"
@@ -45,7 +45,7 @@
                         "<button class='btn btn-inbuilt-theme step-next float-right' for='$($step.ID)'>
                             <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                             Next
-                            <span data-feather='arrow-right' class='mLeft02'></span>
+                            <span class='mdi mdi-arrow-right mLeft02'></span>
                         </button>"
                     }
 

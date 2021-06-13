@@ -11,7 +11,7 @@ Start-PodeServer {
 
     $table = New-PodeWebTable -Name 'Static' -DataColumn ID -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
         # refresh button, to refresh the current row
-        $refreshBtn = New-PodeWebButton -Name 'Refresh' -Icon 'refresh-cw' -IconOnly -ScriptBlock {
+        $refreshBtn = New-PodeWebButton -Name 'Refresh' -Icon 'refresh' -IconOnly -ScriptBlock {
             $response = (Invoke-RestMethod -Uri 'https://catfact.ninja/facts?limit=1' -Method Get).data.fact
 
             # this will only update the Fact column of the row
@@ -33,5 +33,5 @@ Start-PodeServer {
         }
     }
 
-    Add-PodeWebPage -Name 'Get Cat Fact' -Icon 'Upload-Cloud' -Layouts $table
+    Add-PodeWebPage -Name 'Get Cat Fact' -Icon 'cloud-upload' -Layouts $table
 }
