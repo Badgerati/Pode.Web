@@ -1,6 +1,6 @@
 # Icons
 
-All icons rendered in Pode.Web are done using [Material Design Icons](https://materialdesignicons.com). This applies to pretty much all `-Icon` parameters, except for the one on [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) which is actually the path to an image.
+All icons rendered in Pode.Web are done using [Material Design Icons](https://materialdesignicons.com). This applies to pretty much all `-Icon` parameters, except for the one on [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) which is actually the path to an image (This has been changed to `-Logo`, though `-Icon` is still an alias for now).
 
 A list of searchable icons can be [found here](https://pictogrammers.github.io/@mdi/font/5.4.55/). When you've found the one you need, you only have to supply the part after `mdi-`. For example let's say you need the `mdi-github` icon, then you only need to supply the `github` part:
 
