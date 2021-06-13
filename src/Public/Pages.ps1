@@ -700,3 +700,86 @@ function Use-PodeWebPages
         Use-PodeScript -Path $_.FullName
     }
 }
+
+function Get-PodeWebPage
+{
+    [CmdletBinding(DefaultParameterSetName='Group')]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter(ParameterSetName='Group')]
+        [string]
+        $Group,
+
+        [Parameter(ParameterSetName='NoGroup')]
+        [switch]
+        $NoGroup
+    )
+
+    # get all pages
+    $pages = Get-PodeWebState -Name 'pages'
+
+    # filter by group
+    if ($NoGroup) {
+        $pages = @(foreach ($page in $pages) {
+            if ([string]::IsNullOrWhiteSpace($page.Group)) {
+                $page
+            }
+        })
+    }
+    elseif (![string]::IsNullOrWhiteSpace($Group)) {
+        $pages = @(foreach ($page in $pages) {
+            if ($page.Group -ieq $Group) {
+                $page
+            }
+        })
+    }
+
+    # filter by page name
+    if (![string]::IsNullOrWhiteSpace($Name)) {
+        $pages = @(foreach ($page in $pages) {
+            if ($page.Name -ieq $Name) {
+                $page
+            }
+        })
+    }
+
+    # return filtered pages
+    return $pages
+}
+
+function Test-PodeWebPage
+{
+    [CmdletBinding(DefaultParameterSetName='Group')]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter(ParameterSetName='Group')]
+        [string]
+        $Group,
+
+        [Parameter(ParameterSetName='NoGroup')]
+        [switch]
+        $NoGroup
+    )
+
+    # get pages
+    $pages = @()
+    if ($NoGroup) {
+        $pages = Get-PodeWebPage -Name $Name -NoGroup:$NoGroup
+    }
+    else {
+        $pages = Get-PodeWebPage -Name $Name -Group $Group
+    }
+
+    # are there any pages?
+    if ($null -eq $pages) {
+        return $false
+    }
+
+    return (@($pages) | Measure-Object).Count -gt 0
+}
