@@ -22,7 +22,7 @@ New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
 Set-PodeWebLoginPage -Authentication Example
 ```
 
-By default the Pode icon is displayed, but you can change this by using the `-Icon` parameter; this takes a literal or relative URL to an image file.
+By default the Pode icon is displayed as the logo, but you can change this by using the `-Logo` parameter; this takes a literal or relative URL to an image file.
 
 ## Home
 

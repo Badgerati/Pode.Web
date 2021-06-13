@@ -7,8 +7,14 @@ function Set-PodeWebLoginPage
         $Authentication,
 
         [Parameter()]
+        [Alias('Icon')]
         [string]
-        $Icon,
+        $Logo,
+
+        [Parameter()]
+        [Alias('IconUrl')]
+        [string]
+        $LogoUrl,
 
         [Parameter()]
         [string]
@@ -39,9 +45,13 @@ function Set-PodeWebLoginPage
         Theme = $ThemeProperty
     }
 
-    # set a default icon
-    if ([string]::IsNullOrWhiteSpace($Icon)) {
-        $Icon = '/pode.web/images/icon.png'
+    # set a default logo/url
+    if ([string]::IsNullOrWhiteSpace($Logo)) {
+        $Logo = '/pode.web/images/icon.png'
+    }
+
+    if ([string]::IsNullOrWhiteSpace($LogoUrl)) {
+        $LogoUrl = '/'
     }
 
     # set default failure/success urls
@@ -64,7 +74,8 @@ function Set-PodeWebLoginPage
     Add-PodeRoute -Method Get -Path '/login' -Authentication $Authentication -EndpointName $endpointNames -Login -ScriptBlock {
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Theme = Get-PodeWebTheme
-            Icon = $using:Icon
+            Logo = $using:Logo
+            LogoUrl = $using:LogoUrl
             Copyright = $using:Copyright
             Auth = @{
                 Name = $using:Authentication
