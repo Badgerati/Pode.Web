@@ -316,17 +316,6 @@ function Protect-PodeWebName
     return ($Name -ireplace '[^a-z0-9_]', '').Trim()
 }
 
-function Test-PodeWebPage
-{
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]
-        $Name
-    )
-
-    return (Get-PodeWebState -Name 'pages' | Where-Object { $_.Name -ieq $Name } | Measure-Object).Count -ne 0
-}
-
 function Test-PodeWebRoute
 {
     param(
