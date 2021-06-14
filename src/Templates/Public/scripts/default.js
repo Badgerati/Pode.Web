@@ -1074,9 +1074,24 @@ function bindPageLinks() {
         e.preventDefault();
         e.stopPropagation();
 
-        var url = `/pages/${$(this).attr('name')}`;
+        var url = getPagePath(null, null, this);
         sendAjaxReq(url, null, null, true);
     });
+}
+
+function getPagePath(name, group, page) {
+    if (page) {
+        name = $(page).attr('name');
+        group = $(page).attr('pode-page-group');
+    }
+
+    var path = '';
+    if (group) {
+        path += `/groups/${group}`;
+    }
+
+    path += `/pages/${name}`;
+    return path;
 }
 
 function bindTableFilters() {

@@ -63,7 +63,7 @@ function Use-PodeWebTemplates
     Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
         if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-            Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
             return
         }
 

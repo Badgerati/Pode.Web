@@ -368,9 +368,13 @@ function Get-PodeWebElementId
     # start with element tag
     $_id += "$($Tag)"
 
-    # add page name if we have one
+    # add page name and group if we have one
     if (![string]::IsNullOrWhiteSpace($PageData.Name)) {
         $_id += "_$($PageData.Name)"
+    }
+
+    if (![string]::IsNullOrWhiteSpace($PageData.Group)) {
+        $_id += "_$($PageData.Group)"
     }
 
     # add name if we have one
@@ -617,4 +621,36 @@ function Test-PodeWebOutputWrapped
     }
 
     return (($Output -is [hashtable]) -and ($Output.Operation -ieq 'Output') -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
+}
+
+function Get-PodeWebPagePath
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(ParameterSetName='Name')]
+        [string]
+        $Group,
+
+        [Parameter(ParameterSetName='Page')]
+        [hashtable]
+        $Page
+    )
+
+    $path = [string]::Empty
+
+    if ($null -ne $Page) {
+        $Name = $page.Name
+        $Group = $page.Group
+    }
+
+    if (![string]::IsNullOrWhiteSpace($Group)) {
+        $path += "/groups/$($Group)"
+    }
+
+    $path += "/pages/$($Name)"
+    return $path
 }

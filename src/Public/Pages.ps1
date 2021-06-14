@@ -96,7 +96,7 @@ function Set-PodeWebLoginPage
     Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
         if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-            Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
             return
         }
 
@@ -185,7 +185,7 @@ function Set-PodeWebHomePage
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
             $pages = @(Get-PodeWebState -Name 'pages')
             if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-                Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+                Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
                 return
             }
         }
@@ -284,7 +284,7 @@ function Add-PodeWebPage
     }
 
     # test if page/page-link exists
-    if (Test-PodeWebPage -Name $Name) {
+    if (Test-PodeWebPage -Name $Name -Group $Group -NoGroup) {
         throw "Web page/link already exists: $($Name)"
     }
 
@@ -305,7 +305,7 @@ function Add-PodeWebPage
         IsDynamic = $false
         Icon = $Icon
         Group = $Group
-        Url = "/pages/$($Name)"
+        Url = (Get-PodeWebPagePath -Name $Name -Group $Group)
         Access = @{
             Groups = @($AccessGroups)
             Users = @($AccessUsers)
@@ -326,7 +326,7 @@ function Add-PodeWebPage
     }
 
     # add the page route
-    Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+    Add-PodeRoute -Method Get -Path $pageMeta.Url -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
         $global:PageData = $using:pageMeta
 
         if (!$global:PageData.NoBackArrow) {
@@ -451,7 +451,7 @@ function Add-PodeWebPageLink
     )
 
     # test if page/page-link exists
-    if (Test-PodeWebPage -Name $Name) {
+    if (Test-PodeWebPage -Name $Name -Group $Group -NoGroup) {
         throw "Web page/link already exists: $($Name)"
     }
 
@@ -472,7 +472,7 @@ function Add-PodeWebPageLink
 
     Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + $pageMeta)
 
-    $routePath = "/pages/$($Name)"
+    $routePath = (Get-PodeWebPagePath -Name $Name -Group $Group)
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
@@ -703,17 +703,17 @@ function Use-PodeWebPages
 
 function Get-PodeWebPage
 {
-    [CmdletBinding(DefaultParameterSetName='Group')]
+    [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Name,
 
-        [Parameter(ParameterSetName='Group')]
+        [Parameter()]
         [string]
         $Group,
 
-        [Parameter(ParameterSetName='NoGroup')]
+        [Parameter()]
         [switch]
         $NoGroup
     )
@@ -722,7 +722,7 @@ function Get-PodeWebPage
     $pages = Get-PodeWebState -Name 'pages'
 
     # filter by group
-    if ($NoGroup) {
+    if ($NoGroup -and [string]::IsNullOrWhiteSpace($Group)) {
         $pages = @(foreach ($page in $pages) {
             if ([string]::IsNullOrWhiteSpace($page.Group)) {
                 $page
@@ -752,29 +752,23 @@ function Get-PodeWebPage
 
 function Test-PodeWebPage
 {
-    [CmdletBinding(DefaultParameterSetName='Group')]
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
 
-        [Parameter(ParameterSetName='Group')]
+        [Parameter()]
         [string]
         $Group,
 
-        [Parameter(ParameterSetName='NoGroup')]
+        [Parameter()]
         [switch]
         $NoGroup
     )
 
     # get pages
-    $pages = @()
-    if ($NoGroup) {
-        $pages = Get-PodeWebPage -Name $Name -NoGroup:$NoGroup
-    }
-    else {
-        $pages = Get-PodeWebPage -Name $Name -Group $Group
-    }
+    $pages = Get-PodeWebPage -Name $Name -Group $Group -NoGroup:$NoGroup
 
     # are there any pages?
     if ($null -eq $pages) {

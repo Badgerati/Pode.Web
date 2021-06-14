@@ -736,13 +736,17 @@ function Move-PodeWebPage
 
         [Parameter()]
         [string]
+        $Group,
+
+        [Parameter()]
+        [string]
         $DataValue,
 
         [switch]
         $NewTab
     )
 
-    $page = "/pages/$($Name -replace '\s+', '+')"
+    $page = ((Get-PodeWebPagePath -Name $Name -Group $Group) -replace '\s+', '+')
 
     if (![string]::IsNullOrWhiteSpace($DataValue)) {
         $page += "?Value=$($DataValue)"
