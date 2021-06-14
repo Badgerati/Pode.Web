@@ -643,8 +643,8 @@ function Get-PodeWebPagePath
     $path = [string]::Empty
 
     if ($null -ne $Page) {
-        $Name = $page.Name
-        $Group = $page.Group
+        $Name = $Page.Name
+        $Group = $Page.Group
     }
 
     if (![string]::IsNullOrWhiteSpace($Group)) {

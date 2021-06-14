@@ -285,7 +285,7 @@ function Add-PodeWebPage
 
     # test if page/page-link exists
     if (Test-PodeWebPage -Name $Name -Group $Group -NoGroup) {
-        throw "Web page/link already exists: $($Name)"
+        throw "Web page/link already exists: $($Name) [Group: $($Group)]"
     }
 
     # set page title
@@ -452,7 +452,7 @@ function Add-PodeWebPageLink
 
     # test if page/page-link exists
     if (Test-PodeWebPage -Name $Name -Group $Group -NoGroup) {
-        throw "Web page/link already exists: $($Name)"
+        throw "Web page/link already exists: $($Name) [Group: $($Group)]"
     }
 
     # setup page meta
