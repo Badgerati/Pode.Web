@@ -94,7 +94,8 @@
                     <footer class="footer powered-by mt-auto py-3">
                         <div>
                             <span class="text-muted">
-                                🧡 Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
+                                <span class="mdi mdi-heart mdi-size-15" style="color:orangered"></span>
+                                Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
                             </span>
                         </div>
                     </footer>
