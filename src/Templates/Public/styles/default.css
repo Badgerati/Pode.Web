@@ -718,6 +718,10 @@ a.nav-link .mdi:before {
     top: 3px;
 }
 
+.mdi-size-15::before {
+    font-size: 15px;
+}
+
 .mdi-size-20::before {
     font-size: 20px;
 }
