@@ -1,0 +1,21 @@
+$(if ($data.NewLine) {
+    "<br/>"
+})
+
+<div id="$($data.ID)" class="container pode-tile alert-$($data.ColourType) rounded $($data.CssClasses)" name="$($data.Name)" pode-dynamic="$($data.IsDynamic)" pode-click="$($data.Click)" pode-auto-refresh='$($data.AutoRefresh)'>
+    <h6 class="pode-tile-header">
+        $(if (![string]::IsNullOrWhiteSpace($data.Icon)) {
+            "<span class='mdi mdi-$($data.Icon.ToLowerInvariant())''></span>"
+        })
+        $($data.Name)
+        $(if (!$data.AutoRefresh -and !$data.NoRefresh) {
+            "<span class='mdi mdi-refresh pode-tile-refresh pode-refresh-btn' for='$($data.ID)' title='Refresh' data-toggle='tooltip'></span>"
+        })
+    </h6>
+    <hr/>
+    <div class="pode-tile-body pode-text">
+        $(if (!$data.IsDynamic) {
+            Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content }
+        })
+    </div>
+</div>

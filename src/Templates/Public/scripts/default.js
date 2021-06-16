@@ -23,6 +23,7 @@ $(() => {
     loadTables();
     loadCharts();
     loadAutoCompletes();
+    loadTiles();
 
     setupSteppers();
 
@@ -45,6 +46,8 @@ $(() => {
     bindRangeValue();
     bindProgressValue();
     bindModalSubmits();
+    bindTileRefresh();
+    bindTileClick();
 
     bindPageGroupCollapse();
     bindCardCollapse();
@@ -742,6 +745,65 @@ function loadAutoCompletes() {
     });
 }
 
+function loadTiles() {
+    $(`div.pode-tile[pode-dynamic="True"]`).each((i, e) => {
+        loadTile($(e).attr('id'), true);
+    });
+}
+
+function loadTile(tileId, firstLoad = false) {
+    if (!tileId) {
+        return;
+    }
+
+    var tile = $(`div.pode-tile[pode-dynamic="True"]#${tileId}`);
+    if (tile.length > 0) {
+        sendAjaxReq(`/elements/tile/${tileId}`, null, tile, true);
+    }
+    else if (!firstLoad) {
+        $(`div.pode-tile[pode-dynamic="False"]#${tileId} .pode-tile-body .pode-refresh-btn`).each((i, e) => {
+            $(e).trigger('click');
+        });
+    }
+}
+
+function bindTileRefresh() {
+    $("div.pode-tile .pode-tile-body .pode-refresh-btn").each((i, e) => {
+        $(e).hide();
+    });
+
+    $("div.pode-tile span.pode-tile-refresh").off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var icon = $(e.target);
+        icon.tooltip('hide');
+        loadTile(icon.attr('for'));
+    });
+
+    $("div.pode-tile[pode-auto-refresh='True']").each((i, e) => {
+        setTimeout(() => {
+            loadTile($(e).attr('id'));
+            setInterval(() => {
+                loadTile($(e).attr('id'));
+            }, 60000);
+        }, (60 - (new Date()).getSeconds()) * 1000);
+    });
+}
+
+function bindTileClick() {
+    $(`div.pode-tile[pode-click="True"]`).off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var tileId = $(e.target).closest('div.pode-tile').attr('id');
+        var tile = $(`div.pode-tile#${tileId}`);
+
+        var url = `/elements/tile/${tileId}/click`;
+        sendAjaxReq(url, null, tile, true);
+    });
+}
+
 function loadCharts() {
     $(`canvas[pode-dynamic='True']`).each((i, e) => {
         loadChart($(e).attr('id'));
@@ -866,6 +928,10 @@ function invokeActions(actions, sender) {
 
             case 'breadcrumb':
                 actionBreadcrumb(action);
+                break;
+
+            case 'tile':
+                actionTile(action, sender);
                 break;
 
             default:
@@ -1686,6 +1752,51 @@ function actionText(action) {
     text.text(decodeHTML(action.Value));
 }
 
+function actionTile(action, sender) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTile(action, sender);
+            break;
+
+        case 'sync':
+            syncTile(action);
+            break;
+    }
+}
+
+function updateTile(action, sender) {
+    var tile = getElementByNameOrId(action, 'div');
+    if (!tile) {
+        return;
+    }
+
+    // change the tile's value
+    if (action.Value) {
+        tile.find('.pode-text').text(decodeHTML(action.Value));
+    }
+
+    // change colour
+    if (action.Colour) {
+        removeClass(tile, 'alert-\\w+');
+        tile.addClass(`alert-${action.ColourType}`);
+    }
+}
+
+function syncTile(action) {
+    if (!action.ID && !action.Name) {
+        return;
+    }
+
+    var tile = getElementByNameOrId(action, 'div');
+    var id = getId(tile);
+
+    loadTile(id);
+}
+
 function actionSelect(action) {
     if (!action) {
         return;
@@ -2020,7 +2131,7 @@ function createTheChart(canvas, action, sender) {
                 yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.2)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 3;
-                axesOpts = getChartAxesColours(theme);
+                axesOpts = getChartAxesColours(theme, action.ID);
                 break;
 
             case 'doughnut':
@@ -2035,7 +2146,7 @@ function createTheChart(canvas, action, sender) {
                 yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.6)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 1;
-                axesOpts = getChartAxesColours(theme);
+                axesOpts = getChartAxesColours(theme, action.ID);
                 break;
         }
     });
@@ -2073,7 +2184,15 @@ function createTheChart(canvas, action, sender) {
     };
 }
 
-function getChartAxesColours(theme) {
+function getChartAxesColours(theme, id) {
+    if ($(`#${id}`).closest('div.pode-tile').length > 0) {
+        return {
+            ticks: {
+                display: false
+            }
+        }
+    }
+
     switch (theme) {
         case 'dark':
             return {
@@ -2268,7 +2387,7 @@ function actionBadge(action) {
 
     // change text
     if (action.Value) {
-        badge.text(action.Value);
+        badge.text(decodeHTML(action.Value));
     }
 
     // change colour

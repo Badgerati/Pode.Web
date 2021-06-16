@@ -875,3 +875,59 @@ function Update-PodeWebProgress
         Value = $Value
     }
 }
+
+function Update-PodeWebTile
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(ValueFromPipeline=$true)]
+        [string]
+        $Value,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [ValidateSet('', 'Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = ''
+    )
+
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
+
+    return @{
+        Operation = 'Update'
+        ElementType = 'Tile'
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        ID = $Id
+        Name = $Name
+        Colour = $Colour
+        ColourType = $ColourType.ToLowerInvariant()
+    }
+}
+
+function Sync-PodeWebTile
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Sync'
+        ElementType = 'Tile'
+        ID = $Id
+        Name = $Name
+    }
+}

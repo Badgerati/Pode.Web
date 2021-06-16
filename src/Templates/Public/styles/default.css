@@ -44,6 +44,62 @@ button#menu-toggle {
     max-width: 100%;
 }
 
+.pode-tile {
+    max-width: 14rem;
+    position: relative;
+    padding: .75rem 0.6rem;
+    margin: 0;
+    margin-bottom: 1rem;
+    border-style: solid;
+    border-width: medium;
+    display: inline-block;
+}
+
+.pode-tile[pode-click="True"]:hover {
+    opacity: 0.91;
+    cursor: pointer;
+}
+
+.pode-tile .pode-tile-refresh {
+    float: right;
+    cursor: pointer;
+}
+
+.pode-tile .pode-tile-header {
+    font-weight: bolder;
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.pode-tile hr {
+    margin-bottom: 0.6rem;
+    margin-top: 0.6rem;
+    border-width: 0.15rem;
+}
+
+.pode-tile .pode-tile-body {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.btn-primary hr,
+.btn-danger hr,
+.btn-success hr,
+.btn-dark hr,
+.btn-info hr {
+    border-color: #ddd;
+}
+
+.btn-warning hr,
+.btn-light hr {
+    border-color: #444;
+}
+
+.btn-danger {
+    background-color: #d53545;
+    border-color: #d53545;
+}
+
 [pode-hidden='True'] {
     display: none !important;
 }
@@ -766,6 +822,12 @@ a.nav-link .mdi:before {
 .alert .mdi::before {
     position: relative;
     top: 4px;
+    margin-right: 2px;
+}
+
+.pode-tile-header .mdi::before {
+    position: relative;
+    top: 3px;
     margin-right: 2px;
 }
 
