@@ -1418,6 +1418,10 @@ function New-PodeWebCounterChart
         $CssClass,
 
         [Parameter()]
+        [int]
+        $MaxItems = 30,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -1430,10 +1434,14 @@ function New-PodeWebCounterChart
         $Name = Split-Path -Path $Counter -Leaf
     }
 
+    if ($MaxItems -le 0) {
+        $MaxItems = 30
+    }
+
     New-PodeWebChart `
         -Name $Name `
         -Type Line `
-        -MaxItems 30 `
+        -MaxItems $MaxItems `
         -ArgumentList $Counter `
         -Append `
         -TimeLabels `

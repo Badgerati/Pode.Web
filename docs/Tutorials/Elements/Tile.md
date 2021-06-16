@@ -16,13 +16,17 @@ New-PodeWebCard -Content @(
 )
 ```
 
+Which looks like below:
+
+![tile_random](../../../images/tile_random.png)
+
 > If you click the refresh icon, the scriptblock will be re-called, and the value updated.
 
-Or, if you want to display the current CPU but change the colour if it goes above 90%, then you can use [`Update-PodeWebTile`] instead:
+Or, if you want to display the current CPU but change the colour if it goes above 50%, then you can use [`Update-PodeWebTile`](../../../Functions/Outputs/Update-PodeWebTile) instead:
 
 ```powershell
 New-PodeWebCard -Content @(
-    New-PodeWebTile -Name 'CPU' -Icon 'mdi-chart-box' -ScriptBlock {
+    New-PodeWebTile -Name 'CPU' -Icon 'chart-box' -ScriptBlock {
         $cpu = ((Get-Counter -Counter '\Processor(_Total)\% Processor Time' -SampleInterval 1 -MaxSamples 2).CounterSamples.CookedValue | Measure-Object -Average).Average
 
         $colour = 'green'
@@ -33,22 +37,60 @@ New-PodeWebCard -Content @(
             $colour = 'yellow'
         }
 
-        $cpu | Update-PodeWebTile -ID $ElementData.ID -Colour $colour
+        $cpu = [System.Math]::Round($cpu, 2)
+        "$($cpu)%" | Update-PodeWebTile -ID $ElementData.ID -Colour $colour
     }
 )
 ```
 
+Which looks like below:
+
+![tile_cpu_ok](../../../images/tile_cpu_ok.png)
+![tile_cpu_warn](../../../images/tile_cpu_warn.png)
 
 ## Elements
 
+You can also display other elements within a tile, such as a chart. To display elements, add them via the `-Content` parameter.
 
+For example, the following will display a tile showing the current CPU of your machine, and will auto-refresh every minute:
+
+```powershell
+New-PodeWebCard -Content @(
+    New-PodeWebTile -Name 'CPU' -Icon 'chart-box' -Content @(
+        New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -MaxItems 10
+    )
+)
+```
+
+Which looks like below:
+
+![tile_chart](../../../images/tile_chart.png)
 
 ## Clickable
 
+You can make a whole tile clickable by supplying a `-ClickScriptBlock`. When clicked the scriptblock will be called, and you can use any output action within the scriptblock.
+
+For example, the following will show a tile with a random number, but when clicked it will display a toast message:
+
+```powershell
+New-PodeWebCard -Content @(
+    New-PodeWebTile -Name 'Randomness' -ScriptBlock {
+        return (Get-Random -Minimum 0 -Maximum 1000)
+    } `
+    -ClickScriptBlock {
+        Show-PodeWebToast -Message 'A toast message!'
+    }
+)
+```
 
 ## Refresh
 
+By default, all tiles will show a "refresh" icon at the top-right corner, and when clicked the tile's data will be refreshed. You can hide the refresh icon by using `-NoRefresh`.
 
+To set a tile to automatically refresh once a minute, you can supply the `-AutoRefresh` switch.
 
+## Display
 
+Tiles will be displayed inline, and to display one on a new line you can supply the `-NewLine` switch.
 
+If you want to display the tiles more neatly in a line, it's recommended to display them using a [Grid](../../Layouts/Grid).
