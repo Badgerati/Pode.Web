@@ -36,7 +36,7 @@ $(if ($data.Filter) {
     <div role='controls'>
         <div class="btn-group mr-2">
             $(if (!$data.AutoRefresh -and !$data.NoRefresh) {
-                "<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-refresh' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
+                "<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-refresh pode-refresh-btn' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
                     <span class='mdi mdi-refresh mdi-size-20'></span>
                 </button>"
             })

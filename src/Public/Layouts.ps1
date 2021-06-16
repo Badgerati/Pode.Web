@@ -34,6 +34,8 @@ function New-PodeWebCell
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Content,
+
+        [Parameter()]
         [ValidateRange(1, 12)]
         [int]
         $Width

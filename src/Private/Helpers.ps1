@@ -620,7 +620,7 @@ function Test-PodeWebOutputWrapped
         $Output = $Output[0]
     }
 
-    return (($Output -is [hashtable]) -and ($Output.Operation -ieq 'Output') -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
+    return (($Output -is [hashtable]) -and ![string]::IsNullOrWhiteSpace($Output.Operation) -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
 }
 
 function Get-PodeWebPagePath

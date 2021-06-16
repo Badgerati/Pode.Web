@@ -1418,6 +1418,10 @@ function New-PodeWebCounterChart
         $CssClass,
 
         [Parameter()]
+        [int]
+        $MaxItems = 30,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -1430,10 +1434,14 @@ function New-PodeWebCounterChart
         $Name = Split-Path -Path $Counter -Leaf
     }
 
+    if ($MaxItems -le 0) {
+        $MaxItems = 30
+    }
+
     New-PodeWebChart `
         -Name $Name `
         -Type Line `
-        -MaxItems 30 `
+        -MaxItems $MaxItems `
         -ArgumentList $Counter `
         -Append `
         -TimeLabels `
@@ -1612,17 +1620,21 @@ function New-PodeWebTable
 
     # table row click
     $clickPath = "$($routePath)/click"
-
     if (($null -ne $ClickScriptBlock) -and !(Test-PodeWebRoute -Path $clickPath)) {
-        Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+            $global:ElementData = $using:element
+
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Return
             if ($null -eq $result) {
                 $result = @()
             }
 
-            if ($WebEvent.Response.ContentLength64 -eq 0) {
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
+
+            $global:ElementData = $null
         }
     }
 
@@ -2007,5 +2019,147 @@ function New-PodeWebTimer
     }
 
     $element = New-PodeWebContainer -Content $element -Hide
+    return $element
+}
+
+function New-PodeWebTile
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Icon,
+
+        [Parameter(Mandatory=$true, ParameterSetName='ScriptBlock')]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Content')]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [string[]]
+        $EndpointName,
+
+        [Parameter()]
+        [scriptblock]
+        $ClickScriptBlock,
+
+        [Parameter()]
+        [ValidateSet('Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = 'Blue',
+
+        [switch]
+        $NoRefresh,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication,
+
+        [Parameter()]
+        [switch]
+        $AutoRefresh,
+
+        [switch]
+        $NewLine
+    )
+
+    # ensure content are correct
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Element)) {
+        throw 'A Tile can only contain other elements'
+    }
+
+    $Id = Get-PodeWebElementId -Tag Tile -Id $Id -Name $Name
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
+
+    $element = @{
+        ComponentType = 'Element'
+        ElementType = 'Tile'
+        Parent = $ElementData
+        Name = $Name
+        ID = $Id
+        Click = ($null -ne $ClickScriptBlock)
+        IsDynamic = ($null -ne $ScriptBlock)
+        Content = $Content
+        Icon = $Icon
+        Colour = $Colour
+        ColourType = $ColourType
+        CssClasses = ($CssClass -join ' ')
+        AutoRefresh = $AutoRefresh.IsPresent
+        NoRefresh = $NoRefresh.IsPresent
+        NoAuth = $NoAuthentication.IsPresent
+        NewLine = $NewLine.IsPresent
+    }
+
+    # auth an endpoint
+    $auth = $null
+    if (!$NoAuthentication) {
+        $auth = (Get-PodeWebState -Name 'auth')
+    }
+
+    if (Test-PodeIsEmpty $EndpointName) {
+        $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+    }
+
+    # main route to load tile value
+    $routePath = "/elements/tile/$($Id)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+            $global:ElementData = $using:element
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (!(Test-PodeWebOutputWrapped -Output $result)) {
+                $result = ($result | Update-PodeWebTile -Id $using:Id)
+            }
+
+            Write-PodeJsonResponse -Value $result
+            $global:ElementData = $null
+        }
+    }
+
+    # tile click route
+    $clickPath = "$($routePath)/click"
+    if (($null -ne $ClickScriptBlock) -and !(Test-PodeWebRoute -Path $clickPath)) {
+        Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+            $global:ElementData = $using:element
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                Write-PodeJsonResponse -Value $result
+            }
+
+            $global:ElementData = $null
+        }
+    }
+
     return $element
 }
