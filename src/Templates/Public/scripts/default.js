@@ -26,6 +26,7 @@ $(() => {
     loadTiles();
 
     setupSteppers();
+    setupAccordion();
 
     bindSidebarFilter();
     bindMenuToggle();
@@ -46,6 +47,7 @@ $(() => {
     bindRangeValue();
     bindProgressValue();
     bindModalSubmits();
+
     bindTileRefresh();
     bindTileClick();
 
@@ -55,6 +57,18 @@ $(() => {
     bindTabCycling();
     bindTimers();
 });
+
+function setupAccordion() {
+    $('div.accordion div.card div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
+        var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
+        toggleCollapseArrow(icon, 'mdi-chevron-down', 'mdi-chevron-up');
+    });
+
+    $('div.accordion div.card div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
+        var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
+        toggleCollapseArrow(icon, 'mdi-chevron-up', 'mdi-chevron-down');
+    });
+}
 
 function loadBreadcrumb() {
     // get breadcrumb
@@ -652,18 +666,20 @@ function isNumeric(value) {
 }
 
 function bindPageGroupCollapse() {
-    $('ul#sidebar-list div.collapse').on('hide.bs.collapse', function(e) {
-        toggleCollapseArrow(e.target, 'mdi-arrow-expand', 'mdi-arrow-collapse');
+    $('ul#sidebar-list div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
+        var id = $(e.target).attr('id');
+        var icon = $(`a[aria-controls="${id}"] span.mdi`);
+        toggleCollapseArrow(icon, 'mdi-chevron-down', 'mdi-chevron-up');
     });
 
-    $('ul#sidebar-list div.collapse').on('show.bs.collapse', function(e) {
-        toggleCollapseArrow(e.target, 'mdi-arrow-collapse', 'mdi-arrow-expand');
+    $('ul#sidebar-list div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
+        var id = $(e.target).attr('id');
+        var icon = $(`a[aria-controls="${id}"] span.mdi`);
+        toggleCollapseArrow(icon, 'mdi-chevron-up', 'mdi-chevron-down');
     });
 }
 
-function toggleCollapseArrow(element, showIcon, hideIcon) {
-    var id = $(element).attr('id');
-    var icon = $(`a[aria-controls="${id}"] span.mdi`);
+function toggleCollapseArrow(icon, showIcon, hideIcon) {
     icon.toggleClass(showIcon);
     icon.toggleClass(hideIcon);
 }

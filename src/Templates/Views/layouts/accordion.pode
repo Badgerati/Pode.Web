@@ -1,0 +1,39 @@
+<div id="$($data.ID)" class="accordion $($data.CssClasses)">
+
+    $(for ($i = 0; $i -lt $data.Items.Length; $i++) {
+        $item = $data.Items[$i]
+
+        $collapsed = [string]::Empty
+        $expanded = 'true'
+        $show = 'show'
+        $arrow = 'up'
+
+        if ($i -gt 0) {
+            $collapsed = 'collapsed'
+            $expanded = 'false'
+            $show = [string]::Empty
+            $arrow = 'down'
+        }
+
+        "<div class='card'>
+            <div class='card-header' id='$($data.ID)_head_$($i)'>
+                <h2 class='mb-0'>
+                    <button class='btn btn-link btn-block text-left $($collapsed)' type='button' data-toggle='collapse' data-target='#$($data.ID)_body_$($i)' aria-expanded='$($expanded)' aria-controls='$($data.ID)_body_$($i)'>"
+                        if (![string]::IsNullOrWhiteSpace($item.Icon)) {
+                            "<span class='mdi mdi-$($item.Icon.ToLowerInvariant())'></span>"
+                        }
+                        $item.Name
+                        "<span class='mdi mdi-chevron-$($arrow) arrow-toggle'></span>
+                    </button>
+                </h2>
+            </div>
+
+            <div id='$($data.ID)_body_$($i)' class='collapse $($show)' aria-labelledby='$($data.ID)_head_$($i)' data-parent='#$($data.ID)'>
+                <div class='card-body'>
+                    $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $item.Content })
+                </div>
+            </div>
+        </div>"
+    })
+
+</div>

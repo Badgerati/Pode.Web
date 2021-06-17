@@ -608,3 +608,64 @@ function New-PodeWebBreadcrumbItem
         Active = $Active.IsPresent
     }
 }
+
+function New-PodeWebAccordion
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Items,
+
+        [Parameter()]
+        [string[]]
+        $CssClass
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType AccordionItem)) {
+        throw 'Accordions can only contain AccordionItem layouts'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Accordion'
+        ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -NameAsToken)
+        Items = $Items
+        CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebAccordionItem
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string]
+        $Icon
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'An AccordionItem can only contain layouts and/or elements'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'AccordionItem'
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag AccordionItem -Name $Name)
+        Content = $Content
+        Icon = $Icon
+    }
+}

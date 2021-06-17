@@ -119,6 +119,22 @@ a.navbar-brand {
     background-color: #111 !important;
 }
 
+.accordion .card .card-header button {
+    color: #ffb000;
+}
+
+.accordion .card .card-header button.collapsed {
+    color: #33ff00;
+}
+
+.accordion .card .card-header:hover {
+    background-color: #33ff00 !important;
+    color: #111 !important;
+}
+.accordion .card .card-header button:hover {
+    color: #111 !important;
+}
+
 cite {
     color: #33ff00 !important;
 }
