@@ -270,7 +270,7 @@ function New-PodeWebModal
     $routePath = "/layouts/modal/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -446,7 +446,7 @@ function New-PodeWebSteps
     $routePath = "/layouts/steps/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -520,7 +520,7 @@ function New-PodeWebStep
     $routePath = "/layouts/step/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
