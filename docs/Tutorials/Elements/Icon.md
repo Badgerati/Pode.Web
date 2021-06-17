@@ -14,3 +14,17 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![icon_ele](../../../images/icon_ele.png)
+
+## Actions
+
+### Flip
+
+You can flip an icon by passing `Horizontal` or `Vertical` to the `-Flip` parameter. You cannot supply both flip and rotate together.
+
+### Rotate
+
+You can rotate an icon by a fixed number of degrees by supplying a value, 45-315 in 45 degree increments, to the `-Rotate` parameter. You cannot supply both flip and rotate together.
+
+### Spin
+
+You can make an icon spin by supplying the `-Spin` switch.

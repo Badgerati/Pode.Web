@@ -2302,7 +2302,22 @@ function buildIcon(element) {
         title = `title='${element.Title}' data-toggle='tooltip'`;
     }
 
-    return `<span class='mdi mdi-${element.Name.toLowerCase()} mdi-size-20' ${colour} ${title}></span>`;
+    var spin = '';
+    if (element.Spin) {
+        spin = 'mdi-spin'
+    }
+
+    var flip = '';
+    if (element.Flip) {
+        flip = `mdi-flip-${element.Flip[0]}`.toLowerCase();
+    }
+
+    var rotate = '';
+    if (element.Rotate > 0) {
+        rotate = `mdi-rotate-${element.Rotate}`;
+    }
+
+    return `<span class='mdi mdi-${element.Name.toLowerCase()} ${spin} ${flip} ${rotate} mdi-size-20' ${colour} ${title}></span>`;
 }
 
 function buildBadge(element) {
