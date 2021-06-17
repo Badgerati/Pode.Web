@@ -306,6 +306,7 @@ function Add-PodeWebPage
         Icon = $Icon
         Group = $Group
         Url = (Get-PodeWebPagePath -Name $Name -Group $Group)
+        NoAuthentication = $NoAuthentication.IsPresent
         Access = @{
             Groups = @($AccessGroups)
             Users = @($AccessUsers)

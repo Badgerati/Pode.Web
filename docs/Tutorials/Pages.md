@@ -169,6 +169,14 @@ Add-PodeWebPage -Name Services -Icon Settings -Layouts $servicesTable -ScriptBlo
 }
 ```
 
+### No Authentication
+
+If you add a page when you've enabled authentication, you can set a page to be accessible without authentication by supplying the `-NoAuth` switch to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
+
+If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`), then there's no further action needed.
+
+If however you're added the elements/layouts using the `-Layouts` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise data/actions will fail with a 401 response.
+
 ## Convert Module
 
 Similar to how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: [`ConvertTo-PodeWebPage`](../../Functions/Pages/ConvertTo-PodeWebPage)!

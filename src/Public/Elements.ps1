@@ -99,7 +99,7 @@ function New-PodeWebTextbox
     $routePath = "/elements/autocomplete/$($Id)"
     if (($null -ne $AutoComplete) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -1059,7 +1059,7 @@ function New-PodeWebButton
     $routePath = "/elements/button/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -1368,7 +1368,7 @@ function New-PodeWebChart
     $routePath = "/elements/chart/$($Id)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -1585,7 +1585,7 @@ function New-PodeWebTable
         NoExport = $NoExport.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
         NoRefresh = $NoRefresh.IsPresent
-        NoAuth = $NoAuthentication.IsPresent
+        NoAuthentication = $NoAuthentication.IsPresent
         CssClasses = ($CssClass -join ' ')
         Paging = @{
             Enabled = $Paginate.IsPresent
@@ -1595,7 +1595,7 @@ function New-PodeWebTable
 
     # auth an endpoint
     $auth = $null
-    if (!$NoAuthentication) {
+    if (!$NoAuthentication -and !$PageData.NoAuthentication) {
         $auth = (Get-PodeWebState -Name 'auth')
     }
 
@@ -1735,7 +1735,7 @@ function Add-PodeWebTableButton
     $routePath = "/elements/table/$($Table.ID)/button/$($Name)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$Table.NoAuth) {
+        if (!$Table.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -1807,6 +1807,11 @@ function New-PodeWebCodeEditor
         [string[]]
         $EndpointName,
 
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication,
+
         [switch]
         $ReadOnly,
 
@@ -1835,7 +1840,7 @@ function New-PodeWebCodeEditor
     $routePath = "/elements/code-editor/$($Id)/upload"
     if ($uploadable -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -1918,7 +1923,7 @@ function New-PodeWebForm
     $routePath = "/elements/form/$($Id)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -2004,7 +2009,7 @@ function New-PodeWebTimer
     $routePath = "/elements/timer/$($Id)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -2122,13 +2127,12 @@ function New-PodeWebTile
         CssClasses = ($CssClass -join ' ')
         AutoRefresh = $AutoRefresh.IsPresent
         NoRefresh = $NoRefresh.IsPresent
-        NoAuth = $NoAuthentication.IsPresent
         NewLine = $NewLine.IsPresent
     }
 
     # auth an endpoint
     $auth = $null
-    if (!$NoAuthentication) {
+    if (!$NoAuthentication -and !$PageData.NoAuthentication) {
         $auth = (Get-PodeWebState -Name 'auth')
     }
 
