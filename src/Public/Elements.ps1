@@ -1138,7 +1138,7 @@ function New-PodeWebAlert
 
 function New-PodeWebIcon
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Rotate')]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -1154,7 +1154,20 @@ function New-PodeWebIcon
 
         [Parameter()]
         [string]
-        $Title
+        $Title,
+
+        [Parameter(ParameterSetName='Flip')]
+        [ValidateSet('Horizontal', 'Vertical')]
+        [string]
+        $Flip,
+
+        [Parameter(ParameterSetName='Rotate')]
+        [ValidateSet(0, 45, 90, 135, 180, 225, 270, 315)]
+        [int]
+        $Rotate = 0,
+
+        [switch]
+        $Spin
     )
 
     if (![string]::IsNullOrWhiteSpace($Colour)) {
@@ -1169,6 +1182,9 @@ function New-PodeWebIcon
         Colour = $Colour
         CssClasses = ($CssClass -join ' ')
         Title = $Title
+        Flip = $Flip
+        Rotate = $Rotate
+        Spin = $Spin.IsPresent
     }
 }
 
