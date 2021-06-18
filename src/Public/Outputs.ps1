@@ -801,6 +801,27 @@ function Move-PodeWebTab
     }
 }
 
+function Move-PodeWebAccordion
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Move'
+        ElementType = 'Accordion'
+        ID = $Id
+        Name = $Name
+    }
+}
+
 function Reset-PodeWebPage
 {
     [CmdletBinding()]

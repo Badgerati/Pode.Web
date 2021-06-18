@@ -1,0 +1,39 @@
+<div id="$($data.ID)" class="accordion $($data.CssClasses)" pode-cycle="$($data.Cycle.Enabled)" pode-interval="$($data.Cycle.Interval)">
+
+    $(for ($i = 0; $i -lt $data.Bellows.Length; $i++) {
+        $bellow = $data.Bellows[$i]
+
+        $collapsed = [string]::Empty
+        $expanded = 'true'
+        $show = 'show'
+        $arrow = 'up'
+
+        if ($i -gt 0) {
+            $collapsed = 'collapsed'
+            $expanded = 'false'
+            $show = [string]::Empty
+            $arrow = 'down'
+        }
+
+        "<div class='card bellow' id='$($bellow.ID)' name='$($bellow.Name)'>
+            <div class='card-header bellow-head' id='$($bellow.ID)_head'>
+                <h2 class='mb-0'>
+                    <button class='btn btn-link btn-block text-left $($collapsed)' type='button' data-toggle='collapse' data-target='#$($bellow.ID)_body' aria-expanded='$($expanded)' aria-controls='$($bellow.ID)_body'>"
+                        if (![string]::IsNullOrWhiteSpace($bellow.Icon)) {
+                            "<span class='mdi mdi-$($bellow.Icon.ToLowerInvariant())'></span>"
+                        }
+                        $bellow.Name
+                        "<span class='mdi mdi-chevron-$($arrow) arrow-toggle'></span>
+                    </button>
+                </h2>
+            </div>
+
+            <div id='$($bellow.ID)_body' class='bellow-body collapse $($show)' aria-labelledby='$($bellow.ID)_head' data-parent='#$($data.ID)' pode-prev='$($data.Bellows[$i - 1].ID)' pode-next='$($data.Bellows[($i + 1) % $data.Bellows.Length].ID)'>
+                <div class='card-body'>
+                    $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $bellow.Content })
+                </div>
+            </div>
+        </div>"
+    })
+
+</div>

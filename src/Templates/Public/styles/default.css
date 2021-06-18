@@ -419,8 +419,27 @@ table tbody td {
     word-break: break-word;
 }
 
-.card {
+.pode-card {
     margin-bottom: 2em;
+}
+
+.accordion .card-header button {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.accordion .card-header button span.arrow-toggle {
+    float: right;
+}
+
+.accordion .card-header button:focus {
+    outline: none;
+    box-shadow: none;
+    text-decoration: none;
+}
+
+.accordion .card-header button:hover {
+    text-decoration: none;
 }
 
 .toast {
@@ -744,9 +763,14 @@ table tbody td {
     line-height: 14px;
 }
 
-.btn:not(.btn-icon-only, .btn-no-text) .mdi::before {
+.btn:not(.btn-icon-only, .btn-no-text, .btn-block) .mdi::before {
     position: relative;
     top: 4px;
+}
+
+.accordion .card-header .btn .mdi::before {
+    position: relative;
+    top: 2px;
 }
 
 a.nav-link .mdi:before {

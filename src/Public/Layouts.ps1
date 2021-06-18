@@ -354,7 +354,7 @@ function New-PodeWebCarousel
         $CssClass
     )
 
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Slide)) {
+    if (!(Test-PodeWebContent -Content $Slides -ComponentType Layout -LayoutType Slide)) {
         throw 'A Carousel can only contain Slide layouts'
     }
 
@@ -435,7 +435,7 @@ function New-PodeWebSteps
         $NoAuthentication
     )
 
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Step)) {
+    if (!(Test-PodeWebContent -Content $Steps -ComponentType Layout -LayoutType Step)) {
         throw 'Steps can only contain Step layouts'
     }
 
@@ -606,5 +606,81 @@ function New-PodeWebBreadcrumbItem
         Name = $Name
         Url = $Url
         Active = $Active.IsPresent
+    }
+}
+
+function New-PodeWebAccordion
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Bellows,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [int]
+        $CycleInterval = 15,
+
+        [switch]
+        $Cycle
+    )
+
+    if (!(Test-PodeWebContent -Content $Bellows -ComponentType Layout -LayoutType Bellow)) {
+        throw 'Accordions can only contain Bellow layouts'
+    }
+
+    if ($CycleInterval -lt 10) {
+        $CycleInterval = 10
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Accordion'
+        ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -NameAsToken)
+        Bellows = $Bellows
+        CssClasses = ($CssClass -join ' ')
+        Cycle = @{
+            Enabled = $Cycle.IsPresent
+            Interval = ($CycleInterval * 1000)
+        }
+    }
+}
+
+function New-PodeWebBellow
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string]
+        $Icon
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Bellow can only contain layouts and/or elements'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Bellow'
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Bellow -Name $Name)
+        Content = $Content
+        Icon = $Icon
     }
 }
