@@ -354,7 +354,7 @@ function New-PodeWebCarousel
         $CssClass
     )
 
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Slide)) {
+    if (!(Test-PodeWebContent -Content $Slides -ComponentType Layout -LayoutType Slide)) {
         throw 'A Carousel can only contain Slide layouts'
     }
 
@@ -435,7 +435,7 @@ function New-PodeWebSteps
         $NoAuthentication
     )
 
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Step)) {
+    if (!(Test-PodeWebContent -Content $Steps -ComponentType Layout -LayoutType Step)) {
         throw 'Steps can only contain Step layouts'
     }
 
@@ -619,27 +619,42 @@ function New-PodeWebAccordion
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Items,
+        $Bellows,
 
         [Parameter()]
         [string[]]
-        $CssClass
+        $CssClass,
+
+        [Parameter()]
+        [int]
+        $CycleInterval = 15,
+
+        [switch]
+        $Cycle
     )
 
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType AccordionItem)) {
-        throw 'Accordions can only contain AccordionItem layouts'
+    if (!(Test-PodeWebContent -Content $Bellows -ComponentType Layout -LayoutType Bellow)) {
+        throw 'Accordions can only contain Bellow layouts'
+    }
+
+    if ($CycleInterval -lt 10) {
+        $CycleInterval = 10
     }
 
     return @{
         ComponentType = 'Layout'
         LayoutType = 'Accordion'
         ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -NameAsToken)
-        Items = $Items
+        Bellows = $Bellows
         CssClasses = ($CssClass -join ' ')
+        Cycle = @{
+            Enabled = $Cycle.IsPresent
+            Interval = ($CycleInterval * 1000)
+        }
     }
 }
 
-function New-PodeWebAccordionItem
+function New-PodeWebBellow
 {
     [CmdletBinding()]
     param(
@@ -657,14 +672,14 @@ function New-PodeWebAccordionItem
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
-        throw 'An AccordionItem can only contain layouts and/or elements'
+        throw 'A Bellow can only contain layouts and/or elements'
     }
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'AccordionItem'
+        LayoutType = 'Bellow'
         Name = $Name
-        ID = (Get-PodeWebElementId -Tag AccordionItem -Name $Name)
+        ID = (Get-PodeWebElementId -Tag Bellow -Name $Name)
         Content = $Content
         Icon = $Icon
     }

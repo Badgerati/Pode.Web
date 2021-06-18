@@ -55,6 +55,7 @@ $(() => {
     bindCardCollapse();
 
     bindTabCycling();
+    bindAccordionCycling();
     bindTimers();
 });
 
@@ -566,6 +567,15 @@ function bindTabCycling() {
     });
 }
 
+function bindAccordionCycling() {
+    $('div.accordion[pode-cycle="True"]').each((i, e) => {
+        setInterval(() => {
+            var itemId = $(e).find('div.card div.bellow-body.show').attr('pode-next');
+            moveAccordion(itemId);
+        }, $(e).attr('pode-interval'));
+    });
+}
+
 function bindTimers() {
     $('span.pode-timer').each((i, e) => {
         var id = $(e).attr('id');
@@ -932,6 +942,10 @@ function invokeActions(actions, sender) {
 
             case 'tab':
                 actionTab(action);
+                break;
+
+            case 'accordion':
+                actionAccordion(action);
                 break;
 
             case 'page':
@@ -2488,6 +2502,19 @@ function actionTab(action) {
 
 function moveTab(tabId) {
     $(`a.nav-link#${tabId}`).trigger('click');
+}
+
+function actionAccordion(action) {
+    if (!action) {
+        return;
+    }
+
+    var item = getElementByNameOrId(action, 'div.accordion div.card');
+    moveAccordion(getId(item));
+}
+
+function moveAccordion(itemId) {
+    $(`div.accordion div.card#${itemId} div.card-header button`).trigger('click');
 }
 
 function actionPage(action) {

@@ -10,15 +10,24 @@ Start-PodeServer -Threads 2 {
     Use-PodeWebTemplates -Title 'Inputs' -Theme Dark
 
     # set the home page controls
-    $card = New-PodeWebAccordion -Items @(
-        New-PodeWebAccordionItem -Name 'Section 1' -Icon 'information' -Content @(
+    $card = New-PodeWebAccordion -Cycle -Bellows @(
+        New-PodeWebBellow -Name 'Bellow 1' -Icon 'information' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
+            New-PodeWebButton -Name 'Next' -Id 'next_1' -ScriptBlock {
+                Move-PodeWebAccordion -Name 'Bellow 2'
+            }
         )
-        New-PodeWebAccordionItem -Name 'Section 2' -Content @(
+        New-PodeWebBellow -Name 'Bellow 2' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
+            New-PodeWebButton -Name 'Next' -Id 'next_2' -ScriptBlock {
+                Move-PodeWebAccordion -Name 'Bellow 3'
+            }
         )
-        New-PodeWebAccordionItem -Name 'Section 3' -Content @(
+        New-PodeWebBellow -Name 'Bellow 3' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
+            New-PodeWebButton -Name 'Next' -Id 'next_3' -ScriptBlock {
+                Move-PodeWebAccordion -Name 'Bellow 1'
+            }
         )
     )
 
