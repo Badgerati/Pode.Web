@@ -773,6 +773,29 @@ table tbody td {
     top: 2px;
 }
 
+div.text-stream pre {
+    white-space: normal;
+    margin-bottom: 0;
+}
+
+div.text-stream.stream-error {
+    border-color: #f5c6cb !important;
+}
+
+div.text-stream.stream-error .card-header {
+    color: #721c24;
+    background-color: #f8d7da !important;
+}
+
+div.text-stream.stream-error .card-header span.mdi {
+    display: block !important;
+}
+
+div.text-stream .card-header span.mdi::before {
+    position: relative;
+    top: -2px;
+}
+
 a.nav-link .mdi:before {
     position: relative;
     top: 3px;

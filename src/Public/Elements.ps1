@@ -2183,3 +2183,61 @@ function New-PodeWebTile
 
     return $element
 }
+
+function New-PodeWebTextStream
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $FileUrl,
+
+        [Parameter()]
+        [int]
+        $Height = 20,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [int]
+        $Interval = 10,
+
+        [switch]
+        $NoHeader
+    )
+
+    $Id = Get-PodeWebElementId -Tag TextStream -Id $Id -Name $Name
+
+    if ($Height -le 0) {
+        $Height = 20
+    }
+
+    if ($Interval -le 0) {
+        $Interval = 10
+    }
+
+    $element = @{
+        ComponentType = 'Element'
+        ElementType = 'TextStream'
+        Parent = $ElementData
+        Name = $Name
+        ID = $Id
+        Height = $Height
+        FileUrl = $FileUrl
+        Interval = ($Interval * 1000)
+        CssClasses = ($CssClass -join ' ')
+        NoHeader = $NoHeader.IsPresent
+    }
+
+    return $element
+}

@@ -7,10 +7,10 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Inputs' -Theme Dark
+    Use-PodeWebTemplates -Title 'Accordion' -Theme Dark
 
     # set the home page controls
-    $card = New-PodeWebAccordion -Cycle -Bellows @(
+    $acc = New-PodeWebAccordion -Cycle -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Icon 'information' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
             New-PodeWebButton -Name 'Next' -Id 'next_1' -ScriptBlock {
@@ -31,5 +31,5 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Set-PodeWebHomePage -Layouts $card -Title 'Accordion'
+    Set-PodeWebHomePage -Layouts $acc -Title 'Accordion'
 }

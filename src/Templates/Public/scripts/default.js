@@ -37,6 +37,7 @@ $(() => {
     bindButtons();
     bindCodeCopy();
     bindCodeEditors();
+    bindTextStreams();
 
     bindTableFilters();
     bindTableExports();
@@ -58,6 +59,41 @@ $(() => {
     bindAccordionCycling();
     bindTimers();
 });
+
+var _textStreams = {};
+
+function bindTextStreams() {
+    $('div.text-stream pre textarea').each((i, e) => {
+        var handle = setInterval(function() {
+            var fileUrl = $(e).attr('pode-file');
+            var length = $(e).attr('pode-length');
+
+            $.ajax({
+                url: fileUrl,
+                method: 'get',
+                dataType: 'text',
+                headers: { "Range": `bytes=${length}-` },
+                success: function(data, status, xhr) {
+                    var header = xhr.getResponseHeader('Content-Range');
+                    if (header) {
+                        var rangeLength = header.split('/')[1];
+                        if (rangeLength > parseInt(length)) {
+                            $(e).append(data);
+                            $(e).attr('pode-length', rangeLength);
+                            e.scrollTop = e.scrollHeight;
+                        }
+                    }
+                },
+                error: function() {
+                    clearInterval(_textStreams[getId(e)]);
+                    $(e).closest('div.text-stream').addClass('stream-error');
+                }
+            });
+        }, $(e).attr('pode-interval'));
+
+        _textStreams[getId(e)] = handle;
+    });
+}
 
 function setupAccordion() {
     $('div.accordion div.card div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
@@ -2534,16 +2570,27 @@ function actionError(action, sender) {
         return;
     }
 
-    sender.append(`<div class="alert alert-danger pode-error mTop1" role="alert">
+    showError(action.Message, sender);
+}
+
+function showError(message, sender, prepend) {
+    var error = `<div class="alert alert-danger pode-error mTop1" role="alert">
         <h6 class='pode-alert-header'>
             <span class="alert-circle"></span>
             <strong>Error</strong>
         </h6>
 
         <div class='pode-alert-body pode-text'>
-            ${action.Message}
+            ${message}
         </div>
-    </div>`);
+    </div>`;
+
+    if (prepend) {
+        sender.prepend(error);
+    }
+    else {
+        sender.append(error);
+    }
 }
 
 function getPageTitle() {
