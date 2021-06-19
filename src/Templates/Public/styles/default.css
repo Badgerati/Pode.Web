@@ -773,6 +773,43 @@ table tbody td {
     top: 2px;
 }
 
+div.file-stream pre {
+    white-space: normal;
+    margin-bottom: 0;
+}
+
+div.file-stream pre textarea {
+    border: none;
+}
+
+div.file-stream.stream-error {
+    border-color: #f5c6cb !important;
+}
+
+div.file-stream.stream-error .card-header {
+    color: #721c24;
+    background-color: #f8d7da !important;
+}
+
+div.file-stream.stream-error .card-header span.stream-error.mdi {
+    display: block !important;
+}
+
+div.file-stream.stream-error .card-header span.stream-error.mdi::before {
+    position: relative;
+    top: -4px;
+}
+
+div.file-stream .card-header h5 span.mdi::before {
+    position: relative;
+    top: 2px;
+}
+
+div.file-stream .card-header span.spinner-border {
+    position: relative;
+    top: -4px;
+}
+
 a.nav-link .mdi:before {
     position: relative;
     top: 3px;

@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Inputs' -Theme Dark
+    Use-PodeWebTemplates -Title 'Tiles' -Theme Dark
 
     $processData = {
         Get-Process |
