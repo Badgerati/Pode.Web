@@ -23,6 +23,11 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
         pode-append="$($data.Append)"
         pode-max="$($data.MaxItems)"
         pode-time-labels="$($data.TimeLabels)"
-        pode-auto-refresh="$($data.AutoRefresh)">
+        pode-auto-refresh="$($data.AutoRefresh)"
+        pode-min-x="$($data.Min.X)"
+        pode-min-y="$($data.Min.Y)"
+        pode-max-x="$($data.Max.X)"
+        pode-max-y="$($data.Max.Y)"
+        pode-legend="$(!$data.NoLegend)">
     </canvas>
 </div>

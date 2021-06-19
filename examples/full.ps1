@@ -147,7 +147,7 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData -AsCard
         )
         New-PodeWebCell -Content @(
-            New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth -AsCard
+            New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -MaxY 100 -NoAuth -AsCard
         )
     )
 

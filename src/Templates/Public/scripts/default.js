@@ -2179,9 +2179,6 @@ function createTheChart(canvas, action, sender) {
     // colours for lines/bars/segments
     var palette = getChartColourPalette(theme);
 
-    // axis themes
-    var axesOpts = [];
-
     // x-axis labels
     var xAxis = [];
     action.Data.forEach((item) => {
@@ -2208,6 +2205,12 @@ function createTheChart(canvas, action, sender) {
         });
     });
 
+    // axis themes
+    var axesOpts = {
+        x: {},
+        y: {}
+    };
+
     // dataset details
     Object.keys(yAxises).forEach((key, index) => {
         switch (chartType.toLowerCase()) {
@@ -2215,7 +2218,8 @@ function createTheChart(canvas, action, sender) {
                 yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.2)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 3;
-                axesOpts = getChartAxesColours(theme, action.ID);
+                axesOpts.x = getChartAxesColours(theme, canvas, 'x');
+                axesOpts.y = getChartAxesColours(theme, canvas, 'y');
                 break;
 
             case 'doughnut':
@@ -2230,10 +2234,17 @@ function createTheChart(canvas, action, sender) {
                 yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.6)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 1;
-                axesOpts = getChartAxesColours(theme, action.ID);
+                axesOpts.x = getChartAxesColours(theme, canvas, 'x');
+                axesOpts.y = getChartAxesColours(theme, canvas, 'y');
                 break;
         }
     });
+
+    // display the legend?
+    var showLegend = (Object.keys(yAxises)[0].toLowerCase() != 'default');
+    if ((canvas.closest('div.pode-tile').length > 0) || (canvas.attr('pode-legend') == 'False')) {
+        showLegend = false;
+    }
 
     // make the chart
     var chart = new Chart(ctx, {
@@ -2247,7 +2258,7 @@ function createTheChart(canvas, action, sender) {
         options: {
             plugins: {
                 legend: {
-                    display: (Object.keys(yAxises)[0].toLowerCase() != 'default'),
+                    display: showLegend,
                     labels: {
                         color: $('body').css('color')
                     }
@@ -2255,8 +2266,8 @@ function createTheChart(canvas, action, sender) {
             },
 
             scales: {
-                x: axesOpts,
-                y: axesOpts
+                x: axesOpts.x,
+                y: axesOpts.y
             }
         }
     });
@@ -2268,43 +2279,63 @@ function createTheChart(canvas, action, sender) {
     };
 }
 
-function getChartAxesColours(theme, id) {
-    if ($(`#${id}`).closest('div.pode-tile').length > 0) {
-        return {
+function getChartAxesColours(theme, canvas, axis) {
+    var opts = {};
+
+    // just hide ticks/legend for small tile charts
+    if (canvas.closest('div.pode-tile').length > 0) {
+        opts = {
             ticks: {
                 display: false
             }
         }
     }
 
-    switch (theme) {
-        case 'dark':
-            return {
-                grid: {
-                    color: '#214981',
-                    zeroLineColor: '#214981'
-                },
-                ticks: { color: '#ccc' }
-            };
+    // base opts on theme
+    else {
+        switch (theme) {
+            case 'dark':
+                opts = {
+                    grid: {
+                        color: '#214981',
+                        zeroLineColor: '#214981'
+                    },
+                    ticks: { color: '#ccc' }
+                };
+                break;
 
-        case 'terminal':
-            return {
-                grid: {
-                    color: 'darkgreen',
-                    zeroLineColor: 'darkgreen'
-                },
-                ticks: { color: '#33ff00' }
-            };
+            case 'terminal':
+                opts = {
+                    grid: {
+                        color: 'darkgreen',
+                        zeroLineColor: 'darkgreen'
+                    },
+                    ticks: { color: '#33ff00' }
+                };
+                break;
 
-        default:
-            return {
-                grid: {
-                    color: 'lightgrey',
-                    zeroLineColor: 'lightgrey'
-                },
-                ticks: { color: '#333' }
-            };
+            default:
+                opts = {
+                    grid: {
+                        color: 'lightgrey',
+                        zeroLineColor: 'lightgrey'
+                    },
+                    ticks: { color: '#333' }
+                };
+                break;
+        }
     }
+
+    // add min/max
+    var min = parseInt(canvas.attr(`pode-min-${axis}`));
+    var max = parseInt(canvas.attr(`pode-max-${axis}`));
+    if (min != max) {
+        opts['min'] = min;
+        opts['max'] = max;
+    }
+
+    // the opts
+    return opts;
 }
 
 function getChartPieBorderColour(theme) {
