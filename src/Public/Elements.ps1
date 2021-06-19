@@ -1343,6 +1343,22 @@ function New-PodeWebChart
         [string[]]
         $EndpointName,
 
+        [Parameter()]
+        [int]
+        $MinX = 0,
+
+        [Parameter()]
+        [int]
+        $MaxX = 0,
+
+        [Parameter()]
+        [int]
+        $MinY = 0,
+
+        [Parameter()]
+        [int]
+        $MaxY = 0,
+
         [switch]
         $Append,
 
@@ -1354,6 +1370,9 @@ function New-PodeWebChart
 
         [switch]
         $NoRefresh,
+
+        [switch]
+        $NoLegend,
 
         [switch]
         $AsCard
@@ -1407,7 +1426,16 @@ function New-PodeWebChart
         TimeLabels = $TimeLabels.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
         NoRefresh = $NoRefresh.IsPresent
+        NoLegend = $NoLegend.IsPresent
         CssClasses = ($CssClass -join ' ')
+        Min = @{
+            X = $MinX
+            Y = $MinY
+        }
+        Max = @{
+            X = $MaxX
+            Y = $MaxY
+        }
     }
 
     if ($AsCard) {
@@ -1438,9 +1466,28 @@ function New-PodeWebCounterChart
         $MaxItems = 30,
 
         [Parameter()]
+        [int]
+        $MinX = 0,
+
+        [Parameter()]
+        [int]
+        $MaxX = 0,
+
+        [Parameter()]
+        [int]
+        $MinY = 0,
+
+        [Parameter()]
+        [int]
+        $MaxY = 0,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
+
+        [switch]
+        $NoLegend,
 
         [switch]
         $AsCard
@@ -1463,8 +1510,13 @@ function New-PodeWebCounterChart
         -TimeLabels `
         -AutoRefresh `
         -CssClass $CssClass `
+        -MinX $MinX `
+        -MinY $MinY `
+        -MaxX $MaxX `
+        -MaxY $MaxY `
         -NoAuthentication:$NoAuthentication `
         -AsCard:$AsCard `
+        -NoLegend:$NoLegend `
         -ScriptBlock {
             param($counter)
             @{
