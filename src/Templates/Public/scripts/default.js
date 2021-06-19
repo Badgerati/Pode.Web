@@ -65,6 +65,7 @@ var _textStreams = {};
 function bindTextStreams() {
     $('div.text-stream pre textarea').each((i, e) => {
         var handle = setInterval(function() {
+            showSpinner($(e).closest('div.text-stream'));
             var fileUrl = $(e).attr('pode-file');
             var length = $(e).attr('pode-length');
 
@@ -74,6 +75,7 @@ function bindTextStreams() {
                 dataType: 'text',
                 headers: { "Range": `bytes=${length}-` },
                 success: function(data, status, xhr) {
+                    hideSpinner($(e).closest('div.text-stream'));
                     var header = xhr.getResponseHeader('Content-Range');
                     if (header) {
                         var rangeLength = header.split('/')[1];
@@ -85,6 +87,7 @@ function bindTextStreams() {
                     }
                 },
                 error: function() {
+                    hideSpinner($(e).closest('div.text-stream'));
                     clearInterval(_textStreams[getId(e)]);
                     $(e).closest('div.text-stream').addClass('stream-error');
                 }

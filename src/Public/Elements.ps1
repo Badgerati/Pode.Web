@@ -2212,6 +2212,10 @@ function New-PodeWebTextStream
         [int]
         $Interval = 10,
 
+        [Parameter()]
+        [string]
+        $Icon,
+
         [switch]
         $NoHeader
     )
@@ -2235,6 +2239,7 @@ function New-PodeWebTextStream
         Height = $Height
         FileUrl = $FileUrl
         Interval = ($Interval * 1000)
+        Icon = $Icon
         CssClasses = ($CssClass -join ' ')
         NoHeader = $NoHeader.IsPresent
     }

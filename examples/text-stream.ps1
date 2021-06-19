@@ -11,7 +11,7 @@ Start-PodeServer -Threads 2 {
 
     # set the home page controls
     $con = New-PodeWebContainer -Content @(
-        New-PodeWebTextStream -FileUrl '/test.log'
+        New-PodeWebTextStream -FileUrl '/logs/error.log' -Icon 'information'
     )
 
     Set-PodeWebHomePage -Layouts $con -Title 'Text Stream'

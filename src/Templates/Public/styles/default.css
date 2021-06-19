@@ -778,6 +778,10 @@ div.text-stream pre {
     margin-bottom: 0;
 }
 
+div.text-stream pre textarea {
+    border: none;
+}
+
 div.text-stream.stream-error {
     border-color: #f5c6cb !important;
 }
@@ -787,13 +791,23 @@ div.text-stream.stream-error .card-header {
     background-color: #f8d7da !important;
 }
 
-div.text-stream.stream-error .card-header span.mdi {
+div.text-stream.stream-error .card-header span.stream-error.mdi {
     display: block !important;
 }
 
-div.text-stream .card-header span.mdi::before {
+div.text-stream.stream-error .card-header span.stream-error.mdi::before {
     position: relative;
-    top: -2px;
+    top: -4px;
+}
+
+div.text-stream .card-header h5 span.mdi::before {
+    position: relative;
+    top: 2px;
+}
+
+div.text-stream .card-header span.spinner-border {
+    position: relative;
+    top: -4px;
 }
 
 a.nav-link .mdi:before {
