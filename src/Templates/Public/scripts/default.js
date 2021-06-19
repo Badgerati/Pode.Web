@@ -2066,7 +2066,22 @@ function actionChart(action, sender) {
         case 'output':
             writeChart(action, sender);
             break;
+
+        case 'sync':
+            syncChart(action);
+            break;
     }
+}
+
+function syncChart(action) {
+    if (!action.ID && !action.Name) {
+        return;
+    }
+
+    var chart = getElementByNameOrId(action, 'canvas');
+    var id = getId(chart);
+
+    loadChart(id);
 }
 
 var _charts = {};
