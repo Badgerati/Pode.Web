@@ -5,7 +5,7 @@ A file stream element is a readonly textarea that will stream the contents of a 
 The simplest file stream just needs a `-Url` being supplied; this URL should be a relative/literal URL path to a static text file.
 
 !!! important
-    The server the file is being streamed from must support the Range HTPP header - Pode already supports this.
+    The server the file is being streamed from must support the Range HTTP header - Pode already supports this.
 
 For example, the following will stream a log file from the `/public/logs/error.log` file:
 
