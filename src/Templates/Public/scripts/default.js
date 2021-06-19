@@ -37,7 +37,7 @@ $(() => {
     bindButtons();
     bindCodeCopy();
     bindCodeEditors();
-    bindTextStreams();
+    bindFileStreams();
 
     bindTableFilters();
     bindTableExports();
@@ -60,12 +60,12 @@ $(() => {
     bindTimers();
 });
 
-var _textStreams = {};
+var _fileStreams = {};
 
-function bindTextStreams() {
-    $('div.text-stream pre textarea').each((i, e) => {
+function bindFileStreams() {
+    $('div.file-stream pre textarea').each((i, e) => {
         var handle = setInterval(function() {
-            showSpinner($(e).closest('div.text-stream'));
+            showSpinner($(e).closest('div.file-stream'));
             var fileUrl = $(e).attr('pode-file');
             var length = $(e).attr('pode-length');
 
@@ -75,7 +75,7 @@ function bindTextStreams() {
                 dataType: 'text',
                 headers: { "Range": `bytes=${length}-` },
                 success: function(data, status, xhr) {
-                    hideSpinner($(e).closest('div.text-stream'));
+                    hideSpinner($(e).closest('div.file-stream'));
                     var header = xhr.getResponseHeader('Content-Range');
                     if (header) {
                         var rangeLength = header.split('/')[1];
@@ -87,14 +87,14 @@ function bindTextStreams() {
                     }
                 },
                 error: function() {
-                    hideSpinner($(e).closest('div.text-stream'));
-                    clearInterval(_textStreams[getId(e)]);
-                    $(e).closest('div.text-stream').addClass('stream-error');
+                    hideSpinner($(e).closest('div.file-stream'));
+                    clearInterval(_fileStreams[getId(e)]);
+                    $(e).closest('div.file-stream').addClass('stream-error');
                 }
             });
         }, $(e).attr('pode-interval'));
 
-        _textStreams[getId(e)] = handle;
+        _fileStreams[getId(e)] = handle;
     });
 }
 

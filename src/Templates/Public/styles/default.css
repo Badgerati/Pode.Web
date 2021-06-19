@@ -773,39 +773,39 @@ table tbody td {
     top: 2px;
 }
 
-div.text-stream pre {
+div.file-stream pre {
     white-space: normal;
     margin-bottom: 0;
 }
 
-div.text-stream pre textarea {
+div.file-stream pre textarea {
     border: none;
 }
 
-div.text-stream.stream-error {
+div.file-stream.stream-error {
     border-color: #f5c6cb !important;
 }
 
-div.text-stream.stream-error .card-header {
+div.file-stream.stream-error .card-header {
     color: #721c24;
     background-color: #f8d7da !important;
 }
 
-div.text-stream.stream-error .card-header span.stream-error.mdi {
+div.file-stream.stream-error .card-header span.stream-error.mdi {
     display: block !important;
 }
 
-div.text-stream.stream-error .card-header span.stream-error.mdi::before {
+div.file-stream.stream-error .card-header span.stream-error.mdi::before {
     position: relative;
     top: -4px;
 }
 
-div.text-stream .card-header h5 span.mdi::before {
+div.file-stream .card-header h5 span.mdi::before {
     position: relative;
     top: 2px;
 }
 
-div.text-stream .card-header span.spinner-border {
+div.file-stream .card-header span.spinner-border {
     position: relative;
     top: -4px;
 }

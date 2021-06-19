@@ -2184,7 +2184,7 @@ function New-PodeWebTile
     return $element
 }
 
-function New-PodeWebTextStream
+function New-PodeWebFileStream
 {
     [CmdletBinding()]
     param(
@@ -2198,7 +2198,7 @@ function New-PodeWebTextStream
 
         [Parameter(Mandatory=$true)]
         [string]
-        $FileUrl,
+        $Url,
 
         [Parameter()]
         [int]
@@ -2220,7 +2220,7 @@ function New-PodeWebTextStream
         $NoHeader
     )
 
-    $Id = Get-PodeWebElementId -Tag TextStream -Id $Id -Name $Name
+    $Id = Get-PodeWebElementId -Tag FileStream -Id $Id -Name $Name
 
     if ($Height -le 0) {
         $Height = 20
@@ -2232,12 +2232,12 @@ function New-PodeWebTextStream
 
     $element = @{
         ComponentType = 'Element'
-        ElementType = 'TextStream'
+        ElementType = 'FileStream'
         Parent = $ElementData
         Name = $Name
         ID = $Id
         Height = $Height
-        FileUrl = $FileUrl
+        Url = $Url
         Interval = ($Interval * 1000)
         Icon = $Icon
         CssClasses = ($CssClass -join ' ')
