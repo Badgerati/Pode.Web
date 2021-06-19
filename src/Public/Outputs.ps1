@@ -332,6 +332,27 @@ function ConvertTo-PodeWebChartData
     }
 }
 
+function Sync-PodeWebChart
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Sync'
+        ElementType = 'Chart'
+        ID = $Id
+        Name = $Name
+    }
+}
+
 function Out-PodeWebTextbox
 {
     [CmdletBinding()]
