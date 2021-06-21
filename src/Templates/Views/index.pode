@@ -119,7 +119,7 @@
                                         "<li class='nav-item mTop1 nav-group-title'>
                                             <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
                                                 <div>
-                                                    <span class='mdi mdi-chevron-down mdi-size-22 mRight02'></span>
+                                                    <span class='mdi mdi-chevron-right mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$($pageGroup.Name)</span>
                                                     <span class='badge badge-inbuilt-theme'>$($pageGroup.Count)</span>
                                                 </div>

@@ -65,6 +65,11 @@ var _fileStreams = {};
 function bindFileStreams() {
     $('div.file-stream pre textarea').each((i, e) => {
         var handle = setInterval(function() {
+            var paused = $(e).attr('pode-streaming') == '0';
+            if (paused) {
+                return;
+            }
+
             showSpinner($(e).closest('div.file-stream'));
             var fileUrl = $(e).attr('pode-file');
             var length = $(e).attr('pode-length');
@@ -79,9 +84,18 @@ function bindFileStreams() {
                     var header = xhr.getResponseHeader('Content-Range');
                     if (header) {
                         var rangeLength = header.split('/')[1];
+
+                        // if new content, append
                         if (rangeLength > parseInt(length)) {
                             $(e).append(data);
                             $(e).attr('pode-length', rangeLength);
+                            e.scrollTop = e.scrollHeight;
+                        }
+
+                        // if length is now less, clear the textarea
+                        else if (rangeLength < parseInt(length)) {
+                            $(e).text('');
+                            $(e).attr('pode-length', 0);
                             e.scrollTop = e.scrollHeight;
                         }
                     }
@@ -90,23 +104,54 @@ function bindFileStreams() {
                     hideSpinner($(e).closest('div.file-stream'));
                     clearInterval(_fileStreams[getId(e)]);
                     $(e).closest('div.file-stream').addClass('stream-error');
+                    $(e).closest('div.file-stream').find('div.card-header div div.btn-group').hide();
                 }
             });
         }, $(e).attr('pode-interval'));
 
         _fileStreams[getId(e)] = handle;
     });
+
+    $('div.file-stream button.pode-stream-download').off('click').on('click', function(e) {
+        var button = getButton(e);
+        var id = button.attr('for');
+        var fileUrl = $(`textarea#${id}`).attr('pode-file');
+        var parts = fileUrl.split('/');
+        downloadFile(fileUrl, parts[parts.length - 1]);
+        unfocus(button);
+    });
+
+    $('div.file-stream button.pode-stream-pause').off('click').on('click', function(e) {
+        var button = getButton(e);
+        var id = button.attr('for');
+        var textarea = $(`textarea#${id}`);
+
+        toggleAttr(textarea, 'pode-streaming', '0', '1');
+        toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
+        unfocus(button);
+    });
+
+    $('div.file-stream button.pode-stream-clear').off('click').on('click', function(e) {
+        var button = getButton(e);
+        var id = button.attr('for');
+        var textarea = $(`textarea#${id}`);
+
+        $(textarea).text('');
+        $(textarea).attr('pode-length', 0);
+        textarea.scrollTop = textarea.scrollHeight;
+        unfocus(button);
+    });
 }
 
 function setupAccordion() {
     $('div.accordion div.card div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
         var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
-        toggleCollapseArrow(icon, 'mdi-chevron-down', 'mdi-chevron-up');
+        toggleIcon(icon, 'chevron-down', 'chevron-up');
     });
 
     $('div.accordion div.card div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
         var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
-        toggleCollapseArrow(icon, 'mdi-chevron-up', 'mdi-chevron-down');
+        toggleIcon(icon, 'chevron-up', 'chevron-down');
     });
 }
 
@@ -412,7 +457,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
 
             // do we have a file to download?
             if (filename) {
-                downloadAjaxFile(filename, res, xhr);
+                downloadBlob(filename, res, xhr);
             }
 
             // run any actions, if we need to
@@ -437,7 +482,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     });
 }
 
-function downloadAjaxFile(filename, blob, xhr) {
+function downloadBlob(filename, blob, xhr) {
     // from: https://gist.github.com/jasonweng/393aef0c05c425d8dcfdb2fc1a8188e5
     // IE workaround for "HTML7007
     if (typeof window.navigator.msSaveBlob !== 'undefined') {
@@ -446,34 +491,37 @@ function downloadAjaxFile(filename, blob, xhr) {
     else {
         var URL = (window.URL || window.webkitURL);
         var downloadUrl = URL.createObjectURL(blob);
-
-        if (filename) {
-            // use HTML5 a[download] attribute to specify filename
-            var a = document.createElement('a');
-
-            // safari doesn't support this yet
-            if (typeof a.download === 'undefined') {
-                window.location = downloadUrl;
-            }
-            else {
-                a.href = downloadUrl;
-                a.download = filename;
-                a.style.display = 'none';
-
-                document.body.appendChild(a);
-                a.click();
-
-                $(a).remove();
-            }
-        }
-        else {
-            window.location = downloadUrl;
-        }
+        downloadFile(downloadUrl, filename);
 
         // cleanup the blob url
         setTimeout(function() {
             URL.revokeObjectURL(downloadUrl);
-        }, 100);
+        }, 1000);
+    }
+}
+
+function downloadFile(url, filename) {
+    // use HTML5 a[download] attribute to specify filename
+    if (filename) {
+        var a = document.createElement('a');
+
+        // safari doesn't support this yet
+        if (typeof a.download === 'undefined') {
+            window.location = url;
+        }
+        else {
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+
+            document.body.appendChild(a);
+            a.click();
+
+            $(a).remove();
+        }
+    }
+    else {
+        window.location = url;
     }
 }
 
@@ -589,8 +637,7 @@ function bindCardCollapse() {
         e.stopPropagation();
 
         var button = getButton(e);
-        button.find('.mdi-eye-outline').toggle();
-        button.find('.mdi-eye-off-outline').toggle();
+        toggleIcon(button, 'eye-outline', 'eye-off-outline', 'Hide', 'Show');
 
         button.closest('.card').find('.card-body').slideToggle();
         unfocus(button);
@@ -718,19 +765,72 @@ function bindPageGroupCollapse() {
     $('ul#sidebar-list div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
         var id = $(e.target).attr('id');
         var icon = $(`a[aria-controls="${id}"] span.mdi`);
-        toggleCollapseArrow(icon, 'mdi-chevron-down', 'mdi-chevron-up');
+        toggleIcon(icon, 'chevron-right', 'chevron-down');
     });
 
     $('ul#sidebar-list div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
         var id = $(e.target).attr('id');
         var icon = $(`a[aria-controls="${id}"] span.mdi`);
-        toggleCollapseArrow(icon, 'mdi-chevron-up', 'mdi-chevron-down');
+        toggleIcon(icon, 'chevron-down', 'chevron-right');
     });
 }
 
-function toggleCollapseArrow(icon, showIcon, hideIcon) {
-    icon.toggleClass(showIcon);
-    icon.toggleClass(hideIcon);
+function toggleIcon(element, icon1, icon2, title1, title2) {
+    // get span/icon
+    if (!element.hasClass('mdi')) {
+        element = element.find('.mdi');
+    }
+
+    console.log(element);
+
+    // fix icon names
+    if (icon1 && !icon1.startsWith('mdi-')) {
+        icon1 = `mdi-${icon1}`;
+    }
+
+    if (icon2 && !icon2.startsWith('mdi-')) {
+        icon2 = `mdi-${icon2}`;
+    }
+
+    // toggle titles
+    if (title1 && title2) {
+        if (element.hasClass(icon1)) {
+            setTitle(element, title2);
+        }
+
+        if (element.hasClass(icon2)) {
+            setTitle(element, title1);
+        }
+
+        element.tooltip('hide');
+        element.tooltip();
+    }
+
+    // toggle icons
+    if (icon1 && icon2) {
+        element.toggleClass(icon1);
+        element.toggleClass(icon2);
+    }
+}
+
+function toggleAttr(element, name, value1, value2) {
+    var attr = element.attr(name);
+    if (attr == value1) {
+        element.attr(name, value2);
+    }
+    else {
+        element.attr(name, value1);
+    }
+}
+
+function setTitle(element, title) {
+    if (element.attr('title')) {
+        element.attr('title', title);
+    }
+
+    if (element.attr('data-original-title')) {
+        element.attr('data-original-title', title);
+    }
 }
 
 function bindRangeValue() {

@@ -32,7 +32,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # set the use of templates, and set a login page
     Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
-    Set-PodeWebLoginPage -Authentication Example
+    Set-PodeWebLoginPage -Authentication Example #-BackgroundImage '/images/galaxy.jpg'
 
     $link1 = New-PodeWebNavLink -Name 'Home' -Url '/' -Icon Home
     $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Cogs -NoAuth -ScriptBlock {

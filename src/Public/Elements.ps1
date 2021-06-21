@@ -2157,8 +2157,8 @@ function New-PodeWebTile
     )
 
     # ensure content are correct
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Element)) {
-        throw 'A Tile can only contain other elements'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Tile can only contain layouts and/or elements'
     }
 
     $Id = Get-PodeWebElementId -Tag Tile -Id $Id -Name $Name

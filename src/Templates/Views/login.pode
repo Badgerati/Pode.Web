@@ -4,7 +4,7 @@
         Theme = $data.Theme
     })
 
-    <body id="login-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)">
+    <body id="login-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)" style="background-image: url('$($data.Background.Image)'); background-repeat: no-repeat; background-size: cover">
         <form class="form-signin" action='/login' method='POST'>
             <div class='text-center mb-4'>
                 <a href='$($data.LogoUrl)'>

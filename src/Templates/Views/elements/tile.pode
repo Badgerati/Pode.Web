@@ -5,7 +5,7 @@ $(if ($data.NewLine) {
 <div id="$($data.ID)" class="container pode-tile alert-$($data.ColourType) rounded $($data.CssClasses)" name="$($data.Name)" pode-dynamic="$($data.IsDynamic)" pode-click="$($data.Click)" pode-auto-refresh='$($data.AutoRefresh)'>
     <h6 class="pode-tile-header">
         $(if (![string]::IsNullOrWhiteSpace($data.Icon)) {
-            "<span class='mdi mdi-$($data.Icon.ToLowerInvariant())''></span>"
+            "<span class='mdi mdi-$($data.Icon.ToLowerInvariant())'></span>"
         })
         $($data.Name)
         $(if (!$data.AutoRefresh -and !$data.NoRefresh) {

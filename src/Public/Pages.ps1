@@ -34,7 +34,11 @@ function Set-PodeWebLoginPage
 
         [Parameter()]
         [string]
-        $ThemeProperty
+        $ThemeProperty,
+
+        [Parameter()]
+        [string]
+        $BackgroundImage
     )
 
     Set-PodeWebState -Name 'auth' -Value $Authentication
@@ -76,6 +80,9 @@ function Set-PodeWebLoginPage
             Theme = Get-PodeWebTheme
             Logo = $using:Logo
             LogoUrl = $using:LogoUrl
+            Background = @{
+                Image = $using:BackgroundImage
+            }
             Copyright = $using:Copyright
             Auth = @{
                 Name = $using:Authentication

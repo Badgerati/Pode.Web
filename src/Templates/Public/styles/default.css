@@ -797,7 +797,7 @@ div.file-stream.stream-error .card-header span.stream-error.mdi {
 
 div.file-stream.stream-error .card-header span.stream-error.mdi::before {
     position: relative;
-    top: -4px;
+    top: 0px;
 }
 
 div.file-stream .card-header h5 span.mdi::before {
@@ -807,7 +807,7 @@ div.file-stream .card-header h5 span.mdi::before {
 
 div.file-stream .card-header span.spinner-border {
     position: relative;
-    top: -4px;
+    top: 7px;
 }
 
 a.nav-link .mdi:before {
