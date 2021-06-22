@@ -2298,3 +2298,39 @@ function New-PodeWebFileStream
 
     return $element
 }
+
+function New-PodeWebIFrame
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $Title
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Title)) {
+        $Title = $Name
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ElementType = 'iFrame'
+        Parent = $ElementData
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag iFrame -Id $Id -Name $Name)
+        Url = $Url
+        Title = $Title
+    }
+}

@@ -176,7 +176,11 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle
+    $iframe = New-PodeWebContainer -Content @(
+        New-PodeWebIFrame -Url '/'
+    )
+
+    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor, $iframe -NoTitle
 
 
     # tabs and charts
