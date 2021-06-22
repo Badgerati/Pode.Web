@@ -103,3 +103,7 @@ pre code {
 .step.active .bs-stepper-circle {
     background-color: dodgerblue;
 }
+
+iframe {
+    border-color: #bbb;
+}

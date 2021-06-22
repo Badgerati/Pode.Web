@@ -391,3 +391,7 @@ input[type=time]::-webkit-calendar-picker-indicator:hover,
 input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
     filter: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(240deg);
 }
+
+iframe {
+    border-color: #33ff00;
+}
