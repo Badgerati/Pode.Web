@@ -224,7 +224,8 @@ pre code {
     color: #fff !important;
 }
 
-.input-group-prepend .input-group-text {
+.input-group-prepend .input-group-text,
+.input-group-append .input-group-text {
     background-color: #121d2f !important;
     border-color: #214981 !important;
     color: #999 !important

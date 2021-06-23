@@ -24,6 +24,10 @@ function New-PodeWebTextbox
         $Height = 4,
 
         [Parameter()]
+        [int]
+        $Width = 100,
+
+        [Parameter()]
         [string]
         $HelpText,
 
@@ -34,6 +38,14 @@ function New-PodeWebTextbox
         [Parameter(ParameterSetName='Single')]
         [string]
         $PrependIcon,
+
+        [Parameter(ParameterSetName='Single')]
+        [string]
+        $AppendText,
+
+        [Parameter(ParameterSetName='Single')]
+        [string]
+        $AppendIcon,
 
         [Parameter()]
         [string]
@@ -69,10 +81,20 @@ function New-PodeWebTextbox
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
 
+    # contrain height
     if ($Height -le 0) {
         $Height = 4
     }
 
+    # contrain width
+    if ($Width -lt 0) {
+        $Width = 0
+    }
+    if ($Width -gt 100) {
+        $Width = 100
+    }
+
+    # build element
     $element = @{
         ComponentType = 'Element'
         ElementType = 'Textbox'
@@ -83,6 +105,7 @@ function New-PodeWebTextbox
         Multiline = $Multiline.IsPresent
         Placeholder = $Placeholder
         Height = $Height
+        Width = $Width
         Preformat = $Preformat.IsPresent
         HelpText = $HelpText
         ReadOnly = $ReadOnly.IsPresent
@@ -94,8 +117,14 @@ function New-PodeWebTextbox
             Text = $PrependText
             Icon = $PrependIcon
         }
+        Append = @{
+            Enabled = (![string]::IsNullOrWhiteSpace($AppendText) -or ![string]::IsNullOrWhiteSpace($AppendIcon))
+            Text = $AppendText
+            Icon = $AppendIcon
+        }
     }
 
+    # create autocomplete route
     $routePath = "/elements/autocomplete/$($Id)"
     if (($null -ne $AutoComplete) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null

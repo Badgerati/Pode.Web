@@ -473,6 +473,16 @@ table tbody td {
     overflow-x: hidden;
 }
 
+.input-group {
+    flex-wrap: nowrap !important;
+    display: inline-flex !important;
+}
+
+.input-group>.form-control {
+    flex: initial !important;
+    width: 100%;
+}
+
 .form-group .pode-button,
 .form-group .pode-link-button {
     margin-bottom: 1rem;
@@ -765,7 +775,7 @@ iframe {
 /*
  * Material Design Icons
  */
- .mdi::before {
+.mdi::before {
     font-size: 24px;
     line-height: 14px;
 }
@@ -776,6 +786,11 @@ iframe {
 }
 
 .accordion .card-header .btn .mdi::before {
+    position: relative;
+    top: 2px;
+}
+
+.pode-card .card-header .mdi::before {
     position: relative;
     top: 2px;
 }

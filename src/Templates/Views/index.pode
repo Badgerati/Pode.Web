@@ -116,17 +116,25 @@
 
                                 foreach ($pageGroup in $pageGroups) {
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
+                                        $chevron = 'right'
+                                        $show = [string]::Empty
+
+                                        if ($data.Page.Group -ieq $pageGroup.Name) {
+                                            $chevron = 'down'
+                                            $show = 'show'
+                                        }
+
                                         "<li class='nav-item mTop1 nav-group-title'>
                                             <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
                                                 <div>
-                                                    <span class='mdi mdi-chevron-right mdi-size-22 mRight02'></span>
+                                                    <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$($pageGroup.Name)</span>
                                                     <span class='badge badge-inbuilt-theme'>$($pageGroup.Count)</span>
                                                 </div>
                                             </a>
                                         </li>"
 
-                                        "<div class='collapse $(if ($data.Page.Group -ieq $pageGroup.Name) { "show" })' id='nav-$($pageGroup.Name)'>"
+                                        "<div class='collapse $($show)' id='nav-$($pageGroup.Name)'>"
                                     }
 
                                     foreach ($page in $pageGroup.Group) {

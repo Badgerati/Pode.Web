@@ -18,7 +18,7 @@ Start-PodeServer -Threads 2 {
 
     # set the home page controls
     $card = New-PodeWebCard -Content @(
-        New-PodeWebGrid -Cells @(
+        New-PodeWebGrid -Width 4 -Cells @(
             New-PodeWebCell -Content @(New-PodeWebTile -Name Example1 -ScriptBlock { return (Get-Random -Minimum 0 -Maximum 1000) } -Icon 'information')
             New-PodeWebCell -Content @(New-PodeWebTile -Name Example2 -ScriptBlock { return ([datetime]::Now.ToString())} -Colour Red -AutoRefresh)
             New-PodeWebCell -Content @(New-PodeWebTile -Name Example3 -Content @(

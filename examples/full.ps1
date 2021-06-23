@@ -102,7 +102,7 @@ Start-PodeServer -StatusPageExceptions Show {
         " -Language PowerShell
     )
 
-    $section3 = New-PodeWebCard -Name 'Comments' -Content @(
+    $section3 = New-PodeWebCard -Name 'Comments' -Icon 'comment' -Content @(
         New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
         New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )

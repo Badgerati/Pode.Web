@@ -4,9 +4,11 @@ There are 3 different kinds of pages in Pode.Web, which are defined below. Besid
 
 ## Login
 
-To enable the user of a login page, and lock your site behind authentication is simple! First, just define the authentication method you want via the usual `New-PodeAuthScheme` and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
+To enable the use of a login page, and lock your site behind authentication is simple! First, just setup sessions and define the authentication method you want via the usual `Enable-PodeSessionMiddleware`, `New-PodeAuthScheme` and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
 
 ```powershell
+Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration 120 -Extend
+
 New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
     param($username, $password)
 
@@ -103,7 +105,7 @@ Add-PodeWebPage -Name Processes -Icon Activity -Layouts @(
 
 ### Dynamic
 
-Add dynamic page uses a `-ScriptBlock` instead of `-Layouts`, the scriptblock lets you render different layouts/elements depending on query/payload data in the `$WebEvent`.
+Add dynamic page uses a `-ScriptBlock` instead of `-Layouts`, the scriptblock lets you render different layouts/elements depending on query/payload data in the `$WebEvent`. The scriptblock also has access to a `$PageData` object, containing information about the current page - such as Name, Group, Access, etc.
 
 For example, the below page will render a table of services if a `value` query parameter is not present. Otherwise, if it is present, then a page with a code-block showing information about the service is displayed:
 

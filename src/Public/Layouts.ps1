@@ -7,6 +7,10 @@ function New-PodeWebGrid
         $Cells,
 
         [Parameter()]
+        [int]
+        $Width = 0,
+
+        [Parameter()]
         [string[]]
         $CssClass,
 
@@ -18,11 +22,15 @@ function New-PodeWebGrid
         throw 'A Grid can only contain Cell layouts'
     }
 
+    if ($Vertical) {
+        $Width = 1
+    }
+
     return @{
         ComponentType = 'Layout'
         LayoutType = 'Grid'
         Cells = $Cells
-        Vertical = $Vertical.IsPresent
+        Width = $Width
         CssClasses = ($CssClass -join ' ')
     }
 }
@@ -139,6 +147,10 @@ function New-PodeWebCard
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string]
+        $Icon,
+
         [switch]
         $NoTitle,
 
@@ -159,6 +171,7 @@ function New-PodeWebCard
         NoTitle = $NoTitle.IsPresent
         NoHide  = $NoHide.IsPresent
         CssClasses = ($CssClass -join ' ')
+        Icon = $Icon
     }
 }
 
