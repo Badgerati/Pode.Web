@@ -14,9 +14,6 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
 
 var pageLoaded = false;
 $(() => {
-    console.log('please no');
-    console.log('please dont');
-
     if (pageLoaded) {
         return;
     }
@@ -790,8 +787,6 @@ function toggleIcon(element, icon1, icon2, title1, title2) {
         element = element.find('.mdi');
     }
 
-    console.log(element);
-
     // fix icon names
     if (icon1 && !icon1.startsWith('mdi-')) {
         icon1 = `mdi-${icon1}`;
@@ -1018,7 +1013,6 @@ function loadChart(chartId, firstLoad) {
         url = form.attr('method');
     }
 
-    console.log(data);
     sendAjaxReq(url, data, chart, true);
 }
 
@@ -1455,7 +1449,6 @@ function bindChartRefresh() {
         loadChart(button.attr('for'));
     });
 
-    console.log('oce?');
     $("canvas[pode-auto-refresh='True']").each((index, item) => {
         var interval = $(item).attr('pode-refresh-interval');
 
@@ -1465,10 +1458,8 @@ function bindChartRefresh() {
         }
 
         setTimeout(() => {
-            console.log('things');
             loadChart($(item).attr('id'), false);
             setInterval(() => {
-                console.log('stuff');
                 loadChart($(item).attr('id'), false);
             }, interval);
         }, timeout);

@@ -141,7 +141,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $grid1 = New-PodeWebGrid -Cells @(
         New-PodeWebCell -Content @(
-            New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 15 -AutoRefresh -AsCard -RefreshInterval 10
+            New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 15 -AutoRefresh -AsCard
         )
         New-PodeWebCell -Content @(
             New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData -AsCard
