@@ -12,7 +12,13 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     hljs.highlightAll();
 })();
 
+var pageLoaded = false;
 $(() => {
+    if (pageLoaded) {
+        return;
+    }
+    pageLoaded = true;
+
     if (checkAutoTheme()) {
         return;
     }
@@ -781,8 +787,6 @@ function toggleIcon(element, icon1, icon2, title1, title2) {
         element = element.find('.mdi');
     }
 
-    console.log(element);
-
     // fix icon names
     if (icon1 && !icon1.startsWith('mdi-')) {
         icon1 = `mdi-${icon1}`;
@@ -947,12 +951,19 @@ function bindTileRefresh() {
     });
 
     $("div.pode-tile[pode-auto-refresh='True']").each((i, e) => {
+        var interval = $(e).attr('pode-refresh-interval');
+
+        var timeout = interval;
+        if (interval == 60000) {
+            timeout = (60 - (new Date()).getSeconds()) * 1000;
+        }
+
         setTimeout(() => {
             loadTile($(e).attr('id'));
             setInterval(() => {
                 loadTile($(e).attr('id'));
-            }, 60000);
-        }, (60 - (new Date()).getSeconds()) * 1000);
+            }, interval);
+        }, timeout);
     });
 }
 
@@ -1395,12 +1406,19 @@ function bindTableRefresh() {
     });
 
     $("table[pode-auto-refresh='True']").each((index, item) => {
+        var interval = $(item).attr('pode-refresh-interval');
+
+        var timeout = interval;
+        if (interval == 60000) {
+            timeout = (60 - (new Date()).getSeconds()) * 1000;
+        }
+
         setTimeout(() => {
             loadTable($(item).attr('id'));
             setInterval(() => {
                 loadTable($(item).attr('id'));
-            }, 60000);
-        }, (60 - (new Date()).getSeconds()) * 1000);
+            }, interval);
+        }, timeout);
     });
 }
 
@@ -1432,12 +1450,19 @@ function bindChartRefresh() {
     });
 
     $("canvas[pode-auto-refresh='True']").each((index, item) => {
+        var interval = $(item).attr('pode-refresh-interval');
+
+        var timeout = interval;
+        if (interval == 60000) {
+            timeout = (60 - (new Date()).getSeconds()) * 1000;
+        }
+
         setTimeout(() => {
             loadChart($(item).attr('id'));
             setInterval(() => {
                 loadChart($(item).attr('id'));
-            }, 60000);
-        }, (60 - (new Date()).getSeconds()) * 1000);
+            }, interval);
+        }, timeout);
     });
 }
 

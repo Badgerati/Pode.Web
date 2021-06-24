@@ -141,7 +141,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $grid1 = New-PodeWebGrid -Cells @(
         New-PodeWebCell -Content @(
-            New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -AsCard
+            New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 15 -AutoRefresh -AsCard
         )
         New-PodeWebCell -Content @(
             New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData -AsCard
@@ -176,11 +176,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    $iframe = New-PodeWebContainer -Content @(
-        New-PodeWebIFrame -Url '/'
-    )
-
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor, $iframe -NoTitle
+    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle
 
 
     # tabs and charts
