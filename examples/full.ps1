@@ -181,13 +181,13 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # tabs and charts
     $tabs1 = New-PodeWebTabs -Cycle -Tabs @(
-        New-PodeWebTab -Name 'Line' -Layouts @(
+        New-PodeWebTab -Name 'Line' -Icon 'chart-line' -Layouts @(
             New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -Height 250 -AsCard
         )
-        New-PodeWebTab -Name 'Bar' -Layouts @(
+        New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Layouts @(
             New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard
         )
-        New-PodeWebTab -Name 'Doughnut' -Layouts @(
+        New-PodeWebTab -Name 'Doughnut' -Icon 'chart-donut' -Layouts @(
             New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard
         )
     )

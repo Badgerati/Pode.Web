@@ -111,7 +111,11 @@ function New-PodeWebTab
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Layouts
+        $Layouts,
+
+        [Parameter()]
+        [string]
+        $Icon
     )
 
     if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout)) {
@@ -124,6 +128,7 @@ function New-PodeWebTab
         Name = $Name
         ID = (Get-PodeWebElementId -Tag Tab -Name $Name)
         Layouts = $Layouts
+        Icon = $Icon
     }
 }
 
