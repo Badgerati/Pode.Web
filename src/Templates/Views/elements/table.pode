@@ -2,10 +2,10 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
     "<p class='card-text'>$($data.Message)</p>"
 })
 
-$(if ($data.Filter) {
+$(if ($data.Filter.Enabled) {
     "<div class='input-group mb-2'>
         <div class='input-group-prepend'><div class='input-group-text'><span class='mdi mdi-filter'></span></div></div>
-        <input type='text' class='form-control mBottom1 pode-table-filter' id='filter_$($data.ID)' placeholder='Filter' for='$($data.ID)'>
+        <input type='text' class='form-control mBottom1 pode-table-filter' id='filter_$($data.ID)' placeholder='Filter' for='$($data.ID)' pode-simple='$($data.Filter.Simple)'>
     </div>"
 })
 

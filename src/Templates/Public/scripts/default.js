@@ -888,6 +888,16 @@ function loadTable(tableId, pageNumber, pageAmount) {
         data = `PageNumber=${pageNumber}&PageAmount=${pageAmount}`;
     }
 
+    // define any filter value
+    var filter = $(`input#filter_${tableId}`);
+    if (filter.length > 0) {
+        if (data) {
+            data += '&';
+        }
+
+        data += `Filter=${filter.val()}`;
+    }
+
     // things get funky here if we have a table with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
     var url = `/elements/table/${tableId}`;
@@ -1340,11 +1350,33 @@ function getPagePath(name, group, page) {
     return path;
 }
 
+function delay(callback, ms) {
+    var timer = 0;
+
+    return function() {
+        var context = this, args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            callback.apply(context, args);
+        }, ms || 0);
+    };
+}
+
 function bindTableFilters() {
-    $("input.pode-table-filter").off('keyup').on('keyup', function(e) {
+    $("input.pode-table-filter").off('keyup').on('keyup', delay(function(e) {
         e.preventDefault();
-        filterTable($(e.target));
-    });
+        e.stopPropagation();
+
+        var input = $(e.target);
+        var simple = input.attr('pode-simple') == 'True';
+
+        if (simple) {
+            filterTable(input);
+        }
+        else {
+            loadTable(input.attr('for'));
+        }
+    }, 500));
 }
 
 function filterTable(filter) {

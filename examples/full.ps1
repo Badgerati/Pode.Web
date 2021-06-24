@@ -226,7 +226,13 @@ Start-PodeServer -StatusPageExceptions Show {
             )
         }
 
+        $filter = "*$($WebEvent.Data.Filter)*"
+
         foreach ($svc in (Get-Service)) {
+            if ($svc.Name -inotlike $filter) {
+                continue
+            }
+
             $btns = @($editBtn)
             if ($svc.Status -ieq 'running') {
                 $btns += $stopBtn
