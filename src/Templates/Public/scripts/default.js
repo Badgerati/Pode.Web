@@ -982,11 +982,11 @@ function bindTileClick() {
 
 function loadCharts() {
     $(`canvas[pode-dynamic='True']`).each((i, e) => {
-        loadChart($(e).attr('id'), true);
+        loadChart($(e).attr('id'));
     });
 }
 
-function loadChart(chartId, firstLoad) {
+function loadChart(chartId) {
     if (!chartId) {
         return;
     }
@@ -995,7 +995,7 @@ function loadChart(chartId, firstLoad) {
 
     // is this the chart's first load?
     var data = '';
-    if (firstLoad) { //} !_charts[chartId] || !_charts[chartId].append) {
+    if (!_charts[chartId] || !_charts[chartId].append) {
         data = 'FirstLoad=1';
     }
 
@@ -1458,9 +1458,9 @@ function bindChartRefresh() {
         }
 
         setTimeout(() => {
-            loadChart($(item).attr('id'), false);
+            loadChart($(item).attr('id'));
             setInterval(() => {
-                loadChart($(item).attr('id'), false);
+                loadChart($(item).attr('id'));
             }, interval);
         }, timeout);
     });
