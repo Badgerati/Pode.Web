@@ -12,7 +12,16 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     hljs.highlightAll();
 })();
 
+var pageLoaded = false;
 $(() => {
+    console.log('please no');
+    console.log('please dont');
+
+    if (pageLoaded) {
+        return;
+    }
+    pageLoaded = true;
+
     if (checkAutoTheme()) {
         return;
     }
@@ -947,12 +956,19 @@ function bindTileRefresh() {
     });
 
     $("div.pode-tile[pode-auto-refresh='True']").each((i, e) => {
+        var interval = $(e).attr('pode-refresh-interval');
+
+        var timeout = interval;
+        if (interval == 60000) {
+            timeout = (60 - (new Date()).getSeconds()) * 1000;
+        }
+
         setTimeout(() => {
             loadTile($(e).attr('id'));
             setInterval(() => {
                 loadTile($(e).attr('id'));
-            }, 60000);
-        }, (60 - (new Date()).getSeconds()) * 1000);
+            }, interval);
+        }, timeout);
     });
 }
 
@@ -971,11 +987,11 @@ function bindTileClick() {
 
 function loadCharts() {
     $(`canvas[pode-dynamic='True']`).each((i, e) => {
-        loadChart($(e).attr('id'));
+        loadChart($(e).attr('id'), true);
     });
 }
 
-function loadChart(chartId) {
+function loadChart(chartId, firstLoad) {
     if (!chartId) {
         return;
     }
@@ -984,7 +1000,7 @@ function loadChart(chartId) {
 
     // is this the chart's first load?
     var data = '';
-    if (!_charts[chartId] || !_charts[chartId].append) {
+    if (firstLoad) { //} !_charts[chartId] || !_charts[chartId].append) {
         data = 'FirstLoad=1';
     }
 
@@ -1002,6 +1018,7 @@ function loadChart(chartId) {
         url = form.attr('method');
     }
 
+    console.log(data);
     sendAjaxReq(url, data, chart, true);
 }
 
@@ -1395,12 +1412,19 @@ function bindTableRefresh() {
     });
 
     $("table[pode-auto-refresh='True']").each((index, item) => {
+        var interval = $(item).attr('pode-refresh-interval');
+
+        var timeout = interval;
+        if (interval == 60000) {
+            timeout = (60 - (new Date()).getSeconds()) * 1000;
+        }
+
         setTimeout(() => {
             loadTable($(item).attr('id'));
             setInterval(() => {
                 loadTable($(item).attr('id'));
-            }, 60000);
-        }, (60 - (new Date()).getSeconds()) * 1000);
+            }, interval);
+        }, timeout);
     });
 }
 
@@ -1431,13 +1455,23 @@ function bindChartRefresh() {
         loadChart(button.attr('for'));
     });
 
+    console.log('oce?');
     $("canvas[pode-auto-refresh='True']").each((index, item) => {
+        var interval = $(item).attr('pode-refresh-interval');
+
+        var timeout = interval;
+        if (interval == 60000) {
+            timeout = (60 - (new Date()).getSeconds()) * 1000;
+        }
+
         setTimeout(() => {
-            loadChart($(item).attr('id'));
+            console.log('things');
+            loadChart($(item).attr('id'), false);
             setInterval(() => {
-                loadChart($(item).attr('id'));
-            }, 60000);
-        }, (60 - (new Date()).getSeconds()) * 1000);
+                console.log('stuff');
+                loadChart($(item).attr('id'), false);
+            }, interval);
+        }, timeout);
     });
 }
 

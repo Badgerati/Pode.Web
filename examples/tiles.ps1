@@ -20,7 +20,7 @@ Start-PodeServer -Threads 2 {
     $card = New-PodeWebCard -Content @(
         New-PodeWebGrid -Cells @(
             New-PodeWebCell -Content @(New-PodeWebTile -Name Example1 -ScriptBlock { return (Get-Random -Minimum 0 -Maximum 1000) } -Icon 'information')
-            New-PodeWebCell -Content @(New-PodeWebTile -Name Example2 -ScriptBlock { return ([datetime]::Now.ToString())} -Colour Red -AutoRefresh)
+            New-PodeWebCell -Content @(New-PodeWebTile -Name Example2 -ScriptBlock { return ([datetime]::Now.ToString())} -Colour Red -AutoRefresh -RefreshInterval 5)
             New-PodeWebCell -Content @(New-PodeWebTile -Name Example3 -Content @(
                 New-PodeWebChart -Name 'Top Processes' -Type Bar -ScriptBlock $processData
             ) -Colour Yellow)

@@ -25,6 +25,7 @@ $(if ($data.Filter) {
                 pode-click-dynamic='$($data.ClickIsDynamic)'
                 pode-data-column='$($data.DataColumn)'
                 pode-auto-refresh='$($data.AutoRefresh)'
+                pode-refresh-interval='$($data.RefreshInterval)'
                 pode-sort='$($data.Sort)'
                 pode-paginate='$($data.Paging.Enabled)'>
                 <thead></thead>

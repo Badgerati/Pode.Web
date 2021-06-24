@@ -24,6 +24,7 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
         pode-max="$($data.MaxItems)"
         pode-time-labels="$($data.TimeLabels)"
         pode-auto-refresh="$($data.AutoRefresh)"
+        pode-refresh-interval="$($data.RefreshInterval)"
         pode-min-x="$($data.Min.X)"
         pode-min-y="$($data.Min.Y)"
         pode-max-x="$($data.Max.X)"

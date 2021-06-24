@@ -1359,6 +1359,10 @@ function New-PodeWebChart
         [int]
         $MaxY = 0,
 
+        [Parameter()]
+        [int]
+        $RefreshInterval = 60,
+
         [switch]
         $Append,
 
@@ -1382,6 +1386,10 @@ function New-PodeWebChart
 
     if ($MaxItems -lt 0) {
         $MaxItems = 0
+    }
+
+    if ($RefreshInterval -le 0) {
+        $RefreshInterval = 60
     }
 
     $routePath = "/elements/chart/$($Id)"
@@ -1425,6 +1433,7 @@ function New-PodeWebChart
         Height = $Height
         TimeLabels = $TimeLabels.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
+        RefreshInterval = ($RefreshInterval * 1000)
         NoRefresh = $NoRefresh.IsPresent
         NoLegend = $NoLegend.IsPresent
         CssClasses = ($CssClass -join ' ')
@@ -1578,6 +1587,10 @@ function New-PodeWebTable
         [scriptblock]
         $ClickScriptBlock,
 
+        [Parameter()]
+        [int]
+        $RefreshInterval = 60,
+
         [switch]
         $Filter,
 
@@ -1619,6 +1632,10 @@ function New-PodeWebTable
         $CsvFilePath = Join-PodeWebPath (Get-PodeServerPath) $CsvFilePath
     }
 
+    if ($RefreshInterval -le 0) {
+        $RefreshInterval = 60
+    }
+
     $element = @{
         ComponentType = 'Element'
         ElementType = 'Table'
@@ -1636,6 +1653,7 @@ function New-PodeWebTable
         IsDynamic = ($PSCmdlet.ParameterSetName -iin @('dynamic', 'csv'))
         NoExport = $NoExport.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
+        RefreshInterval = ($RefreshInterval * 1000)
         NoRefresh = $NoRefresh.IsPresent
         NoAuthentication = $NoAuthentication.IsPresent
         CssClasses = ($CssClass -join ' ')
@@ -2140,6 +2158,10 @@ function New-PodeWebTile
         [string]
         $Colour = 'Blue',
 
+        [Parameter()]
+        [int]
+        $RefreshInterval = 60,
+
         [switch]
         $NoRefresh,
 
@@ -2164,6 +2186,10 @@ function New-PodeWebTile
     $Id = Get-PodeWebElementId -Tag Tile -Id $Id -Name $Name
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
+    if ($RefreshInterval -le 0) {
+        $RefreshInterval = 60
+    }
+
     $element = @{
         ComponentType = 'Element'
         ElementType = 'Tile'
@@ -2178,6 +2204,7 @@ function New-PodeWebTile
         ColourType = $ColourType
         CssClasses = ($CssClass -join ' ')
         AutoRefresh = $AutoRefresh.IsPresent
+        RefreshInterval = ($RefreshInterval * 1000)
         NoRefresh = $NoRefresh.IsPresent
         NewLine = $NewLine.IsPresent
     }
