@@ -792,7 +792,7 @@ iframe {
 
 .pode-card .card-header .mdi::before {
     position: relative;
-    top: 2px;
+    top: 1px;
 }
 
 div.file-stream pre {
