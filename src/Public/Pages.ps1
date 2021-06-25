@@ -268,6 +268,10 @@ function Add-PodeWebPage
         $Navigation,
 
         [Parameter()]
+        [scriptblock]
+        $HelpScriptBlock,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -310,6 +314,7 @@ function Add-PodeWebPage
         NoBreadcrumb = $NoBreadcrumb.IsPresent
         NewTab = $NewTab.IsPresent
         IsDynamic = $false
+        ShowHelp = ($null -ne $HelpScriptBlock)
         Icon = $Icon
         Group = $Group
         Url = (Get-PodeWebPagePath -Name $Name -Group $Group)
@@ -334,7 +339,8 @@ function Add-PodeWebPage
     }
 
     # add the page route
-    Add-PodeRoute -Method Get -Path $pageMeta.Url -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+    $routePath = $pageMeta.Url
+    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
         $global:PageData = $using:pageMeta
 
         if (!$global:PageData.NoBackArrow) {
@@ -395,7 +401,7 @@ function Add-PodeWebPage
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $using:Title
-                Theme = $Theme
+                Theme = $theme
                 Navigation = $navigation
                 Breadcrumb = $breadcrumb
                 Layouts = $filteredLayouts
@@ -404,6 +410,43 @@ function Add-PodeWebPage
         }
 
         $global:PageData = $null
+    }
+
+    # add the page help route
+    $helpPath = "$($routePath)/help"
+    if (($null -ne $HelpScriptBlock) -and !(Test-PodeWebRoute -Path $helpPath)) {
+        Add-PodeRoute -Method Post -Path $helpPath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+            $global:PageData = $using:pageMeta
+
+            # get auth details of a user
+            $authData = Get-PodeWebAuthData
+            $username = Get-PodeWebAuthUsername -AuthData $authData
+            $groups = Get-PodeWebAuthGroups -AuthData $authData
+
+            $authMeta = @{
+                Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
+                Authenticated = $authData.IsAuthenticated
+                Username = $username
+                Groups = $groups
+            }
+
+            # check access - 403 if denied
+            if (!(Test-PodeWebPageAccess -PageAccess $global:PageData.Access -Auth $authMeta)) {
+                Set-PodeResponseStatus -Code 403
+            }
+            else {
+                $result = Invoke-PodeScriptBlock -ScriptBlock $using:HelpScriptBlock -Return
+                if ($null -eq $result) {
+                    $result = @()
+                }
+
+                if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                    Write-PodeJsonResponse -Value $result
+                }
+            }
+
+            $global:PageData = $null
+        }
     }
 }
 

@@ -196,13 +196,17 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]
-    $modal = New-PodeWebModal -Name 'Edit Service' -Icon 'square-edit-outline' -Id 'modal_edit_svc' -AsForm -Content @(
+    $editModal = New-PodeWebModal -Name 'Edit Service' -Icon 'square-edit-outline' -Id 'modal_edit_svc' -AsForm -Content @(
         New-PodeWebAlert -Type Info -Value 'This does nothing, it is just an example'
         New-PodeWebCheckbox -Name Running -Id 'chk_svc_running' -AsSwitch
     ) -ScriptBlock {
         $WebEvent.Data | Out-Default
         Hide-PodeWebModal
     }
+
+    $helpModal = New-PodeWebModal -Name 'Help' -Icon 'help' -Content @(
+        New-PodeWebText -Value 'HELP!'
+    )
 
     $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
@@ -253,7 +257,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $modal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -264,6 +268,9 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebCard -Name "$($name) Details" -Content @(
             New-PodeWebCodeBlock -Value $svc -NoHighlight
         )
+    } `
+    -HelpScriptBlock {
+        Show-PodeWebModal -Name 'Help'
     }
 
 

@@ -350,6 +350,10 @@ div#pode-page-title {
     margin-top: 4em;
 }
 
+span.pode-page-help {
+    cursor: pointer;
+}
+
 li.nav-group-title {
     border-top: 1px dashed #888;
     padding-top: 1em;
@@ -835,6 +839,12 @@ div.file-stream .card-header span.spinner-border {
 a.nav-link .mdi:before {
     position: relative;
     top: 3px;
+}
+
+#pode-page-title span.mdi.pode-page-title-icon:before {
+    font-size: 35px;
+    position: relative;
+    top: 2px;
 }
 
 #pode-nav-social a .mdi::before {

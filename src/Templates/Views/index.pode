@@ -183,9 +183,15 @@
                                 if ($data.Page.ShowBack) {
                                     "<a href='$($data.Page.Url)'><span class='mdi mdi-arrow-left'></span></a>"
                                 }
+                                if (![string]::IsNullOrWhiteSpace($data.Page.Icon)) {
+                                    "<span class='mdi mdi-$($data.Page.Icon.ToLowerInvariant()) pode-page-title-icon'></span>"
+                                }
                                 $data.Page.Title
-                            "</h1>
-                        </div>"
+                            "</h1>"
+                            if ($data.Page.ShowHelp) {
+                                "<span class='mdi mdi-help-circle-outline pode-page-help' for='$($data.Page.Url)' title='Help' data-toggle='tooltip'></span>"
+                            }
+                        "</div>"
                     }
                     else {
                         "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2'></div>"

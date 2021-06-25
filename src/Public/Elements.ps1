@@ -734,15 +734,19 @@ function New-PodeWebQuote
 
 function New-PodeWebList
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Values')]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
-        [string[]]
+        [Parameter(Mandatory=$true, ParameterSetName='Items')]
+        [hashtable[]]
         $Items,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Values')]
+        [string[]]
+        $Values,
 
         [Parameter()]
         [string[]]
@@ -752,6 +756,10 @@ function New-PodeWebList
         $Numbered
     )
 
+    if (!(Test-PodeWebContent -Content $Items -ComponentType Element -ElementType ListItem)) {
+        throw 'Lists can only contain ListItem elements, or raw Values'
+    }
+
     $Id = Get-PodeWebElementId -Tag List -Id $Id -RandomToken
 
     return @{
@@ -759,11 +767,33 @@ function New-PodeWebList
         ElementType = 'List'
         Parent = $ElementData
         ID = $Id
-        Items  = @(foreach ($item in $Items) {
-            [System.Net.WebUtility]::HtmlEncode($item)
+        Values  = @(foreach ($value in $Values) {
+            [System.Net.WebUtility]::HtmlEncode($value)
         })
+        Items = $Items
         Numbered = $Numbered.IsPresent
         CssClasses = ($CssClass -join ' ')
+    }
+}
+
+function New-PodeWebListItem
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Content
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A ListItem can only contain layouts and/or elements'
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ElementType = 'ListItem'
+        ID = (Get-PodeWebElementId -Tag ListItem -RandomToken)
+        Content = $Content
     }
 }
 

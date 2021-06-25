@@ -83,6 +83,10 @@ Add-PodeWebPageLink -Name Twitter -Icon Twitter -ScriptBlock {
 
 You can group multiple pages together on the sidebar by using the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This will group pages together into a collapsible container.
 
+### Help Icon
+
+A help icon can be displayed to the right of the page's title by supplying a `-HelpScriptBlock` to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This scriptblock is used to return output actions such as: displaying a modal when the help icon is clicked; redirect the user to a help page; or any other possible actions to help a user out.
+
 ### Static
 
 A static page is one that uses just `-Layouts`; this is a page that will render the same layouts/elements on every page load, regardless of payload or query parameters supplied to the page.
