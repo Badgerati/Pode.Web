@@ -1384,6 +1384,11 @@ function filterTable(filter) {
         return;
     }
 
+    var simple = filter.attr('pode-simple') == 'True';
+    if (!simple) {
+        return;
+    }
+
     var tableId = filter.attr('for');
     var value = filter.val();
 
@@ -1644,10 +1649,17 @@ function updateTable(action, sender) {
 
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
+    var isPaginated = (table.attr('pode-paginate') == 'True');
 
     // clear the table if no data
     if (action.Data.length <= 0) {
+        // empty table
         tableBody.empty();
+
+        // empty paging
+        if (isPaginated) {
+            table.closest('div[role="table"]').find('nav ul').empty();
+        }
         return;
     }
 
@@ -1739,7 +1751,6 @@ function updateTable(action, sender) {
     });
 
     // is the table paginated?
-    var isPaginated = (table.attr('pode-paginate') == 'True');
     if (isPaginated) {
         var paging = table.closest('div[role="table"]').find('nav ul');
         paging.empty();

@@ -1729,7 +1729,7 @@ function New-PodeWebTable
                 $filter = $WebEvent.Data.Filter
                 if (![string]::IsNullOrWhiteSpace($filter)) {
                     $filter = "*$($filter)*"
-                    $result = @($result | Where-Object { $_ -ilike $filter })
+                    $result = @($result | Where-Object { ($_.psobject.properties.value -ilike $filter).length -gt 0 })
                 }
             }
 
