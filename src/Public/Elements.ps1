@@ -1603,8 +1603,9 @@ function New-PodeWebTable
 
         [Parameter(ParameterSetName='Dynamic')]
         [Parameter(ParameterSetName='Csv')]
+        [Alias('PageAmount')]
         [int]
-        $PageAmount = 20,
+        $PageSize = 20,
 
         [Parameter()]
         [string[]]
@@ -1696,7 +1697,7 @@ function New-PodeWebTable
         CssClasses = ($CssClass -join ' ')
         Paging = @{
             Enabled = $Paginate.IsPresent
-            Amount = $PageAmount
+            Size = $PageSize
         }
     }
 
@@ -1726,7 +1727,7 @@ function New-PodeWebTable
             else {
                 $result = Import-Csv -Path $csvFilePath
 
-                $filter = $WebEvent.Data.Filter
+                $filter = $WebEvent.Data['Filter']
                 if (![string]::IsNullOrWhiteSpace($filter)) {
                     $filter = "*$($filter)*"
                     $result = @($result | Where-Object { ($_.psobject.properties.value -ilike $filter).length -gt 0 })

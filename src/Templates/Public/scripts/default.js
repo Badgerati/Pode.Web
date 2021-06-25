@@ -707,12 +707,12 @@ function bindTablePagination() {
             return;
         }
 
-        // get amount
+        // get page size
         var pageNav = link.closest('nav');
-        var amount = pageNav.attr('pode-amount') ?? 20;
+        var pageSize = pageNav.attr('pode-page-size') ?? 20;
 
         // next or previous? - get current +/-
-        var page = 1;
+        var pageIndex = 1;
 
         if (link.hasClass('page-arrows')) {
             var current = link.closest('ul').find('a.page-link.active').text();
@@ -725,14 +725,43 @@ function bindTablePagination() {
                 current++;
             }
 
-            page = current;
+            pageIndex = current;
         }
         else {
-            page = link.text();
+            pageIndex = link.text();
         }
 
-        loadTable(pageNav.attr('for'), page, amount);
+        loadTable(pageNav.attr('for'), parseInt(pageIndex), parseInt(pageSize));
     });
+}
+
+function getTablePaging(table) {
+    if (!isTablePaginated(table)) {
+        return null;
+    }
+
+    var pagination = table.closest('div[role="table"]').find('nav[role="pagination"]');
+    if (pagination.length == 0) {
+        return null;
+    }
+
+    var index = pagination.find('a.page-link.active').text();
+    if (index.length == 0) {
+        index = 1;
+    }
+
+    return {
+        size: parseInt(pagination.attr('pode-page-size') ?? 20),
+        index: parseInt(index)
+    }
+}
+
+function isTablePaginated(table) {
+    if (!table) {
+        return false;
+    }
+
+    return (table.attr('pode-paginate') == 'True');
 }
 
 function bindTableSort(tableId) {
@@ -869,7 +898,7 @@ function loadTables() {
     });
 }
 
-function loadTable(tableId, pageNumber, pageAmount) {
+function loadTable(tableId, pageIndex, pageSize) {
     if (!tableId) {
         return;
     }
@@ -882,10 +911,16 @@ function loadTable(tableId, pageNumber, pageAmount) {
 
     // define any table paging
     var data = '';
-    if (pageNumber || pageAmount) {
-        pageNumber = (pageNumber ?? 1);
-        pageAmount = (pageAmount ?? 20);
-        data = `PageNumber=${pageNumber}&PageAmount=${pageAmount}`;
+    if (pageIndex || pageSize) {
+        pageIndex = (pageIndex ?? 1);
+        pageSize = (pageSize ?? 20);
+        data = `PageIndex=${pageIndex}&PageSize=${pageSize}`;
+    }
+    else if (isTablePaginated(table)) {
+        var paging = getTablePaging(table);
+        if (paging) {
+            data = `PageIndex=${paging.index}&PageSize=${paging.size}`;
+        }
     }
 
     // define any filter value
@@ -1649,7 +1684,7 @@ function updateTable(action, sender) {
 
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
-    var isPaginated = (table.attr('pode-paginate') == 'True');
+    var isPaginated = isTablePaginated(table);
 
     // clear the table if no data
     if (action.Data.length <= 0) {
@@ -1766,14 +1801,14 @@ function updateTable(action, sender) {
         var pageActive = '';
 
         // first page
-        pageActive = (1 == action.Paging.Number ? 'active' : '');
+        pageActive = (1 == action.Paging.Index ? 'active' : '');
         paging.append(`
             <li class="page-item">
                 <a class="page-link ${pageActive}" href="#">1</a>
             </li>`);
 
         // ...
-        if (action.Paging.Number > 4) {
+        if (action.Paging.Index > 4) {
             paging.append(`
                 <li class="page-item">
                     <a class="page-link disabled" href="#">...</a>
@@ -1781,12 +1816,12 @@ function updateTable(action, sender) {
         }
 
         // pages
-        for (var i = (action.Paging.Number - 2); i <= (action.Paging.Number + 2); i++) {
+        for (var i = (action.Paging.Index - 2); i <= (action.Paging.Index + 2); i++) {
             if (i <= 1 || i >= action.Paging.Max) {
                 continue;
             }
 
-            pageActive = (i == action.Paging.Number ? 'active' : '');
+            pageActive = (i == action.Paging.Index ? 'active' : '');
             paging.append(`
                 <li class="page-item">
                     <a class="page-link ${pageActive}" href="#">${i}</a>
@@ -1794,7 +1829,7 @@ function updateTable(action, sender) {
         }
 
         // ...
-        if (action.Paging.Number < action.Paging.Max - 3) {
+        if (action.Paging.Index < action.Paging.Max - 3) {
             paging.append(`
                 <li class="page-item">
                     <a class="page-link disabled" href="#">...</a>
@@ -1803,7 +1838,7 @@ function updateTable(action, sender) {
 
         // last page
         if (action.Paging.Max > 1) {
-            pageActive = (action.Paging.Max == action.Paging.Number ? 'active' : '');
+            pageActive = (action.Paging.Max == action.Paging.Index ? 'active' : '');
             paging.append(`
                 <li class="page-item">
                     <a class="page-link ${pageActive}" href="#">${action.Paging.Max}</a>

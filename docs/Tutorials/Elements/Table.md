@@ -94,7 +94,7 @@ You can set the table rows to be filterable by passing `-Filter`. When set, a te
 
 ### Paginate
 
-You can set a table to support paging by passing `-Paginate`. This will auto-paginate the table data into pages of 20 items, which can also be configured via `-PageAmount`.
+You can set a table to support paging by passing `-Paginate`. This will auto-paginate the table data into pages of 20 items, which can also be configured via `-PageSize`.
 
 ### Sort
 
