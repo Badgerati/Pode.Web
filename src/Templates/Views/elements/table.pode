@@ -26,7 +26,8 @@ $(if ($data.Filter.Enabled) {
                 pode-data-column='$($data.DataColumn)'
                 pode-auto-refresh='$($data.AutoRefresh)'
                 pode-refresh-interval='$($data.RefreshInterval)'
-                pode-sort='$($data.Sort)'
+                pode-sort='$($data.Sort.Enabled)'
+                pode-sort-simple='$($data.Sort.Simple)'
                 pode-paginate='$($data.Paging.Enabled)'>
                 <thead></thead>
                 <tbody></tbody>

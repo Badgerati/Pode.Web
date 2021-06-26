@@ -1633,6 +1633,9 @@ function New-PodeWebTable
         $Sort,
 
         [switch]
+        $SimpleSort,
+
+        [switch]
         $Click,
 
         [Parameter(ParameterSetName='Default')]
@@ -1685,7 +1688,10 @@ function New-PodeWebTable
             Enabled = ($Filter.IsPresent -or $SimpleFilter.IsPresent)
             Simple = $SimpleFilter.IsPresent
         }
-        Sort = $Sort.IsPresent
+        Sort = @{
+            Enabled = ($Sort.IsPresent -or $SimpleSort.IsPresent)
+            Simple = $SimpleSort.IsPresent
+        }
         Click = ($Click.IsPresent -or ($null -ne $ClickScriptBlock))
         ClickIsDynamic = ($null -ne $ClickScriptBlock)
         IsDynamic = ($PSCmdlet.ParameterSetName -iin @('dynamic', 'csv'))

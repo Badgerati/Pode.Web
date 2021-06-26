@@ -204,7 +204,7 @@ Start-PodeServer -StatusPageExceptions Show {
         Hide-PodeWebModal
     }
 
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -SimpleSort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
@@ -289,11 +289,11 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # page with table showing csv data
-    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv' -AsCard
+    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -SimpleSort -Paginate -CsvFilePath './misc/data.csv' -AsCard
     Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Layouts $table2
 
 
-    # page with table show dynamic paging via a csv
+    # page with table show dynamic paging, filter, and sorting via a csv
     $table3 = New-PodeWebTable -Name 'Dynamic Users' -DataColumn UserId -Filter -Sort -Paginate -AsCard -ScriptBlock {
         # load the file
         $filePath = Join-Path (Get-PodeServerPath) 'misc/data.csv'
@@ -304,6 +304,13 @@ Start-PodeServer -StatusPageExceptions Show {
         if (![string]::IsNullOrWhiteSpace($filter)) {
             $filter = "*$($filter)*"
             $data = @($data | Where-Object { ($_.psobject.properties.value -ilike $filter).length -gt 0 })
+        }
+
+        # apply sorting
+        $sortColumn = $WebEvent.Data.SortColumn
+        if (![string]::IsNullOrWhiteSpace($sortColumn)) {
+            $descending = ($WebEvent.Data.SortAscending -ine 'true')
+            $data = @($data | Sort-Object -Property { $_.$sortColumn } -Descending:$descending)
         }
 
         # apply paging

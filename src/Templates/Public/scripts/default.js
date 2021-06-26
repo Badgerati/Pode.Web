@@ -731,7 +731,12 @@ function bindTablePagination() {
             pageIndex = link.text();
         }
 
-        loadTable(pageNav.attr('for'), parseInt(pageIndex), parseInt(pageSize));
+        loadTable(pageNav.attr('for'), {
+            page: {
+                index: parseInt(pageIndex),
+                size: parseInt(pageSize)
+            }
+        });
     });
 }
 
@@ -753,7 +758,7 @@ function getTablePaging(table) {
     return {
         size: parseInt(pagination.attr('pode-page-size') ?? 20),
         index: parseInt(index)
-    }
+    };
 }
 
 function isTablePaginated(table) {
@@ -764,32 +769,97 @@ function isTablePaginated(table) {
     return (table.attr('pode-paginate') == 'True');
 }
 
+function getTableSorting(table) {
+    if (!isTableSorted(table)) {
+        return null;
+    }
+
+    var header = table.find('th[sort-direction!="none"]');
+    if (header.length == 0) {
+        return null;
+    }
+
+    header = $(header[0]);
+    return {
+        column: header.text(),
+        ascending: (header.attr('sort-direction') == 'asc')
+    };
+}
+
+function isTableSorted(table) {
+    if (!table) {
+        return;
+    }
+
+    return (table.attr('pode-sort') == 'True');
+}
+
 function bindTableSort(tableId) {
     $(`${tableId}[pode-sort='True'] thead th`).off('click').on('click', function() {
-        var table = $(this).parents('table').eq(0);
-        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+        var header = $(this);
+        var table = header.parents('table').eq(0);
 
-        this.asc = !this.asc;
-        if (!this.asc) {
-            rows = rows.reverse();
+        var direction = header.attr('sort-direction') ?? 'none';
+        switch (direction.toLowerCase()) {
+            case 'none': {
+                direction = 'asc';
+                break;
+            }
+
+            case 'asc': {
+                direction = 'desc';
+                break;
+            }
+
+            case 'desc': {
+                direction = 'asc';
+                break;
+            }
         }
 
-        rows.forEach((row) => {
-            table.append(row);
-        });
+        // save sort direction for current header, and set other headers to none
+        var ascending = (direction == 'asc');
+        table.find('th').attr('sort-direction', 'none');
+        header.attr('sort-direction', direction);
+
+        // simple or dynamic?
+        var simple = table.attr('pode-sort-simple') == 'True';
+        if (simple) {
+            sortTable(table, header, ascending);
+        }
+        else {
+            loadTable(table.attr('id'), {
+                sort: {
+                    column: header.text(),
+                    ascending: ascending
+                }
+            });
+        }
     });
+}
 
-    function comparer(index) {
-        return function(a, b) {
-            var valA = getCellValue(a, index);
-            var valB = getCellValue(b, index);
-            return isNumeric(valA) && isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
-        }
+function sortTable(table, header, ascending) {
+    var rows = table.find('tr:gt(0)').toArray().sort(comparer(header.index()));
+
+    if (!ascending) {
+        rows = rows.reverse();
     }
 
-    function getCellValue(row, index) {
-        return $(row).children('td').eq(index).text();
+    rows.forEach((row) => {
+        table.append(row);
+    });
+}
+
+function comparer(index) {
+    return function(a, b) {
+        var valA = getCellValue(a, index);
+        var valB = getCellValue(b, index);
+        return isNumeric(valA) && isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
     }
+}
+
+function getCellValue(row, index) {
+    return $(row).children('td').eq(index).text();
 }
 
 function isNumeric(value) {
@@ -898,7 +968,7 @@ function loadTables() {
     });
 }
 
-function loadTable(tableId, pageIndex, pageSize) {
+function loadTable(tableId, opts) {
     if (!tableId) {
         return;
     }
@@ -911,9 +981,9 @@ function loadTable(tableId, pageIndex, pageSize) {
 
     // define any table paging
     var data = '';
-    if (pageIndex || pageSize) {
-        pageIndex = (pageIndex ?? 1);
-        pageSize = (pageSize ?? 20);
+    if (opts && opts.page) {
+        var pageIndex = (opts.page.index ?? 1);
+        var pageSize = (opts.page.size ?? 20);
         data = `PageIndex=${pageIndex}&PageSize=${pageSize}`;
     }
     else if (isTablePaginated(table)) {
@@ -931,6 +1001,25 @@ function loadTable(tableId, pageIndex, pageSize) {
         }
 
         data += `Filter=${filter.val()}`;
+    }
+
+    // define any sorting
+    if (opts && opts.sort) {
+        if (data) {
+            data += '&';
+        }
+
+        data += `SortColumn=${opts.sort.column}&SortAscending=${opts.sort.ascending}`;
+    }
+    else if (isTableSorted(table)) {
+        var sorting = getTableSorting(table);
+        if (sorting) {
+            if (data) {
+                data += '&';
+            }
+
+            data += `SortColumn=${sorting.column}&SortAscending=${sorting.ascending}`;
+        }
     }
 
     // things get funky here if we have a table with a 'for' attr
@@ -1717,14 +1806,25 @@ function updateTable(action, sender) {
     var dataColumn = table.attr('pode-data-column');
 
     // table headers
-    tableHead.empty();
-
     var _value = '<tr>';
     var _col = null;
+    var _direction = 'none'
+    var _oldHeader = null;
+
     keys.forEach((key) => {
+        // table header sort direction
+        _oldHeader = tableHead.find(`th[name='${key}']`);
+        if (_oldHeader.length > 0) {
+            _direction = _oldHeader.attr('sort-direction');
+        }
+        else {
+            _direction = 'none';
+        }
+
+        // add the table header
         if (key in columns) {
             _col = columns[key];
-            _value += `<th style='`;
+            _value += `<th sort-direction='${_direction}' name='${key}' style='`;
 
             if (_col.Width > 0) {
                 _value += `width:${_col.Width}%;`;
@@ -1743,11 +1843,12 @@ function updateTable(action, sender) {
             _value += `${_col.Name ? _col.Name : key}</th>`;
         }
         else {
-            _value += `<th>${key}</th>`;
+            _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
         }
     });
     _value += '</tr>';
 
+    tableHead.empty();
     tableHead.append(_value);
 
     // table body
