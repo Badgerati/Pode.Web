@@ -8,7 +8,7 @@ You can display data rendered in a table by using [`New-PodeWebTable`](../../../
 * Icons
 * Links
 
-A table gets its data from a supplied `-ScriptBlock`, more information below, and you can also `-AutoRefresh` a table, to fetch new data every minute. Tables also support being sorted, paginated, clickable and filtered.
+A table gets its data from a supplied `-ScriptBlock`, more information below, and you can also `-AutoRefresh` a table to fetch new data every minute. Tables also support being sorted, paginated, clickable and filtered.
 
 ## Data
 
@@ -16,7 +16,7 @@ To supply data to be rendered in a table, you have to supply a `-ScritpBlock` wh
 
 ### Raw
 
-The data format to be returned from a table's `-ScriptBlock` is simple, it's purely just Key:Value in an ordered hashtable/pscustomobject:
+The data format to be returned from a table's `-ScriptBlock` is simple, it's purely just Key:Value in an ordered hashtable/pscustomobject.
 
 The following example renders a table for services on a computer, displaying the Name, Status and StartTypes of the services:
 
@@ -40,7 +40,7 @@ which renders a table that looks like below:
 
 ### Elements
 
-Extending on the raw example above, you can also render certain elements within a table. Let's say you want two buttons in the table, one to start the service, and one to stop the service; to do this, we just have to use [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton) within the returned data hashtable. So that the button's scriptblock knows which services we which to stop/start, we'll need to supply `-DataColumn Name` to the table. When a button within the table is clicked, the value of the column in that button's row will be available via `$WebEvent.Data.Value` in the button's scriptblock.
+Extending on the raw example above, you can also render certain elements within a table. Let's say you want two buttons in the table, one to start the service, and one to stop the service; to do this, we just have to use [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton) within the returned hashtable. So that the button's scriptblock knows which services we which to stop/start, we'll need to supply `-DataColumn Name` to the table; when a button within the table is clicked, the value of the Name column in that button's row will be available via `$WebEvent.Data.Value` in the button's scriptblock.
 
 ```powershell
 New-PodeWebContainer -Content @(
@@ -77,28 +77,103 @@ which renders a table that looks like below:
 There's also the option to render a table straight from a CSV file. If you supply the path to a CSV file via `-CsvFilePath`, then the table will be built using that file:
 
 ```powershell
-New-PodeWebTable -Name 'Users' -DataColumn UserId -CsvFilePath './users.csv' -AsCard
+New-PodeWebContainer -Content @(
+    New-PodeWebTable -Name 'Users' -DataColumn UserId -CsvFilePath './users.csv'
+)
 ```
 
 ## Options
 
 ### Click
 
-You can set the table rows to be clickable by passing `-Click`. This by default will set it so when a row is clicked, the page is reloaded, and the `-DataColumn` value for that row will be set in the query string as `?value=<value>` - available in `$WebEvent.Query.Value`.
+You can set a table's rows to be clickable by passing `-Click`. This by default will set it so that when a row is clicked the page is reloaded, and the `-DataColumn` value for that row will be set in the query string as `?value=<value>` - available in `$WebEvent.Query.Value`.
 
-You can set a dynamic click action by supplying a `-ClickScriptBlock`. Now when a row is clicked, the scriptblock is called, and the `-DataColumn` value will now be available via `$WebEvent.Data.Value`. In the scriptblock, you can use the normal output actions.
+You can set a dynamic click action by supplying the `-ClickScriptBlock` parameter. Now when a row is clicked the scriptblock is called instead, and the `-DataColumn` value will now be available via `$WebEvent.Data.Value` within the scriptblock. The scriptblock expects the normal output actions to be returned.
 
 ### Filter
 
-You can set the table rows to be filterable by passing `-Filter`. When set, a textbox will be available above the table, and only rows containing the textbox's value will be displayed.
+You can set a table to be filterable by passing the `-Filter` switch; this will cause a textbox to be rendered above the table. Any value typed into this textbox will, after a small delay, re-call the table's `-ScriptBlock` and the filter value will be available in `$WebEvent.Data.Filter`. You can then return the filtered data and the table will be reloaded:
+
+```powershell
+New-PodeWebTable -Name 'Example' -Filter -AsCard -ScriptBlock {
+    # load a csv file
+    $filePath = Join-Path (Get-PodeServerPath) 'misc/data.csv'
+    $data = Import-Csv -Path $filePath
+
+    # apply filter if present
+    $filter = $WebEvent.Data.Filter
+    if (![string]::IsNullOrWhiteSpace($filter)) {
+        $filter = "*$($filter)*"
+        $data = @($data | Where-Object { ($_.psobject.properties.value -ilike $filter).length -gt 0 })
+    }
+
+    # update table
+    return $data
+}
+```
+
+There's also a `-SimpleFilter` switch available, if you supply this instead of `-Filter` then a textbox is still displayed, however the filter is done directly via javascript and only applied to the current page. (useful for small tables displaying all data).
 
 ### Paginate
 
-You can set a table to support paging by passing `-Paginate`. This will auto-paginate the table data into pages of 20 items, which can also be configured via `-PageAmount`.
+You can set a table to support paging by passing `-Paginate`. This will auto-paginate the table data into pages of 20 items, which can also be configured via `-PageSize`:
+
+```powershell
+New-PodeWebTable -Name 'Example' -Paginate -AsCard -ScriptBlock {
+    # load the file
+    $filePath = Join-Path (Get-PodeServerPath) 'misc/data.csv'
+    $data = Import-Csv -Path $filePath
+
+    # update table (Pode.Web will auto-paginate for you)
+    return $data
+}
+```
+
+You can take control of the paging yourself, useful for querying databases, by using the values from `$WebEvent.Data.PageIndex` and `$WebEvent.Data.PageSize`. Once you have the pre-paged data, you will need to directly pass this into [`Update-PodeWebTable`](../../../Functions/Outputs/Update-PodeWebTable) along with the `-PageIndex` and the `-TotalItemCount`:
+
+```powershell
+New-PodeWebTable -Name 'Example' -Paginate -AsCard -ScriptBlock {
+    # load the file
+    $filePath = Join-Path (Get-PodeServerPath) 'misc/data.csv'
+    $data = Import-Csv -Path $filePath
+
+    # apply paging
+    $totalCount = $data.Length
+    $pageIndex = [int]$WebEvent.Data.PageIndex
+    $pageSize = [int]$WebEvent.Data.PageSize
+    $data = $data[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
+
+    # update table
+    $data | Update-PodeWebTable -Name 'Dynamic Users' -PageIndex $pageIndex -TotalItemCount $totalCount
+}
+```
+
+!!! important
+    If you don't pass the data into the `Update-PodeWebTable` output action, then Pode.Web will do this automatically and use the auto-paging - which won't have the desired results!
 
 ### Sort
 
-You can set the table rows to be sortable by passing `-Sort`. When set, clicking the table's headers will sort the table by that column.
+You can set a table to be sortable by passing the `-Sort` switch. When passed then clicking a table's headers will re-call the table's `-ScriptBlock`; the name of the column to be sorted, as well as the direction (`asc`/`desc`), will be available in `$WebEvent.Data.SortColumn` and `$WebEvent.Data.SortDirection`. You can then return the sorted data and the table will be reloaded:
+
+```powershell
+New-PodeWebTable -Name 'Example' -Sort -AsCard -ScriptBlock {
+    # load the file
+    $filePath = Join-Path (Get-PodeServerPath) 'misc/data.csv'
+    $data = Import-Csv -Path $filePath
+
+    # apply sorting
+    $sortColumn = $WebEvent.Data.SortColumn
+    if (![string]::IsNullOrWhiteSpace($sortColumn)) {
+        $descending = ($WebEvent.Data.SortDirection -ieq 'desc')
+        $data = @($data | Sort-Object -Property { $_.$sortColumn } -Descending:$descending)
+    }
+
+    # update table
+    return $data
+}
+```
+
+There's also a `-SimpleSort` switch available, if you supply this instead of `-Sort` then sorting is done directly via javascript and only applied to the current page. (useful for small tables displaying all data).
 
 ## Columns
 

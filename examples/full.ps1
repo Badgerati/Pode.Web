@@ -208,7 +208,7 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebText -Value 'HELP!'
     )
 
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -SimpleSort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
@@ -230,7 +230,13 @@ Start-PodeServer -StatusPageExceptions Show {
             )
         }
 
+        $filter = "*$($WebEvent.Data.Filter)*"
+
         foreach ($svc in (Get-Service)) {
+            if ($svc.Name -inotlike $filter) {
+                continue
+            }
+
             $btns = @($editBtn)
             if ($svc.Status -ieq 'running') {
                 $btns += $stopBtn
@@ -290,8 +296,41 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # page with table showing csv data
-    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv' -AsCard
+    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -SimpleSort -Paginate -CsvFilePath './misc/data.csv' -AsCard
     Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Layouts $table2
+
+
+    # page with table show dynamic paging, filter, and sorting via a csv
+    $table3 = New-PodeWebTable -Name 'Dynamic Users' -DataColumn UserId -Filter -Sort -Paginate -AsCard -ScriptBlock {
+        # load the file
+        $filePath = Join-Path (Get-PodeServerPath) 'misc/data.csv'
+        $data = Import-Csv -Path $filePath
+
+        # apply filter if present
+        $filter = $WebEvent.Data.Filter
+        if (![string]::IsNullOrWhiteSpace($filter)) {
+            $filter = "*$($filter)*"
+            $data = @($data | Where-Object { ($_.psobject.properties.value -ilike $filter).length -gt 0 })
+        }
+
+        # apply sorting
+        $sortColumn = $WebEvent.Data.SortColumn
+        if (![string]::IsNullOrWhiteSpace($sortColumn)) {
+            $descending = ($WebEvent.Data.SortDirection -ieq 'desc')
+            $data = @($data | Sort-Object -Property { $_.$sortColumn } -Descending:$descending)
+        }
+
+        # apply paging
+        $totalCount = $data.Length
+        $pageIndex = [int]$WebEvent.Data.PageIndex
+        $pageSize = [int]$WebEvent.Data.PageSize
+        $data = $data[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
+
+        # update table
+        $data | Update-PodeWebTable -Name 'Dynamic Users' -PageIndex $pageIndex -TotalItemCount $totalCount
+    }
+
+    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Layouts $table3
 
 
     # open twitter

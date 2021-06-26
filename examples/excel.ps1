@@ -24,7 +24,7 @@ Start-PodeServer -StatusPageExceptions Show {
         Hide-PodeWebModal
     }
 
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"

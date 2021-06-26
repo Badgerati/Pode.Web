@@ -2,10 +2,10 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
     "<p class='card-text'>$($data.Message)</p>"
 })
 
-$(if ($data.Filter) {
+$(if ($data.Filter.Enabled) {
     "<div class='input-group mb-2'>
         <div class='input-group-prepend'><div class='input-group-text'><span class='mdi mdi-filter'></span></div></div>
-        <input type='text' class='form-control mBottom1 pode-table-filter' id='filter_$($data.ID)' placeholder='Filter' for='$($data.ID)'>
+        <input type='text' class='form-control mBottom1 pode-table-filter' id='filter_$($data.ID)' placeholder='Filter' for='$($data.ID)' pode-simple='$($data.Filter.Simple)'>
     </div>"
 })
 
@@ -26,7 +26,8 @@ $(if ($data.Filter) {
                 pode-data-column='$($data.DataColumn)'
                 pode-auto-refresh='$($data.AutoRefresh)'
                 pode-refresh-interval='$($data.RefreshInterval)'
-                pode-sort='$($data.Sort)'
+                pode-sort='$($data.Sort.Enabled)'
+                pode-sort-simple='$($data.Sort.Simple)'
                 pode-paginate='$($data.Paging.Enabled)'>
                 <thead></thead>
                 <tbody></tbody>
@@ -61,7 +62,7 @@ $(if ($data.Filter) {
         </div>
 
         $(if ($data.Paging.Enabled) {
-            "<nav role='pagination' aria-label='$($data.Name) Pages' for='$($data.ID)' pode-amount='$($data.Paging.Amount)'>
+            "<nav role='pagination' aria-label='$($data.Name) Pages' for='$($data.ID)' pode-page-size='$($data.Paging.Size)'>
                 <ul class='pagination justify-content-end'>
                 </ul>
             </nav>"

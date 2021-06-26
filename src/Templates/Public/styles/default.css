@@ -415,6 +415,24 @@ table[pode-sort='True'] thead th {
     cursor: pointer;
 }
 
+table[pode-sort='True'] thead th[sort-direction='asc']::after,
+table[pode-sort='True'] thead th[sort-direction='desc']::after {
+    content: ' ';
+    position: relative;
+    left: 10px;
+    border: 7px solid transparent;
+}
+
+table[pode-sort='True'] thead th[sort-direction='asc']::after {
+    bottom: 12px;
+    border-bottom-color: silver;
+}
+
+table[pode-sort='True'] thead th[sort-direction='desc']::after {
+    top: 15px;
+    border-top-color: silver;
+}
+
 table.pode-table-click tbody tr {
     cursor: pointer;
 }

@@ -708,12 +708,12 @@ function bindTablePagination() {
             return;
         }
 
-        // get amount
+        // get page size
         var pageNav = link.closest('nav');
-        var amount = pageNav.attr('pode-amount') ?? 20;
+        var pageSize = pageNav.attr('pode-page-size') ?? 20;
 
         // next or previous? - get current +/-
-        var page = 1;
+        var pageIndex = 1;
 
         if (link.hasClass('page-arrows')) {
             var current = link.closest('ul').find('a.page-link.active').text();
@@ -726,42 +726,140 @@ function bindTablePagination() {
                 current++;
             }
 
-            page = current;
+            pageIndex = current;
         }
         else {
-            page = link.text();
+            pageIndex = link.text();
         }
 
-        loadTable(pageNav.attr('for'), page, amount);
+        loadTable(pageNav.attr('for'), {
+            page: {
+                index: parseInt(pageIndex),
+                size: parseInt(pageSize)
+            }
+        });
     });
+}
+
+function getTablePaging(table) {
+    if (!isTablePaginated(table)) {
+        return null;
+    }
+
+    var pagination = table.closest('div[role="table"]').find('nav[role="pagination"]');
+    if (pagination.length == 0) {
+        return null;
+    }
+
+    var index = pagination.find('a.page-link.active').text();
+    if (index.length == 0) {
+        index = 1;
+    }
+
+    return {
+        size: parseInt(pagination.attr('pode-page-size') ?? 20),
+        index: parseInt(index)
+    };
+}
+
+function isTablePaginated(table) {
+    if (!table) {
+        return false;
+    }
+
+    return (table.attr('pode-paginate') == 'True');
+}
+
+function getTableSorting(table) {
+    if (!isTableSorted(table)) {
+        return null;
+    }
+
+    var header = table.find('th[sort-direction!="none"]');
+    if (header.length == 0) {
+        return null;
+    }
+
+    header = $(header[0]);
+    return {
+        column: header.text(),
+        direction: header.attr('sort-direction')
+    };
+}
+
+function isTableSorted(table) {
+    if (!table) {
+        return;
+    }
+
+    return (table.attr('pode-sort') == 'True');
 }
 
 function bindTableSort(tableId) {
     $(`${tableId}[pode-sort='True'] thead th`).off('click').on('click', function() {
-        var table = $(this).parents('table').eq(0);
-        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+        var header = $(this);
+        var table = header.parents('table').eq(0);
 
-        this.asc = !this.asc;
-        if (!this.asc) {
-            rows = rows.reverse();
+        var direction = header.attr('sort-direction') ?? 'none';
+        switch (direction.toLowerCase()) {
+            case 'none': {
+                direction = 'asc';
+                break;
+            }
+
+            case 'asc': {
+                direction = 'desc';
+                break;
+            }
+
+            case 'desc': {
+                direction = 'asc';
+                break;
+            }
         }
 
-        rows.forEach((row) => {
-            table.append(row);
-        });
+        // save sort direction for current header, and set other headers to none
+        table.find('th').attr('sort-direction', 'none');
+        header.attr('sort-direction', direction);
+
+        // simple or dynamic?
+        var simple = table.attr('pode-sort-simple') == 'True';
+        if (simple) {
+            sortTable(table, header, direction);
+        }
+        else {
+            loadTable(table.attr('id'), {
+                sort: {
+                    column: header.text(),
+                    direction: direction
+                }
+            });
+        }
     });
+}
 
-    function comparer(index) {
-        return function(a, b) {
-            var valA = getCellValue(a, index);
-            var valB = getCellValue(b, index);
-            return isNumeric(valA) && isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
-        }
+function sortTable(table, header, direction) {
+    var rows = table.find('tr:gt(0)').toArray().sort(comparer(header.index()));
+
+    if (direction == 'desc') {
+        rows = rows.reverse();
     }
 
-    function getCellValue(row, index) {
-        return $(row).children('td').eq(index).text();
+    rows.forEach((row) => {
+        table.append(row);
+    });
+}
+
+function comparer(index) {
+    return function(a, b) {
+        var valA = getCellValue(a, index);
+        var valB = getCellValue(b, index);
+        return isNumeric(valA) && isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
     }
+}
+
+function getCellValue(row, index) {
+    return $(row).children('td').eq(index).text();
 }
 
 function isNumeric(value) {
@@ -870,7 +968,7 @@ function loadTables() {
     });
 }
 
-function loadTable(tableId, pageNumber, pageAmount) {
+function loadTable(tableId, opts) {
     if (!tableId) {
         return;
     }
@@ -883,10 +981,45 @@ function loadTable(tableId, pageNumber, pageAmount) {
 
     // define any table paging
     var data = '';
-    if (pageNumber || pageAmount) {
-        pageNumber = (pageNumber ?? 1);
-        pageAmount = (pageAmount ?? 20);
-        data = `PageNumber=${pageNumber}&PageAmount=${pageAmount}`;
+    if (opts && opts.page) {
+        var pageIndex = (opts.page.index ?? 1);
+        var pageSize = (opts.page.size ?? 20);
+        data = `PageIndex=${pageIndex}&PageSize=${pageSize}`;
+    }
+    else if (isTablePaginated(table)) {
+        var paging = getTablePaging(table);
+        if (paging) {
+            data = `PageIndex=${paging.index}&PageSize=${paging.size}`;
+        }
+    }
+
+    // define any filter value
+    var filter = $(`input#filter_${tableId}`);
+    if (filter.length > 0) {
+        if (data) {
+            data += '&';
+        }
+
+        data += `Filter=${filter.val()}`;
+    }
+
+    // define any sorting
+    if (opts && opts.sort) {
+        if (data) {
+            data += '&';
+        }
+
+        data += `SortColumn=${opts.sort.column}&SortDirection=${opts.sort.direction}`;
+    }
+    else if (isTableSorted(table)) {
+        var sorting = getTableSorting(table);
+        if (sorting) {
+            if (data) {
+                data += '&';
+            }
+
+            data += `SortColumn=${sorting.column}&SortDirection=${sorting.direction}`;
+        }
     }
 
     // things get funky here if we have a table with a 'for' attr
@@ -1351,15 +1484,42 @@ function getPagePath(name, group, page) {
     return path;
 }
 
+function delay(callback, ms) {
+    var timer = 0;
+
+    return function() {
+        var context = this, args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            callback.apply(context, args);
+        }, ms || 0);
+    };
+}
+
 function bindTableFilters() {
-    $("input.pode-table-filter").off('keyup').on('keyup', function(e) {
+    $("input.pode-table-filter").off('keyup').on('keyup', delay(function(e) {
         e.preventDefault();
-        filterTable($(e.target));
-    });
+        e.stopPropagation();
+
+        var input = $(e.target);
+        var simple = input.attr('pode-simple') == 'True';
+
+        if (simple) {
+            filterTable(input);
+        }
+        else {
+            loadTable(input.attr('for'));
+        }
+    }, 500));
 }
 
 function filterTable(filter) {
     if (!filter) {
+        return;
+    }
+
+    var simple = filter.attr('pode-simple') == 'True';
+    if (!simple) {
         return;
     }
 
@@ -1623,10 +1783,17 @@ function updateTable(action, sender) {
 
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
+    var isPaginated = isTablePaginated(table);
 
     // clear the table if no data
     if (action.Data.length <= 0) {
+        // empty table
         tableBody.empty();
+
+        // empty paging
+        if (isPaginated) {
+            table.closest('div[role="table"]').find('nav ul').empty();
+        }
         return;
     }
 
@@ -1649,14 +1816,25 @@ function updateTable(action, sender) {
     var dataColumn = table.attr('pode-data-column');
 
     // table headers
-    tableHead.empty();
-
     var _value = '<tr>';
     var _col = null;
+    var _direction = 'none'
+    var _oldHeader = null;
+
     keys.forEach((key) => {
+        // table header sort direction
+        _oldHeader = tableHead.find(`th[name='${key}']`);
+        if (_oldHeader.length > 0) {
+            _direction = _oldHeader.attr('sort-direction');
+        }
+        else {
+            _direction = 'none';
+        }
+
+        // add the table header
         if (key in columns) {
             _col = columns[key];
-            _value += `<th style='`;
+            _value += `<th sort-direction='${_direction}' name='${key}' style='`;
 
             if (_col.Width > 0) {
                 _value += `width:${_col.Width}%;`;
@@ -1675,11 +1853,12 @@ function updateTable(action, sender) {
             _value += `${_col.Name ? _col.Name : key}</th>`;
         }
         else {
-            _value += `<th>${key}</th>`;
+            _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
         }
     });
     _value += '</tr>';
 
+    tableHead.empty();
     tableHead.append(_value);
 
     // table body
@@ -1718,7 +1897,6 @@ function updateTable(action, sender) {
     });
 
     // is the table paginated?
-    var isPaginated = (table.attr('pode-paginate') == 'True');
     if (isPaginated) {
         var paging = table.closest('div[role="table"]').find('nav ul');
         paging.empty();
@@ -1734,14 +1912,14 @@ function updateTable(action, sender) {
         var pageActive = '';
 
         // first page
-        pageActive = (1 == action.Paging.Number ? 'active' : '');
+        pageActive = (1 == action.Paging.Index ? 'active' : '');
         paging.append(`
             <li class="page-item">
                 <a class="page-link ${pageActive}" href="#">1</a>
             </li>`);
 
         // ...
-        if (action.Paging.Number > 4) {
+        if (action.Paging.Index > 4) {
             paging.append(`
                 <li class="page-item">
                     <a class="page-link disabled" href="#">...</a>
@@ -1749,12 +1927,12 @@ function updateTable(action, sender) {
         }
 
         // pages
-        for (var i = (action.Paging.Number - 2); i <= (action.Paging.Number + 2); i++) {
+        for (var i = (action.Paging.Index - 2); i <= (action.Paging.Index + 2); i++) {
             if (i <= 1 || i >= action.Paging.Max) {
                 continue;
             }
 
-            pageActive = (i == action.Paging.Number ? 'active' : '');
+            pageActive = (i == action.Paging.Index ? 'active' : '');
             paging.append(`
                 <li class="page-item">
                     <a class="page-link ${pageActive}" href="#">${i}</a>
@@ -1762,7 +1940,7 @@ function updateTable(action, sender) {
         }
 
         // ...
-        if (action.Paging.Number < action.Paging.Max - 3) {
+        if (action.Paging.Index < action.Paging.Max - 3) {
             paging.append(`
                 <li class="page-item">
                     <a class="page-link disabled" href="#">...</a>
@@ -1771,7 +1949,7 @@ function updateTable(action, sender) {
 
         // last page
         if (action.Paging.Max > 1) {
-            pageActive = (action.Paging.Max == action.Paging.Number ? 'active' : '');
+            pageActive = (action.Paging.Max == action.Paging.Index ? 'active' : '');
             paging.append(`
                 <li class="page-item">
                     <a class="page-link ${pageActive}" href="#">${action.Paging.Max}</a>
