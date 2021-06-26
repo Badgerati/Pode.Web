@@ -45,7 +45,7 @@
 ### Packaging
 * Bump monaco-editor from 0.23.0 to 0.25.2
 * Bump @highlightjs/cdn-assets from 10.7.1 to 11.0.1
-* Bump chart.js from 2.9.4 to 3.3.2
+* Bump chart.js from 2.9.4 to 3.4.0
 ```
 
 ## v0.4.1
