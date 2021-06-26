@@ -38,6 +38,7 @@ $(() => {
     bindMenuToggle();
     bindNavLinks();
     bindPageLinks();
+    bindPageHelp();
 
     bindFormSubmits();
     bindButtons();
@@ -1455,6 +1456,16 @@ function bindPageLinks() {
 
         var url = getPagePath(null, null, this);
         sendAjaxReq(url, null, null, true);
+    });
+}
+
+function bindPageHelp() {
+    $('span.pode-page-help').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var url = $(e.target).attr('for');
+        sendAjaxReq(`${url}/help`, null, null, true);
     });
 }
 
