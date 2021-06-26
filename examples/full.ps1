@@ -309,7 +309,7 @@ Start-PodeServer -StatusPageExceptions Show {
         # apply sorting
         $sortColumn = $WebEvent.Data.SortColumn
         if (![string]::IsNullOrWhiteSpace($sortColumn)) {
-            $descending = ($WebEvent.Data.SortAscending -ine 'true')
+            $descending = ($WebEvent.Data.SortDirection -ieq 'desc')
             $data = @($data | Sort-Object -Property { $_.$sortColumn } -Descending:$descending)
         }
 

@@ -782,7 +782,7 @@ function getTableSorting(table) {
     header = $(header[0]);
     return {
         column: header.text(),
-        ascending: (header.attr('sort-direction') == 'asc')
+        direction: header.attr('sort-direction')
     };
 }
 
@@ -818,30 +818,29 @@ function bindTableSort(tableId) {
         }
 
         // save sort direction for current header, and set other headers to none
-        var ascending = (direction == 'asc');
         table.find('th').attr('sort-direction', 'none');
         header.attr('sort-direction', direction);
 
         // simple or dynamic?
         var simple = table.attr('pode-sort-simple') == 'True';
         if (simple) {
-            sortTable(table, header, ascending);
+            sortTable(table, header, direction);
         }
         else {
             loadTable(table.attr('id'), {
                 sort: {
                     column: header.text(),
-                    ascending: ascending
+                    direction: direction
                 }
             });
         }
     });
 }
 
-function sortTable(table, header, ascending) {
+function sortTable(table, header, direction) {
     var rows = table.find('tr:gt(0)').toArray().sort(comparer(header.index()));
 
-    if (!ascending) {
+    if (direction == 'desc') {
         rows = rows.reverse();
     }
 
@@ -1009,7 +1008,7 @@ function loadTable(tableId, opts) {
             data += '&';
         }
 
-        data += `SortColumn=${opts.sort.column}&SortAscending=${opts.sort.ascending}`;
+        data += `SortColumn=${opts.sort.column}&SortDirection=${opts.sort.direction}`;
     }
     else if (isTableSorted(table)) {
         var sorting = getTableSorting(table);
@@ -1018,7 +1017,7 @@ function loadTable(tableId, opts) {
                 data += '&';
             }
 
-            data += `SortColumn=${sorting.column}&SortAscending=${sorting.ascending}`;
+            data += `SortColumn=${sorting.column}&SortDirection=${sorting.direction}`;
         }
     }
 
