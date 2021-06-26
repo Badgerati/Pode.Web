@@ -153,7 +153,7 @@ New-PodeWebTable -Name 'Example' -Paginate -AsCard -ScriptBlock {
 
 ### Sort
 
-You can set a table to be sortable by passing the `-Sort` switch. When passed then clicking a table's headers will re-call the table's `-ScriptBlock`; the column to be sorted by will be supplied, as well as the direction, will be available in `$WebEvent.Data.SortColumn` and `$WebEvent.Data.SortDirection`. You can then return the sorted data and the table will be reloaded:
+You can set a table to be sortable by passing the `-Sort` switch. When passed then clicking a table's headers will re-call the table's `-ScriptBlock`; the name of the column to be sorted, as well as the direction (`asc`/`desc`), will be available in `$WebEvent.Data.SortColumn` and `$WebEvent.Data.SortDirection`. You can then return the sorted data and the table will be reloaded:
 
 ```powershell
 New-PodeWebTable -Name 'Example' -Sort -AsCard -ScriptBlock {
