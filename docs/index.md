@@ -5,6 +5,8 @@
 [![Gitter](https://badges.gitter.im/Badgerati/Pode.svg)](https://gitter.im/Badgerati/Pode?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/Badgerati?color=%23ff69b4&logo=github&style=flat&label=Sponsers)](https://github.com/sponsors/Badgerati)
 
+> 💝 A lot of my free time, evenings, and weekends goes into making Pode happen; please do consider sponsoring as it will really help! 😊
+
 This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.2.0+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
