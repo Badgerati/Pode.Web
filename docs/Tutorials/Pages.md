@@ -4,9 +4,11 @@ There are 3 different kinds of pages in Pode.Web, which are defined below. Besid
 
 ## Login
 
-To enable the user of a login page, and lock your site behind authentication is simple! First, just define the authentication method you want via the usual `New-PodeAuthScheme` and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
+To enable the use of a login page, and lock your site behind authentication is simple! First, just setup sessions and define the authentication method you want via the usual `Enable-PodeSessionMiddleware`, `New-PodeAuthScheme` and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
 
 ```powershell
+Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration 120 -Extend
+
 New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
     param($username, $password)
 
@@ -22,7 +24,7 @@ New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
 Set-PodeWebLoginPage -Authentication Example
 ```
 
-By default the Pode icon is displayed, but you can change this by using the `-Icon` parameter; this takes a literal or relative URL to an image file.
+By default the Pode icon is displayed as the logo, but you can change this by using the `-Logo` parameter; this takes a literal or relative URL to an image file.
 
 ## Home
 
@@ -45,7 +47,7 @@ If you want to hide the title on the home page, you can pass `-NoTitle`.
 By adding a page to your site, Pode.Web will add a link to it on your site's sidebar navigation. You can also group pages together so you can collapse groups of them. To add a page to your site you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), and you can give your page a `-Name` and an `-Icon` to display on the sidebar. Pages can either be [static](#static) or [dynamic](#dynamic).
 
 !!! note
-    The `-Icon` is the name of a [feather icon](https://feathericons.com), a list of which can be found on their [website](https://feathericons.com)
+    The `-Icon` is the name of a [Material Design Icon](https://materialdesignicons.com), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplyig the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
 
 For example, to add a simple Charts page to your site, to show a Windows counter:
 
@@ -57,9 +59,33 @@ Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts @(
 )
 ```
 
+You can split up your pages into different .ps1 files, if you do and you place them within a `/pages` directory, then [`Use-PodeWebPages`](../../Functions/Pages/Use-PodeWebPages) will auto-load them all for you.
+
+### Link
+
+If you just need to place a redirect link into the sidebar, then use [`Add-PodeWebPageLink`](../../Functions/Pages/Add-PodeWebPageLink). This works in a similar way to `Add-PodeWebPage`, but takes either a flat `-Url` to redirect to, or a `-ScriptBlock` that you can return output actions from - *not* layouts/elements. Page links can also be grouped, like normal pages.
+
+Flat URLs:
+
+```powershell
+Add-PodeWebPageLink -Name Twitter -Url 'https://twitter.com' -Icon 'twitter' -NewTab
+```
+
+Or a dynamic link:
+
+```powershell
+Add-PodeWebPageLink -Name Twitter -Icon Twitter -ScriptBlock {
+    Move-PodeWebUrl -Url 'https://twitter.com' -NewTab
+}
+```
+
 ### Group
 
 You can group multiple pages together on the sidebar by using the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This will group pages together into a collapsible container.
+
+### Help Icon
+
+A help icon can be displayed to the right of the page's title by supplying a `-HelpScriptBlock` to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This scriptblock is used to return output actions such as: displaying a modal when the help icon is clicked; redirect the user to a help page; or any other possible actions to help a user out.
 
 ### Static
 
@@ -83,7 +109,7 @@ Add-PodeWebPage -Name Processes -Icon Activity -Layouts @(
 
 ### Dynamic
 
-Add dynamic page uses a `-ScriptBlock` instead of `-Layouts`, the scriptblock lets you render different layouts/elements depending on query/payload data in the `$WebEvent`.
+Add dynamic page uses a `-ScriptBlock` instead of `-Layouts`, the scriptblock lets you render different layouts/elements depending on query/payload data in the `$WebEvent`. The scriptblock also has access to a `$PageData` object, containing information about the current page - such as Name, Group, Access, etc.
 
 For example, the below page will render a table of services if a `value` query parameter is not present. Otherwise, if it is present, then a page with a code-block showing information about the service is displayed:
 
@@ -148,6 +174,14 @@ Add-PodeWebPage -Name Services -Icon Settings -Layouts $servicesTable -ScriptBlo
     )
 }
 ```
+
+### No Authentication
+
+If you add a page when you've enabled authentication, you can set a page to be accessible without authentication by supplying the `-NoAuth` switch to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
+
+If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`), then there's no further action needed.
+
+If however you're added the elements/layouts using the `-Layouts` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise data/actions will fail with a 401 response.
 
 ## Convert Module
 

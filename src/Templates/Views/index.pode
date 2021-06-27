@@ -7,7 +7,7 @@
     <body id="normal-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)">
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
-                <span data-feather='menu' class='mRight02'></span>
+                <span class='mdi mdi-menu-open'></span>
             </button>
 
             <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">
@@ -35,7 +35,7 @@
                             $social = $socials[$key]
 
                             "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
-                                <span data-feather='$($key.ToLowerInvariant())'></span>
+                                <span class='mdi mdi-$($key.ToLowerInvariant())'></span>
                             </a>"
                         }
                     )
@@ -58,7 +58,7 @@
                             "Hello, $($data.Auth.Username)
                         </span>
                         <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                            <span data-feather='log-out' class='mRight02'></span>
+                            <span class='mdi mdi-logout mRight02'></span>
                             Sign out
                         </button>
                     </form>"
@@ -66,7 +66,7 @@
                 else {
                     "<form class='form-inline' action='/login' method='GET' style='margin-bottom: 0'>
                         <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                            <span data-feather='log-in' class='mRight02'></span>
+                            <span class='mdi mdi-login mRight02'></span>
                             Sign in
                         </button>
                     </form>"
@@ -77,15 +77,25 @@
         <div class="container-fluid">
             <div class="row">
                 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                    <div class='input-group mb-2 mLeft1 w90 mTop1-8'>
-                        <div class='input-group-prepend'><div class='input-group-text'><span data-feather='filter'></span></div></div>
-                        <input type='text' class='form-control pode-nav-filter' id="filter_sidebar" placeholder='Filter' for="sidebar-list">
-                    </div>
+                    $(
+                        $noPageFilter = Get-PodeWebState -Name 'no-page-filter'
+
+                        if (!$noPageFilter) {
+                            "<div class='input-group mb-2 mLeft1 w90 mTop1-8'>
+                                <div class='input-group-prepend'><div class='input-group-text'><span class='mdi mdi-filter'></span></div></div>
+                                <input type='text' class='form-control pode-nav-filter' id='filter_sidebar' placeholder='Filter' for='sidebar-list'>
+                            </div>"
+                        }
+                        else {
+                            "<div class='mb-2 mTop1-8'></div>"
+                        }
+                    )
 
                     <footer class="footer powered-by mt-auto py-3">
                         <div>
                             <span class="text-muted">
-                                🧡 Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
+                                <span class="mdi mdi-heart mdi-size-15" style="color:orangered"></span>
+                                Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
                             </span>
                         </div>
                     </footer>
@@ -95,7 +105,7 @@
                             <li class="nav-item nav-page-item">
                                 <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="/">
                                     <div>
-                                        <span data-feather="home"></span>
+                                        <span class="mdi mdi-home mdi-size-22 mRight02"></span>
                                         Home
                                     </div>
                                 </a>
@@ -106,18 +116,25 @@
 
                                 foreach ($pageGroup in $pageGroups) {
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
+                                        $chevron = 'right'
+                                        $show = [string]::Empty
+
+                                        if ($data.Page.Group -ieq $pageGroup.Name) {
+                                            $chevron = 'down'
+                                            $show = 'show'
+                                        }
+
                                         "<li class='nav-item mTop1 nav-group-title'>
                                             <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
                                                 <div>
-                                                    <span data-feather='arrow-right'></span>
-                                                    <span data-feather='arrow-down-right' style='display:none;'></span>
+                                                    <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$($pageGroup.Name)</span>
                                                     <span class='badge badge-inbuilt-theme'>$($pageGroup.Count)</span>
                                                 </div>
                                             </a>
                                         </li>"
 
-                                        "<div class='collapse $(if ($data.Page.Group -ieq $pageGroup.Name) { "show" })' id='nav-$($pageGroup.Name)'>"
+                                        "<div class='collapse $($show)' id='nav-$($pageGroup.Name)'>"
                                     }
 
                                     foreach ($page in $pageGroup.Group) {
@@ -125,10 +142,19 @@
                                             continue
                                         }
 
+                                        $href = [string]::Empty
+                                        if (!$page.IsDynamic) {
+                                            $href = "href='$($page.Url)'"
+
+                                            if ($page.NewTab) {
+                                                $href += " target='_blank'"
+                                            }
+                                        }
+
                                         "<li class='nav-item nav-page-item'>
-                                            <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' href='/pages/$($page.Name)'>
+                                            <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
-                                                    <span data-feather='$($page.Icon.ToLowerInvariant())'></span>
+                                                    <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
                                                     $($page.Name)
                                                 </div>
                                             </a>
@@ -155,11 +181,17 @@
                         "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom'>
                             <h1 class='h2'>"
                                 if ($data.Page.ShowBack) {
-                                    "<a href='/pages/$($data.Page.Name)'><span data-feather='arrow-left'></span></a>"
+                                    "<a href='$($data.Page.Url)'><span class='mdi mdi-arrow-left'></span></a>"
+                                }
+                                if (![string]::IsNullOrWhiteSpace($data.Page.Icon)) {
+                                    "<span class='mdi mdi-$($data.Page.Icon.ToLowerInvariant()) pode-page-title-icon'></span>"
                                 }
                                 $data.Page.Title
-                            "</h1>
-                        </div>"
+                            "</h1>"
+                            if ($data.Page.ShowHelp) {
+                                "<span class='mdi mdi-help-circle-outline pode-page-help' for='$($data.Page.Url)' title='Help' data-toggle='tooltip'></span>"
+                            }
+                        "</div>"
                     }
                     else {
                         "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2'></div>"

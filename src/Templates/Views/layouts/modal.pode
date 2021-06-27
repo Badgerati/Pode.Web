@@ -5,7 +5,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="$($data.ID)_lbl">
                     $(if (![string]::IsNullOrWhiteSpace($data.Icon)) {
-                        "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight02'></span>"
+                        "<span class='mdi mdi-$($data.Icon.ToLowerInvariant())'></span>"
                     })
                     $($data.Name)
                 </h5>

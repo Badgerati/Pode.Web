@@ -21,11 +21,6 @@ button#menu-toggle {
     width: 50px;
 }
 
-button#menu-toggle .feather {
-    width: 25px;
-    height: 25px;
-}
-
 .footer.powered-by {
     border-width: 1px;
     border-style: solid;
@@ -47,6 +42,62 @@ button#menu-toggle .feather {
     padding: 1.25rem;
     margin-bottom: 2em;
     max-width: 100%;
+}
+
+.pode-tile {
+    max-width: 14rem;
+    position: relative;
+    padding: .75rem 0.6rem;
+    margin: 0;
+    margin-bottom: 1rem;
+    border-style: solid;
+    border-width: medium;
+    display: inline-block;
+}
+
+.pode-tile[pode-click="True"]:hover {
+    opacity: 0.91;
+    cursor: pointer;
+}
+
+.pode-tile .pode-tile-refresh {
+    float: right;
+    cursor: pointer;
+}
+
+.pode-tile .pode-tile-header {
+    font-weight: bolder;
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.pode-tile hr {
+    margin-bottom: 0.6rem;
+    margin-top: 0.6rem;
+    border-width: 0.15rem;
+}
+
+.pode-tile .pode-tile-body {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.btn-primary hr,
+.btn-danger hr,
+.btn-success hr,
+.btn-dark hr,
+.btn-info hr {
+    border-color: #ddd;
+}
+
+.btn-warning hr,
+.btn-light hr {
+    border-color: #444;
+}
+
+.btn-danger {
+    background-color: #d53545;
+    border-color: #d53545;
 }
 
 [pode-hidden='True'] {
@@ -96,12 +147,6 @@ nav[role="pagination"] {
     background-color: transparent;
 }
 
-div#pode-nav-social .feather {
-    height: 22px;
-    width: 22px;
-    margin-right: 0.3rem;
-}
-
 div#pode-nav-social a,
 div#pode-nav-items a.nav-link:not(.disabled) {
     color: #bbb;
@@ -134,6 +179,10 @@ span.link-divider {
 }
 
 a.pode-nav-link[pode-dynamic='True'] {
+    cursor: pointer;
+}
+
+a.nav-link[pode-dynamic='True'] {
     cursor: pointer;
 }
 
@@ -284,10 +333,12 @@ pre code {
 
 div#pode-nav-social {
     margin-left: 1em;
+    display: inline-block;
 }
 
 div#pode-nav-items {
     margin-left: 1em;
+    display: inline-block;
 }
 
 div#pode-nav {
@@ -297,6 +348,10 @@ div#pode-nav {
 
 div#pode-page-title {
     margin-top: 4em;
+}
+
+span.pode-page-help {
+    cursor: pointer;
 }
 
 li.nav-group-title {
@@ -360,6 +415,24 @@ table[pode-sort='True'] thead th {
     cursor: pointer;
 }
 
+table[pode-sort='True'] thead th[sort-direction='asc']::after,
+table[pode-sort='True'] thead th[sort-direction='desc']::after {
+    content: ' ';
+    position: relative;
+    left: 10px;
+    border: 7px solid transparent;
+}
+
+table[pode-sort='True'] thead th[sort-direction='asc']::after {
+    bottom: 12px;
+    border-bottom-color: silver;
+}
+
+table[pode-sort='True'] thead th[sort-direction='desc']::after {
+    top: 15px;
+    border-top-color: silver;
+}
+
 table.pode-table-click tbody tr {
     cursor: pointer;
 }
@@ -368,8 +441,27 @@ table tbody td {
     word-break: break-word;
 }
 
-.card {
+.pode-card {
     margin-bottom: 2em;
+}
+
+.accordion .card-header button {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.accordion .card-header button span.arrow-toggle {
+    float: right;
+}
+
+.accordion .card-header button:focus {
+    outline: none;
+    box-shadow: none;
+    text-decoration: none;
+}
+
+.accordion .card-header button:hover {
+    text-decoration: none;
 }
 
 .toast {
@@ -401,6 +493,16 @@ table tbody td {
     font-size: 1.5em !important;
     text-overflow: ellipsis;
     overflow-x: hidden;
+}
+
+.input-group {
+    flex-wrap: nowrap !important;
+    display: inline-flex !important;
+}
+
+.input-group>.form-control {
+    flex: initial !important;
+    width: 100%;
 }
 
 .form-group .pode-button,
@@ -525,24 +627,6 @@ table tbody td {
     }
 }
 
-.feather {
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
-    margin-top: -1px;
-}
-
-h2 .feather, .h2 .feather {
-    width: 25px;
-    height: 25px;
-    margin-top: -5px;
-}
-
-h6 .feather, .h6 .feather {
-    width: 18px;
-    height: 18px;
-    margin-top: -2px;
-}
 
 /*
  * Sidebar
@@ -582,18 +666,8 @@ h6 .feather, .h6 .feather {
     padding: 0.5rem 1rem;
 }
 
-.sidebar .nav-link .feather {
-    margin-right: 4px;
-    color: #999;
-}
-
 .sidebar .nav-link.active {
     color: #007bff;
-}
-
-.sidebar .nav-link:hover .feather,
-.sidebar .nav-link.active .feather {
-    color: inherit;
 }
 
 .sidebar-heading {
@@ -647,6 +721,13 @@ h6 .feather, .h6 .feather {
 .form-control-dark:focus {
     border-color: transparent;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+}
+
+iframe {
+    width: 100%;
+    height: 45rem;
+    border-radius: 0.3rem;
+    border-width: 1px;
 }
 
 /*
@@ -711,4 +792,169 @@ h6 .feather, .h6 .feather {
 
 .mBottom-06 {
     margin-bottom: -0.6em;
+}
+
+/*
+ * Material Design Icons
+ */
+.mdi::before {
+    font-size: 24px;
+    line-height: 14px;
+}
+
+.btn:not(.btn-icon-only, .btn-no-text, .btn-block) .mdi::before {
+    position: relative;
+    top: 4px;
+}
+
+.accordion .card-header .btn .mdi::before {
+    position: relative;
+    top: 2px;
+}
+
+.pode-card .card-header .mdi::before {
+    position: relative;
+    top: 1px;
+}
+
+div.file-stream pre {
+    white-space: normal;
+    margin-bottom: 0;
+}
+
+div.file-stream pre textarea {
+    border: none;
+}
+
+div.file-stream.stream-error {
+    border-color: #f5c6cb !important;
+}
+
+div.file-stream.stream-error .card-header {
+    color: #721c24;
+    background-color: #f8d7da !important;
+}
+
+div.file-stream.stream-error .card-header span.stream-error.mdi {
+    display: block !important;
+}
+
+div.file-stream.stream-error .card-header span.stream-error.mdi::before {
+    position: relative;
+    top: 0px;
+}
+
+div.file-stream .card-header h5 span.mdi::before {
+    position: relative;
+    top: 2px;
+}
+
+div.file-stream .card-header span.spinner-border {
+    position: relative;
+    top: 7px;
+}
+
+a.nav-link .mdi:before {
+    position: relative;
+    top: 3px;
+}
+
+#pode-page-title span.mdi.pode-page-title-icon:before {
+    font-size: 35px;
+    position: relative;
+    top: 2px;
+}
+
+#pode-nav-social a .mdi::before {
+    position: relative;
+    top: 3px;
+}
+
+.modal-title .mdi::before {
+    position: relative;
+    top: 2px;
+}
+
+.btn-xs .mdi::before {
+    font-size: 18px;
+    top: 3px;
+}
+
+.btn-sm .mdi::before {
+    font-size: 18px;
+    top: 3px;
+}
+
+.mdi-size-15::before {
+    font-size: 15px;
+}
+
+.mdi-size-20::before {
+    font-size: 20px;
+}
+
+.mdi-size-22::before {
+    font-size: 22px;
+}
+
+.dropdown-menu .mdi {
+    width: 18px;
+}
+
+.dropdown-menu .mdi::before {
+    position: relative;
+    top: 4px;
+}
+
+.nav .mdi::before {
+    position: relative;
+    top: 2px;
+}
+
+.navbar .navbar-toggle .mdi::before {
+    position: relative;
+    top: 4px;
+    color: #FFF;
+}
+
+.breadcrumb .mdi::before {
+    position: relative;
+    top: 4px;
+}
+
+.breadcrumb a:hover {
+    text-decoration: none;
+}
+
+.breadcrumb a:hover span {
+    text-decoration: underline;
+}
+
+.alert .mdi::before {
+    position: relative;
+    top: 4px;
+    margin-right: 2px;
+}
+
+.pode-tile-header .mdi::before {
+    position: relative;
+    top: 3px;
+    margin-right: 2px;
+}
+
+.input-group-addon .mdi::before {
+    position: relative;
+    top: 3px;
+}
+
+.navbar-brand .mdi::before {
+    position: relative;
+    top: 2px;
+    margin-right: 2px;
+}
+
+.list-group-item .mdi::before {
+    position: relative;
+    top: 3px;
+    left: -3px
 }

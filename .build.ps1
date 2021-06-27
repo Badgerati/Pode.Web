@@ -9,7 +9,7 @@ $src_path = './pode_modules'
 
 $Versions = @{
     MkDocs = '1.1.2'
-    MkDocsTheme = '6.2.8'
+    MkDocsTheme = '7.1.6'
     PlatyPS = '0.14.0'
 }
 
@@ -148,12 +148,15 @@ task MoveLibs {
 
     # chart.js
     New-Item -Path "$($libs_path)/chartjs" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/chart.js/dist/Chart.min.js" -Destination "$($libs_path)/chartjs/" -Force
-    Copy-Item -Path "$($src_path)/chart.js/dist/Chart.min.css" -Destination "$($libs_path)/chartjs/" -Force
+    Copy-Item -Path "$($src_path)/chart.js/dist/chart.min.js" -Destination "$($libs_path)/chartjs/" -Force
 
-    # feather icons
-    New-Item -Path "$($libs_path)/feather-icons" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/feather-icons/dist/feather.min.js*" -Destination "$($libs_path)/feather-icons/" -Force
+    # mdi fonts - icons
+    New-Item -Path "$($libs_path)/mdi-font/css" -ItemType Directory -Force | Out-Null
+    Copy-Item -Path "$($src_path)/@mdi/font/css/materialdesignicons.min.css*" -Destination "$($libs_path)/mdi-font/css/" -Force
+    Copy-Item -Path "$($src_path)/@mdi/font/css/materialdesignicons.css.map" -Destination "$($libs_path)/mdi-font/css/" -Force
+
+    New-Item -Path "$($libs_path)/mdi-font/fonts" -ItemType Directory -Force | Out-Null
+    Copy-Item -Path "$($src_path)/@mdi/font/fonts/materialdesignicons-webfont*" -Destination "$($libs_path)/mdi-font/fonts/" -Force
 
     # highlight.js
     New-Item -Path "$($libs_path)/highlightjs" -ItemType Directory -Force | Out-Null
@@ -276,11 +279,13 @@ task DocsHelpBuild DocsDeps, {
     $path = Join-Path $pwd 'docs'
     Get-ChildItem -Path $path -Recurse -Filter '*.md' | ForEach-Object {
         $depth = ($_.FullName.Replace($path, [string]::Empty).trim('\/') -split '[\\/]').Length
+        $updated = $false
 
         $content = (Get-Content -Path $_.FullName | ForEach-Object {
             $line = $_
 
             while ($line -imatch '\[`(?<name>[a-z]+\-podeweb[a-z]+)`\](?<char>[^(])') {
+                $updated = $true
                 $name = $Matches['name']
                 $char = $Matches['char']
                 $line = ($line -ireplace "\[``$($name)``\][^(]", "[``$($name)``]($('../' * $depth)Functions/$($map[$name])/$($name))$($char)")
@@ -289,7 +294,9 @@ task DocsHelpBuild DocsDeps, {
             $line
         })
 
-        $content | Out-File -FilePath $_.FullName -Force -Encoding ascii
+        if ($updated) {
+            $content | Out-File -FilePath $_.FullName -Force -Encoding ascii
+        }
     }
 
     # remove the module

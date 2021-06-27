@@ -24,20 +24,20 @@ Start-PodeServer -StatusPageExceptions Show {
         Hide-PodeWebModal
     }
 
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
-        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Click -Paginate -ScriptBlock {
+        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
+        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'Edit' -IconOnly -ScriptBlock {
+        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
             $checked = ($svc.Status -ieq 'running')
 
@@ -65,13 +65,13 @@ Start-PodeServer -StatusPageExceptions Show {
 
     Add-PodeStaticRoute -Path '/download' -Source '.\storage' -DownloadOnly
 
-    $table | Add-PodeWebTableButton -Name 'Excel' -Icon 'Bar-Chart' -ScriptBlock {
+    $table | Add-PodeWebTableButton -Name 'Excel' -Icon 'chart-bar' -ScriptBlock {
         $path = Join-Path (Get-PodeServerPath) '.\storage\test.xlsx'
         $WebEvent.Data | Export-Excel -WorksheetName Log -TableName Log -AutoSize -Path $path
         Set-PodeResponseAttachment -Path '/download/test.xlsx'
     }
 
-    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Layouts $modal, $table -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $modal, $table -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return

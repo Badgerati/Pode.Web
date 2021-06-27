@@ -20,12 +20,12 @@ Start-PodeServer {
 
     # add a page to add some fake user
     $steps = New-PodeWebSteps -Name 'AddUser' -Steps @(
-        New-PodeWebStep -Name 'Email' -Icon 'Mail' -Content @(
+        New-PodeWebStep -Name 'Email' -Icon 'email' -Content @(
             New-PodeWebTextbox -Name 'Email'
         ) -ScriptBlock {
             $WebEvent.Data | Out-Default
         }
-        New-PodeWebStep -Name 'Password' -Icon 'Lock' -Content @(
+        New-PodeWebStep -Name 'Password' -Icon 'lock' -Content @(
             New-PodeWebTextbox -Name 'Password' -Type Password
         ) -ScriptBlock {
             if ([string]::IsNullOrWhiteSpace($WebEvent.Data['Password'])) {
@@ -33,10 +33,10 @@ Start-PodeServer {
             }
             $WebEvent.Data | Out-Default
         }
-        New-PodeWebStep -Name 'Submit' -Icon 'User-Plus'
+        New-PodeWebStep -Name 'Submit' -Icon 'account-plus'
     ) -ScriptBlock {
         $WebEvent.Data | Out-Default
     }
 
-    Add-PodeWebPage -Name 'Add User' -Icon 'User-Plus' -Layouts $steps
+    Add-PodeWebPage -Name 'Add User' -Icon 'account-plus' -Layouts $steps
 }

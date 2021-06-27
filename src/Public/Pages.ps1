@@ -7,8 +7,14 @@ function Set-PodeWebLoginPage
         $Authentication,
 
         [Parameter()]
+        [Alias('Icon')]
         [string]
-        $Icon,
+        $Logo,
+
+        [Parameter()]
+        [Alias('IconUrl')]
+        [string]
+        $LogoUrl,
 
         [Parameter()]
         [string]
@@ -28,7 +34,11 @@ function Set-PodeWebLoginPage
 
         [Parameter()]
         [string]
-        $ThemeProperty
+        $ThemeProperty,
+
+        [Parameter()]
+        [string]
+        $BackgroundImage
     )
 
     Set-PodeWebState -Name 'auth' -Value $Authentication
@@ -39,9 +49,13 @@ function Set-PodeWebLoginPage
         Theme = $ThemeProperty
     }
 
-    # set a default icon
-    if ([string]::IsNullOrWhiteSpace($Icon)) {
-        $Icon = '/pode.web/images/icon.png'
+    # set a default logo/url
+    if ([string]::IsNullOrWhiteSpace($Logo)) {
+        $Logo = '/pode.web/images/icon.png'
+    }
+
+    if ([string]::IsNullOrWhiteSpace($LogoUrl)) {
+        $LogoUrl = '/'
     }
 
     # set default failure/success urls
@@ -64,7 +78,11 @@ function Set-PodeWebLoginPage
     Add-PodeRoute -Method Get -Path '/login' -Authentication $Authentication -EndpointName $endpointNames -Login -ScriptBlock {
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Theme = Get-PodeWebTheme
-            Icon = $using:Icon
+            Logo = $using:Logo
+            LogoUrl = $using:LogoUrl
+            Background = @{
+                Image = $using:BackgroundImage
+            }
             Copyright = $using:Copyright
             Auth = @{
                 Name = $using:Authentication
@@ -85,7 +103,7 @@ function Set-PodeWebLoginPage
     Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
         if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-            Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
             return
         }
 
@@ -174,7 +192,7 @@ function Set-PodeWebHomePage
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
             $pages = @(Get-PodeWebState -Name 'pages')
             if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-                Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+                Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
                 return
             }
         }
@@ -250,6 +268,10 @@ function Add-PodeWebPage
         $Navigation,
 
         [Parameter()]
+        [scriptblock]
+        $HelpScriptBlock,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -261,7 +283,10 @@ function Add-PodeWebPage
         $NoBackArrow,
 
         [switch]
-        $NoBreadcrumb
+        $NoBreadcrumb,
+
+        [switch]
+        $NewTab
     )
 
     # ensure layouts are correct
@@ -269,9 +294,9 @@ function Add-PodeWebPage
         throw 'A Page can only contain layouts'
     }
 
-    # test if page exists
-    if (Test-PodeWebPage -Name $Name) {
-        throw " Web page already exists: $($Name)"
+    # test if page/page-link exists
+    if (Test-PodeWebPage -Name $Name -Group $Group -NoGroup) {
+        throw "Web page/link already exists: $($Name) [Group: $($Group)]"
     }
 
     # set page title
@@ -281,13 +306,19 @@ function Add-PodeWebPage
 
     # setup page meta
     $pageMeta = @{
+        PageType = 'Page'
         Name = $Name
         Title = $Title
         NoTitle = $NoTitle.IsPresent
         NoBackArrow = $NoBackArrow.IsPresent
         NoBreadcrumb = $NoBreadcrumb.IsPresent
+        NewTab = $NewTab.IsPresent
+        IsDynamic = $false
+        ShowHelp = ($null -ne $HelpScriptBlock)
         Icon = $Icon
         Group = $Group
+        Url = (Get-PodeWebPagePath -Name $Name -Group $Group)
+        NoAuthentication = $NoAuthentication.IsPresent
         Access = @{
             Groups = @($AccessGroups)
             Users = @($AccessUsers)
@@ -308,7 +339,8 @@ function Add-PodeWebPage
     }
 
     # add the page route
-    Add-PodeRoute -Method Get -Path "/pages/$($Name)" -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+    $routePath = $pageMeta.Url
+    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
         $global:PageData = $using:pageMeta
 
         if (!$global:PageData.NoBackArrow) {
@@ -369,7 +401,7 @@ function Add-PodeWebPage
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $using:Title
-                Theme = $Theme
+                Theme = $theme
                 Navigation = $navigation
                 Breadcrumb = $breadcrumb
                 Layouts = $filteredLayouts
@@ -378,6 +410,142 @@ function Add-PodeWebPage
         }
 
         $global:PageData = $null
+    }
+
+    # add the page help route
+    $helpPath = "$($routePath)/help"
+    if (($null -ne $HelpScriptBlock) -and !(Test-PodeWebRoute -Path $helpPath)) {
+        Add-PodeRoute -Method Post -Path $helpPath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+            $global:PageData = $using:pageMeta
+
+            # get auth details of a user
+            $authData = Get-PodeWebAuthData
+            $username = Get-PodeWebAuthUsername -AuthData $authData
+            $groups = Get-PodeWebAuthGroups -AuthData $authData
+
+            $authMeta = @{
+                Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
+                Authenticated = $authData.IsAuthenticated
+                Username = $username
+                Groups = $groups
+            }
+
+            # check access - 403 if denied
+            if (!(Test-PodeWebPageAccess -PageAccess $global:PageData.Access -Auth $authMeta)) {
+                Set-PodeResponseStatus -Code 403
+            }
+            else {
+                $result = Invoke-PodeScriptBlock -ScriptBlock $using:HelpScriptBlock -Return
+                if ($null -eq $result) {
+                    $result = @()
+                }
+
+                if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                    Write-PodeJsonResponse -Value $result
+                }
+            }
+
+            $global:PageData = $null
+        }
+    }
+}
+
+function Add-PodeWebPageLink
+{
+    [CmdletBinding(DefaultParameterSetName='ScriptBlock')]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Group,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Icon = 'file',
+
+        [Parameter(Mandatory=$true, ParameterSetName='ScriptBlock')]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Url')]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string[]]
+        $AccessGroups = @(),
+
+        [Parameter()]
+        [string[]]
+        $AccessUsers = @(),
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [string[]]
+        $EndpointName,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication,
+
+        [Parameter(ParameterSetName='Url')]
+        [switch]
+        $NewTab
+    )
+
+    # test if page/page-link exists
+    if (Test-PodeWebPage -Name $Name -Group $Group -NoGroup) {
+        throw "Web page/link already exists: $($Name) [Group: $($Group)]"
+    }
+
+    # setup page meta
+    $pageMeta = @{
+        PageType = 'Link'
+        Name = $Name
+        NewTab = $NewTab.IsPresent
+        Icon = $Icon
+        Group = $Group
+        Url = $Url
+        IsDynamic = ($null -ne $ScriptBlock)
+        Access = @{
+            Groups = @($AccessGroups)
+            Users = @($AccessUsers)
+        }
+    }
+
+    Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + $pageMeta)
+
+    $routePath = (Get-PodeWebPagePath -Name $Name -Group $Group)
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                Write-PodeJsonResponse -Value $result
+            }
+        }
     }
 }
 
@@ -554,4 +722,109 @@ function ConvertTo-PodeWebPage
 
         Add-PodeWebPage -Name $cmd -Icon Settings -Layouts $tabs -Group $group -NoAuthentication:$NoAuthentication
     }
+}
+
+function Use-PodeWebPages
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Path
+    )
+
+    # use default ./pages, or custom path
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        $Path = Join-Path (Get-PodeServerPath) 'pages'
+    }
+    elseif ($Path.StartsWith('.')) {
+        $Path = Join-Path (Get-PodeServerPath) $Path
+    }
+
+    # fail if path not found
+    if (!(Test-Path -Path $Path)) {
+        throw "Path to load pages not found: $($Path)"
+    }
+
+    # get .ps1 files and load them
+    Get-ChildItem -Path $Path -Filter *.ps1 -Force -Recurse | ForEach-Object {
+        Use-PodeScript -Path $_.FullName
+    }
+}
+
+function Get-PodeWebPage
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Group,
+
+        [Parameter()]
+        [switch]
+        $NoGroup
+    )
+
+    # get all pages
+    $pages = Get-PodeWebState -Name 'pages'
+
+    # filter by group
+    if ($NoGroup -and [string]::IsNullOrWhiteSpace($Group)) {
+        $pages = @(foreach ($page in $pages) {
+            if ([string]::IsNullOrWhiteSpace($page.Group)) {
+                $page
+            }
+        })
+    }
+    elseif (![string]::IsNullOrWhiteSpace($Group)) {
+        $pages = @(foreach ($page in $pages) {
+            if ($page.Group -ieq $Group) {
+                $page
+            }
+        })
+    }
+
+    # filter by page name
+    if (![string]::IsNullOrWhiteSpace($Name)) {
+        $pages = @(foreach ($page in $pages) {
+            if ($page.Name -ieq $Name) {
+                $page
+            }
+        })
+    }
+
+    # return filtered pages
+    return $pages
+}
+
+function Test-PodeWebPage
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Group,
+
+        [Parameter()]
+        [switch]
+        $NoGroup
+    )
+
+    # get pages
+    $pages = Get-PodeWebPage -Name $Name -Group $Group -NoGroup:$NoGroup
+
+    # are there any pages?
+    if ($null -eq $pages) {
+        return $false
+    }
+
+    return (@($pages) | Measure-Object).Count -gt 0
 }

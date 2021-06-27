@@ -1,23 +1,33 @@
 <div class="container pode-grid $($data.CssClasses)">
-    $(if (!$data.Vertical) {
-        "<div class='row'>"
-    })
+    <div class='row'>
 
-    $(foreach ($cell in $data.Cells) {
-        if ($data.Vertical) {
-            "<div class='row'>"
-        }
+    $(
+        $count = 0
 
-        "<div class='col'>"
-            Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $cell.Content }
-        "</div>"
+        foreach ($cell in $data.Cells) {
+            $count++
 
-        if ($data.Vertical) {
+            if (($data.Width -gt 0) -and ($count -gt $data.Width)) {
+                "</div><div class='row'>"
+                $count = 1
+            }
+
+            $width = 'col'
+            if ($cell.Width) {
+                $width = "col-$($cell.Width)"
+            }
+
+            "<div class='$($width)'>"
+                Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $cell.Content }
             "</div>"
         }
-    })
 
-    $(if (!$data.Vertical) {
-        "</div>"
-    })
+        if (($data.Width -gt 0) -and ($count -lt $data.Width)) {
+            for ($i = $count; $i -lt $data.Width; $i++) {
+                "<div class='$($width)'></div>"
+            }
+        }
+    )
+
+    </div>
 </div>

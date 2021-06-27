@@ -9,5 +9,20 @@ $(
         $title = "title='$($data.Title)' data-toggle='tooltip'"
     }
 
-    "<span data-feather='$($data.Name)' class='$($data.CssClasses)' $($colour) $($title)></span>"
+    $spin = [string]::Empty
+    if ($data.Spin) {
+        $spin = 'mdi-spin'
+    }
+
+    $flip = [string]::Empty
+    if (![string]::IsNullOrWhiteSpace($data.Flip)) {
+        $flip = "mdi-flip-$($data.Flip[0])".ToLowerInvariant()
+    }
+
+    $rotate = [string]::Empty
+    if ($data.Rotate -gt 0) {
+        $rotate = "mdi-rotate-$($data.Rotate)"
+    }
+
+    "<span class='mdi mdi-$($data.Name) $($spin) $($flip) $($rotate) $($data.CssClasses)' $($colour) $($title)></span>"
 )

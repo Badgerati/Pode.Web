@@ -9,12 +9,16 @@ $(
 
     $icon = [string]::Empty
     if (![string]::IsNullOrWhiteSpace($data.Icon)) {
-        $icon = "<span data-feather='$($data.Icon.ToLowerInvariant())' class='mRight04 mTop-02'></span>"
+        $icon = "<span class='mdi mdi-$($data.Icon.ToLowerInvariant()) mRight04 mTop-02'></span>"
     }
 
     $href = [string]::Empty
     if (!$data.IsDynamic) {
         $href = "href='$($data.Url)'"
+
+        if ($data.NewTab) {
+            $href += " target='_blank'"
+        }
     }
 
     if ($data.InDropdown) {

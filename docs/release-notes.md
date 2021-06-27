@@ -1,5 +1,53 @@
 # Release Notes
 
+## v0.5.0
+
+```plain
+### Features
+* #46: New FileStream element, which allows the streaming of files from the server
+* #93: New Layout type: Tile
+* #99: Adds a new Accordion layout
+* #100: Adds new FileStream element for file streaming
+* #106: Add new element for iFrames
+
+### Enhancements
+* #48: Add new `Use-PodeWebPages` to auto-import pages from a Pages folder
+* #54: Adds support for server-side Filtering, Paging, and Sorting on Tables
+* #71: Adds `-NewTab` to Pages, Links, and Buttons, and adds new `Add-PodeWebPageLink`
+* #73: Move from Feather Icons to Material Design Icons
+* #74: Add `-NoPageFilter` switch to hide sidebar page filter
+* #75: Add support for different sized Grid Cells (thanks @the-mentor!)
+* #76: Add `-NoHide` switch on Card (thanks @ili101!)
+* #79: New `Get-PodeWebPage`/`Test-PodeWebPage` functions
+* #80: Icon on login page should be clickable, back to home page
+* #81: Add group to Page URL, so you can have the same named page in two different groups
+* #88: Add Spin, Flip, and Rotate parameters for Icons
+* #92: Get `-NoAuth` from PageData for Elements created in a Page's ScriptBlock
+* #101: Add Sync-PodeWebChart as an output action for reloading Charts
+* #102: Add parameters for min/max values of x/y axes on Charts
+* #105: Elements with `-AutoRefresh` switch now have a `-RefreshIntervals` parameter
+* Allow for icons to be in Tabs
+* Allow for a `-BackgroundImage` on `Set-PodeWebLoginPage`
+* Add `-AppendIcon`, `-AppendText`, and `-Width` on `New-PodeWebTextbox`
+* Add `-Width` to `New-PodeWebGrid` to automatically put X cells on a row
+* Add `-HelpScriptBlock` to `Add-PodeWebPage` to show a help icon for a page
+* `New-PodeWebList` can now take an array of `New-PodeWebListItem` for dynamic lists
+
+### Bugs
+* #47: Fix deprecated jQuery functions
+* #60: You no longer need to supply both `-Click` and `-ClickScriptblock` on a Table
+* #87: Fix the heart emoji to be an icon in "Powered By"
+
+### Documentation
+* #61: The Basics link on Getting-Started is broken
+* Update the docs to mention that the Login page needs sessions
+
+### Packaging
+* Bump monaco-editor from 0.23.0 to 0.25.2
+* Bump @highlightjs/cdn-assets from 10.7.1 to 11.0.1
+* Bump chart.js from 2.9.4 to 3.4.0
+```
+
 ## v0.4.1
 
 ```plain

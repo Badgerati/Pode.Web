@@ -27,5 +27,7 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Layouts $form
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Layouts $form
+
+    Use-PodeWebPages
 }

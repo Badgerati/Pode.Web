@@ -1,8 +1,10 @@
 $(
-    $value = $data.Value
+    $id = [string]::Empty
     if (![string]::IsNullOrWhiteSpace($data.ID)) {
-        $value = "<span class='pode-text $($data.CssClasses)' id='$($data.ID)'>$($value)</span>"
+        $id = "id='$($data.ID)'"
     }
+
+    $value = "<span class='pode-text $($data.CssClasses)' $($id)>$($data.Value)</span>"
 
     switch ($data.Style.ToLowerInvariant()) {
         'underlined' {

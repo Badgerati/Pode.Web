@@ -7,6 +7,10 @@ function New-PodeWebGrid
         $Cells,
 
         [Parameter()]
+        [int]
+        $Width = 0,
+
+        [Parameter()]
         [string[]]
         $CssClass,
 
@@ -18,11 +22,15 @@ function New-PodeWebGrid
         throw 'A Grid can only contain Cell layouts'
     }
 
+    if ($Vertical) {
+        $Width = 1
+    }
+
     return @{
         ComponentType = 'Layout'
         LayoutType = 'Grid'
         Cells = $Cells
-        Vertical = $Vertical.IsPresent
+        Width = $Width
         CssClasses = ($CssClass -join ' ')
     }
 }
@@ -33,7 +41,12 @@ function New-PodeWebCell
     param(
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Content
+        $Content,
+
+        [Parameter()]
+        [ValidateRange(1, 12)]
+        [int]
+        $Width
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -44,6 +57,7 @@ function New-PodeWebCell
         ComponentType = 'Layout'
         LayoutType = 'Cell'
         Content = $Content
+        Width = $Width
     }
 }
 
@@ -97,7 +111,11 @@ function New-PodeWebTab
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Layouts
+        $Layouts,
+
+        [Parameter()]
+        [string]
+        $Icon
     )
 
     if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout)) {
@@ -110,6 +128,7 @@ function New-PodeWebTab
         Name = $Name
         ID = (Get-PodeWebElementId -Tag Tab -Name $Name)
         Layouts = $Layouts
+        Icon = $Icon
     }
 }
 
@@ -133,8 +152,15 @@ function New-PodeWebCard
         [string[]]
         $CssClass,
 
+        [Parameter()]
+        [string]
+        $Icon,
+
         [switch]
-        $NoTitle
+        $NoTitle,
+
+        [switch]
+        $NoHide
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -148,7 +174,9 @@ function New-PodeWebCard
         ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name -NameAsToken)
         Content = $Content
         NoTitle = $NoTitle.IsPresent
+        NoHide  = $NoHide.IsPresent
         CssClasses = ($CssClass -join ' ')
+        Icon = $Icon
     }
 }
 
@@ -260,7 +288,7 @@ function New-PodeWebModal
     $routePath = "/layouts/modal/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -344,7 +372,7 @@ function New-PodeWebCarousel
         $CssClass
     )
 
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Slide)) {
+    if (!(Test-PodeWebContent -Content $Slides -ComponentType Layout -LayoutType Slide)) {
         throw 'A Carousel can only contain Slide layouts'
     }
 
@@ -425,7 +453,7 @@ function New-PodeWebSteps
         $NoAuthentication
     )
 
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout -LayoutType Step)) {
+    if (!(Test-PodeWebContent -Content $Steps -ComponentType Layout -LayoutType Step)) {
         throw 'Steps can only contain Step layouts'
     }
 
@@ -436,7 +464,7 @@ function New-PodeWebSteps
     $routePath = "/layouts/steps/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -510,7 +538,7 @@ function New-PodeWebStep
     $routePath = "/layouts/step/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication) {
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -596,5 +624,81 @@ function New-PodeWebBreadcrumbItem
         Name = $Name
         Url = $Url
         Active = $Active.IsPresent
+    }
+}
+
+function New-PodeWebAccordion
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Bellows,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [int]
+        $CycleInterval = 15,
+
+        [switch]
+        $Cycle
+    )
+
+    if (!(Test-PodeWebContent -Content $Bellows -ComponentType Layout -LayoutType Bellow)) {
+        throw 'Accordions can only contain Bellow layouts'
+    }
+
+    if ($CycleInterval -lt 10) {
+        $CycleInterval = 10
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Accordion'
+        ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -NameAsToken)
+        Bellows = $Bellows
+        CssClasses = ($CssClass -join ' ')
+        Cycle = @{
+            Enabled = $Cycle.IsPresent
+            Interval = ($CycleInterval * 1000)
+        }
+    }
+}
+
+function New-PodeWebBellow
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string]
+        $Icon
+    )
+
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Bellow can only contain layouts and/or elements'
+    }
+
+    return @{
+        ComponentType = 'Layout'
+        LayoutType = 'Bellow'
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Bellow -Name $Name)
+        Content = $Content
+        Icon = $Icon
     }
 }

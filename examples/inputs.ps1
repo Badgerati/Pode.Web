@@ -13,7 +13,7 @@ Start-PodeServer {
     $form = New-PodeWebForm -Name 'Test' -AsCard -ScriptBlock {
         $WebEvent.Data | Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Content @(
-        New-PodeWebTextbox -Name 'Name' -AutoComplete {
+        New-PodeWebTextbox -Name 'Name' -AppendIcon Account -AutoComplete {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
         }
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock

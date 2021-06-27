@@ -41,4 +41,4 @@ Start-PodeServer {
 }
 ```
 
-Then, you can jump over to the [Basics](../Tutorials/Basics)!
+Then, you can jump over to the [Basics](../../Tutorials/Basics)!

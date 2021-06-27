@@ -102,6 +102,22 @@ a.navbar-brand {
     background-color: #142440 !important;
 }
 
+.accordion .card .card-header button {
+    color: #ccc;
+}
+
+.accordion .card .card-header button.collapsed {
+    color: #214981;
+}
+
+.accordion .card .card-header:hover {
+    background-color: #142440 !important;
+    color: #ccc !important;
+}
+.accordion .card .card-header button:hover {
+    color: #ccc !important;
+}
+
 cite {
     color: #999 !important;
 }
@@ -208,7 +224,8 @@ pre code {
     color: #fff !important;
 }
 
-.input-group-prepend .input-group-text {
+.input-group-prepend .input-group-text,
+.input-group-append .input-group-text {
     background-color: #121d2f !important;
     border-color: #214981 !important;
     color: #999 !important
@@ -330,4 +347,8 @@ input[type=date]::-webkit-calendar-picker-indicator:hover,
 input[type=time]::-webkit-calendar-picker-indicator:hover,
 input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
     filter: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(140deg);
+}
+
+iframe {
+    border-color: dodgerblue;
 }

@@ -49,11 +49,13 @@ function Update-PodeWebTable
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         $Data,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_AutoPage')]
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DynamicPage')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_AutoPage')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DynamicPage')]
         [string]
         $Name,
 
@@ -61,9 +63,20 @@ function Update-PodeWebTable
         [hashtable[]]
         $Columns,
 
-        [Parameter()]
+        [Parameter(ParameterSetName='ID_and_AutoPage')]
+        [Parameter(ParameterSetName='Name_and_AutoPage')]
         [switch]
-        $Paginate
+        $Paginate,
+
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DynamicPage')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DynamicPage')]
+        [int]
+        $PageIndex,
+
+        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DynamicPage')]
+        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DynamicPage')]
+        [int]
+        $TotalItemCount
     )
 
     begin {
@@ -85,39 +98,57 @@ function Update-PodeWebTable
 
         # paging
         $maxPages = 0
-        $totalItems = $items.Length
+        $totalItems = 0
+        $pageSize = 20
 
-        if ($Paginate) {
-            $pageNumber = 1
-            $pageAmount = 20
-
+        # - is table paginated?
+        if ($Paginate -or (($PageIndex -gt 0) -and ($TotalItemCount -gt 0))) {
             if ($null -ne $ElementData) {
                 if (!$ElementData.Paging.Enabled) {
                     throw "You cannot paginate a table that does not have paging enabled: $($ElementData.ID)"
                 }
 
-                $pageAmount = $ElementData.Paging.Amount
+                $pageSize = $ElementData.Paging.Size
             }
+
+            if (![string]::IsNullOrWhiteSpace($WebEvent.Data['PageSize'])) {
+                $pageSize = [int]$WebEvent.Data['PageSize']
+            }
+        }
+
+        # - auto-paging
+        if ($Paginate) {
+            $pageIndex = 1
+            $totalItems = $items.Length
 
             if ($null -ne $WebEvent) {
-                $_number = [int]$WebEvent.Data['PageNumber']
-                $_amount = [int]$WebEvent.Data['PageAmount']
+                $_index = [int]$WebEvent.Data['PageIndex']
 
-                if ($_number -gt 0) {
-                    $pageNumber = $_number
-                }
-
-                if ($_amount -gt 0) {
-                    $pageAmount = $_amount
+                if ($_index -gt 0) {
+                    $pageIndex = $_index
                 }
             }
 
-            $maxPages = [int][math]::Ceiling(($totalItems / $pageAmount))
-            if ($pageNumber -gt $maxPages) {
-                $pageNumber = $maxPages
+            $maxPages = [int][math]::Ceiling(($totalItems / $pageSize))
+            if ($pageIndex -gt $maxPages) {
+                $pageIndex = $maxPages
             }
 
-            $items = $items[(($pageNumber - 1) * $pageAmount) .. (($pageNumber * $pageAmount) - 1)]
+            $items = $items[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
+        }
+
+        # - dynamic paging
+        elseif (($PageIndex -gt 0) -and ($TotalItemCount -gt 0)) {
+            $totalItems = $TotalItemCount
+
+            $maxPages = [int][math]::Ceiling(($totalItems / $pageSize))
+            if ($pageIndex -gt $maxPages) {
+                $pageIndex = $maxPages
+            }
+
+            if ($items.Length -gt $pageSize) {
+                $items = $items[0 .. ($pageSize - 1)]
+            }
         }
 
         # table output
@@ -129,8 +160,8 @@ function Update-PodeWebTable
             Name = $Name
             Columns = $_columns
             Paging = @{
-                Number = $pageNumber
-                Amount = $pageAmount
+                Index = $pageIndex
+                Size = $pageSize
                 Total = $totalItems
                 Max = $maxPages
             }
@@ -332,6 +363,27 @@ function ConvertTo-PodeWebChartData
     }
 }
 
+function Sync-PodeWebChart
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Sync'
+        ElementType = 'Chart'
+        ID = $Id
+        Name = $Name
+    }
+}
+
 function Out-PodeWebTextbox
 {
     [CmdletBinding()]
@@ -460,7 +512,7 @@ function Show-PodeWebToast
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
-        $Icon = 'info'
+        $Icon = 'information'
     )
 
     if ($Duration -le 0) {
@@ -736,10 +788,17 @@ function Move-PodeWebPage
 
         [Parameter()]
         [string]
-        $DataValue
+        $Group,
+
+        [Parameter()]
+        [string]
+        $DataValue,
+
+        [switch]
+        $NewTab
     )
 
-    $page = "/pages/$($Name -replace '\s+', '+')"
+    $page = ((Get-PodeWebPagePath -Name $Name -Group $Group) -replace '\s+', '+')
 
     if (![string]::IsNullOrWhiteSpace($DataValue)) {
         $page += "?Value=$($DataValue)"
@@ -749,6 +808,7 @@ function Move-PodeWebPage
         Operation = 'Move'
         ElementType = 'Href'
         Url = $page
+        NewTab = $NewTab.IsPresent
     }
 }
 
@@ -758,13 +818,17 @@ function Move-PodeWebUrl
     param(
         [Parameter(Mandatory=$true)]
         [string]
-        $Url
+        $Url,
+
+        [switch]
+        $NewTab
     )
 
     return @{
         Operation = 'Move'
         ElementType = 'Href'
         Url = $Url
+        NewTab = $NewTab.IsPresent
     }
 }
 
@@ -784,6 +848,27 @@ function Move-PodeWebTab
     return @{
         Operation = 'Move'
         ElementType = 'Tab'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Move-PodeWebAccordion
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Move'
+        ElementType = 'Accordion'
         ID = $Id
         Name = $Name
     }
@@ -861,5 +946,61 @@ function Update-PodeWebProgress
         Colour = $Colour
         ColourType = $ColourType.ToLowerInvariant()
         Value = $Value
+    }
+}
+
+function Update-PodeWebTile
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(ValueFromPipeline=$true)]
+        [string]
+        $Value,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [ValidateSet('', 'Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = ''
+    )
+
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
+
+    return @{
+        Operation = 'Update'
+        ElementType = 'Tile'
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        ID = $Id
+        Name = $Name
+        Colour = $Colour
+        ColourType = $ColourType.ToLowerInvariant()
+    }
+}
+
+function Sync-PodeWebTile
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Sync'
+        ElementType = 'Tile'
+        ID = $Id
+        Name = $Name
     }
 }

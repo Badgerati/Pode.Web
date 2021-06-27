@@ -21,7 +21,10 @@ function Use-PodeWebTemplates
 
         [Parameter()]
         [string[]]
-        $EndpointName
+        $EndpointName,
+
+        [switch]
+        $NoPageFilter
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore | Sort-Object -Property Version -Descending | Select-Object -First 1)
@@ -38,6 +41,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'title' -Value $Title
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
+    Set-PodeWebState -Name 'no-page-filter' -Value $NoPageFilter.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @()
     Set-PodeWebState -Name 'default-nav' -Value $null
@@ -59,7 +63,7 @@ function Use-PodeWebTemplates
     Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
         $pages = @(Get-PodeWebState -Name 'pages')
         if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-            Move-PodeResponseUrl -Url "/pages/$($pages[0].Name)"
+            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
             return
         }
 
@@ -100,7 +104,8 @@ function Set-PodeWebSocial
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
-        [ValidateSet('GitHub', 'Twitter', 'Facebook', 'LinkedIn', 'Twitch', 'GitLab', 'Instagram')]
+        [ValidateSet('GitHub', 'Twitter', 'Facebook', 'LinkedIn', 'Twitch', 'GitLab', 'Instagram', 'Telegram',
+            'Pinterest', 'Slack', 'Discord', 'BitBucket', 'Jira', 'YouTube')]
         [string]
         $Type,
 

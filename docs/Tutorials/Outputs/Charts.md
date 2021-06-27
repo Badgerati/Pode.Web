@@ -57,3 +57,22 @@ New-PodeWebContainer -Content @(
     }
 )
 ```
+
+## Sync
+
+To force a chart to refresh its data you can use [`Sync-PodeWebChart`](../../../Functions/Outputs/Sync-PodeWebChart):
+
+```powershell
+New-PodeWebContainer -NoBackground -Content @(
+    New-PodeWebButton -Name 'Refresh Processes' -ScriptBlock {
+        Sync-PodeWebChart -Name 'Processes'
+    }
+
+    New-PodeWebChart -Name 'Processes' -Type Line -NoRefresh -ScriptBlock {
+        Get-Process |
+            Sort-Object -Property CPU -Descending |
+            Select-Object -First 15 |
+            ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU
+    }
+)
+```

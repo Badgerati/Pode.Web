@@ -77,6 +77,14 @@ Add-PodeWebPage -Name 'Services' -Icon 'Settings' -ScriptBlock {
 
 The above would render a new page with a table, showing all the services on the computer.
 
+### Sidebar
+
+Pages added to your site will appear in the sidebar on the left of your pages. The sidebar has a filter box at the top by default, but this can be hidden via `-NoPageFilter`:
+
+```powershell
+Use-PodeWebTemplates -Title 'Example' -Theme Dark -NoPageFilter
+```
+
 ## Custom Scripts/Styles
 
 You can reference custom JavaScript and CSS files to use via [`Import-PodeWebJavaScript`](../../Functions/Utilities/Import-PodeWebJavaScript) and [`Import-PodeWebStylesheet`](../../Functions/Utilities/Import-PodeWebStylesheet). Both take a relative/literal `-Url` to the file.

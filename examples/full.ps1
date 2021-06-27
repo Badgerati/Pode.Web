@@ -32,19 +32,19 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # set the use of templates, and set a login page
     Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
-    Set-PodeWebLoginPage -Authentication Example
+    Set-PodeWebLoginPage -Authentication Example #-BackgroundImage '/images/galaxy.jpg'
 
     $link1 = New-PodeWebNavLink -Name 'Home' -Url '/' -Icon Home
-    $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Settings -NoAuth -ScriptBlock {
+    $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Cogs -NoAuth -ScriptBlock {
         Show-PodeWebToast -Message "I'm from a nav link!"
     }
     $div1 = New-PodeWebNavDivider
     $link3 = New-PodeWebNavLink -Name 'Disabled' -Url '/' -Disabled
-    $dd1 = New-PodeWebNavDropdown -Name 'Dropdown' -Icon 'maximize-2' -Items @(
+    $dd1 = New-PodeWebNavDropdown -Name 'Dropdown' -Icon Expand -Items @(
         New-PodeWebNavLink -Name 'Twitter' -Url 'https://twitter.com'
         New-PodeWebNavLink -Name 'Facebook' -Url 'https://facebook.com' -Disabled
         New-PodeWebNavDivider
-        New-PodeWebNavLink -Name 'YouTube' -Url 'https://youtube.com'
+        New-PodeWebNavLink -Name 'YouTube' -Url 'https://youtube.com' -Icon YouTube
         New-PodeWebNavDropdown -Name 'InnerDrop' -Items @(
             New-PodeWebNavLink -Name 'Twitch' -Url 'https://twitch.tv'
             New-PodeWebNavLink -Name 'Pode' -Url 'https://github.com/Badgerati/Pode'
@@ -77,7 +77,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $timer1
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
-        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon Command -Colour Green -ScriptBlock {
+        New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
         }
@@ -102,7 +102,7 @@ Start-PodeServer -StatusPageExceptions Show {
         " -Language PowerShell
     )
 
-    $section3 = New-PodeWebCard -Name 'Comments' -Content @(
+    $section3 = New-PodeWebCard -Name 'Comments' -Icon 'comment' -Content @(
         New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
         New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )
@@ -141,20 +141,20 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $grid1 = New-PodeWebGrid -Cells @(
         New-PodeWebCell -Content @(
-            New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -AsCard
+            New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 15 -AutoRefresh -AsCard
         )
         New-PodeWebCell -Content @(
             New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData -AsCard
         )
         New-PodeWebCell -Content @(
-            New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -NoAuth -AsCard
+            New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -MaxY 100 -NoAuth -AsCard
         )
     )
 
     $hero = New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page for the full.ps1 example' -Content @(
         New-PodeWebText -Value 'Here you will see examples for close to everything Pode.Web can do.' -InParagraph -Alignment Center
         New-PodeWebParagraph -Alignment Center -Elements @(
-            New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web'
+            New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
         )
     )
 
@@ -181,22 +181,22 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # tabs and charts
     $tabs1 = New-PodeWebTabs -Cycle -Tabs @(
-        New-PodeWebTab -Name 'Line' -Layouts @(
+        New-PodeWebTab -Name 'Line' -Icon 'chart-line' -Layouts @(
             New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -Height 250 -AsCard
         )
-        New-PodeWebTab -Name 'Bar' -Layouts @(
+        New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Layouts @(
             New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard
         )
-        New-PodeWebTab -Name 'Doughnut' -Layouts @(
+        New-PodeWebTab -Name 'Doughnut' -Icon 'chart-donut' -Layouts @(
             New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts $tabs1 -Title 'Cycling Tabs'
+    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs'
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]
-    $modal = New-PodeWebModal -Name 'Edit Service' -Id 'modal_edit_svc' -AsForm -Content @(
+    $editModal = New-PodeWebModal -Name 'Edit Service' -Icon 'square-edit-outline' -Id 'modal_edit_svc' -AsForm -Content @(
         New-PodeWebAlert -Type Info -Value 'This does nothing, it is just an example'
         New-PodeWebCheckbox -Name Running -Id 'chk_svc_running' -AsSwitch
     ) -ScriptBlock {
@@ -204,20 +204,24 @@ Start-PodeServer -StatusPageExceptions Show {
         Hide-PodeWebModal
     }
 
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -Sort -Click -Paginate -ScriptBlock {
-        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
+    $helpModal = New-PodeWebModal -Name 'Help' -Icon 'help' -Content @(
+        New-PodeWebText -Value 'HELP!'
+    )
+
+    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -SimpleSort -Click -Paginate -ScriptBlock {
+        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
+        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'Edit' -IconOnly -ScriptBlock {
+        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
             $checked = ($svc.Status -ieq 'running')
 
@@ -226,7 +230,13 @@ Start-PodeServer -StatusPageExceptions Show {
             )
         }
 
+        $filter = "*$($WebEvent.Data.Filter)*"
+
         foreach ($svc in (Get-Service)) {
+            if ($svc.Name -inotlike $filter) {
+                continue
+            }
+
             $btns = @($editBtn)
             if ($svc.Status -ieq 'running') {
                 $btns += $stopBtn
@@ -245,7 +255,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     Add-PodeStaticRoute -Path '/download' -Source '.\storage' -DownloadOnly
 
-    $table | Add-PodeWebTableButton -Name 'Excel' -Icon 'Bar-Chart' -ScriptBlock {
+    $table | Add-PodeWebTableButton -Name 'Excel' -Icon 'chart-bar' -ScriptBlock {
         $path = Join-Path (Get-PodeServerPath) '.\storage\test.csv'
         $WebEvent.Data | Export-Csv -Path $path -NoTypeInformation
         Set-PodeResponseAttachment -Path '/download/test.csv'
@@ -253,7 +263,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon Settings -Group Tools -Layouts $modal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -264,6 +274,9 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebCard -Name "$($name) Details" -Content @(
             New-PodeWebCodeBlock -Value $svc -NoHighlight
         )
+    } `
+    -HelpScriptBlock {
+        Show-PodeWebModal -Name 'Help'
     }
 
 
@@ -279,10 +292,49 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon Activity -Group Tools -AccessGroups Developer -Layouts $form
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Group Tools -AccessGroups Developer -Layouts $form
 
 
     # page with table showing csv data
-    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -Sort -Paginate -CsvFilePath './misc/data.csv' -AsCard
+    $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -SimpleSort -Paginate -CsvFilePath './misc/data.csv' -AsCard
     Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Layouts $table2
+
+
+    # page with table show dynamic paging, filter, and sorting via a csv
+    $table3 = New-PodeWebTable -Name 'Dynamic Users' -DataColumn UserId -Filter -Sort -Paginate -AsCard -ScriptBlock {
+        # load the file
+        $filePath = Join-Path (Get-PodeServerPath) 'misc/data.csv'
+        $data = Import-Csv -Path $filePath
+
+        # apply filter if present
+        $filter = $WebEvent.Data.Filter
+        if (![string]::IsNullOrWhiteSpace($filter)) {
+            $filter = "*$($filter)*"
+            $data = @($data | Where-Object { ($_.psobject.properties.value -ilike $filter).length -gt 0 })
+        }
+
+        # apply sorting
+        $sortColumn = $WebEvent.Data.SortColumn
+        if (![string]::IsNullOrWhiteSpace($sortColumn)) {
+            $descending = ($WebEvent.Data.SortDirection -ieq 'desc')
+            $data = @($data | Sort-Object -Property { $_.$sortColumn } -Descending:$descending)
+        }
+
+        # apply paging
+        $totalCount = $data.Length
+        $pageIndex = [int]$WebEvent.Data.PageIndex
+        $pageSize = [int]$WebEvent.Data.PageSize
+        $data = $data[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
+
+        # update table
+        $data | Update-PodeWebTable -Name 'Dynamic Users' -PageIndex $pageIndex -TotalItemCount $totalCount
+    }
+
+    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Layouts $table3
+
+
+    # open twitter
+    Add-PodeWebPageLink -Name Twitter -Icon Twitter -Group Social -NoAuth -ScriptBlock {
+        Move-PodeWebUrl -Url 'https://twitter.com' -NewTab
+    }
 }

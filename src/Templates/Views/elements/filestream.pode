@@ -1,0 +1,43 @@
+<div class="card file-stream">
+    $(if (!$data.NoHeader) {
+        "<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
+            <h5>"
+                if (![string]::IsNullOrWhiteSpace($data.Icon)) {
+                    "<span class='mdi mdi-$($data.Icon.ToLowerInvariant())'></span>"
+                }
+                $($data.Url)
+            "</h5>
+            <div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
+                <div class='icon-group mr-2'>
+                    <span class='mdi mdi-alert-circle-outline stream-error' style='display:none;'></span>
+                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                </div>
+                <div class='btn-group mr-2 mLeft05'>
+                    <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-download' for='$($data.ID)'>
+                        <span class='mdi mdi-download mdi-size-20' title='Download' data-toggle='tooltip'></span>
+                    </button>
+                    <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-clear' for='$($data.ID)'>
+                        <span class='mdi mdi-eraser mdi-size-20' title='Clear' data-toggle='tooltip'></span>
+                    </button>
+                    <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-pause' for='$($data.ID)'>
+                        <span class='mdi mdi-pause mdi-size-20' title='Pause' data-toggle='tooltip'></span>
+                    </button>
+                </div>
+            </div>
+        </div>"
+    })
+    <div>
+        <pre>
+            <textarea
+                class="form-control"
+                pode-file="$($data.Url)"
+                pode-length="0"
+                pode-interval="$($data.Interval)"
+                pode-streaming="1"
+                id="$($data.ID)"
+                name="$($data.Name)"
+                rows="$($data.Height)"
+                readonly></textarea>
+        </pre>
+    </div>
+</div>

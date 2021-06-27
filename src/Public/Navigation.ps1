@@ -32,7 +32,11 @@ function New-PodeWebNavLink
         [Parameter(ParameterSetName='ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
-        $NoAuthentication
+        $NoAuthentication,
+
+        [Parameter(ParameterSetName='Url')]
+        [switch]
+        $NewTab
     )
 
     $Id = (Get-PodeWebElementId -Tag 'Nav-Link' -Id $Id -Name $Name)
@@ -47,6 +51,7 @@ function New-PodeWebNavLink
         IsDynamic = ($null -ne $ScriptBlock)
         Disabled = $Disabled.IsPresent
         InDropdown = $false
+        NewTab = $NewTab.IsPresent
     }
 
     $routePath = "/nav/link/$($Id)"

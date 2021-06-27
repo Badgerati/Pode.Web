@@ -316,17 +316,6 @@ function Protect-PodeWebName
     return ($Name -ireplace '[^a-z0-9_]', '').Trim()
 }
 
-function Test-PodeWebPage
-{
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]
-        $Name
-    )
-
-    return (Get-PodeWebState -Name 'pages' | Where-Object { $_.Name -ieq $Name } | Measure-Object).Count -ne 0
-}
-
 function Test-PodeWebRoute
 {
     param(
@@ -379,9 +368,13 @@ function Get-PodeWebElementId
     # start with element tag
     $_id += "$($Tag)"
 
-    # add page name if we have one
+    # add page name and group if we have one
     if (![string]::IsNullOrWhiteSpace($PageData.Name)) {
         $_id += "_$($PageData.Name)"
+    }
+
+    if (![string]::IsNullOrWhiteSpace($PageData.Group)) {
+        $_id += "_$($PageData.Group)"
     }
 
     # add name if we have one
@@ -455,11 +448,11 @@ function Convert-PodeWebAlertTypeToIcon
         }
 
         'warning' {
-            return 'alert-triangle'
+            return 'alert'
         }
 
         'tip' {
-            return 'thumbs-up'
+            return 'thumb-up'
         }
 
         'success' {
@@ -471,7 +464,7 @@ function Convert-PodeWebAlertTypeToIcon
         }
 
         'info' {
-            return 'info'
+            return 'information'
         }
 
         'important' {
@@ -627,5 +620,37 @@ function Test-PodeWebOutputWrapped
         $Output = $Output[0]
     }
 
-    return (($Output -is [hashtable]) -and ($Output.Operation -ieq 'Output') -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
+    return (($Output -is [hashtable]) -and ![string]::IsNullOrWhiteSpace($Output.Operation) -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
+}
+
+function Get-PodeWebPagePath
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(ParameterSetName='Name')]
+        [string]
+        $Group,
+
+        [Parameter(ParameterSetName='Page')]
+        [hashtable]
+        $Page
+    )
+
+    $path = [string]::Empty
+
+    if ($null -ne $Page) {
+        $Name = $Page.Name
+        $Group = $Page.Group
+    }
+
+    if (![string]::IsNullOrWhiteSpace($Group)) {
+        $path += "/groups/$($Group)"
+    }
+
+    $path += "/pages/$($Name)"
+    return $path
 }

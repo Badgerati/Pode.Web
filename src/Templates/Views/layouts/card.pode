@@ -1,21 +1,28 @@
-<div class="card $($data.CssClasses)">
-    <div class="card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom">
-        $(if (!$data.NoTitle) {
-            "<h5>$($data.Name)</h5>"
+<div class="card pode-card $($data.CssClasses)">
+    $(if ((!$data.NoTitle -and $data.Name) -or !$data.NoHide) {
+        $icon = [string]::Empty
+        if (![string]::IsNullOrWhiteSpace($data.Icon)) {
+            $icon = "<span class='mdi mdi-$($data.Icon.ToLowerInvariant()) mRight02'></span>"
         }
-        else {
-            "<h5></h5>"
-        })
-        <div class="btn-toolbar mb-2 mb-md-0 mTop-05">
-            <div class="btn-group mr-2">
-                <button type='button' class='btn btn btn-outline-secondary pode-card-collapse'>
-                    <span data-feather='eye' title='Hide' data-toggle='tooltip'></span>
-                    <span data-feather='eye-off' style='display: none;' title='Show' data-toggle='tooltip'></span>
-                </button>
-            </div>
-        </div>
-    </div>
 
+        "<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>"
+            if (!$data.NoTitle) {
+                "<h5>$($icon)$($data.Name)</h5>"
+            }
+            else {
+                "<h5>$($icon)</h5>"
+            }
+            if (!$data.NoHide) {
+                "<div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
+                    <div class='btn-group mr-2'>
+                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-card-collapse'>
+                            <span class='mdi mdi-eye-outline mdi-size-20' title='Hide' data-toggle='tooltip'></span>
+                        </button>
+                    </div>
+                </div>"
+            }
+        "</div>"
+    })
     <div class="card-body">
         $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content })
     </div>

@@ -41,6 +41,22 @@ body, main[role="main"], body#login-page, body#normal-page {
     border-color: #bbb !important;
 }
 
+.accordion .card .card-header button {
+    color: #333;
+}
+
+.accordion .card .card-header button.collapsed {
+    color: #999;
+}
+
+.accordion .card .card-header:hover {
+    background-color: #eee !important;
+    color: #333 !important;
+}
+.accordion .card .card-header button:hover {
+    color: #333 !important;
+}
+
 pre code {
     background-color: #f0f0f0 !important;
     border-color: #bbb !important;
@@ -62,7 +78,7 @@ pre code {
 }
 
 .pode-container:not([pode-transparent='True']) {
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     border-color: #bbb;
 }
 
@@ -86,4 +102,8 @@ pre code {
 
 .step.active .bs-stepper-circle {
     background-color: dodgerblue;
+}
+
+iframe {
+    border-color: #bbb;
 }

@@ -19,18 +19,25 @@
                 $value = "value='$($data.Value)'"
             }
 
+            $width = "width: auto;"
+            if ($data.Width -gt 0) {
+                $width = "width: $($data.Width)%;"
+            }
+
             if ($data.Multiline) {
-                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' $($describedBy) $($readOnly) $($value)></textarea>"
+                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' style='$($width)' $($describedBy) $($readOnly) $($value)></textarea>"
             }
             else {
-                if ($data.Prepend.Enabled) {
+                if ($data.Prepend.Enabled -or $data.Append.Enabled) {
                     $element = "<div class='input-group mb-2'>"
+                }
 
+                if ($data.Prepend.Enabled) {
                     if (![string]::IsNullOrWhiteSpace($data.Prepend.Text)) {
                         $element += "<div class='input-group-prepend'><div class='input-group-text'>$($data.Prepend.Text)</div></div>"
                     }
                     else {
-                        $element += "<div class='input-group-prepend'><div class='input-group-text'><span data-feather='$($data.Prepend.Icon.ToLowerInvariant())'></span></div></div>"
+                        $element += "<div class='input-group-prepend'><div class='input-group-text'><span class='mdi mdi-$($data.Prepend.Icon.ToLowerInvariant())'></span></div></div>"
                     }
                 }
 
@@ -39,9 +46,18 @@
                     $_type = 'datetime-local'
                 }
 
-                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly)  $($value)>"
+                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' style='$($width)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly)  $($value)>"
 
-                if ($data.Prepend.Enabled) {
+                if ($data.Append.Enabled) {
+                    if (![string]::IsNullOrWhiteSpace($data.Append.Text)) {
+                        $element += "<div class='input-group-append'><div class='input-group-text'>$($data.Append.Text)</div></div>"
+                    }
+                    else {
+                        $element += "<div class='input-group-append'><div class='input-group-text'><span class='mdi mdi-$($data.Append.Icon.ToLowerInvariant())'></span></div></div>"
+                    }
+                }
+
+                if ($data.Prepend.Enabled -or $data.Append.Enabled) {
                     $element += "</div>"
                 }
             }

@@ -6,8 +6,8 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
     <div role='controls'>
         <div class="btn-group mr-2">
             $(if (!$data.AutoRefresh -and !$data.NoRefresh) {
-                "<button type='button' class='btn btn btn-outline-secondary pode-chart-refresh' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
-                    <span data-feather='refresh-cw'></span>
+                "<button type='button' class='btn btn btn-no-text btn-outline-secondary pode-chart-refresh pode-refresh-btn' for='$($data.ID)' title='Refresh' data-toggle='tooltip'>
+                    <span class='mdi mdi-refresh'></span>
                 </button>"
             })
         </div>
@@ -23,6 +23,12 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
         pode-append="$($data.Append)"
         pode-max="$($data.MaxItems)"
         pode-time-labels="$($data.TimeLabels)"
-        pode-auto-refresh="$($data.AutoRefresh)">
+        pode-auto-refresh="$($data.AutoRefresh)"
+        pode-refresh-interval="$($data.RefreshInterval)"
+        pode-min-x="$($data.Min.X)"
+        pode-min-y="$($data.Min.Y)"
+        pode-max-x="$($data.Max.X)"
+        pode-max-y="$($data.Max.Y)"
+        pode-legend="$(!$data.NoLegend)">
     </canvas>
 </div>

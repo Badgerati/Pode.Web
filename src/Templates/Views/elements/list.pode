@@ -6,9 +6,17 @@ $(
 
     "<$($tag) class='$($data.CssClasses)' id='$($data.ID)'>"
 
-
-    foreach ($item in $data.Items) {
-        "<li>$($item)</li>"
+    if (($null -ne $data.Items) -and ($data.Items.Length -gt 0)) {
+        foreach ($item in $data.Items) {
+            "<li id='$($item.ID)'>"
+                Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $item.Content }
+            "</li>"
+        }
+    }
+    else {
+        foreach ($value in $data.Values) {
+            "<li>$($value)</li>"
+        }
     }
 
     "</$($tag)>"
