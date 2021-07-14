@@ -1016,6 +1016,86 @@ function New-PodeWebDateTime
     }
 }
 
+function New-PodeWebMinMax
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $HelpText,
+
+        [Parameter()]
+        [double]
+        $MinValue = 0,
+
+        [Parameter()]
+        [double]
+        $MaxValue = 0,
+
+        [Parameter(ParameterSetName='Single')]
+        [string]
+        $PrependText,
+
+        [Parameter(ParameterSetName='Single')]
+        [string]
+        $PrependIcon,
+
+        [Parameter(ParameterSetName='Single')]
+        [string]
+        $AppendText,
+
+        [Parameter(ParameterSetName='Single')]
+        [string]
+        $AppendIcon,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [switch]
+        $ReadOnly,
+
+        [switch]
+        $NoLabels
+    )
+
+    $Id = Get-PodeWebElementId -Tag DateTime -Id $Id -Name $Name
+
+    return @{
+        ComponentType = 'Element'
+        ElementType = 'MinMax'
+        Parent = $ElementData
+        Name = $Name
+        ID = $Id
+        Values = @{
+            Min = $MinValue
+            Max = $MaxValue
+        }
+        HelpText = $HelpText
+        ReadOnly = $ReadOnly.IsPresent
+        NoLabels = $NoLabels.IsPresent
+        CssClasses = ($CssClass -join ' ')
+        Prepend = @{
+            Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
+            Text = $PrependText
+            Icon = $PrependIcon
+        }
+        Append = @{
+            Enabled = (![string]::IsNullOrWhiteSpace($AppendText) -or ![string]::IsNullOrWhiteSpace($AppendIcon))
+            Text = $AppendText
+            Icon = $AppendIcon
+        }
+    }
+}
+
 function New-PodeWebRaw
 {
     [CmdletBinding()]
