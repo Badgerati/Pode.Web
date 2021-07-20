@@ -1067,7 +1067,7 @@ function New-PodeWebMinMax
         $NoLabels
     )
 
-    $Id = Get-PodeWebElementId -Tag DateTime -Id $Id -Name $Name
+    $Id = Get-PodeWebElementId -Tag MinMax -Id $Id -Name $Name
 
     return @{
         ComponentType = 'Element'
