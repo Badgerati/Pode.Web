@@ -46,7 +46,7 @@
                     $_type = 'datetime-local'
                 }
 
-                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' style='$($width)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly)  $($value)>"
+                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' style='$($width)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($value)>"
 
                 if ($data.Append.Enabled) {
                     if (![string]::IsNullOrWhiteSpace($data.Append.Text)) {

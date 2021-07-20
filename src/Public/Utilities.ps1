@@ -169,6 +169,15 @@ function Get-PodeWebTheme
     return $theme.ToLowerInvariant()
 }
 
+function Get-PodeWebUsername
+{
+    [CmdletBinding()]
+    param()
+
+    $authData = Get-PodeWebAuthData
+    return (Get-PodeWebAuthUsername -AuthData $authData)
+}
+
 function Add-PodeWebCustomTheme
 {
     [CmdletBinding()]

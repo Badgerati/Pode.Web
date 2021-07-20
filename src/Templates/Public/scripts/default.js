@@ -2152,7 +2152,7 @@ function actionTile(action, sender) {
 }
 
 function updateTile(action, sender) {
-    var tile = getElementByNameOrId(action, 'div');
+    var tile = getElementByNameOrId(action, 'div.pode-tile');
     if (!tile) {
         return;
     }
