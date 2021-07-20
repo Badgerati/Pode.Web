@@ -11,7 +11,7 @@
     "bootstrap": "4.6.0",
     "bs-stepper": "1.7.0",
     "@mdi/font": "5.9.55",
-    "chart.js": "3.4.0",
+    "chart.js": "3.4.1",
     "@highlightjs/cdn-assets": "11.1.0",
     "monaco-editor": "0.25.2",
     "moment": "2.29.1"
