@@ -510,6 +510,10 @@ table tbody td {
     margin-bottom: 1rem;
 }
 
+.form-group .form-group {
+    margin-bottom: 0 !important;
+}
+
 .form-control.is-invalid {
     border-color: #dc3545 !important;
 }
