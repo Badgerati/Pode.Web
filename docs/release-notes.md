@@ -1,5 +1,21 @@
 # Release Notes
 
+## v0.5.1
+
+```plain
+### Enhancements
+* #126: Adds `New-PodeWebMinMax` form element
+* #126: Adds `Get-PodeWebUsername` to get the username of the authenticated user (same name in the navbar)
+
+### Bugs
+* #126: Fix a bug when selecting a tile for updating
+
+### Packaging
+* #118: Bump chart.js to 3.4.1
+* #119: Bump highlightjs to 11.1.0
+* #123: Bump monaco-editor to 0.26.1
+```
+
 ## v0.5.0
 
 ```plain
