@@ -848,6 +848,10 @@ function New-PodeWebText
         $Value,
 
         [Parameter()]
+        [string]
+        $Size,
+
+        [Parameter()]
         [ValidateSet('Normal', 'Underlined', 'StrikeThrough', 'Deleted', 'Inserted', 'Italics', 'Bold', 'Small')]
         [string]
         $Style = 'Normal',
@@ -878,6 +882,7 @@ function New-PodeWebText
         InParagraph = $InParagraph.IsPresent
         Alignment = $Alignment.ToLowerInvariant()
         CssClasses = ($CssClass -join ' ')
+        Size = $Size
     }
 }
 
