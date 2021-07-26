@@ -35,7 +35,8 @@ $(() => {
     setupAccordion();
 
     bindSidebarFilter();
-    bindMenuToggle();
+    bindSidebarToggle();
+    toggleSidebar();
     bindNavLinks();
     bindPageLinks();
     bindPageHelp();
@@ -685,7 +686,7 @@ function invokeTimer(timerId) {
     sendAjaxReq(`/elements/timer/${timerId}`, null, null, true);
 }
 
-function bindMenuToggle() {
+function bindSidebarToggle() {
     $('button#menu-toggle').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -695,6 +696,12 @@ function bindMenuToggle() {
 
         $('button#menu-toggle span').toggleClass('mdi-rotate-180');
     });
+}
+
+function toggleSidebar() {
+    if ($('nav#sidebarMenu').hasClass('hide-on-start')) {
+        $('button#menu-toggle').trigger('click');
+    }
 }
 
 function bindTablePagination() {

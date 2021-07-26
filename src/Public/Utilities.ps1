@@ -24,7 +24,10 @@ function Use-PodeWebTemplates
         $EndpointName,
 
         [switch]
-        $NoPageFilter
+        $NoPageFilter,
+
+        [switch]
+        $HideSidebar
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore | Sort-Object -Property Version -Descending | Select-Object -First 1)
@@ -42,6 +45,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
     Set-PodeWebState -Name 'no-page-filter' -Value $NoPageFilter.IsPresent
+    Set-PodeWebState -Name 'hide-sidebar' -Value $HideSidebar.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @()
     Set-PodeWebState -Name 'default-nav' -Value $null
