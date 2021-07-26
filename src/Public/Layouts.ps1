@@ -647,6 +647,11 @@ function New-PodeWebAccordion
         [int]
         $CycleInterval = 15,
 
+        [Parameter()]
+        [ValidateSet('Normal', 'Collapsed', 'Expanded')]
+        [string]
+        $Mode = 'Normal',
+
         [switch]
         $Cycle
     )
@@ -665,6 +670,7 @@ function New-PodeWebAccordion
         ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -NameAsToken)
         Bellows = $Bellows
         CssClasses = ($CssClass -join ' ')
+        Mode = $Mode
         Cycle = @{
             Enabled = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
