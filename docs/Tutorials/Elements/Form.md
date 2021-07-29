@@ -27,6 +27,18 @@ Which looks like below:
 
 ![form](../../../images/form.png)
 
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebForm -Name 'Example' -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+} -Content @()
+```
+
 ## Elements
 
 The available form elements in Pode.Web are:

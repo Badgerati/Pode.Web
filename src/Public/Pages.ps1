@@ -252,6 +252,10 @@ function Add-PodeWebPage
         $ScriptBlock,
 
         [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
         [string[]]
         $AccessGroups = @(),
 
@@ -340,7 +344,8 @@ function Add-PodeWebPage
 
     # add the page route
     $routePath = $pageMeta.Url
-    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+        param($Data)
         $global:PageData = $using:pageMeta
 
         if (!$global:PageData.NoBackArrow) {
@@ -375,7 +380,7 @@ function Add-PodeWebPage
             # if we have a scriptblock, invoke that to get dynamic components
             $layouts =$null
             if ($null -ne $using:ScriptBlock) {
-                $layouts = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+                $layouts = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
             }
 
             if (($null -eq $layouts) -or ($layouts.Length -eq 0)) {
@@ -415,7 +420,8 @@ function Add-PodeWebPage
     # add the page help route
     $helpPath = "$($routePath)/help"
     if (($null -ne $HelpScriptBlock) -and !(Test-PodeWebRoute -Path $helpPath)) {
-        Add-PodeRoute -Method Post -Path $helpPath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $helpPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
             $global:PageData = $using:pageMeta
 
             # get auth details of a user
@@ -435,7 +441,7 @@ function Add-PodeWebPage
                 Set-PodeResponseStatus -Code 403
             }
             else {
-                $result = Invoke-PodeScriptBlock -ScriptBlock $using:HelpScriptBlock -Return
+                $result = Invoke-PodeScriptBlock -ScriptBlock $using:HelpScriptBlock -Arguments $Data.Data -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }

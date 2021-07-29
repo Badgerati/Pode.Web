@@ -13,6 +13,18 @@ A chart gets its data from a supplied `-ScriptBlock`, more information below, an
 
 To supply data to be rendered on a chart, you have to supply a `-ScritpBlock` which returns the appropriate data in the correct format; fortunately there's [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData) to help with this format.
 
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebChart -Name 'Example Chart' -Type Line -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```
+
 ### Raw
 
 Before showing the ConvertTo function, the data format needed is as follows: the returned value has be an array of hashtables, with each hashtable requires a `Key` property, and a `Values` property that's an array of further hashtables. The `Key` is the value used on the X-axis, and the `Values` is an array of data points used on the Y-axis. The `Values` hashtables also has to contain a `Key` and a `Value` property - the `Key` here is the dataset group name, and the `Value` is the value on the Y-axis.

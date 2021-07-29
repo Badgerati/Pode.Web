@@ -48,6 +48,18 @@ Which looks like below:
 ![tile_cpu_ok](../../../images/tile_cpu_ok.png)
 ![tile_cpu_warn](../../../images/tile_cpu_warn.png)
 
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebTile -Name 'Example' -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```
+
 ## Elements
 
 You can also display other elements within a tile, such as a chart. To display elements, add them via the `-Content` parameter.
