@@ -27,3 +27,17 @@ New-PodeWebContainer -NoBackground -Content @(
     }
 )
 ```
+
+## Clear
+
+You can clear the content of a textbox by using [`Clear-PodeWebTextbox`](../../../Functions/Outputs/Clear-PodeWebTextbox):
+
+```powershell
+New-PodeWebContainer -NoBackground -Content @(
+    New-PodeWebTextbox -Name 'Content'
+
+    New-PodeWebButton -Name 'Clear Textbox' -ScriptBlock {
+        Clear-PodeWebTextbox -Name 'Content'
+    }
+)
+```
