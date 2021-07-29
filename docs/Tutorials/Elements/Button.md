@@ -22,6 +22,18 @@ Which looks like below:
 
 ![button_dynamic](../../../images/button_dynamic.png)
 
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebButton -Name 'Click Me' -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```
+
 ## URL
 
 To have a button that simply redirects to another URL, all you have to do is supply `-Url`:

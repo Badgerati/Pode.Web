@@ -1871,7 +1871,7 @@ function New-PodeWebTable
             param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Return
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Arguments $Data.Data -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }

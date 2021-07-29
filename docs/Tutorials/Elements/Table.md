@@ -14,6 +14,18 @@ A table gets its data from a supplied `-ScriptBlock`, more information below, an
 
 To supply data to be rendered in a table, you have to supply a `-ScritpBlock` which returns the appropriate data in the correct format. You can also supply other elements to be rendered within the table, within the data that's returned.
 
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebTable -Name 'Example' -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```
+
 ### Raw
 
 The data format to be returned from a table's `-ScriptBlock` is simple, it's purely just Key:Value in an ordered hashtable/pscustomobject.
@@ -89,6 +101,8 @@ New-PodeWebContainer -Content @(
 You can set a table's rows to be clickable by passing `-Click`. This by default will set it so that when a row is clicked the page is reloaded, and the `-DataColumn` value for that row will be set in the query string as `?value=<value>` - available in `$WebEvent.Query.Value`.
 
 You can set a dynamic click action by supplying the `-ClickScriptBlock` parameter. Now when a row is clicked the scriptblock is called instead, and the `-DataColumn` value will now be available via `$WebEvent.Data.Value` within the scriptblock. The scriptblock expects the normal output actions to be returned.
+
+Any values specified to `-ArgumentList` will also be passed to the `-ClickScriptBlock` as well.
 
 ### Filter
 
