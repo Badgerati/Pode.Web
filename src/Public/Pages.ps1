@@ -614,6 +614,7 @@ function ConvertTo-PodeWebPage
     
     # create the pages for each of the commands
     foreach ($cmd in $Commands) {
+        Write-Verbose "Building page for $($cmd)"
         $cmdInfo = (Get-Command -Name $cmd -ErrorAction Stop)
 
         $sets = $cmdInfo.ParameterSets
@@ -621,8 +622,14 @@ function ConvertTo-PodeWebPage
             continue
         }
 
+        # for cmdlets this will be null
         $ast = $cmdInfo.ScriptBlock.Ast
-        $paramDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.ParameterAst] }, $true)
+        $paramDefs = $null
+        if ($null -ne $ast) {
+            $paramDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.ParameterAst] }, $true) | Where-Object {
+                $_.Parent.Parent.Parent.Name -ieq $cmd
+            }
+        }
 
         $tabs = New-PodeWebTabs -Tabs @(foreach ($set in $sets) {
             $elements = @(foreach ($param in $set.Parameters) {
@@ -631,7 +638,11 @@ function ConvertTo-PodeWebPage
                 }
 
                 $type = $param.ParameterType.Name
-                $default = ($paramDefs | Where-Object { $_.DefaultValue -and $_.Name.Extent.Text -ieq "`$$($param.Name)" }).DefaultValue.Value
+
+                $default = $null
+                if ($null -ne $paramDefs) {
+                    $default = ($paramDefs | Where-Object { $_.DefaultValue -and $_.Name.Extent.Text -ieq "`$$($param.Name)" }).DefaultValue.Value
+                }
 
                 if ($type -iin @('boolean', 'switchparameter')) {
                     New-PodeWebCheckbox -Name $param.Name -AsSwitch
