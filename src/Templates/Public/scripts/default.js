@@ -152,12 +152,12 @@ function bindFileStreams() {
 }
 
 function setupAccordion() {
-    $('div.accordion div.card div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
+    $('div.accordion div.bellow div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
         var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
         toggleIcon(icon, 'chevron-down', 'chevron-up');
     });
 
-    $('div.accordion div.card div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
+    $('div.accordion div.bellow div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
         var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
         toggleIcon(icon, 'chevron-up', 'chevron-down');
     });
@@ -2920,7 +2920,7 @@ function actionAccordion(action) {
 }
 
 function moveAccordion(itemId) {
-    $(`div.accordion div.card#${itemId} div.card-header button`).trigger('click');
+    $(`div.accordion div.bellow#${itemId} div.bellow-header button`).trigger('click');
 }
 
 function actionPage(action) {
