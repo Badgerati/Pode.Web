@@ -84,3 +84,21 @@ New-PodeWebContainer -NoBackground -Content @(
     }
 )
 ```
+
+## Clear
+
+To clear a table's data you can use [`Clear-PodeWebTable`](../../../Functions/Outputs/Clear-PodeWebTable):
+
+```powershell
+New-PodeWebContainer -NoBackground -Content @(
+    New-PodeWebButton -Name 'Clear Processes' -ScriptBlock {
+        Clear-PodeWebTable -Name 'Processes'
+    }
+
+    New-PodeWebTable -Name 'Processes' -NoRefresh -ScriptBlock {
+        Get-Process |
+            Sort-Object -Property CPU -Descending |
+            Select-Object -First 15 -Property Name, ID, WorkingSet, CPU
+    }
+)
+```

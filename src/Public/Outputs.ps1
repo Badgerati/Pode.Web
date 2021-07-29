@@ -190,6 +190,27 @@ function Sync-PodeWebTable
     }
 }
 
+function Clear-PodeWebTable
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Clear'
+        ElementType = 'Table'
+        ID = $Id
+        Name = $Name
+    }
+}
+
 function Update-PodeWebTableRow
 {
     [CmdletBinding(DefaultParameterSetName='Name_and_DataValue')]
@@ -384,6 +405,27 @@ function Sync-PodeWebChart
     }
 }
 
+function Clear-PodeWebChart
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Clear'
+        ElementType = 'Chart'
+        ID = $Id
+        Name = $Name
+    }
+}
+
 function Out-PodeWebTextbox
 {
     [CmdletBinding()]
@@ -490,6 +532,32 @@ function Update-PodeWebTextbox
             AsJson = $AsJson.IsPresent
             Multiline = $Multiline.IsPresent
         }
+    }
+}
+
+function Clear-PodeWebTextbox
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [switch]
+        $Multiline
+    )
+
+    return @{
+        Operation = 'Clear'
+        ElementType = 'Textbox'
+        ID = $Id
+        Name = $Name
+        Multiline = $Multiline.IsPresent
     }
 }
 

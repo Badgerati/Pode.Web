@@ -1762,6 +1762,28 @@ function actionTable(action, sender) {
         case 'sync':
             syncTable(action);
             break;
+
+        case 'clear':
+            clearTable(action);
+            break;
+    }
+}
+
+function clearTable(action) {
+    if (!action.ID && !action.Name) {
+        return;
+    }
+
+    // get table
+    var table = getElementByNameOrId(action, 'table');
+    var tableId = `table#${getId(table)}`;
+
+    // empty table
+    $(`${tableId} tbody`).empty();
+
+    // empty paging
+    if (isTablePaginated(table)) {
+        table.closest('div[role="table"]').find('nav ul').empty();
     }
 }
 
@@ -2273,7 +2295,19 @@ function actionTextbox(action, sender) {
         case 'output':
             writeTextbox(action, sender);
             break;
+
+        case 'clear':
+            clearTextbox(action);
+            break;
     }
+}
+
+function clearTextbox(action) {
+    var txt = action.Multiline
+        ? getElementByNameOrId(action, 'textarea')
+        : getElementByNameOrId(action, 'input');
+
+    txt.val('');
 }
 
 function updateTextbox(action) {
@@ -2391,7 +2425,33 @@ function actionChart(action, sender) {
         case 'sync':
             syncChart(action);
             break;
+
+        case 'clear':
+            clearChart(action);
+            break;
     }
+}
+
+function clearChart(action) {
+    if (!action.ID && !action.Name) {
+        return;
+    }
+
+    var chart = getElementByNameOrId(action, 'canvas');
+    var id = getId(chart);
+
+    var _chart = _charts[id];
+
+    // clear labels (x-axis)
+    _chart.canvas.data.labels = [];
+
+    // clear data (y-axis)
+    _chart.canvas.data.datasets.forEach((dataset) => {
+        dataset.data = [];
+    });
+
+    // re-render
+    _chart.canvas.update();
 }
 
 function syncChart(action) {
