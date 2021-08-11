@@ -61,3 +61,5 @@ The theme that gets used is defined in the following order:
 1. Cookie
 2. User Authentication
 3. Server Default
+
+You can also use the [`Update-PodeWebTheme`](../../Functions/Outputs/Update-PodeWebTheme) and [`Reset-PodeWebTheme`](../../Functions/Outputs/Reset-PodeWebTheme) output actions.

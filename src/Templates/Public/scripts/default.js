@@ -214,25 +214,19 @@ function loadBreadcrumb() {
 }
 
 function checkAutoTheme() {
-    // is the them auto-switchable?
-    var targetTheme = $('body').attr('pode-theme-target');
+    var theme = getPodeTheme();
 
-    // check if the system is dark/light
-    if (targetTheme == 'auto') {
-        var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        targetTheme = (isSystemDark ? 'dark' : 'light');
+    if (theme != 'auto') {
+        return;
     }
 
-    // get the body theme, do we need to switch?
-    var bodyTheme = getPodeTheme();
-    if (bodyTheme == targetTheme) {
-        return false;
-    }
+    var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    theme = (isSystemDark ? 'dark' : 'light');
 
     // set the cookie, expire after 1 month
     var d = new Date();
     d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
-    document.cookie = `pode.web.theme=${targetTheme}; expires=${d.toUTCString()}; path=/`
+    document.cookie = `pode.web.theme=${theme}; expires=${d.toUTCString()}; path=/`
 
     // force a refresh
     refreshPage();
@@ -258,6 +252,21 @@ function mapElementThemes() {
 
 function getPodeTheme() {
     return $('body').attr('pode-theme');
+}
+
+function setPodeTheme(theme, refresh) {
+    // update body
+    $('body').attr('pode-theme', theme);
+
+    // set the cookie, expire after 1 month
+    var d = new Date();
+    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+    document.cookie = `pode.web.theme=${theme}; expires=${d.toUTCString()}; path=/`
+
+    // refresh?
+    if (refresh) {
+        refreshPage();
+    }
 }
 
 function serializeInputs(element) {
@@ -1255,6 +1264,10 @@ function invokeActions(actions, sender) {
                 actionTile(action, sender);
                 break;
 
+            case 'theme':
+                actionTheme(action);
+                break;
+
             default:
                 break;
         }
@@ -2207,6 +2220,34 @@ function syncTile(action) {
     var id = getId(tile);
 
     loadTile(id);
+}
+
+function actionTheme(action) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTheme(action);
+            break;
+
+        case 'reset':
+            resetTheme();
+            break;
+    }
+}
+
+function updateTheme(action) {
+    if (!action.Name) {
+        return;
+    }
+
+    setPodeTheme(action.Name, true);
+}
+
+function resetTheme() {
+    setPodeTheme('', true);
 }
 
 function actionSelect(action) {
