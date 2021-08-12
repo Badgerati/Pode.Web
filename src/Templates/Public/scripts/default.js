@@ -223,10 +223,8 @@ function checkAutoTheme() {
     var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     theme = (isSystemDark ? 'dark' : 'light');
 
-    // set the cookie, expire after 1 month
-    var d = new Date();
-    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
-    document.cookie = `pode.web.theme=${theme}; expires=${d.toUTCString()}; path=/`
+    // set the cookie
+    setPodeThemeCookie(theme);
 
     // force a refresh
     refreshPage();
@@ -258,15 +256,22 @@ function setPodeTheme(theme, refresh) {
     // update body
     $('body').attr('pode-theme', theme);
 
-    // set the cookie, expire after 1 month
-    var d = new Date();
-    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
-    document.cookie = `pode.web.theme=${theme}; expires=${d.toUTCString()}; path=/`
+    // set the cookie
+    setPodeThemeCookie(theme);
 
     // refresh?
     if (refresh) {
         refreshPage();
     }
+}
+
+function setPodeThemeCookie(theme) {
+    // cookie expires after 1 month
+    var d = new Date();
+    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+
+    // save theme cookie
+    document.cookie = `pode.web.theme=${theme}; expires=${d.toUTCString()}; path=/`
 }
 
 function serializeInputs(element) {
