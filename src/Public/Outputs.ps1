@@ -1082,6 +1082,10 @@ function Update-PodeWebTheme
         $Name
     )
 
+    if (!(Test-PodeWebTheme -Name $Name)) {
+        throw "Theme does not exist: $($Name)"
+    }
+
     return @{
         Operation = 'Update'
         ElementType = 'Theme'
