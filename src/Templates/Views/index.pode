@@ -158,8 +158,13 @@
                                             }
                                         }
 
+                                        $activePage = [string]::Empty
+                                        if (($data.Page.Name -ieq $page.Name) -and ($data.Page.Group -ieq $pageGroup.Name)) {
+                                            $activePage = 'active'
+                                        }
+
                                         "<li class='nav-item nav-page-item'>
-                                            <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
+                                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
                                                     $($page.Name)
