@@ -25,7 +25,7 @@
             }
 
             if ($data.Multiline) {
-                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' style='$($width)' $($describedBy) $($readOnly) $($value)></textarea>"
+                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Lines)' style='$($width)' $($describedBy) $($readOnly) $($value)></textarea>"
             }
             else {
                 if ($data.Prepend.Enabled -or $data.Append.Enabled) {

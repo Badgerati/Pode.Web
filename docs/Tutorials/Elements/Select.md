@@ -54,3 +54,7 @@ New-PodeWebCard -Content @(
 ## Choose Option
 
 You can hide the "Choose an Option" option by passing `-NoChooseOption`, or you can change it value via `-ChooseOptionValue`.
+
+## Multiple
+
+You can render a multiple select element, where more than one option can be selected, by using the `-Multiple` switch. By default only the first 4 options are shown, this can be altered using the `-Size` parameter.

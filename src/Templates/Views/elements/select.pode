@@ -4,7 +4,7 @@
         $(
             $multiple = [string]::Empty
             if ($data.Multiple) {
-                $multiple = 'multiple'
+                $multiple = "multiple size='$($data.Size)'"
             }
 
             "<select class='custom-select' id='$($data.ID)' name='$($data.Name)' pode-dynamic='$($data.IsDynamic)' $($multiple)>"

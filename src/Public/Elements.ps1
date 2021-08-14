@@ -20,8 +20,9 @@ function New-PodeWebTextbox
         $Placeholder,
 
         [Parameter(ParameterSetName='Multi')]
+        [Alias('Height')]
         [int]
-        $Height = 4,
+        $Size = 4,
 
         [Parameter()]
         [int]
@@ -81,12 +82,12 @@ function New-PodeWebTextbox
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
 
-    # contrain height
-    if ($Height -le 0) {
-        $Height = 4
+    # constrain number of lines shown
+    if ($Size -le 0) {
+        $Size = 4
     }
 
-    # contrain width
+    # constrain width
     if ($Width -lt 0) {
         $Width = 0
     }
@@ -104,7 +105,7 @@ function New-PodeWebTextbox
         Type = $Type
         Multiline = $Multiline.IsPresent
         Placeholder = $Placeholder
-        Height = $Height
+        Size = $Size
         Width = $Width
         Preformat = $Preformat.IsPresent
         HelpText = $HelpText
@@ -427,6 +428,9 @@ function New-PodeWebSelect
         [string]
         $SelectedValue,
 
+        [int]
+        $Size = 4,
+
         [Parameter()]
         [string[]]
         $CssClass,
@@ -444,6 +448,10 @@ function New-PodeWebSelect
 
     $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
 
+    if ($Size -le 0) {
+        $Size = 4
+    }
+
     $element = @{
         ComponentType = 'Element'
         ElementType = 'Select'
@@ -455,6 +463,7 @@ function New-PodeWebSelect
         IsDynamic = ($null -ne $ScriptBlock)
         SelectedValue = $SelectedValue
         Multiple = $Multiple.IsPresent
+        Size = $Size
         ChooseOptionValue = $ChooseOptionValue
         NoChooseOption = $NoChooseOption.IsPresent
         CssClasses = ($CssClass -join ' ')

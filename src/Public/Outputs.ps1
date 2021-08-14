@@ -435,8 +435,9 @@ function Out-PodeWebTextbox
         $Value,
 
         [Parameter()]
+        [Alias('Height')]
         [int]
-        $Height = 10,
+        $Size = 10,
 
         [Parameter()]
         [switch]
@@ -468,8 +469,8 @@ function Out-PodeWebTextbox
             $items = ($items | Out-String)
         }
 
-        if ($Height -le 0) {
-            $Height = 10
+        if ($Size -le 0) {
+            $Size = 10
         }
 
         return @{
@@ -478,7 +479,7 @@ function Out-PodeWebTextbox
             Value = $items
             AsJson = $AsJson.IsPresent
             Multiline = $Multiline.IsPresent
-            Height = $Height
+            Size = $Size
             Preformat = $Preformat.IsPresent
             ReadOnly = $ReadOnly.IsPresent
         }

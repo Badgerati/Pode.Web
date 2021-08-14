@@ -49,7 +49,7 @@ Start-PodeServer {
             Sync-PodeWebSelect -Name 'DynamicSelect'
         }
 
-        New-PodeWebSelect -Name 'DynamicSelect' -Multiple -ScriptBlock {
+        New-PodeWebSelect -Name 'DynamicSelect' -Multiple -Size 6 -ScriptBlock {
             return @(foreach ($i in (1..10)) {
                 Get-Random -Minimum 1 -Maximum 10
             })
