@@ -27,7 +27,7 @@ Which looks like below:
 
 ### Dynamic
 
-You can build a Select element's options dynamic by instead using the `-ScriptBlock` parameter. This will allow you to retrieve the options from elsewhere and use them as options instead.
+You can build a Select element's options dynamically by using the `-ScriptBlock` parameter. This will allow you to retrieve the options from elsewhere and use them as options instead.
 
 You can either return an array of raw values, or pipe the options into, and return, [`Update-PodeWebSelect`](../../../Functions/Outputs/Update-PodeWebSelect). The following will both build a Select element with 10 random numbers as the options:
 
