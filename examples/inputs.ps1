@@ -25,7 +25,36 @@ Start-PodeServer {
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
         New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
+        New-PodeWebSelect -Name 'Amount' -ScriptBlock {
+            return @(foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            })
+        }
     )
 
-    Set-PodeWebHomePage -Layouts $form -Title 'Testing Inputs'
+    $container = New-PodeWebContainer -Content @(
+        New-PodeWebButton -Name 'New Options' -ScriptBlock {
+            $options = @(foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            })
+
+            $options | Update-PodeWebSelect -Name 'DynamicSelect'
+        }
+
+        New-PodeWebButton -Name 'Clear Options' -ScriptBlock {
+            Clear-PodeWebSelect -Name 'DynamicSelect'
+        }
+
+        New-PodeWebButton -Name 'Resync Options' -ScriptBlock {
+            Sync-PodeWebSelect -Name 'DynamicSelect'
+        }
+
+        New-PodeWebSelect -Name 'DynamicSelect' -Multiple -ScriptBlock {
+            return @(foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            })
+        }
+    )
+
+    Set-PodeWebHomePage -Layouts $form, $container -Title 'Testing Inputs'
 }

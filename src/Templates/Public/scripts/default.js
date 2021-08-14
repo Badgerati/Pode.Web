@@ -30,6 +30,7 @@ $(() => {
     loadCharts();
     loadAutoCompletes();
     loadTiles();
+    loadSelects();
 
     setupSteppers();
     setupAccordion();
@@ -1088,6 +1089,23 @@ function loadTile(tileId, firstLoad = false) {
         $(`div.pode-tile[pode-dynamic="False"]#${tileId} .pode-tile-body .pode-refresh-btn`).each((i, e) => {
             $(e).trigger('click');
         });
+    }
+}
+
+function loadSelects() {
+    $(`select[pode-dynamic="True"]`).each((i, e) => {
+        loadSelect($(e).attr('id'));
+    });
+}
+
+function loadSelect(selectId) {
+    if (!selectId) {
+        return;
+    }
+
+    var select = $(`select[pode-dynamic="True"]#${selectId}`);
+    if (select.length > 0) {
+        sendAjaxReq(`/elements/select/${selectId}`, null, select, true);
     }
 }
 
@@ -2217,14 +2235,12 @@ function updateTile(action, sender) {
 }
 
 function syncTile(action) {
-    if (!action.ID && !action.Name) {
+    var tile = getElementByNameOrId(action, 'div');
+    if (!tile) {
         return;
     }
 
-    var tile = getElementByNameOrId(action, 'div');
-    var id = getId(tile);
-
-    loadTile(id);
+    loadTile(getId(tile));
 }
 
 function actionTheme(action) {
@@ -2260,12 +2276,68 @@ function actionSelect(action) {
         return;
     }
 
+    switch (action.Operation.toLowerCase()) {
+        case 'set':
+            setSelect(action);
+            break;
+
+        case 'update':
+            updateSelect(action);
+            break;
+
+        case 'clear':
+            clearSelect(action);
+            break;
+
+        case 'sync':
+            syncSelect(action);
+            break;
+    }
+}
+
+function setSelect(action) {
     var select = getElementByNameOrId(action, 'select');
     if (!select) {
         return;
     }
 
     select.val(decodeHTML(action.Value));
+}
+
+function updateSelect(action) {
+    var select = getElementByNameOrId(action, 'select');
+    if (!select) {
+        return;
+    }
+
+    select.empty();
+
+    action.Options = convertToArray(action.Options);
+    if (action.Options.Length <= 0) {
+        return;
+    }
+
+    action.Options.forEach((opt) => {
+        select.append(`<option value="${opt}">${opt}</option>`);
+    })
+}
+
+function clearSelect(action) {
+    var select = getElementByNameOrId(action, 'select');
+    if (!select) {
+        return;
+    }
+
+    select.empty();
+}
+
+function syncSelect(action) {
+    var select = getElementByNameOrId(action, 'select');
+    if (!select) {
+        return;
+    }
+
+    loadSelect(getId(select));
 }
 
 function decodeHTML(value) {
@@ -3101,6 +3173,10 @@ function actionBreadcrumb(action) {
 }
 
 function convertToArray(element) {
+    if (element == null) {
+        return [];
+    }
+
     if (!Array.isArray(element)) {
         element = [element];
     }
