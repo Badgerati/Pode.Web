@@ -14,6 +14,8 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
+By default it shows the first 10 lines of text, this can be altered using the `-Size` parameter.
+
 ## Update
 
 To update the value of a textbox on the page, you can use [`Update-PodeWebTextbox`](../../../Functions/Outputs/Update-PodeWebTextbox). The `-Value` supplied can be a string/object array, any objects will be converted to a string:

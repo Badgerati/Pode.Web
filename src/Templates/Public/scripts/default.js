@@ -2462,7 +2462,7 @@ function writeTextbox(action, sender) {
     if (action.Multiline) {
         txt = $(`textarea#${txtId}`);
         if (txt.length == 0) {
-            element = `<textarea class='form-control' id='${txtId}' rows='${action.Height}' ${readOnly}></textarea>`;
+            element = `<textarea class='form-control' id='${txtId}' rows='${action.Size}' ${readOnly}></textarea>`;
         }
     }
     else {
