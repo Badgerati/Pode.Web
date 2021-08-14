@@ -691,6 +691,84 @@ function Set-PodeWebSelect
     }
 }
 
+function Update-PodeWebSelect
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string[]]
+        $Options
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $Options
+    }
+
+    end {
+        return @{
+            Operation = 'Update'
+            ElementType = 'Select'
+            Name = $Name
+            ID = $Id
+            Options = $items
+        }
+    }
+}
+
+function Clear-PodeWebSelect
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Clear'
+        ElementType = 'Select'
+        Name = $Name
+        ID = $Id
+    }
+}
+
+function Sync-PodeWebSelect
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Sync'
+        ElementType = 'Select'
+        Name = $Name
+        ID = $Id
+    }
+}
+
 function Update-PodeWebBadge
 {
     [CmdletBinding()]

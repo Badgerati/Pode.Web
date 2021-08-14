@@ -1,6 +1,10 @@
 # Select
 
-The Select element is a form input element, and can be added using [`New-PodeWebSelect`](../../../Functions/Elements/New-PodeWebSelect). This will add a dropdown select menu to your form, allowing the user to select an entry; to allow multiple entries to be selected you can pass `-Multiple`, and to specify a pre-selected value you can use `-SelectedValue`:
+The Select element is a form input element, and can be added using [`New-PodeWebSelect`](../../../Functions/Elements/New-PodeWebSelect). This will add a dropdown select menu to your form, allowing the user to select an entry; to allow multiple entries to be selected you can pass `-Multiple`, and to specify a pre-selected value you can use `-SelectedValue`.
+
+## Options
+
+To create a Select element with pre-defined options, you can use the `-Options` parameter:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -20,5 +24,33 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![select](../../../images/select.png)
+
+### Dynamic
+
+You can build a Select element's options dynamic by instead using the `-ScriptBlock` parameter. This will allow you to retrieve the options from elsewhere and use them as options instead.
+
+You can either return an array of raw values, or pipe the options into, and return, [`Update-PodeWebSelect`](../../../Functions/Outputs/Update-PodeWebSelect). The following will both build a Select element with 10 random numbers as the options:
+
+```powershell
+New-PodeWebCard -Content @(
+    New-PodeWebForm -Name 'Example' -ScriptBlock {
+        New-PodeWebSelect -Name 'Random1' -ScriptBlock {
+            return @(foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            })
+        }
+
+        New-PodeWebSelect -Name 'Random2' -ScriptBlock {
+            $options = @(foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            })
+
+            $options | Update-PodeWebSelect -Id $ElementData.Id
+        }
+    }
+)
+```
+
+## Choose Option
 
 You can hide the "Choose an Option" option by passing `-NoChooseOption`, or you can change it value via `-ChooseOptionValue`.

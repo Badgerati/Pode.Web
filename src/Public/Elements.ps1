@@ -401,7 +401,7 @@ function New-PodeWebRadio
 
 function New-PodeWebSelect
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='Options')]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -411,9 +411,17 @@ function New-PodeWebSelect
         [string]
         $Id,
 
-        [Parameter()]
+        [Parameter(ParameterSetName='Options')]
         [string[]]
         $Options,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter(ParameterSetName='ScriptBlock')]
+        [object[]]
+        $ArgumentList,
 
         [Parameter()]
         [string]
@@ -434,25 +442,54 @@ function New-PodeWebSelect
         $NoChooseOption
     )
 
-    if (Test-PodeIsEmpty $Options) {
-        throw "Select options are required"
-    }
-
     $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
 
-    return @{
+    $element = @{
         ComponentType = 'Element'
         ElementType = 'Select'
         Parent = $ElementData
         Name = $Name
         ID = $Id
         Options = @($Options)
+        ScriptBlock = $ScriptBlock
+        IsDynamic = ($null -ne $ScriptBlock)
         SelectedValue = $SelectedValue
         Multiple = $Multiple.IsPresent
         ChooseOptionValue = $ChooseOptionValue
         NoChooseOption = $NoChooseOption.IsPresent
         CssClasses = ($CssClass -join ' ')
     }
+
+    $routePath = "/elements/select/$($Id)"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+            $global:ElementData = $using:element
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (!(Test-PodeWebOutputWrapped -Output $result)) {
+                $result = ($result | Update-PodeWebSelect -Id $using:Id)
+            }
+
+            Write-PodeJsonResponse -Value $result
+            $global:ElementData = $null
+        }
+    }
+
+    return $element
 }
 
 function New-PodeWebRange
