@@ -1072,3 +1072,34 @@ function Sync-PodeWebTile
         Name = $Name
     }
 }
+
+function Update-PodeWebTheme
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name
+    )
+
+    if (!(Test-PodeWebTheme -Name $Name)) {
+        throw "Theme does not exist: $($Name)"
+    }
+
+    return @{
+        Operation = 'Update'
+        ElementType = 'Theme'
+        Name = $Name.ToLowerInvariant()
+    }
+}
+
+function Reset-PodeWebTheme
+{
+    [CmdletBinding()]
+    param()
+
+    return @{
+        Operation = 'Reset'
+        ElementType = 'Theme'
+    }
+}

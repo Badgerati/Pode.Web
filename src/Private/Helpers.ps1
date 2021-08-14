@@ -166,17 +166,20 @@ function Test-PodeWebThemeCustom
         $Name
     )
 
-    $inbuildThemes = Get-PodeWebInbuiltThemes
-    if ($Name -iin $inbuildThemes) {
-        return $false
-    }
-
     $customThemes = Get-PodeWebState -Name 'custom-themes'
-    if ($customThemes.Themes.Keys -icontains $Name) {
-        return $true
-    }
+    return ($customThemes.Themes.Keys -icontains $Name)
+}
 
-    return $false
+function Test-PodeWebThemeInbuilt
+{
+    param(
+        [Parameter()]
+        [string]
+        $Name
+    )
+
+    $inbuildThemes = Get-PodeWebInbuiltThemes
+    return ($Name -iin $inbuildThemes)
 }
 
 function Test-PodeWebArrayEmpty

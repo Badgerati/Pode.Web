@@ -173,6 +173,18 @@ function Get-PodeWebTheme
     return $theme.ToLowerInvariant()
 }
 
+function Test-PodeWebTheme
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name
+    )
+
+    return ((Test-PodeWebThemeInbuilt -Name $Name) -or (Test-PodeWebThemeCustom -Name $Name))
+}
+
 function Get-PodeWebUsername
 {
     [CmdletBinding()]
