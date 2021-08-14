@@ -215,7 +215,7 @@ function Update-PodeWebTableRow
 {
     [CmdletBinding(DefaultParameterSetName='Name_and_DataValue')]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(ValueFromPipeline=$true)]
         $Data,
 
         [Parameter(Mandatory=$true, ParameterSetName='ID_and_DataValue')]
@@ -236,7 +236,15 @@ function Update-PodeWebTableRow
         [Parameter(Mandatory=$true, ParameterSetName='ID_and_Index')]
         [Parameter(Mandatory=$true, ParameterSetName='Name_and_Index')]
         [int]
-        $Index
+        $Index,
+
+        [Parameter()]
+        [string]
+        $BackgroundColour,
+
+        [Parameter()]
+        [string]
+        $Colour
     )
 
     return @{
@@ -250,6 +258,8 @@ function Update-PodeWebTableRow
             Index = $Index
         }
         Data = $Data
+        BackgroundColour = $BackgroundColour
+        Colour = $Colour
     }
 }
 

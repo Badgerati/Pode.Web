@@ -1689,13 +1689,9 @@ function actionTableRow(action, sender) {
 }
 
 function updateTableRow(action) {
-    if ((!action.ID && !action.Name) || !action.Data) {
-        return;
-    }
-
     // ensure the table exists
     var table = getElementByNameOrId(action, 'table');
-    if (table.length == 0) {
+    if (!table || table.length == 0) {
         return;
     }
 
@@ -1720,22 +1716,40 @@ function updateTableRow(action) {
         return;
     }
 
-    // update the rows cells
-    var keys = Object.keys(action.Data);
+    // update the row's data
+    if (action.Data) {
+        var keys = Object.keys(action.Data);
 
-    keys.forEach((key) => {
-        var _html = '';
-        var _value = action.Data[key];
+        keys.forEach((key) => {
+            var _html = '';
+            var _value = action.Data[key];
 
-        if (Array.isArray(_value) || _value.ElementType) {
-            _html += buildElements(_value);
-        }
-        else {
-            _html += _value;
-        }
+            if (Array.isArray(_value) || _value.ElementType) {
+                _html += buildElements(_value);
+            }
+            else {
+                _html += _value;
+            }
 
-        row.find(`td[pode-column="${key}"]`).html(_html);
-    });
+            row.find(`td[pode-column="${key}"]`).html(_html);
+        });
+    }
+
+    // update the row's background colour
+    if (action.BackgroundColour) {
+        row[0].style.setProperty('background-color', action.BackgroundColour, 'important');
+    }
+    else {
+        row[0].style.setProperty('background-color', null);
+    }
+
+    // update the row's forecolour
+    if (action.Colour) {
+        row[0].style.setProperty('color', action.Colour, 'important');
+    }
+    else {
+        row[0].style.setProperty('color', null);
+    }
 
     // binds sort/buttons/etc
     $('[data-toggle="tooltip"]').tooltip();
