@@ -9,20 +9,6 @@
 
             "<select class='custom-select' id='$($data.ID)' name='$($data.Name)' pode-dynamic='$($data.IsDynamic)' $($multiple)>"
 
-            if (!$data.Multiple -and !$data.NoChooseOption) {
-                $chooseValue = $data.ChooseOptionValue
-                if ([string]::IsNullOrWhiteSpace($chooseValue)) {
-                    $chooseValue = 'Choose an option'
-                }
-
-                if ([string]::IsNullOrWhiteSpace($data.SelectedValue)) {
-                    "<option selected>$($chooseValue)</option>"
-                }
-                else {
-                    "<option>$($chooseValue)</option>"
-                }
-            }
-
             foreach ($option in $data.Options) {
                 if ([string]::IsNullOrWhiteSpace($option)) {
                     continue
