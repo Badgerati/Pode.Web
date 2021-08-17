@@ -435,15 +435,8 @@ function New-PodeWebSelect
         [string[]]
         $CssClass,
 
-        [Parameter()]
-        [string]
-        $ChooseOptionValue,
-
         [switch]
-        $Multiple,
-
-        [switch]
-        $NoChooseOption
+        $Multiple
     )
 
     $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
@@ -464,8 +457,6 @@ function New-PodeWebSelect
         SelectedValue = $SelectedValue
         Multiple = $Multiple.IsPresent
         Size = $Size
-        ChooseOptionValue = $ChooseOptionValue
-        NoChooseOption = $NoChooseOption.IsPresent
         CssClasses = ($CssClass -join ' ')
     }
 

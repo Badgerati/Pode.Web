@@ -23,7 +23,8 @@ Start-PodeServer {
         New-PodeWebCredential -Name 'Credentials' -NoLabels
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
-        New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple
+        New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations')
+        New-PodeWebSelect -Name 'Role2' -Options @('User', 'Admin', 'Operations') -Multiple
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
         New-PodeWebSelect -Name 'Amount' -ScriptBlock {
             return @(foreach ($i in (1..10)) {
