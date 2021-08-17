@@ -2,7 +2,7 @@
 
 A container is similar to a card layout, but it has not title, nor can it be collapsed. It's a way of group multiple elements together, with the option of making the background of the container transparent.
 
-A container takes an array of content, that can be either other layouts or raw elements.
+A container takes an array of components via `-Content`, that can be either other layouts or raw elements.
 
 ## Usage
 

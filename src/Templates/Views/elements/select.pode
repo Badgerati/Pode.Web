@@ -7,7 +7,14 @@
                 $multiple = "multiple size='$($data.Size)'"
             }
 
-            "<select class='custom-select' id='$($data.ID)' name='$($data.Name)' pode-dynamic='$($data.IsDynamic)' $($multiple)>"
+            $events = [string]::Empty
+            if ($null -ne $data.Events) {
+                foreach ($evt in $data.Events) {
+                    $events += " on$($evt)=`"invokeEvent('$($evt)', this);`""
+                }
+            }
+
+            "<select class='custom-select' id='$($data.ID)' pode-comp-type='$($data.ComponentType)' pode-comp-obj='$($data.ElementType)' name='$($data.Name)' pode-dynamic='$($data.IsDynamic)' $($multiple) $($events)>"
 
             foreach ($option in $data.Options) {
                 if ([string]::IsNullOrWhiteSpace($option)) {

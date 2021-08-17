@@ -3197,3 +3197,14 @@ function convertToArray(element) {
 
     return element;
 }
+
+function invokeEvent(type, sender) {
+    // !!!
+    // could it be worth just making all layout/element urls: "/component/<type>/<id>" ?
+    // easier?
+    // and make it so every layout can contain anything. screw restrictions.
+
+    sender = $(sender);
+    var url = `/${sender.attr('pode-comp-type')}s/${sender.attr('pode-comp-obj')}/${sender.attr('id')}/events/${type}`;
+    sendAjaxReq(url, null, sender, true);
+}

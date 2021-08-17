@@ -26,10 +26,13 @@ Start-PodeServer {
         New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations')
         New-PodeWebSelect -Name 'Role2' -Options @('User', 'Admin', 'Operations') -Multiple
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
+
         New-PodeWebSelect -Name 'Amount' -ScriptBlock {
             return @(foreach ($i in (1..10)) {
                 Get-Random -Minimum 1 -Maximum 10
             })
+        } | Register-PodeWebEvent -Type Change -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'The value was changed!'
         }
     )
 

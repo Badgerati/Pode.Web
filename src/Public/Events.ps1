@@ -1,0 +1,72 @@
+function Register-PodeWebEvent
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [ValidateNotNull()]
+        [hashtable]
+        $Component,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('Change', 'Focus', 'Blur', 'Click', 'Load', 'MouseOver', 'MouseOut', 'KeyDown', 'KeyUp')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true)]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [switch]
+        $PassThru
+    )
+
+    # add events map if not present
+    if ($null -eq $Component.Events) {
+        $Component.Events = @()
+    }
+
+    # ensure not already defined
+    if ($Component.Events -icontains $Type) {
+        throw "Component with ID '$($Component.ID)' already has the $($Type) event defined"
+    }
+
+    # add event type
+    $Component.Events += $Type.ToLowerInvariant()
+
+    # setup the route
+    $compType = $Component.ComponentType.ToLowerInvariant()
+    $innerType = $Component["$($Component.ComponentType)Type"].ToLowerInvariant()
+
+    $routePath = "/$($compType)s/$($innerType)/$($Component.ID)/events/$($Type.ToLowerInvariant())"
+    if (!(Test-PodeWebRoute -Path $routePath)) {
+        $auth = $null
+        if (!$Component.NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $Component.EndpointName -ScriptBlock {
+            param($Data)
+            $global:ComponentData = $using:Component
+
+            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -eq $result) {
+                $result = @()
+            }
+
+            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                Write-PodeJsonResponse -Value $result
+            }
+
+            $global:ComponentData = $null
+        }
+    }
+
+    # return the component back
+    if ($PassThru) {
+        return $Component
+    }
+}

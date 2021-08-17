@@ -2,7 +2,7 @@
 
 A grid layout is an array of cells with content, equally spaced in size, that can be either horizontal or vertical in orientation.
 
-The cells take an array of content, that can be either other layouts or raw elements.
+The cells take an array of components via `-Content`, that can be either other layouts or raw elements.
 
 ## Usage
 
