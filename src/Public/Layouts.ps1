@@ -2,6 +2,10 @@ function New-PodeWebGrid
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Cells,
@@ -18,7 +22,7 @@ function New-PodeWebGrid
         $Vertical
     )
 
-    if (!(Test-PodeWebContent -Content $Cells -ComponentType Layout -LayoutType Cell)) {
+    if (!(Test-PodeWebContent -Content $Cells -ComponentType Layout -ObjectType Cell)) {
         throw 'A Grid can only contain Cell layouts'
     }
 
@@ -28,9 +32,10 @@ function New-PodeWebGrid
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Grid'
+        ObjectType = 'Grid'
         Cells = $Cells
         Width = $Width
+        ID = (Get-PodeWebElementId -Tag Grid -Id $Id -RandomToken)
         CssClasses = ($CssClass -join ' ')
     }
 }
@@ -39,6 +44,10 @@ function New-PodeWebCell
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Content,
@@ -55,9 +64,10 @@ function New-PodeWebCell
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Cell'
+        ObjectType = 'Cell'
         Content = $Content
         Width = $Width
+        ID = (Get-PodeWebElementId -Tag Cell -Id $Id -RandomToken)
     }
 }
 
@@ -65,6 +75,10 @@ function New-PodeWebTabs
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Tabs,
@@ -81,7 +95,7 @@ function New-PodeWebTabs
         $Cycle
     )
 
-    if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout -LayoutType Tab)) {
+    if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout -ObjectType Tab)) {
         throw 'Tabs can only contain Tab layouts'
     }
 
@@ -91,7 +105,8 @@ function New-PodeWebTabs
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Tabs'
+        ObjectType = 'Tabs'
+        ID = (Get-PodeWebElementId -Tag Tabs -Id $Id -RandomToken)
         Tabs = $Tabs
         CssClasses = ($CssClass -join ' ')
         Cycle = @{
@@ -105,6 +120,10 @@ function New-PodeWebTab
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
@@ -124,9 +143,9 @@ function New-PodeWebTab
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Tab'
+        ObjectType = 'Tab'
         Name = $Name
-        ID = (Get-PodeWebElementId -Tag Tab -Name $Name)
+        ID = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
         Layouts = $Layouts
         Icon = $Icon
     }
@@ -169,7 +188,7 @@ function New-PodeWebCard
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Card'
+        ObjectType = 'Card'
         Name = $Name
         ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name -NameAsToken)
         Content = $Content
@@ -209,7 +228,7 @@ function New-PodeWebContainer
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Container'
+        ObjectType = 'Container'
         ID = (Get-PodeWebElementId -Tag Container -Id $Id -NameAsToken)
         Content = $Content
         CssClasses = ($CssClass -join ' ')
@@ -285,7 +304,7 @@ function New-PodeWebModal
     # generate ID
     $Id = Get-PodeWebElementId -Tag Modal -Id $Id -Name $Name
 
-    $routePath = "/layouts/modal/$($Id)"
+    $routePath = "/components/modal/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -310,7 +329,7 @@ function New-PodeWebModal
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Modal'
+        ObjectType = 'Modal'
         Name = $Name
         ID = $Id
         Icon = $Icon
@@ -328,6 +347,10 @@ function New-PodeWebHero
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory=$true)]
         [string]
         $Title,
@@ -351,7 +374,8 @@ function New-PodeWebHero
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Hero'
+        ObjectType = 'Hero'
+        ID = (Get-PodeWebElementId -Tag Hero -Id $Id -RandomToken)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         Content = $Content
@@ -363,6 +387,10 @@ function New-PodeWebCarousel
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Slides,
@@ -372,13 +400,13 @@ function New-PodeWebCarousel
         $CssClass
     )
 
-    if (!(Test-PodeWebContent -Content $Slides -ComponentType Layout -LayoutType Slide)) {
+    if (!(Test-PodeWebContent -Content $Slides -ComponentType Layout -ObjectType Slide)) {
         throw 'A Carousel can only contain Slide layouts'
     }
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Carousel'
+        ObjectType = 'Carousel'
         ID = (Get-PodeWebElementId -Tag Carousel -Id $Id -NameAsToken)
         Slides = $Slides
         CssClasses = ($CssClass -join ' ')
@@ -408,8 +436,9 @@ function New-PodeWebSlide
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Slide'
+        ObjectType = 'Slide'
         Content = $Content
+        ID = (Get-PodeWebElementId -Tag Slide -RandomToken)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
     }
@@ -453,7 +482,7 @@ function New-PodeWebSteps
         $NoAuthentication
     )
 
-    if (!(Test-PodeWebContent -Content $Steps -ComponentType Layout -LayoutType Step)) {
+    if (!(Test-PodeWebContent -Content $Steps -ComponentType Layout -ObjectType Step)) {
         throw 'Steps can only contain Step layouts'
     }
 
@@ -461,7 +490,7 @@ function New-PodeWebSteps
     $Id = Get-PodeWebElementId -Tag Steps -Id $Id -Name $Name
 
     # add route
-    $routePath = "/layouts/steps/$($Id)"
+    $routePath = "/components/steps/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -486,7 +515,7 @@ function New-PodeWebSteps
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Steps'
+        ObjectType = 'Steps'
         ID = $Id
         Steps = $Steps
         CssClasses = ($CssClass -join ' ')
@@ -535,7 +564,7 @@ function New-PodeWebStep
     $Id = Get-PodeWebElementId -Tag Step -Name $Name
 
     # add route
-    $routePath = "/layouts/step/$($Id)"
+    $routePath = "/components/step/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -560,7 +589,7 @@ function New-PodeWebStep
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Step'
+        ObjectType = 'Step'
         Name = $Name
         ID = $Id
         Content = $Content
@@ -582,7 +611,7 @@ function Set-PodeWebBreadcrumb
         $Items = @()
     }
 
-    if (!(Test-PodeWebContent -Content $Items -ComponentType Layout -LayoutType BreadcrumbItem)) {
+    if (!(Test-PodeWebContent -Content $Items -ComponentType Layout -ObjectType BreadcrumbItem)) {
         throw 'A Breadcrumb can only contain breadcrumb item layouts'
     }
 
@@ -597,8 +626,9 @@ function Set-PodeWebBreadcrumb
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Breadcrumb'
+        ObjectType = 'Breadcrumb'
         Items = $Items
+        NoEvents = $true
     }
 }
 
@@ -620,10 +650,11 @@ function New-PodeWebBreadcrumbItem
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'BreadcrumbItem'
+        ObjectType = 'BreadcrumbItem'
         Name = $Name
         Url = $Url
         Active = $Active.IsPresent
+        NoEvents = $true
     }
 }
 
@@ -656,7 +687,7 @@ function New-PodeWebAccordion
         $Cycle
     )
 
-    if (!(Test-PodeWebContent -Content $Bellows -ComponentType Layout -LayoutType Bellow)) {
+    if (!(Test-PodeWebContent -Content $Bellows -ComponentType Layout -ObjectType Bellow)) {
         throw 'Accordions can only contain Bellow layouts'
     }
 
@@ -666,7 +697,7 @@ function New-PodeWebAccordion
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Accordion'
+        ObjectType = 'Accordion'
         ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -NameAsToken)
         Bellows = $Bellows
         CssClasses = ($CssClass -join ' ')
@@ -701,7 +732,7 @@ function New-PodeWebBellow
 
     return @{
         ComponentType = 'Layout'
-        LayoutType = 'Bellow'
+        ObjectType = 'Bellow'
         Name = $Name
         ID = (Get-PodeWebElementId -Tag Bellow -Name $Name)
         Content = $Content

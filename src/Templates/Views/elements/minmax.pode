@@ -34,7 +34,7 @@
                 }
             }
 
-            "<div class='form-row' id='$($data.ID)' name='$($data.Name)'>
+            "<div class='form-row' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' $(ConvertTo-PodeWebEvents -Events $data.Events)>
                 <div class='form-group col-md-6'>"
                     if (!$data.NoLabels) {
                         "<label for='$($data.ID)_min'>Minimum</label>"

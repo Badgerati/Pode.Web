@@ -1,1 +1,6 @@
-<span id="$($data.ID)" class="hide pode-timer $($data.CssClasses)" pode-interval="$($data.Interval)"></span>
+<span
+    id="$($data.ID)"
+    class="hide pode-timer $($data.CssClasses)"
+    pode-interval="$($data.Interval)"
+    pode-object="$($data.ObjectType)">
+</span>

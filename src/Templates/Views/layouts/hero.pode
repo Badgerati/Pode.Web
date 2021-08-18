@@ -1,4 +1,4 @@
-<div class="jumbotron $($data.CssClasses)">
+<div id="$($data.ID)" class="jumbotron $($data.CssClasses)" pode-object="$($data.ObjectType)">
     <h1 class="display-4">$($data.Title)</h1>
     <p class="lead">$($data.Message)</p>
 

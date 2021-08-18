@@ -34,7 +34,7 @@ function Out-PodeWebTable
         # table output
         return @{
             Operation = 'Output'
-            ElementType = 'Table'
+            ObjectType = 'Table'
             Data = $items
             Sort = $Sort.IsPresent
             Columns = $_columns
@@ -154,7 +154,7 @@ function Update-PodeWebTable
         # table output
         return @{
             Operation = 'Update'
-            ElementType = 'Table'
+            ObjectType = 'Table'
             Data = $items
             ID = $Id
             Name = $Name
@@ -184,7 +184,7 @@ function Sync-PodeWebTable
 
     return @{
         Operation = 'Sync'
-        ElementType = 'Table'
+        ObjectType = 'Table'
         ID = $Id
         Name = $Name
     }
@@ -205,7 +205,7 @@ function Clear-PodeWebTable
 
     return @{
         Operation = 'Clear'
-        ElementType = 'Table'
+        ObjectType = 'Table'
         ID = $Id
         Name = $Name
     }
@@ -249,7 +249,7 @@ function Update-PodeWebTableRow
 
     return @{
         Operation = 'Update'
-        ElementType = 'TableRow'
+        ObjectType = 'TableRow'
         ID = $Id
         Name = $Name
         Row = @{
@@ -299,7 +299,7 @@ function Out-PodeWebChart
     end {
         return @{
             Operation = 'Output'
-            ElementType = 'Chart'
+            ObjectType = 'Chart'
             Data = $items
             ChartType = $Type
         }
@@ -345,7 +345,7 @@ function Update-PodeWebChart
     end {
         return @{
             Operation = 'Update'
-            ElementType = 'Chart'
+            ObjectType = 'Chart'
             Data = $items
             ID = $Id
             Name = $Name
@@ -409,7 +409,7 @@ function Sync-PodeWebChart
 
     return @{
         Operation = 'Sync'
-        ElementType = 'Chart'
+        ObjectType = 'Chart'
         ID = $Id
         Name = $Name
     }
@@ -430,7 +430,7 @@ function Clear-PodeWebChart
 
     return @{
         Operation = 'Clear'
-        ElementType = 'Chart'
+        ObjectType = 'Chart'
         ID = $Id
         Name = $Name
     }
@@ -485,7 +485,7 @@ function Out-PodeWebTextbox
 
         return @{
             Operation = 'Output'
-            ElementType = 'Textbox'
+            ObjectType = 'Textbox'
             Value = $items
             AsJson = $AsJson.IsPresent
             Multiline = $Multiline.IsPresent
@@ -536,7 +536,7 @@ function Update-PodeWebTextbox
 
         return @{
             Operation = 'Update'
-            ElementType = 'Textbox'
+            ObjectType = 'Textbox'
             Value = $items
             ID = $Id
             Name = $Name
@@ -565,7 +565,7 @@ function Clear-PodeWebTextbox
 
     return @{
         Operation = 'Clear'
-        ElementType = 'Textbox'
+        ObjectType = 'Textbox'
         ID = $Id
         Name = $Name
         Multiline = $Multiline.IsPresent
@@ -600,7 +600,7 @@ function Show-PodeWebToast
 
     return @{
         Operation = 'Show'
-        ElementType = 'Toast'
+        ObjectType = 'Toast'
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Duration = $Duration
@@ -627,7 +627,7 @@ function Out-PodeWebValidation
 
     return @{
         Operation = 'Output'
-        ElementType = 'Validation'
+        ObjectType = 'Validation'
         Name = $Name
         ID = $Id
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
@@ -649,7 +649,7 @@ function Reset-PodeWebForm
 
     return @{
         Operation = 'Reset'
-        ElementType = 'Form'
+        ObjectType = 'Form'
         ID = $Id
         Name = $Name
     }
@@ -670,7 +670,7 @@ function Update-PodeWebText
 
     return @{
         Operation = 'Update'
-        ElementType = 'Text'
+        ObjectType = 'Text'
         ID = $Id
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
     }
@@ -695,7 +695,7 @@ function Set-PodeWebSelect
 
     return @{
         Operation = 'Set'
-        ElementType = 'Select'
+        ObjectType = 'Select'
         Name = $Name
         ID = $Id
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
@@ -730,7 +730,7 @@ function Update-PodeWebSelect
     end {
         return @{
             Operation = 'Update'
-            ElementType = 'Select'
+            ObjectType = 'Select'
             Name = $Name
             ID = $Id
             Options = $items
@@ -753,7 +753,7 @@ function Clear-PodeWebSelect
 
     return @{
         Operation = 'Clear'
-        ElementType = 'Select'
+        ObjectType = 'Select'
         Name = $Name
         ID = $Id
     }
@@ -774,7 +774,7 @@ function Sync-PodeWebSelect
 
     return @{
         Operation = 'Sync'
-        ElementType = 'Select'
+        ObjectType = 'Select'
         Name = $Name
         ID = $Id
     }
@@ -802,7 +802,7 @@ function Update-PodeWebBadge
 
     return @{
         Operation = 'Update'
-        ElementType = 'Badge'
+        ObjectType = 'Badge'
         ID = $Id
         Colour = $Colour
         ColourType = $ColourType.ToLowerInvariant()
@@ -833,7 +833,7 @@ function Update-PodeWebCheckbox
 
     return @{
         Operation = 'Update'
-        ElementType = 'Checkbox'
+        ObjectType = 'Checkbox'
         ID = $Id
         Name = $Name
         OptionId = $OptionId
@@ -864,7 +864,7 @@ function Show-PodeWebModal
 
     return @{
         Operation = 'Show'
-        ElementType = 'Modal'
+        ObjectType = 'Modal'
         ID = $Id
         Name = $Name
         DataValue = $DataValue
@@ -887,7 +887,7 @@ function Hide-PodeWebModal
 
     return @{
         Operation = 'Hide'
-        ElementType = 'Modal'
+        ObjectType = 'Modal'
         ID = $Id
         Name = $Name
     }
@@ -904,7 +904,7 @@ function Out-PodeWebError
 
     return @{
         Operation = 'Output'
-        ElementType = 'Error'
+        ObjectType = 'Error'
         Message = $Message
     }
 }
@@ -928,7 +928,7 @@ function Show-PodeWebNotification
 
     return @{
         Operation = 'Show'
-        ElementType = 'Notification'
+        ObjectType = 'Notification'
         Title = $Title
         Body = $Body
         Icon = $Icon
@@ -963,7 +963,7 @@ function Move-PodeWebPage
 
     return @{
         Operation = 'Move'
-        ElementType = 'Href'
+        ObjectType = 'Href'
         Url = $page
         NewTab = $NewTab.IsPresent
     }
@@ -983,7 +983,7 @@ function Move-PodeWebUrl
 
     return @{
         Operation = 'Move'
-        ElementType = 'Href'
+        ObjectType = 'Href'
         Url = $Url
         NewTab = $NewTab.IsPresent
     }
@@ -1004,7 +1004,7 @@ function Move-PodeWebTab
 
     return @{
         Operation = 'Move'
-        ElementType = 'Tab'
+        ObjectType = 'Tab'
         ID = $Id
         Name = $Name
     }
@@ -1025,7 +1025,7 @@ function Move-PodeWebAccordion
 
     return @{
         Operation = 'Move'
-        ElementType = 'Accordion'
+        ObjectType = 'Accordion'
         ID = $Id
         Name = $Name
     }
@@ -1038,7 +1038,7 @@ function Reset-PodeWebPage
 
     return @{
         Operation = 'Reset'
-        ElementType = 'Page'
+        ObjectType = 'Page'
     }
 }
 
@@ -1066,7 +1066,7 @@ function Out-PodeWebBreadcrumb
 
     return @{
         Operation = 'Output'
-        ElementType = 'Breadcrumb'
+        ObjectType = 'Breadcrumb'
         Items = $Items
     }
 }
@@ -1097,7 +1097,7 @@ function Update-PodeWebProgress
 
     return @{
         Operation = 'Update'
-        ElementType = 'Progress'
+        ObjectType = 'Progress'
         ID = $Id
         Name = $Name
         Colour = $Colour
@@ -1132,7 +1132,7 @@ function Update-PodeWebTile
 
     return @{
         Operation = 'Update'
-        ElementType = 'Tile'
+        ObjectType = 'Tile'
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         ID = $Id
         Name = $Name
@@ -1156,7 +1156,7 @@ function Sync-PodeWebTile
 
     return @{
         Operation = 'Sync'
-        ElementType = 'Tile'
+        ObjectType = 'Tile'
         ID = $Id
         Name = $Name
     }
@@ -1177,7 +1177,7 @@ function Update-PodeWebTheme
 
     return @{
         Operation = 'Update'
-        ElementType = 'Theme'
+        ObjectType = 'Theme'
         Name = $Name.ToLowerInvariant()
     }
 }
@@ -1189,6 +1189,6 @@ function Reset-PodeWebTheme
 
     return @{
         Operation = 'Reset'
-        ElementType = 'Theme'
+        ObjectType = 'Theme'
     }
 }

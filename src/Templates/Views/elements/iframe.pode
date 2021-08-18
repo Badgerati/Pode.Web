@@ -1,1 +1,7 @@
-<iframe src="$($data.Url)" title="$($data.Title)" id="$($data.ID)" name="$($data.Name)"></iframe>
+<iframe
+    src="$($data.Url)"
+    title="$($data.Title)"
+    id="$($data.ID)"
+    name="$($data.Name)"
+    pode-object="$($data.ObjectType)">
+</iframe>

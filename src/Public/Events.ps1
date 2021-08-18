@@ -8,7 +8,7 @@ function Register-PodeWebEvent
         $Component,
 
         [Parameter(Mandatory=$true)]
-        [ValidateSet('Change', 'Focus', 'Blur', 'Click', 'Load', 'MouseOver', 'MouseOut', 'KeyDown', 'KeyUp')]
+        [ValidateSet('Change', 'Focus', 'FocusOut', 'Click', 'MouseOver', 'MouseOut', 'KeyDown', 'KeyUp')]
         [string]
         $Type,
 
@@ -24,6 +24,11 @@ function Register-PodeWebEvent
         $PassThru
     )
 
+    # does component support events?
+    if ($Component.NoEvents -or ($Component.ComponentType -ine 'element')) {
+        throw "Component with ID '$($Component.ID)' does not support events"
+    }
+
     # add events map if not present
     if ($null -eq $Component.Events) {
         $Component.Events = @()
@@ -38,10 +43,7 @@ function Register-PodeWebEvent
     $Component.Events += $Type.ToLowerInvariant()
 
     # setup the route
-    $compType = $Component.ComponentType.ToLowerInvariant()
-    $innerType = $Component["$($Component.ComponentType)Type"].ToLowerInvariant()
-
-    $routePath = "/$($compType)s/$($innerType)/$($Component.ID)/events/$($Type.ToLowerInvariant())"
+    $routePath = "/components/$($Component.ObjectType.ToLowerInvariant())/$($Component.ID)/events/$($Type.ToLowerInvariant())"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$Component.NoAuthentication) {

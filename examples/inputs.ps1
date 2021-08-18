@@ -15,7 +15,14 @@ Start-PodeServer {
     } -Content @(
         New-PodeWebTextbox -Name 'Name' -AppendIcon Account -AutoComplete {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
+        } |
+        Register-PodeWebEvent -Type KeyDown -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'The element has a keydown!'
+        } |
+        Register-PodeWebEvent -Type KeyUp -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'The element has a keyup!'
         }
+
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
@@ -31,8 +38,21 @@ Start-PodeServer {
             return @(foreach ($i in (1..10)) {
                 Get-Random -Minimum 1 -Maximum 10
             })
-        } | Register-PodeWebEvent -Type Change -PassThru -ScriptBlock {
+        } |
+        Register-PodeWebEvent -Type Change -PassThru -ScriptBlock {
             Show-PodeWebToast -Message 'The value was changed!'
+        } |
+        Register-PodeWebEvent -Type Focus -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'The element was focused!'
+        } |
+        Register-PodeWebEvent -Type FocusOut -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'The element was unfocused!'
+        } |
+        Register-PodeWebEvent -Type MouseOver -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'The element has the mouse over!'
+        } |
+        Register-PodeWebEvent -Type MouseOut -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'The element has no mouse!'
         }
     )
 

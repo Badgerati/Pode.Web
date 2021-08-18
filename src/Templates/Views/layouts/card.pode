@@ -1,4 +1,4 @@
-<div class="card pode-card $($data.CssClasses)">
+<div id="$($data.ID)" class="card pode-card $($data.CssClasses)" pode-object="$($data.ObjectType)">
     $(if ((!$data.NoTitle -and $data.Name) -or !$data.NoHide) {
         $icon = [string]::Empty
         if (![string]::IsNullOrWhiteSpace($data.Icon)) {

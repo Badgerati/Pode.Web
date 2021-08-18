@@ -37,5 +37,5 @@ $(
         $title = "title='$($data.Title)' data-toggle='tooltip' data-placement='bottom'"
     }
 
-    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc) $($data.CssClasses)' $($title) $($dim)>"
+    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc) $($data.CssClasses)' pode-object='$($data.ObjectType)' $($title) $($dim) $(ConvertTo-PodeWebEvents -Events $data.Events)>"
 )
