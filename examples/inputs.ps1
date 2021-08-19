@@ -17,10 +17,10 @@ Start-PodeServer {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
         } |
         Register-PodeWebEvent -Type KeyDown -PassThru -ScriptBlock {
-            Show-PodeWebToast -Message 'The element has a keydown!'
+            Show-PodeWebToast -Message "The element has a keydown: $($WebEvent.Data['Name'])"
         } |
         Register-PodeWebEvent -Type KeyUp -PassThru -ScriptBlock {
-            Show-PodeWebToast -Message 'The element has a keyup!'
+            Show-PodeWebToast -Message "The element has a keyup: $($WebEvent.Data['Name'])"
         }
 
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
@@ -40,7 +40,7 @@ Start-PodeServer {
             })
         } |
         Register-PodeWebEvent -Type Change -PassThru -ScriptBlock {
-            Show-PodeWebToast -Message 'The value was changed!'
+            Show-PodeWebToast -Message "The value was changed: $($WebEvent.Data['Amount'])"
         } |
         Register-PodeWebEvent -Type Focus -PassThru -ScriptBlock {
             Show-PodeWebToast -Message 'The element was focused!'

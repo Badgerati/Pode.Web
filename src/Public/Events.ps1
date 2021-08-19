@@ -26,7 +26,7 @@ function Register-PodeWebEvent
 
     # does component support events?
     if ($Component.NoEvents -or ($Component.ComponentType -ine 'element')) {
-        throw "Component with ID '$($Component.ID)' does not support events"
+        throw "$($Component.ObjectType) $($Component.ComponentType) with ID '$($Component.ID)' does not support events"
     }
 
     # add events map if not present
@@ -36,7 +36,7 @@ function Register-PodeWebEvent
 
     # ensure not already defined
     if ($Component.Events -icontains $Type) {
-        throw "Component with ID '$($Component.ID)' already has the $($Type) event defined"
+        throw "$($Component.ObjectType) $($Component.ComponentType) with ID '$($Component.ID)' already has the $($Type) event defined"
     }
 
     # add event type
