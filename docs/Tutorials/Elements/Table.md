@@ -1,5 +1,9 @@
 # Table
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 You can display data rendered in a table by using [`New-PodeWebTable`](../../../Functions/Elements/New-PodeWebTable), and you can also render certain other elements within a table such as:
 
 * Buttons

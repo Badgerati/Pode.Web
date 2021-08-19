@@ -123,6 +123,7 @@ function New-PodeWebTextbox
             Text = $AppendText
             Icon = $AppendIcon
         }
+        NoAuthentication = $NoAuthentication.IsPresent
     }
 
     # create autocomplete route
@@ -462,6 +463,7 @@ function New-PodeWebSelect
         Multiple = $Multiple.IsPresent
         Size = $Size
         CssClasses = ($CssClass -join ' ')
+        NoAuthentication = $NoAuthentication.IsPresent
     }
 
     $routePath = "/components/select/$($Id)"
@@ -838,6 +840,7 @@ function New-PodeWebListItem
         ObjectType = 'ListItem'
         ID = (Get-PodeWebElementId -Tag ListItem -RandomToken)
         Content = $Content
+        NoEvents = $true
     }
 }
 
@@ -1245,6 +1248,7 @@ function New-PodeWebButton
         NewLine = $NewLine.IsPresent
         NewTab = $NewTab.IsPresent
         NoEvents = $true
+        NoAuthentication = $NoAuthentication.IsPresent
     }
 
     $routePath = "/components/button/$($Id)"
@@ -1631,6 +1635,7 @@ function New-PodeWebChart
             Y = $MaxY
         }
         NoEvents = $true
+        NoAuthentication = $NoAuthentication.IsPresent
     }
 
     $routePath = "/components/chart/$($Id)"
@@ -2142,6 +2147,7 @@ function New-PodeWebCodeEditor
         ReadOnly = $ReadOnly.IsPresent
         Uploadable = $uploadable
         CssClasses = ($CssClass -join ' ')
+        NoAuthentication = $NoAuthentication.IsPresent
     }
 
     # upload route
@@ -2241,6 +2247,7 @@ function New-PodeWebForm
         NoHeader = $NoHeader.IsPresent
         CssClasses = ($CssClass -join ' ')
         NoEvents = $true
+        NoAuthentication = $NoAuthentication.IsPresent
     }
 
     $routePath = "/components/form/$($Id)"
@@ -2328,6 +2335,7 @@ function New-PodeWebTimer
         Interval = ($Interval * 1000)
         CssClasses = ($CssClass -join ' ')
         NoEvents = $true
+        NoAuthentication = $NoAuthentication.IsPresent
     }
 
     $routePath = "/components/timer/$($Id)"
@@ -2454,6 +2462,7 @@ function New-PodeWebTile
         NoRefresh = $NoRefresh.IsPresent
         NewLine = $NewLine.IsPresent
         NoEvents = $true
+        NoAuthentication = $NoAuthentication.IsPresent
     }
 
     # auth an endpoint

@@ -72,7 +72,10 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "! "
-            New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan
+            New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan |
+                Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
+                    Show-PodeWebToast -Message 'Badge was clicked!'
+                }
         )
         $timer1
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right

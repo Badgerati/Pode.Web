@@ -1,5 +1,9 @@
 # File Stream
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 A file stream element is a readonly textarea that will stream the contents of a file from the server - usually a text/log file from the `/public` directory. To add a file streaming element to your page you can use [`New-PodeWebFileStream`](../../../Functions/Elements/New-PodeWebFileStream).
 
 The simplest file stream just needs a `-Url` being supplied; this URL should be a relative/literal URL path to a static text file.

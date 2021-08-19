@@ -16,10 +16,10 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name' -AppendIcon Account -AutoComplete {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
         } |
-        Register-PodeWebEvent -Type KeyDown -PassThru -ScriptBlock {
+        Register-PodeWebEvent -Type KeyDown -ScriptBlock {
             Show-PodeWebToast -Message "The element has a keydown: $($WebEvent.Data['Name'])"
         } |
-        Register-PodeWebEvent -Type KeyUp -PassThru -ScriptBlock {
+        Register-PodeWebEvent -Type KeyUp -ScriptBlock {
             Show-PodeWebToast -Message "The element has a keyup: $($WebEvent.Data['Name'])"
         }
 
@@ -39,19 +39,19 @@ Start-PodeServer {
                 Get-Random -Minimum 1 -Maximum 10
             })
         } |
-        Register-PodeWebEvent -Type Change -PassThru -ScriptBlock {
+        Register-PodeWebEvent -Type Change -ScriptBlock {
             Show-PodeWebToast -Message "The value was changed: $($WebEvent.Data['Amount'])"
         } |
-        Register-PodeWebEvent -Type Focus -PassThru -ScriptBlock {
+        Register-PodeWebEvent -Type Focus -ScriptBlock {
             Show-PodeWebToast -Message 'The element was focused!'
         } |
-        Register-PodeWebEvent -Type FocusOut -PassThru -ScriptBlock {
+        Register-PodeWebEvent -Type FocusOut -ScriptBlock {
             Show-PodeWebToast -Message 'The element was unfocused!'
         } |
-        Register-PodeWebEvent -Type MouseOver -PassThru -ScriptBlock {
+        Register-PodeWebEvent -Type MouseOver -ScriptBlock {
             Show-PodeWebToast -Message 'The element has the mouse over!'
         } |
-        Register-PodeWebEvent -Type MouseOut -PassThru -ScriptBlock {
+        Register-PodeWebEvent -Type MouseOut -ScriptBlock {
             Show-PodeWebToast -Message 'The element has no mouse!'
         }
     )

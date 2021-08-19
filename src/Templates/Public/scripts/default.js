@@ -2917,10 +2917,10 @@ function buildButton(element) {
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip' pode-object='${element.ObjectType}'>${icon}</button>`;
     }
 
-    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>
+    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}'>
         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         ${icon}${element.Name}
     </button>`;
@@ -2952,11 +2952,11 @@ function buildIcon(element) {
         rotate = `mdi-rotate-${element.Rotate}`;
     }
 
-    return `<span class='mdi mdi-${element.Name.toLowerCase()} ${spin} ${flip} ${rotate} mdi-size-20' ${colour} ${title}></span>`;
+    return `<span id='${element.ID}' class='mdi mdi-${element.Name.toLowerCase()} ${spin} ${flip} ${rotate} mdi-size-20' pode-object='${element.ObjectType}' ${colour} ${title} ${buildEvents(element.Events)}></span>`;
 }
 
 function buildBadge(element) {
-    return `<span id='${element.ID}' class='badge badge-${element.ColourType}'>${element.Value}</span>`;
+    return `<span id='${element.ID}' class='badge badge-${element.ColourType}' pode-object='${element.ObjectType}' ${buildEvents(element.Events)}>${element.Value}</span>`;
 }
 
 function buildSpinner(element) {
@@ -2970,7 +2970,7 @@ function buildSpinner(element) {
         title = `title='${element.Title}' data-toggle='tooltip'`;
     }
 
-    return `<span class="spinner-border spinner-border-sm" role="status" ${colour} ${title}></span>`;
+    return `<span id='${element.ID}' class="spinner-border spinner-border-sm" role="status" pode-object='${element.ObjectType}' ${colour} ${title}></span>`;
 }
 
 function buildLink(element) {
@@ -2979,7 +2979,7 @@ function buildLink(element) {
         target = '_blank';
     }
 
-    return `<a href='${element.Source}' id='${element.ID}' target='${target}'>${element.Value}</a>`;
+    return `<a href='${element.Source}' id='${element.ID}' target='${target}' pode-object='${element.ObjectType}' ${buildEvents(element.Events)}>${element.Value}</a>`;
 }
 
 function actionNotification(action) {
@@ -3217,4 +3217,19 @@ function getComponentUrl(component) {
     }
 
     return `/components/${component.attr('pode-object').toLowerCase()}/${component.attr('id')}`;
+}
+
+function buildEvents(events) {
+    if (!events) {
+        return '';
+    }
+
+    events = convertToArray(events);
+    var strEvents = '';
+
+    events.forEach((evt) => {
+        strEvents += `on${evt}="invokeEvent('${evt}', this);"`;
+    });
+
+    return strEvents;
 }

@@ -1,5 +1,9 @@
 # Checkbox
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 The Checkbox element is a form input element, and can be added using [`New-PodeWebCheckbox`](../../../Functions/Elements/New-PodeWebCheckbox). This will add a checkbox to your form, and you can render with checkbox as a switch using `-AsSwitch`:
 
 ```powershell

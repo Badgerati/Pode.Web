@@ -20,8 +20,10 @@ function Register-PodeWebEvent
         [object[]]
         $ArgumentList,
 
+        [Parameter()]
+        [Alias('NoAuth')]
         [switch]
-        $PassThru
+        $NoAuthentication
     )
 
     # does component support events?
@@ -46,7 +48,7 @@ function Register-PodeWebEvent
     $routePath = "/components/$($Component.ObjectType.ToLowerInvariant())/$($Component.ID)/events/$($Type.ToLowerInvariant())"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$Component.NoAuthentication) {
+        if (!$NoAuthentication -and !$Component.NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
@@ -68,7 +70,5 @@ function Register-PodeWebEvent
     }
 
     # return the component back
-    if ($PassThru) {
-        return $Component
-    }
+    return $Component
 }

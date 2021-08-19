@@ -1,5 +1,9 @@
 # Line
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 This will render a line (`<hr>`) to your page, using [`New-PodeWebLine`](../../../Functions/Elements/New-PodeWebLine):
 
 ```powershell

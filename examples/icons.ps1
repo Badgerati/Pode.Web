@@ -21,7 +21,10 @@ Start-PodeServer -Threads 2 {
     $card2 = New-PodeWebCard -Content @(
         New-PodeWebTable -Name Example -ScriptBlock {
             return @{
-                Icon = (New-PodeWebIcon -Name 'refresh' -Spin -Colour Yellow)
+                Icon = (New-PodeWebIcon -Name 'refresh' -Spin -Colour Yellow |
+                    Register-PodeWebEvent -Type Click -ScriptBlock {
+                        Show-PodeWebToast -Message 'Spinning icon clicked!'
+                    })
             }
         }
     )

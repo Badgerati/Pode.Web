@@ -1,5 +1,9 @@
 # Charts
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 You can display data rendered as a chart by using [`New-PodeWebChart`](../../../Functions/Elements/New-PodeWebChart), and the following chart types are supported:
 
 * Line (default)

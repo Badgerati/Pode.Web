@@ -1,5 +1,9 @@
 # Credentials
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 The Credentials element is a form input element, and can be added using [`New-PodeWebCredential`](../../../Functions/Elements/New-PodeWebCredential). This will automatically add a username and password input fields to your form:
 
 ```powershell

@@ -1,5 +1,9 @@
 # File Upload
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 The File Upload element is a form input element, and can be created using [`New-PodeWebFileUpload`](../../../Functions/Elements/New-PodeWebFileUpload). It allows users to upload files from your page forms:
 
 ```powershell

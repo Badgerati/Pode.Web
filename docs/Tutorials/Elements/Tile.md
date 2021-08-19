@@ -1,5 +1,9 @@
 # Tile
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 A tile is a small coloured container, that contains either a static value or more elements. There purpose is to display quick informational data like: CPU, counters, charts, etc.
 
 To add a tile you use [`New-PodeWebTile`](../../../Functions/Elements/New-PodeWebTile), and supply a `-Name` and either a `-ScriptBlock` or `-Content`.
