@@ -1,5 +1,9 @@
 # Radio
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 The Radio element is a form input element, and can be added using [`New-PodeWebRadio`](../../../Functions/Elements/New-PodeWebRadio). This will add a series of radio buttons to your form:
 
 ```powershell

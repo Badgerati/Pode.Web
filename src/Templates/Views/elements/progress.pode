@@ -19,11 +19,13 @@ $(
                 class='progress-bar bg-$($data.ColourType) $($showValue) $($striped) $($animated)'
                 id='$($data.ID)'
                 name='$($data.Name)'
+                pode-object='$($data.ObjectType)'
                 role='progressbar'
                 style='width: $($data.Percentage)%;'
                 aria-valuenow='$($data.Value)'
                 aria-valuemin='$($data.Min)'
-                aria-valuemax='$($data.Max)'>
+                aria-valuemax='$($data.Max)'
+                $(ConvertTo-PodeWebEvents -Events $data.Events)>
             </div>
         </div>"
 

@@ -1,5 +1,9 @@
 # Raw
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 This will render raw HTML to your page, using [`New-PodeWebRaw`](../../../Functions/Elements/New-PodeWebRaw):
 
 ```powershell

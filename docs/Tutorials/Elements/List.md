@@ -1,5 +1,9 @@
 # List
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 Pode.Web lets you display lists of items, either bullet pointed or numbered, using [`New-PodeWebList`](../../../Functions/Elements/New-PodeWebList). You need to supply an array of `-Items` or `-Values`, and then the `-Numbered` flag for numbered lists.
 
 ## Items

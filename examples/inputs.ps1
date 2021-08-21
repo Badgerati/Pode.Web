@@ -15,7 +15,14 @@ Start-PodeServer {
     } -Content @(
         New-PodeWebTextbox -Name 'Name' -AppendIcon Account -AutoComplete {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
+        } |
+        Register-PodeWebEvent -Type KeyDown -ScriptBlock {
+            Show-PodeWebToast -Message "The element has a keydown: $($WebEvent.Data['Name'])"
+        } |
+        Register-PodeWebEvent -Type KeyUp -ScriptBlock {
+            Show-PodeWebToast -Message "The element has a keyup: $($WebEvent.Data['Name'])"
         }
+
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
@@ -26,10 +33,26 @@ Start-PodeServer {
         New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations')
         New-PodeWebSelect -Name 'Role2' -Options @('User', 'Admin', 'Operations') -Multiple
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
+
         New-PodeWebSelect -Name 'Amount' -ScriptBlock {
             return @(foreach ($i in (1..10)) {
                 Get-Random -Minimum 1 -Maximum 10
             })
+        } |
+        Register-PodeWebEvent -Type Change -ScriptBlock {
+            Show-PodeWebToast -Message "The value was changed: $($WebEvent.Data['Amount'])"
+        } |
+        Register-PodeWebEvent -Type Focus -ScriptBlock {
+            Show-PodeWebToast -Message 'The element was focused!'
+        } |
+        Register-PodeWebEvent -Type FocusOut -ScriptBlock {
+            Show-PodeWebToast -Message 'The element was unfocused!'
+        } |
+        Register-PodeWebEvent -Type MouseOver -ScriptBlock {
+            Show-PodeWebToast -Message 'The element has the mouse over!'
+        } |
+        Register-PodeWebEvent -Type MouseOut -ScriptBlock {
+            Show-PodeWebToast -Message 'The element has no mouse!'
         }
     )
 

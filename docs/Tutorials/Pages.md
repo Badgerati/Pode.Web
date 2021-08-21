@@ -1,6 +1,6 @@
 # Pages
 
-There are 3 different kinds of pages in Pode.Web, which are defined below. Besides the Login page, the Home and normal Webpages can be populated with Layouts and Elements. When you add pages to your site, they appear on sidebar for navigation.
+There are 3 different kinds of pages in Pode.Web, which are defined below. Besides the Login page, the Home and normal Webpages can be populated with Layout/Element components. When you add pages to your site, they appear on sidebar for navigation.
 
 ## Login
 
@@ -63,7 +63,7 @@ You can split up your pages into different .ps1 files, if you do and you place t
 
 ### Link
 
-If you just need to place a redirect link into the sidebar, then use [`Add-PodeWebPageLink`](../../Functions/Pages/Add-PodeWebPageLink). This works in a similar way to `Add-PodeWebPage`, but takes either a flat `-Url` to redirect to, or a `-ScriptBlock` that you can return output actions from - *not* layouts/elements. Page links can also be grouped, like normal pages.
+If you just need to place a redirect link into the sidebar, then use [`Add-PodeWebPageLink`](../../Functions/Pages/Add-PodeWebPageLink). This works in a similar way to `Add-PodeWebPage`, but takes either a flat `-Url` to redirect to, or a `-ScriptBlock` that you can return output actions from - *not* layout/element components. Page links can also be grouped, like normal pages.
 
 Flat URLs:
 
@@ -89,7 +89,7 @@ A help icon can be displayed to the right of the page's title by supplying a `-H
 
 ### Static
 
-A static page is one that uses just `-Layouts`; this is a page that will render the same layouts/elements on every page load, regardless of payload or query parameters supplied to the page.
+A static page is one that uses just `-Layouts`; this is a page that will render the same layout/element components on every page load, regardless of payload or query parameters supplied to the page.
 
 For example, this page will always render a form to search for processes:
 
@@ -109,7 +109,7 @@ Add-PodeWebPage -Name Processes -Icon Activity -Layouts @(
 
 ### Dynamic
 
-Add dynamic page uses a `-ScriptBlock` instead of `-Layouts`, the scriptblock lets you render different layouts/elements depending on query/payload data in the `$WebEvent`. The scriptblock also has access to a `$PageData` object, containing information about the current page - such as Name, Group, Access, etc.
+Add dynamic page uses a `-ScriptBlock` instead of `-Layouts`, the scriptblock lets you render different layout/element components depending on query/payload data in the `$WebEvent`. The scriptblock also has access to a `$PageData` object, containing information about the current page - such as Name, Group, Access, etc.
 
 For example, the below page will render a table of services if a `value` query parameter is not present. Otherwise, if it is present, then a page with a code-block showing information about the service is displayed:
 

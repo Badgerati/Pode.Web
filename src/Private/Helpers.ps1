@@ -540,11 +540,7 @@ function Test-PodeWebContent
 
         [Parameter()]
         [string[]]
-        $ElementType,
-
-        [Parameter()]
-        [string[]]
-        $LayoutType
+        $ObjectType
     )
 
     # if no content, then it's true
@@ -561,19 +557,19 @@ function Test-PodeWebContent
         }
     }
 
-    # ensure the content ElementTypes are correct
-    if (!(Test-PodeWebArrayEmpty -Array $ElementType)) {
+    # ensure the content elements are correct
+    if (!(Test-PodeWebArrayEmpty -Array $ObjectType)) {
         foreach ($item in $Content) {
-            if ($item.ElementType -inotin $ElementType) {
+            if ($item.ObjectType -inotin $ObjectType) {
                 return $false
             }
         }
     }
 
-    # ensure the content LayoutTypes are correct
-    if (!(Test-PodeWebArrayEmpty -Array $LayoutType)) {
+    # ensure the content elements are correct
+    if (!(Test-PodeWebArrayEmpty -Array $ObjectType)) {
         foreach ($item in $Content) {
-            if ($item.LayoutType -inotin $LayoutType) {
+            if ($item.ObjectType -inotin $ObjectType) {
                 return $false
             }
         }
@@ -623,7 +619,7 @@ function Test-PodeWebOutputWrapped
         $Output = $Output[0]
     }
 
-    return (($Output -is [hashtable]) -and ![string]::IsNullOrWhiteSpace($Output.Operation) -and ![string]::IsNullOrWhiteSpace($Output.ElementType))
+    return (($Output -is [hashtable]) -and ![string]::IsNullOrWhiteSpace($Output.Operation) -and ![string]::IsNullOrWhiteSpace($Output.ObjectType))
 }
 
 function Get-PodeWebPagePath
@@ -656,4 +652,25 @@ function Get-PodeWebPagePath
 
     $path += "/pages/$($Name)"
     return $path
+}
+
+function ConvertTo-PodeWebEvents
+{
+    param(
+        [Parameter()]
+        [string[]]
+        $Events
+    )
+
+    $js_events = [string]::Empty
+
+    if (($null -eq $Events) -or ($Events.Length -eq 0)) {
+        return $js_events
+    }
+
+    foreach ($evt in $Events) {
+        $js_events += " on$($evt)=`"invokeEvent('$($evt)', this);`""
+    }
+
+    return $js_events
 }

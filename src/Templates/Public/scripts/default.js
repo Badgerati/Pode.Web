@@ -341,7 +341,7 @@ function setupSteppers() {
             if (isDynamic(step)) {
                 // serialize any step-form data
                 var data = serializeInputs(step);
-                var url = `/layouts/step/${step.attr('id')}`;
+                var url = getComponentUrl(step);
 
                 // send ajax req, and call next on no validation errors
                 sendAjaxReq(url, data, step, true, (res, sender) => {
@@ -373,14 +373,14 @@ function setupSteppers() {
             if (isDynamic(step)) {
                 // serialize any step-form data
                 var data = serializeInputs(step);
-                var url = `/layouts/step/${step.attr('id')}`;
+                var url = getComponentUrl(step);
 
                 // send ajax req, if not validation errors, send ajax for all steps
                 sendAjaxReq(url, data, step, true, (res, sender) => {
                     if (!hasValidationErrors(sender)) {
                         var _steps = sender.attr('for');
                         var _data = sender.closest('form.pode-stepper-form').serialize();
-                        var _url = `/layouts/steps/${_steps}`;
+                        var _url = getComponentUrl(_steps);
 
                         sendAjaxReq(_url, _data, sender, true);
                     }
@@ -389,7 +389,7 @@ function setupSteppers() {
             else {
                 var steps = step.attr('for');
                 var data = step.closest('form.pode-stepper-form').serialize();
-                var url = `/layouts/steps/${steps}`;
+                var url = getComponentUrl(steps);
 
                 sendAjaxReq(url, data, step, true);
             }
@@ -473,7 +473,10 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
         success: function(res, status, xhr) {
             // attempt to hide any spinners
             hideSpinner(sender);
-            unfocus(sender);
+
+            if (!opts.keepFocus) {
+                unfocus(sender);
+            }
 
             // attempt to get a filename, for downloading
             var filename = getAjaxFileName(xhr);
@@ -498,7 +501,11 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
         },
         error: function(err, msg, stack) {
             hideSpinner(sender);
-            unfocus(sender);
+
+            if (!opts.keepFocus) {
+                unfocus(sender);
+            }
+
             console.log(err);
             console.log(stack);
         }
@@ -642,7 +649,7 @@ function bindCodeEditors() {
         var button = getButton(e);
         var editorId = button.attr('for');
 
-        var url = `/elements/code-editor/${editorId}/upload`;
+        var url = `${getComponentUrl(editorId)}/upload`;
         var data = JSON.stringify({
             language: $(`#${editorId} .code-editor`).attr('pode-language'),
             value: _editors[editorId].getValue()
@@ -698,7 +705,7 @@ function bindTimers() {
 }
 
 function invokeTimer(timerId) {
-    sendAjaxReq(`/elements/timer/${timerId}`, null, null, true);
+    sendAjaxReq(getComponentUrl(timerId), null, null, true);
 }
 
 function bindSidebarToggle() {
@@ -1046,7 +1053,7 @@ function loadTable(tableId, opts) {
 
     // things get funky here if we have a table with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var url = `/elements/table/${tableId}`;
+    var url = getComponentUrl(table);
 
     if (table.attr('for')) {
         var form = $(`#${table.attr('for')}`);
@@ -1064,7 +1071,7 @@ function loadTable(tableId, opts) {
 
 function loadAutoCompletes() {
     $(`input[pode-autocomplete='True']`).each((i, e) => {
-        sendAjaxReq(`/elements/autocomplete/${$(e).attr('id')}`, null, null, false, (res) => {
+        sendAjaxReq(`${getComponentUrl($(e))}/autocomplete`, null, null, false, (res) => {
             $(e).autocomplete({ source: res.Values });
         });
     });
@@ -1083,7 +1090,7 @@ function loadTile(tileId, firstLoad = false) {
 
     var tile = $(`div.pode-tile[pode-dynamic="True"]#${tileId}`);
     if (tile.length > 0) {
-        sendAjaxReq(`/elements/tile/${tileId}`, null, tile, true);
+        sendAjaxReq(getComponentUrl(tile), null, tile, true);
     }
     else if (!firstLoad) {
         $(`div.pode-tile[pode-dynamic="False"]#${tileId} .pode-tile-body .pode-refresh-btn`).each((i, e) => {
@@ -1105,7 +1112,7 @@ function loadSelect(selectId) {
 
     var select = $(`select[pode-dynamic="True"]#${selectId}`);
     if (select.length > 0) {
-        sendAjaxReq(`/elements/select/${selectId}`, null, select, true);
+        sendAjaxReq(getComponentUrl(select), null, select, true);
     }
 }
 
@@ -1148,7 +1155,7 @@ function bindTileClick() {
         var tileId = $(e.target).closest('div.pode-tile').attr('id');
         var tile = $(`div.pode-tile#${tileId}`);
 
-        var url = `/elements/tile/${tileId}/click`;
+        var url = `${getComponentUrl(tile)}/click`;
         sendAjaxReq(url, null, tile, true);
     });
 }
@@ -1174,7 +1181,7 @@ function loadChart(chartId) {
 
     // things get funky here if we have a chart with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var url = `/elements/chart/${chartId}`;
+    var url = getComponentUrl(chart);
 
     if (chart.attr('for')) {
         var form = $(`#${chart.attr('for')}`);
@@ -1197,7 +1204,7 @@ function invokeActions(actions, sender) {
     actions = convertToArray(actions);
 
     actions.forEach((action) => {
-        var _type = action.ElementType;
+        var _type = action.ObjectType;
         if (_type) {
             _type = _type.toLowerCase();
         }
@@ -1307,7 +1314,7 @@ function buildElements(elements) {
     elements = convertToArray(elements);
 
     elements.forEach((ele) => {
-        var _type = ele.ElementType;
+        var _type = ele.ObjectType;
         if (_type) {
             _type = _type.toLowerCase();
         }
@@ -1477,7 +1484,7 @@ function bindButtons() {
             }
         }
 
-        var url = `/elements/button/${button.attr('id')}`;
+        var url = getComponentUrl(button);
         sendAjaxReq(url, data, button, true);
     });
 }
@@ -1648,7 +1655,7 @@ function bindTableButtons() {
         var table = $(`table#${tableId}`);
         var csv = exportTableAsCSV(tableId);
 
-        var url = `/elements/table/${tableId}/button/${button.attr('name')}`;
+        var url = `${getComponentUrl(table)}/button/${button.attr('name')}`;
         sendAjaxReq(url, csv, table, true, null, { contentType: 'text/csv' });
     });
 }
@@ -1724,7 +1731,7 @@ function updateTableRow(action) {
             var _html = '';
             var _value = action.Data[key];
 
-            if (Array.isArray(_value) || _value.ElementType) {
+            if (Array.isArray(_value) || _value.ObjectType) {
                 _html += buildElements(_value);
             }
             else {
@@ -1790,7 +1797,7 @@ function bindTableClickableRows(tableId) {
         }
 
         if (table.attr('pode-click-dynamic') == 'True') {
-            var url = `/elements/table/${table.attr('id')}/click`;
+            var url = `${getComponentUrl(table)}/click`;
             sendAjaxReq(url, data, null, true);
         }
         else {
@@ -1962,7 +1969,7 @@ function updateTable(action, sender) {
                 _value += `<td pode-column='${key}'>`;
             }
 
-            if (Array.isArray(item[key]) || (item[key] && item[key].ElementType)) {
+            if (Array.isArray(item[key]) || (item[key] && item[key].ObjectType)) {
                 _value += buildElements(item[key]);
             }
             else if (item[key]) {
@@ -2910,10 +2917,10 @@ function buildButton(element) {
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip' pode-object='${element.ObjectType}'>${icon}</button>`;
     }
 
-    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>
+    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}'>
         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         ${icon}${element.Name}
     </button>`;
@@ -2945,11 +2952,11 @@ function buildIcon(element) {
         rotate = `mdi-rotate-${element.Rotate}`;
     }
 
-    return `<span class='mdi mdi-${element.Name.toLowerCase()} ${spin} ${flip} ${rotate} mdi-size-20' ${colour} ${title}></span>`;
+    return `<span id='${element.ID}' class='mdi mdi-${element.Name.toLowerCase()} ${spin} ${flip} ${rotate} mdi-size-20' pode-object='${element.ObjectType}' ${colour} ${title} ${buildEvents(element.Events)}></span>`;
 }
 
 function buildBadge(element) {
-    return `<span id='${element.ID}' class='badge badge-${element.ColourType}'>${element.Value}</span>`;
+    return `<span id='${element.ID}' class='badge badge-${element.ColourType}' pode-object='${element.ObjectType}' ${buildEvents(element.Events)}>${element.Value}</span>`;
 }
 
 function buildSpinner(element) {
@@ -2963,7 +2970,7 @@ function buildSpinner(element) {
         title = `title='${element.Title}' data-toggle='tooltip'`;
     }
 
-    return `<span class="spinner-border spinner-border-sm" role="status" ${colour} ${title}></span>`;
+    return `<span id='${element.ID}' class="spinner-border spinner-border-sm" role="status" pode-object='${element.ObjectType}' ${colour} ${title}></span>`;
 }
 
 function buildLink(element) {
@@ -2972,7 +2979,7 @@ function buildLink(element) {
         target = '_blank';
     }
 
-    return `<a href='${element.Source}' id='${element.ID}' target='${target}'>${element.Value}</a>`;
+    return `<a href='${element.Source}' id='${element.ID}' target='${target}' pode-object='${element.ObjectType}' ${buildEvents(element.Events)}>${element.Value}</a>`;
 }
 
 function actionNotification(action) {
@@ -3196,4 +3203,33 @@ function convertToArray(element) {
     }
 
     return element;
+}
+
+function invokeEvent(type, sender) {
+    sender = $(sender);
+    var url = `${getComponentUrl(sender)}/events/${type}`;
+    sendAjaxReq(url, sender.serialize(), sender, true, null, { keepFocus: true });
+}
+
+function getComponentUrl(component) {
+    if (typeof component === 'string') {
+        component = $(`#${component}`);
+    }
+
+    return `/components/${component.attr('pode-object').toLowerCase()}/${component.attr('id')}`;
+}
+
+function buildEvents(events) {
+    if (!events) {
+        return '';
+    }
+
+    events = convertToArray(events);
+    var strEvents = '';
+
+    events.forEach((evt) => {
+        strEvents += `on${evt}="invokeEvent('${evt}', this);"`;
+    });
+
+    return strEvents;
 }

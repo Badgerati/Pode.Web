@@ -1,5 +1,9 @@
 # Link
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 This will render a hyperlink (`<a>`) to your page, using [`New-PodeWebLink`](../../../Functions/Elements/New-PodeWebLink). You need to supply a `-Source` (the href), and a `-Value` to show to the user:
 
 ```powershell

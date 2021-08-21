@@ -1,1 +1,1 @@
-<code id="$($data.ID)" class="$($data.CssClasses)">$($data.Value)</code>
+<code id="$($data.ID)" class="$($data.CssClasses)" pode-object="$($data.ObjectType)">$($data.Value)</code>

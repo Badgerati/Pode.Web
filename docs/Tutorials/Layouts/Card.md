@@ -2,7 +2,7 @@
 
 A card is a layout that renders with an optional title, and can be collapsed by the end-user.
 
-A card takes an array of content, that can be either other layouts or raw elements.
+A card takes an array of components via `-Content`, that can be either other layouts or raw elements.
 
 ## Usage
 

@@ -391,7 +391,7 @@ function Add-PodeWebPage
             $filteredLayouts = @()
 
             foreach ($item in $layouts) {
-                if ($item.LayoutType -ieq 'breadcrumb') {
+                if ($item.ObjectType -ieq 'breadcrumb') {
                     if ($null -ne $breadcrumb) {
                         throw "Cannot set two brecrumb trails on one page"
                     }

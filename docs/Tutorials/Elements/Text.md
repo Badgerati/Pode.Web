@@ -1,5 +1,9 @@
 # Text
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 You can render different types of text/typography to your page by using [`New-PodeWebText`](../../../Functions/Elements/New-PodeWebText). You can specify the `-Value` to display, and then a custom `-Style` to render the text; such as Normal, Bold, Italic, etc. (default is Normal):
 
 ```powershell

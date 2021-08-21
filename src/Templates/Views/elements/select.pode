@@ -7,7 +7,15 @@
                 $multiple = "multiple size='$($data.Size)'"
             }
 
-            "<select class='custom-select' id='$($data.ID)' name='$($data.Name)' pode-dynamic='$($data.IsDynamic)' $($multiple)>"
+            "<select
+                class='custom-select'
+                id='$($data.ID)'
+                name='$($data.Name)'
+                pode-object='$($data.ObjectType)'
+                pode-dynamic='$($data.IsDynamic)'
+                $($multiple)
+                $(ConvertTo-PodeWebEvents -Events $data.Events)
+            >"
 
             foreach ($option in $data.Options) {
                 if ([string]::IsNullOrWhiteSpace($option)) {

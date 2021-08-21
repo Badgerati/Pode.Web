@@ -1,5 +1,9 @@
 # Form
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 A form is kind of like a layout, but is an element that contains other elements. It automatically wraps the `-Content` as a `<form>` and adds a submit button to the bottom. When clicked, the form is serialised and sent to the `-ScriptBlock`. To add a form to you page use [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) along with other form elements:
 
 ```powershell

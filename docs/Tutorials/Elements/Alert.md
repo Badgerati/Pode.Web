@@ -1,5 +1,9 @@
 # Alert
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 An alert is a colour block containing information text; alerts can for warning, errors, tips, etcs. To add an alert you use [`New-PodeWebAlert`](../../../Functions/Elements/New-PodeWebAlert), and supply either a `-Value` or `-Content`:
 
 ```powershell

@@ -1,3 +1,4 @@
-<div class="container pode-container $($data.CssClasses)" pode-transparent="$($data.NoBackground)" pode-hidden="$($data.Hide)">
+
+<div id="$($data.ID)" class="container pode-container $($data.CssClasses)" pode-object="$($data.ObjectType)" pode-transparent="$($data.NoBackground)" pode-hidden="$($data.Hide)">
     $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content })
 </div>

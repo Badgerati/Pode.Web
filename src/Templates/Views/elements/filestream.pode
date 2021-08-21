@@ -35,9 +35,11 @@
                 pode-interval="$($data.Interval)"
                 pode-streaming="1"
                 id="$($data.ID)"
+                pode-object="$($data.ObjectType)"
                 name="$($data.Name)"
                 rows="$($data.Height)"
-                readonly></textarea>
+                readonly
+                $(ConvertTo-PodeWebEvents -Events $data.Events)></textarea>
         </pre>
     </div>
 </div>

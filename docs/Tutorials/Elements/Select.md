@@ -1,5 +1,9 @@
 # Select
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 The Select element is a form input element, and can be added using [`New-PodeWebSelect`](../../../Functions/Elements/New-PodeWebSelect). This will add a dropdown select menu to your form, allowing the user to select an entry; to allow multiple entries to be selected you can pass `-Multiple`, and to specify a pre-selected value you can use `-SelectedValue`.
 
 ## Options

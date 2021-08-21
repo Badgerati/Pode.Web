@@ -2,7 +2,7 @@
 
 A steps layout is an array of steps with content. You can use them to step through multiple parts of a setup process.
 
-The steps take an array of content, that can be either other layouts or raw elements.
+The steps take an array of components via `-Content`, that can be either other layouts or raw elements.
 
 ## Usage
 

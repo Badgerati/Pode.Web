@@ -4,5 +4,5 @@ $(
         $target = '_blank'
     }
 
-    "<a href='$($data.Source)' id='$($data.ID)' target='$($target)' class='$($data.CssClasses)'>$($data.Value)</a>"
+    "<a href='$($data.Source)' id='$($data.ID)' target='$($target)' class='$($data.CssClasses)' pode-object='$($data.ObjectType)' $(ConvertTo-PodeWebEvents -Events $data.Events)>$($data.Value)</a>"
 )

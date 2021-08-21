@@ -1,5 +1,9 @@
 # Badge
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 A Badge is just normal text, but has a styled/coloured background. You can add a badge to your page using [`New-PodeWebBadge`](../../../Functions/Elements/New-PodeWebBadge):
 
 ```powershell

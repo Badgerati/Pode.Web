@@ -4,7 +4,7 @@ $(
         $tag = 'ol'
     }
 
-    "<$($tag) class='$($data.CssClasses)' id='$($data.ID)'>"
+    "<$($tag) class='$($data.CssClasses)' id='$($data.ID)' pode-object='$($data.ObjectType)'>"
 
     if (($null -ne $data.Items) -and ($data.Items.Length -gt 0)) {
         foreach ($item in $data.Items) {

@@ -58,7 +58,7 @@ Once the templates are enabled, you can start to add some pages! You can find mo
 * Login
 * Webpage
 
-To just add a new page, you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), supplying the `-Name` of the page and a `-ScriptBlock` for defining the layouts/elements on the page:
+To just add a new page, you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), supplying the `-Name` of the page and a `-ScriptBlock` for defining the layout/element components on the page:
 
 ```powershell
 Add-PodeWebPage -Name 'Services' -Icon 'Settings' -ScriptBlock {

@@ -2,7 +2,7 @@
 
 A carousel layout is an array of slides with content, each slide can also have a title and a message. The slides will periodically move between one-another, with arrows on either side to manually move to the next slide.
 
-The slides take an array of content, that can be either other layouts or raw elements.
+The slides take an array of components via `-Content`, that can be either other layouts or raw elements.
 
 ## Usage
 

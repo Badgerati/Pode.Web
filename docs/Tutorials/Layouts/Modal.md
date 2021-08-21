@@ -2,7 +2,7 @@
 
 A modal is a layout that renders on top of all other content on your web page - such as prompts to comfirm information before performing an action, or a quick edit dialog.
 
-A modal takes an array of content, that can be either other layouts or raw elements.
+A modal takes an array of components via `-Content`, that can be either other layouts or raw elements.
 
 ## Usage
 

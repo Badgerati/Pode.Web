@@ -7,7 +7,7 @@
 
     <div class="carousel-inner">
         $(for ($i = 0; $i -lt $data.Slides.Length; $i++) {
-            "<div class='carousel-item $(if ($i -eq 0) { "active" })'>"
+            "<div id='$($data.Slides[$i].ID)' pode-object='$($data.Slides[$i].ObjectType)' class='carousel-item $(if ($i -eq 0) { "active" })'>"
 
                 "<div class='d-flex w-100 h-100'>"
                 Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Slides[$i].Content }

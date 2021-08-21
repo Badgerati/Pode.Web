@@ -10,7 +10,7 @@ $(
         <span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight02'></span>
     </button>
 
-    <code id="$($data.ID)" class="$($data.Language)">
+    <code id="$($data.ID)" class="$($data.Language)" pode-object="$($data.ObjectType)">
         $($data.Value)
     </code>
 </pre>
