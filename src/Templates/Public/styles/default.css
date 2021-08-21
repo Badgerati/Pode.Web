@@ -612,6 +612,18 @@ table tbody td {
     margin-top: -5px;
 }
 
+div.no-form {
+    display: inline-block;
+}
+
+.no-form {
+    width: auto;
+}
+
+.no-form.pode-form-checkbox {
+    width: inherit;
+}
+
 /* Fallback for Edge
 -------------------------------------------------- */
 @supports (-ms-ime-align: auto) {

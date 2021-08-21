@@ -1,6 +1,8 @@
-<fieldset class="form-group pode-form-radio $($data.CssClasses)">
-    <div class="row">
-        <legend class="col-form-label col-sm-2 pt-0">$($data.Name)</legend>
+<fieldset id="$($data.ID)" class="$(if (!$data.NoForm) { 'form-group' } else { 'no-form' }) pode-form-radio $($data.CssClasses)" pode-object="$($data.ObjectType)" $(ConvertTo-PodeWebEvents -Events $data.Events)>
+    $(if (!$data.NoForm) {
+        "<div class='row'>
+            <legend class='col-form-label col-sm-2 pt-0'>$($data.Name)</legend>"
+    })
         <div class="col-sm-10">
             $(
                 $inline = [string]::Empty
@@ -10,7 +12,7 @@
 
                 for ($i = 0; $i -lt $data.Options.Length; $i++) {
                     "<div class='form-check $($inline)'>
-                        <input class='form-check-input' type='radio' name='$($data.Name)' id='$($data.ID)_option$($i)' value='$($data.Options[$i])' pode-object='$($data.ObjectType)' $(if ($i -eq 0) { 'checked' }) $(if ($data.Disabled) { 'disabled' }) $(ConvertTo-PodeWebEvents -Events $data.Events)>
+                        <input class='form-check-input' type='radio' name='$($data.Name)' id='$($data.ID)_option$($i)' value='$($data.Options[$i])' $(if ($i -eq 0) { 'checked' }) $(if ($data.Disabled) { 'disabled' })>
                         <label class='form-check-label' for='$($data.ID)_option$($i)'>
                             $($data.Options[$i])
                         </label>
@@ -20,5 +22,7 @@
 
             <div id="$($data.ID)_validation" class="invalid-feedback"></div>
         </div>
-    </div>
+    $(if (!$data.NoForm) {
+        "</div>"
+    })
 </fieldset>
