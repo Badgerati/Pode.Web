@@ -3,8 +3,12 @@ $(
     if (![string]::IsNullOrWhiteSpace($data.ID)) {
         $id = "id='$($data.ID)'"
     }
+    
+    if ($data.Size)  {
+        $size = "style='font-size: $($data.Size)'"
+    }
 
-    $value = "<span class='pode-text $($data.CssClasses)' $($id)>$($data.Value)</span>"
+    $value = "<span class='pode-text $($data.CssClasses)' $($id) $($size)>$($data.Value)</span>"
 
     switch ($data.Style.ToLowerInvariant()) {
         'underlined' {
