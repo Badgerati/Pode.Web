@@ -16,7 +16,7 @@
         }
 
         "<div class='card bellow' id='$($bellow.ID)' name='$($bellow.Name)' pode-object='$($bellow.ObjectType)'>
-            <div class='card-header bellow-head' id='$($bellow.ID)_head'>
+            <div class='card-header bellow-header' id='$($bellow.ID)_head'>
                 <h2 class='mb-0'>
                     <button class='btn btn-link btn-block text-left $($collapsed)' type='button' data-toggle='collapse' data-target='#$($bellow.ID)_body' aria-expanded='$($expanded)' aria-controls='$($bellow.ID)_body'>"
                         if (![string]::IsNullOrWhiteSpace($bellow.Icon)) {
