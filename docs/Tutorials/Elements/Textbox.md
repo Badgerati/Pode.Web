@@ -71,3 +71,7 @@ Which looks like below:
 ![textbox_multi](../../../images/textbox_multi.png)
 
 By default it shows the first 4 lines of text, this can be altered using the `-Size` parameter.
+
+## Inline
+
+You can render this element inline with other non-form elements by using the `-NoForm` switch. This will remove the form layout, and render the element more cleanly when used outside of a form.

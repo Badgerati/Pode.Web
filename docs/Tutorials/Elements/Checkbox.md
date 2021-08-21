@@ -39,3 +39,7 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![checkbox_multi](../../../images/checkbox_multi.png)
+
+## Inline
+
+You can render this element inline with other non-form elements by using the `-NoForm` switch. This will remove the form layout, and render the element more cleanly when used outside of a form.

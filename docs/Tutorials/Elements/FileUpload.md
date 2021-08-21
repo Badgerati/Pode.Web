@@ -19,3 +19,7 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![file_upload](../../../images/file_upload.png)
+
+## Inline
+
+You can render this element inline with other non-form elements by using the `-NoForm` switch. This will remove the form layout, and render the element more cleanly when used outside of a form.

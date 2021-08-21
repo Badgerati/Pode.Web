@@ -58,3 +58,7 @@ New-PodeWebCard -Content @(
 ## Multiple
 
 You can render a multiple select element, where more than one option can be selected, by using the `-Multiple` switch. By default only the first 4 options are shown, this can be altered using the `-Size` parameter.
+
+## Inline
+
+You can render this element inline with other non-form elements by using the `-NoForm` switch. This will remove the form layout, and render the element more cleanly when used outside of a form.
