@@ -77,7 +77,10 @@ function New-PodeWebTextbox
         [Parameter(ParameterSetName='Single')]
         [Alias('NoAuth')]
         [switch]
-        $NoAuthentication
+        $NoAuthentication,
+
+        [switch]
+        $NoForm
     )
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
@@ -124,6 +127,7 @@ function New-PodeWebTextbox
             Icon = $AppendIcon
         }
         NoAuthentication = $NoAuthentication.IsPresent
+        NoForm = $NoForm.IsPresent
     }
 
     # create autocomplete route
@@ -168,7 +172,10 @@ function New-PodeWebFileUpload
 
         [Parameter()]
         [string[]]
-        $CssClass
+        $CssClass,
+
+        [switch]
+        $NoForm
     )
 
     $Id = Get-PodeWebElementId -Tag File -Id $Id -Name $Name
@@ -181,6 +188,7 @@ function New-PodeWebFileUpload
         ID = $Id
         CssClasses = ($CssClass -join ' ')
         NoEvents = $true
+        NoForm = $NoForm.IsPresent
     }
 }
 
@@ -339,7 +347,10 @@ function New-PodeWebCheckbox
         $Checked,
 
         [switch]
-        $Disabled
+        $Disabled,
+
+        [switch]
+        $NoForm
     )
 
     $Id = Get-PodeWebElementId -Tag Checkbox -Id $Id -Name $Name
@@ -360,6 +371,7 @@ function New-PodeWebCheckbox
         Checked = $Checked.IsPresent
         Disabled = $Disabled.IsPresent
         CssClasses = ($CssClass -join ' ')
+        NoForm = $NoForm.IsPresent
     }
 }
 
@@ -387,7 +399,10 @@ function New-PodeWebRadio
         $Inline,
 
         [switch]
-        $Disabled
+        $Disabled,
+
+        [switch]
+        $NoForm
     )
 
     $Id = Get-PodeWebElementId -Tag Radio -Id $Id -Name $Name
@@ -402,6 +417,7 @@ function New-PodeWebRadio
         Inline = $Inline.IsPresent
         Disabled = $Disabled.IsPresent
         CssClasses = ($CssClass -join ' ')
+        NoForm = $NoForm.IsPresent
     }
 }
 
@@ -441,7 +457,10 @@ function New-PodeWebSelect
         $CssClass,
 
         [switch]
-        $Multiple
+        $Multiple,
+
+        [switch]
+        $NoForm
     )
 
     $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
@@ -464,6 +483,7 @@ function New-PodeWebSelect
         Size = $Size
         CssClasses = ($CssClass -join ' ')
         NoAuthentication = $NoAuthentication.IsPresent
+        NoForm = $NoForm.IsPresent
     }
 
     $routePath = "/components/select/$($Id)"
@@ -530,7 +550,10 @@ function New-PodeWebRange
         $Disabled,
 
         [switch]
-        $ShowValue
+        $ShowValue,
+
+        [switch]
+        $NoForm
     )
 
     $Id = Get-PodeWebElementId -Tag Range -Id $Id -Name $Name
@@ -555,6 +578,7 @@ function New-PodeWebRange
         Disabled = $Disabled.IsPresent
         ShowValue = $ShowValue.IsPresent
         CssClasses = ($CssClass -join ' ')
+        NoForm = $NoForm.IsPresent
     }
 }
 

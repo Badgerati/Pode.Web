@@ -3208,7 +3208,13 @@ function convertToArray(element) {
 function invokeEvent(type, sender) {
     sender = $(sender);
     var url = `${getComponentUrl(sender)}/events/${type}`;
-    sendAjaxReq(url, sender.serialize(), sender, true, null, { keepFocus: true });
+
+    var data = sender.serialize();
+    if (!data) {
+        data = serializeInputs(sender);
+    }
+
+    sendAjaxReq(url, data, sender, true, null, { keepFocus: true });
 }
 
 function getComponentUrl(component) {
