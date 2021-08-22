@@ -1187,3 +1187,122 @@ function Reset-PodeWebTheme
         ObjectType = 'Theme'
     }
 }
+
+function Show-PodeWebObject
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Show'
+        ObjectType = 'Object'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+    }
+}
+
+function Hide-PodeWebObject
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Hide'
+        ObjectType = 'Object'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+    }
+}
+
+function Set-PodeWebObjectStyle
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Property,
+
+        [Parameter()]
+        [string]
+        $Value
+    )
+
+    return @{
+        Operation = 'Set'
+        ObjectType = 'Object-Style'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+        Property = $Property
+        Value = $Value
+    }
+}
+
+function Remove-PodeWebObjectStyle
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Property
+    )
+
+    return @{
+        Operation = 'Remove'
+        ObjectType = 'Object-Style'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+        Property = $Property
+    }
+}

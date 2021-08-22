@@ -1298,6 +1298,14 @@ function invokeActions(actions, sender) {
                 actionTheme(action);
                 break;
 
+            case 'object':
+                actionObject(action);
+                break;
+
+            case 'object-style':
+                actionObjectStyle(action);
+                break;
+
             default:
                 break;
         }
@@ -1743,20 +1751,10 @@ function updateTableRow(action) {
     }
 
     // update the row's background colour
-    if (action.BackgroundColour) {
-        row[0].style.setProperty('background-color', action.BackgroundColour, 'important');
-    }
-    else {
-        row[0].style.setProperty('background-color', null);
-    }
+    setObjectStyle(row[0], 'background-color', action.BackgroundColour);
 
     // update the row's forecolour
-    if (action.Colour) {
-        row[0].style.setProperty('color', action.Colour, 'important');
-    }
-    else {
-        row[0].style.setProperty('color', null);
-    }
+    setObjectStyle(row[0], 'color', action.Colour);
 
     // binds sort/buttons/etc
     $('[data-toggle="tooltip"]').tooltip();
@@ -1845,14 +1843,12 @@ function clearTable(action) {
 }
 
 function syncTable(action) {
-    if (!action.ID && !action.Name) {
+    var table = getElementByNameOrId(action, 'table', null, '[pode-dynamic="True"]');
+    if (!table) {
         return;
     }
 
-    var table = getElementByNameOrId(action, 'table');
-    var id = getId(table);
-
-    loadTable(id);
+    loadTable(getId(table));
 }
 
 function updateTable(action, sender) {
@@ -2149,6 +2145,10 @@ function getElementByNameOrId(action, tag, sender, filter) {
 
     // by Name
     if (action.Name) {
+        if (!tag && action.Type) {
+            tag = `[pode-object="${action.Type}"]`;
+        }
+
         if (sender) {
             return sender.find(`${tag}[name="${action.Name}"]${filter}`);
         }
@@ -2256,12 +2256,70 @@ function updateTile(action, sender) {
 }
 
 function syncTile(action) {
-    var tile = getElementByNameOrId(action, 'div');
+    var tile = getElementByNameOrId(action, 'div', null, '[pode-dynamic="True"]');
     if (!tile) {
         return;
     }
 
     loadTile(getId(tile));
+}
+
+function actionObjectStyle(action) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'set':
+        case 'remove':
+            updateObjectStyle(action);
+            break;
+    }
+}
+
+function updateObjectStyle(action) {
+    var obj = getElementByNameOrId(action);
+    if (!obj) {
+        return;
+    }
+
+    setObjectStyle(obj[0], action.Property, action.Value);
+}
+
+function setObjectStyle(obj, property, value) {
+    if (value) {
+        obj.style.setProperty(property, value, 'important');
+    }
+    else {
+        obj.style.setProperty(property, null);
+    }
+}
+
+function actionObject(action) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'show':
+        case 'hide':
+            toggleObject(action, action.Operation.toLowerCase());
+            break;
+    }
+}
+
+function toggleObject(action, toggle) {
+    var obj = getElementByNameOrId(action);
+    if (!obj) {
+        return;
+    }
+
+    if (toggle == 'show') {
+        obj.show();
+    }
+    else {
+        obj.hide();
+    }
 }
 
 function actionTheme(action) {
@@ -2353,7 +2411,7 @@ function clearSelect(action) {
 }
 
 function syncSelect(action) {
-    var select = getElementByNameOrId(action, 'select');
+    var select = getElementByNameOrId(action, 'select', null, '[pode-dynamic="True"]');
     if (!select) {
         return;
     }
@@ -2594,14 +2652,12 @@ function clearChart(action) {
 }
 
 function syncChart(action) {
-    if (!action.ID && !action.Name) {
+    var chart = getElementByNameOrId(action, 'canvas', null, '[pode-dynamic="True"]');
+    if (!chart) {
         return;
     }
 
-    var chart = getElementByNameOrId(action, 'canvas');
-    var id = getId(chart);
-
-    loadChart(id);
+    loadChart(getId(chart));
 }
 
 var _charts = {};
