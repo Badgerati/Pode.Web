@@ -9,7 +9,7 @@ A timer is a non-visible element, it sets up a javascript timer in the backgroun
 The below example sets up a timer that will update the badge's value and colour every 10 seconds:
 
 ```powershell
-New-PodeWebTimer -Name ExampleTimer -Interval 10 -ScriptBlock {
+New-PodeWebTimer -Interval 10 -ScriptBlock {
     $rand = Get-Random -Minimum 0 -Maximum 3
     $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
     Update-PodeWebBadge -Id 'bdg_example' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
@@ -23,7 +23,7 @@ New-PodeWebCard -Content @(
 You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
 
 ```powershell
-New-PodeWebTimer -Name 'Example' -Interval 10 -ArgumentList 'Value1', 2, $false -ScriptBlock {
+New-PodeWebTimer -Interval 10 -ArgumentList 'Value1', 2, $false -ScriptBlock {
     param($value1, $value2, $value3)
 
     # $value1 = 'Value1'

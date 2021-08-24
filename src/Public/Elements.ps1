@@ -2310,7 +2310,7 @@ function New-PodeWebTimer
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter()]
         [string]
         $Name,
 
@@ -2344,7 +2344,7 @@ function New-PodeWebTimer
         $NoAuthentication
     )
 
-    $Id = Get-PodeWebElementId -Tag Timer -Id $Id -Name $Name
+    $Id = Get-PodeWebElementId -Tag Timer -Id $Id -Name $Name -NameAsToken
 
     if ($Interval -lt 10) {
         $Interval = 10
