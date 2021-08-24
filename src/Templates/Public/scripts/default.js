@@ -1298,12 +1298,12 @@ function invokeActions(actions, sender) {
                 actionTheme(action);
                 break;
 
-            case 'object':
-                actionObject(action);
+            case 'component':
+                actionComponent(action);
                 break;
 
-            case 'object-style':
-                actionObjectStyle(action);
+            case 'component-style':
+                actionComponentStyle(action);
                 break;
 
             default:
@@ -2264,7 +2264,7 @@ function syncTile(action) {
     loadTile(getId(tile));
 }
 
-function actionObjectStyle(action) {
+function actionComponentStyle(action) {
     if (!action) {
         return;
     }
@@ -2272,12 +2272,12 @@ function actionObjectStyle(action) {
     switch (action.Operation.toLowerCase()) {
         case 'set':
         case 'remove':
-            updateObjectStyle(action);
+            updateComponentStyle(action);
             break;
     }
 }
 
-function updateObjectStyle(action) {
+function updateComponentStyle(action) {
     var obj = getElementByNameOrId(action);
     if (!obj) {
         return;
@@ -2295,7 +2295,7 @@ function setObjectStyle(obj, property, value) {
     }
 }
 
-function actionObject(action) {
+function actionComponent(action) {
     if (!action) {
         return;
     }
@@ -2303,12 +2303,12 @@ function actionObject(action) {
     switch (action.Operation.toLowerCase()) {
         case 'show':
         case 'hide':
-            toggleObject(action, action.Operation.toLowerCase());
+            toggleComponent(action, action.Operation.toLowerCase());
             break;
     }
 }
 
-function toggleObject(action, toggle) {
+function toggleComponent(action, toggle) {
     var obj = getElementByNameOrId(action);
     if (!obj) {
         return;

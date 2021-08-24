@@ -1188,7 +1188,7 @@ function Reset-PodeWebTheme
     }
 }
 
-function Show-PodeWebObject
+function Show-PodeWebComponent
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1207,14 +1207,14 @@ function Show-PodeWebObject
 
     return @{
         Operation = 'Show'
-        ObjectType = 'Object'
+        ObjectType = 'Component'
         ID = $Id
         Type = $Type
         Name = $Name
     }
 }
 
-function Hide-PodeWebObject
+function Hide-PodeWebComponent
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1233,14 +1233,14 @@ function Hide-PodeWebObject
 
     return @{
         Operation = 'Hide'
-        ObjectType = 'Object'
+        ObjectType = 'Component'
         ID = $Id
         Type = $Type
         Name = $Name
     }
 }
 
-function Set-PodeWebObjectStyle
+function Set-PodeWebComponentStyle
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1267,7 +1267,7 @@ function Set-PodeWebObjectStyle
 
     return @{
         Operation = 'Set'
-        ObjectType = 'Object-Style'
+        ObjectType = 'Component-Style'
         ID = $Id
         Type = $Type
         Name = $Name
@@ -1276,7 +1276,7 @@ function Set-PodeWebObjectStyle
     }
 }
 
-function Remove-PodeWebObjectStyle
+function Remove-PodeWebComponentStyle
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1299,7 +1299,7 @@ function Remove-PodeWebObjectStyle
 
     return @{
         Operation = 'Remove'
-        ObjectType = 'Object-Style'
+        ObjectType = 'Component-Style'
         ID = $Id
         Type = $Type
         Name = $Name
