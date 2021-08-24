@@ -1187,3 +1187,122 @@ function Reset-PodeWebTheme
         ObjectType = 'Theme'
     }
 }
+
+function Show-PodeWebComponent
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Show'
+        ObjectType = 'Component'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+    }
+}
+
+function Hide-PodeWebComponent
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Hide'
+        ObjectType = 'Component'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+    }
+}
+
+function Set-PodeWebComponentStyle
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Property,
+
+        [Parameter()]
+        [string]
+        $Value
+    )
+
+    return @{
+        Operation = 'Set'
+        ObjectType = 'Component-Style'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+        Property = $Property
+        Value = $Value
+    }
+}
+
+function Remove-PodeWebComponentStyle
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Property
+    )
+
+    return @{
+        Operation = 'Remove'
+        ObjectType = 'Component-Style'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+        Property = $Property
+    }
+}
