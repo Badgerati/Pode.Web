@@ -55,7 +55,12 @@ function New-PodeWebCell
         [Parameter()]
         [ValidateRange(1, 12)]
         [int]
-        $Width
+        $Width,
+
+        [Parameter()]
+        [ValidateSet('Left', 'Right', 'Center')]
+        [string]
+        $Alignment = 'Left'
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -68,6 +73,7 @@ function New-PodeWebCell
         Content = $Content
         Width = $Width
         ID = (Get-PodeWebElementId -Tag Cell -Id $Id -RandomToken)
+        Alignment = $Alignment.ToLowerInvariant()
     }
 }
 

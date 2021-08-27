@@ -17,7 +17,7 @@
                 $width = "col-$($cell.Width)"
             }
 
-            "<div id='$($cell.ID)' class='$($width)' pode-object='$($cell.ObjectType)'>"
+            "<div id='$($cell.ID)' class='text-$($cell.Alignment) $($width)' pode-object='$($cell.ObjectType)'>"
                 Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $cell.Content }
             "</div>"
         }
