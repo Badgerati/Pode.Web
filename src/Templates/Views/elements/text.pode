@@ -1,5 +1,5 @@
 $(
-    $value = "<span id='$($data.ID)' class='pode-text $($data.CssClasses)' pode-object='$($data.ObjectType)'>$($data.Value)</span>"
+    $value = "<span id='$($data.ID)' class='pode-text $($data.CssClasses)' style='$($data.CssStyles)' pode-object='$($data.ObjectType)'>$($data.Value)</span>"
 
     switch ($data.Style.ToLowerInvariant()) {
         'underlined' {

@@ -1,6 +1,6 @@
 $(
     $value = $data.Value
-    $header = "<h$($data.Size) id='$($data.ID)' class='$($data.CssClasses)' pode-object='$($data.ObjectType)'>$($value)"
+    $header = "<h$($data.Size) id='$($data.ID)' class='$($data.CssClasses)' style='$($data.CssStyles)' pode-object='$($data.ObjectType)'>$($value)"
 
     if (![string]::IsNullOrWhiteSpace($data.Secondary)) {
         $sub = $data.Secondary

@@ -11,6 +11,7 @@
 
             "<select
                 class='custom-select $(if ($data.NoForm) { 'no-form' })'
+                style='$($data.CssStyles)'
                 id='$($data.ID)'
                 name='$($data.Name)'
                 pode-object='$($data.ObjectType)'

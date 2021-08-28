@@ -29,7 +29,7 @@
             $events = ConvertTo-PodeWebEvents -Events $data.Events
 
             if ($data.Multiline) {
-                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width)' $($describedBy) $($readOnly) $($value) $($events)></textarea>"
+                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($value) $($events)></textarea>"
             }
             else {
                 if ($data.Prepend.Enabled -or $data.Append.Enabled) {
@@ -50,7 +50,7 @@
                     $_type = 'datetime-local'
                 }
 
-                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($value) $($events)>"
+                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width) $($data.CssStyles)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($value) $($events)>"
 
                 if ($data.Append.Enabled) {
                     if (![string]::IsNullOrWhiteSpace($data.Append.Text)) {

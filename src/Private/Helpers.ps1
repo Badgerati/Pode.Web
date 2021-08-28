@@ -674,3 +674,24 @@ function ConvertTo-PodeWebEvents
 
     return $js_events
 }
+
+function ConvertTo-PodeWebStyles
+{
+    param(
+        [Parameter()]
+        [hashtable]
+        $Style
+    )
+
+    $styles = [string]::Empty
+
+    if (($null -eq $Style) -or ($Style.Count -eq 0)) {
+        return $styles
+    }
+
+    foreach ($key in $Style.Keys) {
+        $styles += " $($key.ToLowerInvariant()): $($Style[$key].ToLowerInvariant()) !important;"
+    }
+
+    return $styles
+}

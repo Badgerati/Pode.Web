@@ -1,7 +1,7 @@
 $(
     $colour = [string]::Empty
     if (![string]::IsNullOrWhiteSpace($data.Colour)) {
-        $colour = "style='color:$($data.Colour);'"
+        $colour = "color:$($data.Colour);"
     }
 
     $title = [string]::Empty
@@ -9,5 +9,5 @@ $(
         $title = "title='$($data.Title)' data-toggle='tooltip'"
     }
 
-    "<span id='$($data.ID)' class='spinner-border spinner-border-sm $($data.CssClasses)' pode-object='$($data.ObjectType)' role='status' $($colour) $($title)></span>"
+    "<span id='$($data.ID)' class='spinner-border spinner-border-sm $($data.CssClasses)' style='$($colour) $($data.CssStyles)' pode-object='$($data.ObjectType)' role='status' $($title)></span>"
 )

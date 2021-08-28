@@ -1,7 +1,7 @@
 $(
     $value = $data.Value
 
-    $quote = "<blockquote class='blockquote text-$($data.Alignment) $($data.CssClasses)' id='$($data.ID)' pode-object='$($data.ObjectType)'>
+    $quote = "<blockquote class='blockquote text-$($data.Alignment) $($data.CssClasses)' style='$($data.CssStyles)' id='$($data.ID)' pode-object='$($data.ObjectType)'>
         <p class='pode-text mb-0'>$($value)</p>"
 
     if (![string]::IsNullOrWhiteSpace($data.Source)) {
