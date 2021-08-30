@@ -1306,3 +1306,65 @@ function Remove-PodeWebComponentStyle
         Property = $Property
     }
 }
+
+function Add-PodeWebComponentClass
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Class
+    )
+
+    return @{
+        Operation = 'Add'
+        ObjectType = 'Component-Class'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+        Class = $Class
+    }
+}
+
+function Remove-PodeWebComponentClass
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Class
+    )
+
+    return @{
+        Operation = 'Remove'
+        ObjectType = 'Component-Class'
+        ID = $Id
+        Type = $Type
+        Name = $Name
+        Class = $Class
+    }
+}
