@@ -17,13 +17,13 @@
                     if (!$data.NoLabels) {
                         "<label for='$($data.ID)_date'>Date</label>"
                     }
-                    "<input type='date' class='form-control' id='$($data.ID)_date' name='$($data.Name)_Date' $($describedBy) $($readOnly)>
+                    "<input type='date' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_date' name='$($data.Name)_Date' $($describedBy) $($readOnly)>
                 </div>
                 <div class='form-group col-md-6'>"
                     if (!$data.NoLabels) {
                         "<label for='$($data.ID)_time'>Time</label>"
                     }
-                    "<input type='time' class='form-control' id='$($data.ID)_time' name='$($data.Name)_Time' $($describedBy) $($readOnly)>
+                    "<input type='time' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_time' name='$($data.Name)_Time' $($describedBy) $($readOnly)>
                 </div>
             </div>"
         )

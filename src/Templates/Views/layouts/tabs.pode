@@ -1,4 +1,4 @@
-<ul id="$($data.ID)" class="nav nav-tabs $($data.CssClasses)" pode-object="$($data.ObjectType)" role="tablist" pode-cycle="$($data.Cycle.Enabled)" pode-interval="$($data.Cycle.Interval)">
+<ul id="$($data.ID)" class="nav nav-tabs $($data.CssClasses)" style="$($data.CssStyles)" pode-object="$($data.ObjectType)" role="tablist" pode-cycle="$($data.Cycle.Enabled)" pode-interval="$($data.Cycle.Interval)">
     $(for ($i = 0; $i -lt $data.Tabs.Length; $i++) {
         $tab = $data.Tabs[$i]
 
@@ -11,7 +11,8 @@
             <a
                 id='$($tab.ID)'
                 name='$($tab.Name)'
-                class='nav-link $(if ($i -eq 0) { "active" })'
+                class='nav-link $(if ($i -eq 0) { "active" }) $($tab.CssClasses)'
+                style='$($data.CssStyles)'
                 pode-object='$($tab.ObjectType)'
                 data-toggle='tab' href='#$($tab.ID)_content'
                 role='tab'

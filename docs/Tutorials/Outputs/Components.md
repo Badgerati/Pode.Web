@@ -28,7 +28,33 @@ Show-PodeWebComponent -Type 'Card' -Name 'SomeCardName'
 Show-PodeWebComponent -Id 'card_somename'
 ```
 
-## Style
+## Classes
+
+### Add
+
+You can add a class onto a component via [`Add-PodeWebComponentClass`](../../../Functions/Outputs/Add-PodeWebComponentClass). You can update a component either by `-Id`, or by the component's `-Name` and `-Type`:
+
+```powershell
+Add-PodeWebComponentClass -Type 'Textbox' -Name 'SomeTextboxName' -Class 'my-custom-class'
+
+# or
+
+Add-PodeWebComponentClass -Id 'textbox_somename' -Class 'my-custom-class'
+```
+
+### Remove
+
+You can remove a class from a component via [`Remove-PodeWebComponentClass`](../../../Functions/Outputs/Remove-PodeWebComponentClass). You can update a component either by `-Id`, or by the component's `-Name` and `-Type`:
+
+```powershell
+Remove-PodeWebComponentClass -Type 'Textbox' -Name 'SomeTextboxName' -Class 'my-custom-class'
+
+# or
+
+Remove-PodeWebComponentClass -Id 'textbox_somename' -Class 'my-custom-class'
+```
+
+## Styles
 
 ### Set
 

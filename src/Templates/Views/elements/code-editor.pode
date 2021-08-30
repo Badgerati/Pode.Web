@@ -7,6 +7,7 @@
 
     <div
         class="code-editor"
+        style="$($data.CssStyles)"
         for="$($data.ID)"
         pode-language="$($data.Language)"
         pode-theme="$($data.Theme)"

@@ -1,4 +1,4 @@
-<div id="$($data.ID)" class="carousel slide $($data.CssClasses)" data-ride="carousel">
+<div id="$($data.ID)" class="carousel slide $($data.CssClasses)" style="$($data.CssStyles)" data-ride="carousel">
     <ol class="carousel-indicators">
         $(for ($i = 0; $i -lt $data.Slides.Length; $i++) {
             "<li data-target='#$($data.ID)' data-slide-to='$($i)' class='$(if ($i -eq 0) { "active" })'></li>"
@@ -7,19 +7,21 @@
 
     <div class="carousel-inner">
         $(for ($i = 0; $i -lt $data.Slides.Length; $i++) {
-            "<div id='$($data.Slides[$i].ID)' pode-object='$($data.Slides[$i].ObjectType)' class='carousel-item $(if ($i -eq 0) { "active" })'>"
+            $slide = $data.Slides[$i]
+
+            "<div id='$($slide.ID)' pode-object='$($slide.ObjectType)' class='carousel-item $(if ($i -eq 0) { "active" }) $($slide.CssClasses)' style='$($slide.CssStyles)'>"
 
                 "<div class='d-flex w-100 h-100'>"
-                Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Slides[$i].Content }
+                Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $slide.Content }
                 "</div>"
 
                 "<div class='carousel-caption d-none d-md-block'>"
-                    if (![string]::IsNullOrWhiteSpace($data.Slides[$i].Title)) {
-                        "<h5>$($data.Slides[$i].Title)</h5>"
+                    if (![string]::IsNullOrWhiteSpace($slide.Title)) {
+                        "<h5>$($slide.Title)</h5>"
                     }
 
-                    if (![string]::IsNullOrWhiteSpace($data.Slides[$i].Message)) {
-                        "<p>$($data.Slides[$i].Message)</p>"
+                    if (![string]::IsNullOrWhiteSpace($slide.Message)) {
+                        "<p>$($slide.Message)</p>"
                     }
                 "</div>
             </div>"

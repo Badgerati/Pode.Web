@@ -22,6 +22,7 @@ $(if ($data.Filter.Enabled) {
                 name='$($data.Name)'
                 pode-object='$($data.ObjectType)'
                 class='table table-striped table-hover $($click)'
+                style='$($data.CssStyles)'
                 pode-dynamic='$($data.IsDynamic)'
                 pode-click-dynamic='$($data.ClickIsDynamic)'
                 pode-data-column='$($data.DataColumn)'

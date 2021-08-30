@@ -112,8 +112,8 @@ function bindFileStreams() {
                 error: function() {
                     hideSpinner($(e).closest('div.file-stream'));
                     clearInterval(_fileStreams[getId(e)]);
-                    $(e).closest('div.file-stream').addClass('stream-error');
-                    $(e).closest('div.file-stream').find('div.card-header div div.btn-group').hide();
+                    addClass($(e).closest('div.file-stream'), 'stream-error');
+                    hide($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
                 }
             });
         }, $(e).attr('pode-interval'));
@@ -244,7 +244,7 @@ function mapElementThemes() {
     types.forEach((type) => {
         $(`.${type}-inbuilt-theme`).each((i, e) => {
             $(e).removeClass(`${type}-inbuilt-theme`);
-            $(e).addClass(`${type}-${defTheme}`);
+            addClass($(e), `${type}-${defTheme}`);
         });
     });
 }
@@ -426,17 +426,17 @@ function setValidationError(element) {
         return;
     }
 
-    element.addClass('is-invalid');
+    addClass(element, 'is-invalid');
 
     // form-row? flag inside inputs
     if (element.hasClass('form-row')) {
-        element.find('input').addClass('is-invalid');
+        addClass(element.find('input'), 'is-invalid');
     }
 
     // input? find parent input-group/form-row
     if (testTagName(element, 'input')) {
-        element.closest('div.input-group').addClass('is-invalid');
-        element.closest('div.form-row').addClass('is-invalid');
+        addClass(element.closest('div.input-group'), 'is-invalid');
+        addClass(element.closest('div.form-row'), 'is-invalid');
     }
 }
 
@@ -575,10 +575,7 @@ function showSpinner(sender) {
         return;
     }
 
-    var spinner = sender.find('span.spinner-border');
-    if (spinner) {
-        spinner.show();
-    }
+    show(sender.find('span.spinner-border'));
 }
 
 function hideSpinner(sender) {
@@ -586,10 +583,7 @@ function hideSpinner(sender) {
         return;
     }
 
-    var spinner = sender.find('span.spinner-border');
-    if (spinner) {
-        spinner.hide();
-    }
+    hide(sender.find('span.spinner-border'));
 }
 
 function unfocus(sender) {
@@ -1118,7 +1112,7 @@ function loadSelect(selectId) {
 
 function bindTileRefresh() {
     $("div.pode-tile .pode-tile-body .pode-refresh-btn").each((i, e) => {
-        $(e).hide();
+        hide($(e));
     });
 
     $("div.pode-tile span.pode-tile-refresh").off('click').on('click', function(e) {
@@ -1304,6 +1298,10 @@ function invokeActions(actions, sender) {
 
             case 'component-style':
                 actionComponentStyle(action);
+                break;
+
+            case 'component-class':
+                actionComponentClass(action);
                 break;
 
             default:
@@ -1584,8 +1582,8 @@ function filterTable(filter) {
     var tableId = filter.attr('for');
     var value = filter.val();
 
-    $(`table#${tableId} tbody tr:not(:icontains('${value}'))`).hide();
-    $(`table#${tableId} tbody tr:icontains('${value}')`).show();
+    hide($(`table#${tableId} tbody tr:not(:icontains('${value}'))`));
+    show($(`table#${tableId} tbody tr:icontains('${value}')`));
 }
 
 function bindSidebarFilter() {
@@ -1598,15 +1596,15 @@ function bindSidebarFilter() {
 
         if (value) {
             $('div.collapse').collapse('show');
-            $(`ul#${listId} li.nav-group-title`).hide();
+            hide($(`ul#${listId} li.nav-group-title`));
         }
         else {
             $('div.collapse').collapse('hide');
-            $(`ul#${listId} li.nav-group-title`).show();
+            show($(`ul#${listId} li.nav-group-title`));
         }
 
-        $(`ul#${listId} li.nav-page-item:not(:icontains('${value}'))`).hide();
-        $(`ul#${listId} li.nav-page-item:icontains('${value}')`).show();
+        hide($(`ul#${listId} li.nav-page-item:not(:icontains('${value}'))`));
+        show($(`ul#${listId} li.nav-page-item:icontains('${value}')`));
     });
 }
 
@@ -2251,7 +2249,7 @@ function updateTile(action, sender) {
     // change colour
     if (action.Colour) {
         removeClass(tile, 'alert-\\w+');
-        tile.addClass(`alert-${action.ColourType}`);
+        addClass(tile, `alert-${action.ColourType}`);
     }
 }
 
@@ -2262,6 +2260,40 @@ function syncTile(action) {
     }
 
     loadTile(getId(tile));
+}
+
+function actionComponentClass(action) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'add':
+            addComponentClass(action);
+            break;
+
+        case 'remove':
+            removeComponentClass(action);
+            break;
+    }
+}
+
+function addComponentClass(action) {
+    var obj = getElementByNameOrId(action);
+    if (!obj) {
+        return;
+    }
+
+    addClass(obj, action.Class);
+}
+
+function removeComponentClass(action) {
+    var obj = getElementByNameOrId(action);
+    if (!obj) {
+        return;
+    }
+
+    removeClass(obj, action.Class, true);
 }
 
 function actionComponentStyle(action) {
@@ -3099,7 +3131,7 @@ function actionBadge(action) {
     // change colour
     if (action.Colour) {
         removeClass(badge, 'badge-\\w+');
-        badge.addClass(`badge-${action.ColourType}`);
+        addClass(badge, `badge-${action.ColourType}`);
     }
 }
 
@@ -3126,7 +3158,7 @@ function actionProgress(action) {
     // change colour
     if (action.Colour) {
         removeClass(progress, 'bg-\\w+');
-        progress.addClass(`bg-${action.ColourType}`);
+        addClass(progress, `bg-${action.ColourType}`);
     }
 }
 
@@ -3139,7 +3171,7 @@ function getClass(element, filter) {
     return (result ? result[0] : null);
 }
 
-function removeClass(element, filter) {
+function removeClass(element, filter, raw) {
     if (!element) {
         return;
     }
@@ -3148,8 +3180,36 @@ function removeClass(element, filter) {
         element.removeClass();
     }
     else {
-        element.removeClass(getClass(element, filter));
+        element.removeClass((raw ? filter : getClass(element, filter)));
     }
+}
+
+function addClass(element, _class) {
+    if (!element) {
+        return;
+    }
+
+    if (element.hasClass(_class)) {
+        return;
+    }
+
+    element.addClass(_class);
+}
+
+function hide(element) {
+    if (!element) {
+        return;
+    }
+
+    element.hide();
+}
+
+function show(element) {
+    if (!element) {
+        return;
+    }
+
+    element.show();
 }
 
 function actionTab(action) {

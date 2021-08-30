@@ -4,11 +4,11 @@ $(
         $tag = 'ol'
     }
 
-    "<$($tag) class='$($data.CssClasses)' id='$($data.ID)' pode-object='$($data.ObjectType)'>"
+    "<$($tag) class='$($data.CssClasses)' style='$($data.CssStyles)' id='$($data.ID)' pode-object='$($data.ObjectType)'>"
 
     if (($null -ne $data.Items) -and ($data.Items.Length -gt 0)) {
         foreach ($item in $data.Items) {
-            "<li id='$($item.ID)'>"
+            "<li id='$($item.ID)' class='$($item.CssClasses)' style='$($item.CssStyles)'>"
                 Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $item.Content }
             "</li>"
         }
