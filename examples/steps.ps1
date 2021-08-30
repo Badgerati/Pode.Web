@@ -22,6 +22,7 @@ Start-PodeServer {
     $steps = New-PodeWebSteps -Name 'AddUser' -Steps @(
         New-PodeWebStep -Name 'Email' -Icon 'email' -Content @(
             New-PodeWebTextbox -Name 'Email'
+            New-PodeWebFileUpload -Name 'SomeFile'
         ) -ScriptBlock {
             $WebEvent.Data | Out-Default
         }

@@ -276,7 +276,96 @@ function setPodeThemeCookie(theme) {
 }
 
 function serializeInputs(element) {
-    return element.find('input, textarea, select').serialize();
+    if (!element) {
+        return {};
+    }
+
+    var data = null;
+    var opts = {
+        mimeType: 'multipart/form-data',
+        contentType: false,
+        processData: false
+    };
+
+    if (element.find('input[type=file]').length > 0) {
+        data = newFormData(element.find('input, textarea, select'));
+    }
+    else {
+        opts = null;
+
+        if (testTagName(element, 'form')) {
+            data = element.serialize();
+        }
+        else {
+            data = element.find('input, textarea, select').serialize();
+        }
+    }
+
+    return {
+        data: data,
+        opts: opts
+    };
+}
+
+function isFormDataEmpty(data) {
+    return (data == null || !data.entries().next().value);
+}
+
+function newFormData(inputs) {
+    var data = new FormData();
+
+    for (var input of inputs) {
+        if (!input.name) {
+            continue;
+        }
+
+        switch(input.type.toLowerCase()) {
+            case 'file':
+                data.append(input.name, input.files[0], input.files[0].name);
+                break;
+
+            case 'checkbox':
+            case 'radio':
+                if (input.checked) {
+                    addFormDataInput(data, input);
+                }
+                break;
+
+            default:
+                addFormDataInput(data, input);
+                break;
+        }
+    }
+
+    return data;
+}
+
+function addFormDataInput(data, input) {
+    return addFormDataValue(data, input.name, $(input).val());
+}
+
+function addFormDataValue(data, name, value) {
+    if (data == null || typeof data === 'string') {
+        if (!data) {
+            data = '';
+        }
+
+        if (data) {
+            data += '&';
+        }
+
+        data += `${name}=${value}`;
+    }
+    else {
+        if (data.has(name)) {
+            data.set(name, `${data.get(name)},${value}`);
+        }
+        else {
+            data.append(name, value);
+        }
+    }
+
+    return data;
 }
 
 function isEnterKey(event) {
@@ -340,15 +429,15 @@ function setupSteppers() {
             // call ajax, or move along?
             if (isDynamic(step)) {
                 // serialize any step-form data
-                var data = serializeInputs(step);
+                var inputs = serializeInputs(step);
                 var url = getComponentUrl(step);
 
                 // send ajax req, and call next on no validation errors
-                sendAjaxReq(url, data, step, true, (res, sender) => {
+                sendAjaxReq(url, inputs.data, step, true, (res, sender) => {
                     if (!hasValidationErrors(sender)) {
                         _steppers[sender.attr('for')].next();
                     }
-                });
+                }, inputs.opts);
             }
             else {
                 _steppers[step.attr('for')].next();
@@ -369,29 +458,32 @@ function setupSteppers() {
                 return;
             }
 
+            var inputs = null;
+            var url = null;
+
             // call ajax, or move along?
             if (isDynamic(step)) {
                 // serialize any step-form data
-                var data = serializeInputs(step);
-                var url = getComponentUrl(step);
+                inputs = serializeInputs(step);
+                url = getComponentUrl(step);
 
                 // send ajax req, if not validation errors, send ajax for all steps
-                sendAjaxReq(url, data, step, true, (res, sender) => {
+                sendAjaxReq(url, inputs.data, step, true, (res, sender) => {
                     if (!hasValidationErrors(sender)) {
                         var _steps = sender.attr('for');
-                        var _data = sender.closest('form.pode-stepper-form').serialize();
+                        var _inputs = serializeInputs(sender.closest('form.pode-stepper-form'));
                         var _url = getComponentUrl(_steps);
 
-                        sendAjaxReq(_url, _data, sender, true);
+                        sendAjaxReq(_url, _inputs.data, sender, true, null, _inputs.opts);
                     }
-                });
+                }, inputs.opts);
             }
             else {
                 var steps = step.attr('for');
-                var data = step.closest('form.pode-stepper-form').serialize();
-                var url = getComponentUrl(steps);
+                inputs = serializeInputs(step.closest('form.pode-stepper-form'));
+                url = getComponentUrl(steps);
 
-                sendAjaxReq(url, data, step, true);
+                sendAjaxReq(url, inputs.data, step, true, null, inputs.opts);
             }
         });
     });
@@ -1363,23 +1455,8 @@ function bindFormSubmits() {
         var form = $(e.target);
 
         // submit the form
-        var data = null;
-        var opts = null;
-
-        if (form.find('input[type=file]').length > 0) {
-            data = new FormData(form[0]);
-            opts = {
-                mimeType: 'multipart/form-data',
-                contentType: false,
-                processData: false
-            }
-        }
-        else {
-            data = form.serialize();
-        }
-
-        // submit the form
-        sendAjaxReq(form.attr('method'), data, form, true, null, opts);
+        var inputs = serializeInputs(form);
+        sendAjaxReq(form.attr('method'), inputs.data, form, true, null, inputs.opts);
     });
 }
 
@@ -1418,12 +1495,12 @@ function bindModalSubmits() {
         }
 
         // find a form
-        var formData = '';
+        var inputs = {};
         var form = null;
 
         if (button.attr('pode-modal-form') == 'True') {
             form = modal.find('div.modal-body form');
-            formData = form.serialize();
+            inputs = serializeInputs(form);
             removeValidationErrors(form);
         }
 
@@ -1432,15 +1509,11 @@ function bindModalSubmits() {
 
         // build data
         if (dataValue) {
-            if (formData) {
-                formData += '&';
-            }
-
-            formData += `Value=${dataValue}`;
+            inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
         }
 
         // invoke url
-        sendAjaxReq(url, formData, (form ?? button), true);
+        sendAjaxReq(url, inputs.data, (form ?? button), true, null, inputs.opts);
     });
 }
 
@@ -1478,20 +1551,22 @@ function bindButtons() {
         var button = getButton(e);
         button.tooltip('hide');
 
-        // default data value
+        // find a form
+        var inputs = {};
+
+        var form = button.closest('form');
+        if (form) {
+            inputs = serializeInputs(form);
+        }
+
+        // get a data value
         var dataValue = getDataValue(button);
-        var data = `Value=${dataValue}`;
-
-        if (!dataValue) {
-            var form = button.closest('form');
-
-            if (form) {
-                data = form.serialize();
-            }
+        if (dataValue) {
+            inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
         }
 
         var url = getComponentUrl(button);
-        sendAjaxReq(url, data, button, true);
+        sendAjaxReq(url, inputs.data, button, true, null, inputs.opts);
     });
 }
 
@@ -3325,12 +3400,19 @@ function invokeEvent(type, sender) {
     sender = $(sender);
     var url = `${getComponentUrl(sender)}/events/${type}`;
 
-    var data = sender.serialize();
-    if (!data) {
-        data = serializeInputs(sender);
+    var inputs = {};
+    inputs.data = sender.serialize();
+
+    if (!inputs.data) {
+        inputs = serializeInputs(sender);
     }
 
-    sendAjaxReq(url, data, sender, true, null, { keepFocus: true });
+    if (!inputs.opts) {
+        inputs.opts = {};
+    }
+    inputs.opts.keepFocus = true;
+
+    sendAjaxReq(url, inputs.data, sender, true, null, inputs.opts);
 }
 
 function getComponentUrl(component) {
