@@ -2860,7 +2860,7 @@ function createTheChart(canvas, action, sender) {
     }
 
     // colours for lines/bars/segments
-    var palette = getChartColourPalette(theme);
+    var palette = getChartColourPalette(theme, canvas);
 
     // x-axis labels
     var xAxis = [];
@@ -2898,7 +2898,7 @@ function createTheChart(canvas, action, sender) {
     Object.keys(yAxises).forEach((key, index) => {
         switch (chartType.toLowerCase()) {
             case 'line':
-                yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.2)');
+                yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.2)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 3;
                 axesOpts.x = getChartAxesColours(theme, canvas, 'x');
@@ -2914,7 +2914,7 @@ function createTheChart(canvas, action, sender) {
                 break;
 
             case 'bar':
-                yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.6)');
+                yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.6)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 1;
                 axesOpts.x = getChartAxesColours(theme, canvas, 'x');
@@ -3034,24 +3034,54 @@ function getChartPieBorderColour(theme) {
     }
 }
 
-function getChartColourPalette(theme) {
+function getChartColourPalette(theme, canvas) {
+    // do the canvas have a defined set of colours?
+    var colours = canvas.attr('pode-colours');
+    if (colours) {
+        var converted = [];
+        colours.split(',').forEach((c) => { converted.push(hexToRgb(c.trim())); });
+        return converted;
+    }
+
+    // no colours, so use the defaults
     var first = [
-        'rgb(54, 162, 235)',    // blue
-        'rgb(255, 176, 0)'      // orange
+        hexToRgb('#36a2eb'), // cornflower blue
+        hexToRgb('#ffb000')  // orange
     ];
 
     if (theme == 'terminal') {
-        first = ['rgb(255, 176, 0)', 'rgb(54, 162, 235)'];
+        first = [hexToRgb('#ffb000'), hexToRgb('#36a2eb')]; // orange, blue
     }
 
-
     return first.concat([
-        'rgb(255, 99, 132)',    // red
-        'rgb(255, 205, 86)',    // yellow
-        'rgb(0, 163, 51)',      // green
-        'rgb(153, 102, 255)',   // purple
-        'rgb(201, 203, 207)'    // grey
+        hexToRgb('#ff6384'),    // red
+        hexToRgb('#ffcd56'),    // yellow
+        hexToRgb('#00a333'),    // green
+        hexToRgb('#9966ff'),    // purple
+        hexToRgb('#96b0c6'),    // grey
+        hexToRgb('#275c7b'),    // teal
+        hexToRgb('#665191'),    // purple
+        hexToRgb('#bc5090'),    // pink
+        hexToRgb('#f95d6a'),    // peach
+        hexToRgb('#488f31'),    // green
+        hexToRgb('#f1f1f1'),    // white
+        hexToRgb('#a9b450'),    // lime green
+        hexToRgb('#00d2ef')     // sky blue
     ]);
+}
+
+function hexToRgb(hex) {
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) {
+        return "rgba(0, 0, 0, 1.0)";
+    }
+
+    return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, 1.0)`;
 }
 
 function writeChart(action, sender) {
