@@ -87,6 +87,23 @@ which renders a chart that looks like below:
 
 ![chart_bar_process](../../../images/chart_bar_process.png)
 
+## Colours
+
+A chart has 15 default colours that they can be rendered using. These colours can be customised if required, by suppling an array of hex colour codes to the `-Colours` parameter.
+
+For example, to render the below bar chart with reg/green bars, you could use:
+
+```powershell
+New-PodeWebContainer -Content @(
+    New-PodeWebChart -Name 'Top Processes' -Type Bar -AutoRefresh -Colours '#ff0000', '#00ff00' -ScriptBlock {
+        Get-Process |
+            Sort-Object -Property CPU -Descending |
+            Select-Object -First 10 |
+            ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU, Handles
+    }
+)
+```
+
 ## Append
 
 Now let's say we want `-AutoRefresh` a chart every minute, and we want it to display the current CPU usage, but only for the last 15 minutes. To do this, you have to supply `-Append` and any data returned from the `-ScriptBlock` will be appended to the chart instead. To restrict the data points to 15 minutes, we can supply `-MaxItems 15`.

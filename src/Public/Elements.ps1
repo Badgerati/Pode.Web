@@ -1752,6 +1752,10 @@ function New-PodeWebChart
         [int]
         $RefreshInterval = 60,
 
+        [Parameter()]
+        [string[]]
+        $Colours,
+
         [switch]
         $Append,
 
@@ -1779,6 +1783,14 @@ function New-PodeWebChart
 
     if ($RefreshInterval -le 0) {
         $RefreshInterval = 60
+    }
+
+    if (($null -ne $Colours) -and ($Colours.Length -gt 0)) {
+        foreach ($clr in $Colours) {
+            if ($clr -inotmatch '^\s*#(([a-f\d])([a-f\d])([a-f\d])){1,2}\s*$') {
+                throw "Invalid colour supplied, should be hex format: $($clr)"
+            }
+        }
     }
 
     $element = @{
@@ -1810,6 +1822,7 @@ function New-PodeWebChart
         }
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
+        Colours = ($Colours -join ',')
     }
 
     $routePath = "/components/chart/$($Id)"
@@ -1889,6 +1902,10 @@ function New-PodeWebCounterChart
         $MaxY = 0,
 
         [Parameter()]
+        [string[]]
+        $Colours,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -1922,6 +1939,7 @@ function New-PodeWebCounterChart
         -MinY $MinY `
         -MaxX $MaxX `
         -MaxY $MaxY `
+        -Colours $Colours `
         -NoAuthentication:$NoAuthentication `
         -AsCard:$AsCard `
         -NoLegend:$NoLegend `
