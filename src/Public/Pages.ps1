@@ -101,11 +101,15 @@ function Set-PodeWebLoginPage
     Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
 
     Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
-        $pages = @(Get-PodeWebState -Name 'pages')
-        if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
-            return
+        $page = Get-PodeWebFirstPublicPage
+        if ($null -ne $page) {
+            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
         }
+        # $pages = @(Get-PodeWebState -Name 'pages')
+        # if (($null -ne $pages) -and ($pages.Length -gt 0)) {
+        #     Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
+        #     return
+        # }
 
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
@@ -190,11 +194,15 @@ function Set-PodeWebHomePage
         # we either render the home page, or move to the first page if home page is blank
         $comps = $using:Layouts
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
-            $pages = @(Get-PodeWebState -Name 'pages')
-            if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-                Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
-                return
+            $page = Get-PodeWebFirstPublicPage
+            if ($null -ne $page) {
+                Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
             }
+            # $pages = @(Get-PodeWebState -Name 'pages')
+            # if (($null -ne $pages) -and ($pages.Length -gt 0)) {
+            #     Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
+            #     return
+            # }
         }
 
         $authData = Get-PodeWebAuthData
