@@ -105,11 +105,6 @@ function Set-PodeWebLoginPage
         if ($null -ne $page) {
             Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
         }
-        # $pages = @(Get-PodeWebState -Name 'pages')
-        # if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-        #     Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
-        #     return
-        # }
 
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
@@ -198,11 +193,6 @@ function Set-PodeWebHomePage
             if ($null -ne $page) {
                 Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
             }
-            # $pages = @(Get-PodeWebState -Name 'pages')
-            # if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-            #     Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
-            #     return
-            # }
         }
 
         $authData = Get-PodeWebAuthData

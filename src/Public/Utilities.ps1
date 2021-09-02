@@ -69,11 +69,6 @@ function Use-PodeWebTemplates
         if ($null -ne $page) {
             Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
         }
-        # $pages = @(Get-PodeWebState -Name 'pages')
-        # if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-        #     Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
-        #     return
-        # }
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
