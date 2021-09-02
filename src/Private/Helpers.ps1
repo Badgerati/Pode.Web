@@ -622,6 +622,22 @@ function Test-PodeWebOutputWrapped
     return (($Output -is [hashtable]) -and ![string]::IsNullOrWhiteSpace($Output.Operation) -and ![string]::IsNullOrWhiteSpace($Output.ObjectType))
 }
 
+function Get-PodeWebFirstPublicPage
+{
+    $pages = @(Get-PodeWebState -Name 'pages')
+    if (Test-PodeWebArrayEmpty -Array $pages) {
+        return $null
+    }
+
+    foreach ($page in ($pages | Sort-Object -Property Name)) {
+        if ((Test-PodeWebArrayEmpty -Array $page.Access.Groups) -and (Test-PodeWebArrayEmpty -Array $page.Access.Users)) {
+            return $page
+        }
+    }
+
+    return $null
+}
+
 function Get-PodeWebPagePath
 {
     [CmdletBinding(DefaultParameterSetName='Name')]
