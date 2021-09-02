@@ -1734,19 +1734,19 @@ function New-PodeWebChart
 
         [Parameter()]
         [int]
-        $MinX = 0,
+        $MinX = [int]::MinValue,
 
         [Parameter()]
         [int]
-        $MaxX = 0,
+        $MaxX = [int]::MaxValue,
 
         [Parameter()]
         [int]
-        $MinY = 0,
+        $MinY = [int]::MinValue,
 
         [Parameter()]
         [int]
-        $MaxY = 0,
+        $MaxY = [int]::MaxValue,
 
         [Parameter()]
         [int]
@@ -1887,19 +1887,19 @@ function New-PodeWebCounterChart
 
         [Parameter()]
         [int]
-        $MinX = 0,
+        $MinX = [int]::MinValue,
 
         [Parameter()]
         [int]
-        $MaxX = 0,
+        $MaxX = [int]::MaxValue,
 
         [Parameter()]
         [int]
-        $MinY = 0,
+        $MinY = [int]::MinValue,
 
         [Parameter()]
         [int]
-        $MaxY = 0,
+        $MaxY = [int]::MaxValue,
 
         [Parameter()]
         [string[]]
