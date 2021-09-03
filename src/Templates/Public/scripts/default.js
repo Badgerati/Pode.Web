@@ -4,6 +4,9 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
+var MIN_INT32 = (1 << 31);
+var MAX_INT32 = ((2**31) - 1);
+
 
 (function() {
     $('[data-toggle="tooltip"]').tooltip();
@@ -2783,10 +2786,16 @@ function updateChart(action, sender) {
     action.ID = getId(canvas);
 
     var _append = (canvas.attr('pode-append') == 'True');
+    var _chart = _charts[action.ID];
 
-    // append new data, rather than rebuild the chart
-    if (_append && _charts[action.ID]) {
+    // append new data
+    if (_append && _chart) {
         appendToChart(canvas, action);
+    }
+
+    // update the chart with new data
+    else if (_chart) {
+        updateTheChart(canvas, action);
     }
 
     // build the chart
@@ -2821,6 +2830,34 @@ function appendToChart(canvas, action) {
 
     _chart.canvas.data.datasets.forEach((dataset) => {
         dataset.data = truncateArray(dataset.data, _max);
+    });
+
+    // re-render
+    _chart.canvas.update();
+}
+
+function updateTheChart(canvas, action) {
+    var _chart = _charts[action.ID];
+    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
+
+    _chart.canvas.data.labels = [];
+    _chart.canvas.data.datasets.forEach((a) => a.data = []);
+
+    // labels (x-axis)
+    action.Data.forEach((item) => {
+        if (_timeLabels) {
+            _chart.canvas.data.labels.push(getTimeString());
+        }
+        else {
+            _chart.canvas.data.labels.push(item.Key);
+        }
+    });
+
+    // data (y-axis)
+    action.Data.forEach((item) => {
+        item.Values.forEach((set, index) => {
+            _chart.canvas.data.datasets[index].data.push(set.Value);
+        });
     });
 
     // re-render
@@ -3011,9 +3048,12 @@ function getChartAxesColours(theme, canvas, axis) {
 
     // add min/max
     var min = parseInt(canvas.attr(`pode-min-${axis}`));
-    var max = parseInt(canvas.attr(`pode-max-${axis}`));
-    if (min != max) {
+    if (min > MIN_INT32) {
         opts['min'] = min;
+    }
+
+    var max = parseInt(canvas.attr(`pode-max-${axis}`));
+    if (max < MAX_INT32) {
         opts['max'] = max;
     }
 
