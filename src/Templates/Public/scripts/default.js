@@ -1928,10 +1928,6 @@ function syncTable(action) {
 }
 
 function updateTable(action, sender) {
-    if (action.Data == null) {
-        return;
-    }
-
     // convert data to array
     action.Data = convertToArray(action.Data);
 
@@ -1942,6 +1938,29 @@ function updateTable(action, sender) {
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
     var isPaginated = isTablePaginated(table);
+
+    // get custom column meta - for widths etc
+    var columns = {};
+    if (action.Columns) {
+        columns = action.Columns;
+    }
+
+    // render initial columns?
+    var _value = '';
+    var _direction = 'none'
+
+    var columnKeys = Object.keys(columns);
+
+    if (tableHead.find('th').length == 0 && columnKeys.length > 0) {
+        _value = '<tr>';
+
+        columnKeys.forEach((key) => {
+            _value += buildTableHeader(columns[key], _direction);
+        });
+
+        _value += '</tr>';
+        tableHead.append(_value);
+    }
 
     // clear the table if no data
     if (action.Data.length <= 0) {
@@ -1958,12 +1977,6 @@ function updateTable(action, sender) {
     // get data keys for table columns
     var keys = Object.keys(action.Data[0]);
 
-    // get custom column meta - for widths etc
-    var columns = {};
-    if (action.Columns) {
-        columns = action.Columns;
-    }
-
     // get senderId if present, and set on table as 'for'
     var senderId = getId(sender);
     if (senderId && getTagName(sender) == 'form') {
@@ -1974,9 +1987,7 @@ function updateTable(action, sender) {
     var dataColumn = table.attr('pode-data-column');
 
     // table headers
-    var _value = '<tr>';
-    var _col = null;
-    var _direction = 'none'
+    _value = '<tr>';
     var _oldHeader = null;
 
     keys.forEach((key) => {
@@ -1991,24 +2002,7 @@ function updateTable(action, sender) {
 
         // add the table header
         if (key in columns) {
-            _col = columns[key];
-            _value += `<th sort-direction='${_direction}' name='${key}' style='`;
-
-            if (_col.Width > 0) {
-                _value += `width:${_col.Width}%;`;
-            }
-
-            if (_col.Alignment) {
-                _value += `text-align:${_col.Alignment};`;
-            }
-
-            _value += `'>`;
-
-            if (_col.Icon) {
-                _value += `<span class='mdi mdi-${_col.Icon.toLowerCase()} mRight02'></span>`;
-            }
-
-            _value += `${_col.Name ? _col.Name : key}</th>`;
+            _value += buildTableHeader(columns[key], _direction);
         }
         else {
             _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
@@ -2028,7 +2022,6 @@ function updateTable(action, sender) {
         keys.forEach((key) => {
             var col = columns[key];
             if (key in columns) {
-                _col = columns[key];
                 _value += `<td pode-column='${key}' style='`;
 
                 if (col.Alignment) {
@@ -2134,6 +2127,27 @@ function updateTable(action, sender) {
 
     // setup clickable rows
     bindTableClickableRows(tableId);
+}
+
+function buildTableHeader(column, direction) {
+    var value = `<th sort-direction='${direction}' name='${column.ID}' style='`;
+
+    if (column.Width > 0) {
+        value += `width:${column.Width}%;`;
+    }
+
+    if (column.Alignment) {
+        value += `text-align:${column.Alignment};`;
+    }
+
+    value += `'>`;
+
+    if (column.Icon) {
+        value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight02'></span>`;
+    }
+
+    value += `${column.Name}</th>`;
+    return value;
 }
 
 function writeTable(action, sender) {
