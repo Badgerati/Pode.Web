@@ -72,8 +72,6 @@ $(() => {
     bindTimers();
 });
 
-var _fileStreams = {};
-
 function bindFileStreams() {
     $('div.file-stream pre textarea').each((i, e) => {
         var handle = setInterval(function() {
@@ -92,7 +90,13 @@ function bindFileStreams() {
                 dataType: 'text',
                 headers: { "Range": `bytes=${length}-` },
                 success: function(data, status, xhr) {
+                    if ($(e).closest('div.file-stream').hasClass('stream-error')) {
+                        removeClass($(e).closest('div.file-stream'), 'stream-error', true);
+                        show($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
+                    }
+
                     hideSpinner($(e).closest('div.file-stream'));
+
                     var header = xhr.getResponseHeader('Content-Range');
                     if (header) {
                         var rangeLength = header.split('/')[1];
@@ -114,14 +118,12 @@ function bindFileStreams() {
                 },
                 error: function() {
                     hideSpinner($(e).closest('div.file-stream'));
-                    clearInterval(_fileStreams[getId(e)]);
+                    $(e).attr('pode-streaming', '0');
                     addClass($(e).closest('div.file-stream'), 'stream-error');
                     hide($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
                 }
             });
         }, $(e).attr('pode-interval'));
-
-        _fileStreams[getId(e)] = handle;
     });
 
     $('div.file-stream button.pode-stream-download').off('click').on('click', function(e) {
@@ -1397,6 +1399,10 @@ function invokeActions(actions, sender) {
 
             case 'component-class':
                 actionComponentClass(action);
+                break;
+
+            case 'filestream':
+                actionFileStream(action);
                 break;
 
             default:
@@ -2731,6 +2737,85 @@ function downloadCSV(csv, filename) {
 
     // remove the link
     $(downloadLink).remove();
+}
+
+function actionFileStream(action) {
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateFileStream(action);
+            break;
+
+        case 'stop':
+            stopFileStream(action);
+            break;
+
+        case 'start':
+            startFileStream(action);
+            break;
+
+        case 'restart':
+            stopFileStream(action);
+            clearFileStream(action);
+            startFileStream(action);
+            break;
+
+        case 'clear':
+            clearFileStream(action);
+            break;
+    }
+}
+
+function updateFileStream(action) {
+    var filestream = getElementByNameOrId(action, 'textarea');
+    if (!filestream) {
+        return;
+    }
+
+    if (action.Url && filestream.attr('pode-file') != action.Url) {
+        stopFileStream(action);
+        clearFileStream(action);
+        filestream.attr('pode-file', action.Url);
+        startFileStream(action);
+    }
+}
+
+function stopFileStream(action) {
+    var filestream = getElementByNameOrId(action, 'textarea');
+    if (!filestream) {
+        return;
+    }
+
+    filestream.attr('pode-streaming', '0');
+
+    var button = filestream.closest('div.file-stream').find('button.pode-stream-pause span');
+    if (!button.hasClass('mdi-play')) {
+        toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
+    }
+}
+
+function startFileStream(action) {
+    var filestream = getElementByNameOrId(action, 'textarea');
+    if (!filestream) {
+        return;
+    }
+
+    filestream.attr('pode-streaming', '1');
+
+    var button = filestream.closest('div.file-stream').find('button.pode-stream-pause span');
+    if (!button.hasClass('mdi-pause')) {
+        toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
+    }
+}
+
+function clearFileStream(action) {
+    var filestream = getElementByNameOrId(action, 'textarea');
+    if (!filestream) {
+        return;
+    }
+
+    filestream.text('');
+    filestream.attr('pode-length', 0);
+    filestream.scrollTop = filestream.scrollHeight;
 }
 
 function actionChart(action, sender) {
