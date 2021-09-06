@@ -2199,6 +2199,10 @@ function Initialize-PodeWebTableColumn
         $Icon
     )
 
+    if ([string]::IsNullOrWhiteSpace($Name)) {
+        $Name = $Key
+    }
+
     return @{
         Key = $Key
         Width = $Width

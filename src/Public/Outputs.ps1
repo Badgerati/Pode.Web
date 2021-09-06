@@ -84,7 +84,7 @@ function Update-PodeWebTable
 
     end {
         # columns
-        $_columns = @{}
+        $_columns = [ordered]@{}
         if (($null -ne $Columns) -and ($Columns.Length -gt 0)) {
             foreach ($col in $Columns) {
                 $_columns[$col.Key] = $col
