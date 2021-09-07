@@ -1368,3 +1368,113 @@ function Remove-PodeWebComponentClass
         Class = $Class
     }
 }
+
+function Start-PodeWebFileStream
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Start'
+        ObjectType = 'FileStream'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Stop-PodeWebFileStream
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Stop'
+        ObjectType = 'FileStream'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Restart-PodeWebFileStream
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Restart'
+        ObjectType = 'FileStream'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Clear-PodeWebFileStream
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Clear'
+        ObjectType = 'FileStream'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Update-PodeWebFileStream
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Url
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'FileStream'
+        ID = $Id
+        Name = $Name
+        Url = $Url
+    }
+}
