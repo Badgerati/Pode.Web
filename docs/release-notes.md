@@ -1,5 +1,45 @@
 # Release Notes
 
+## v0.6.0
+
+```plain
+### Features
+* #156: Add support for most of the common JavaScript events on most elements
+
+### Enhancements
+* #89: Add `-CssStyle` parameters to Elements/Layouts
+* #115: Add output actions to allows switching of themes on the fly
+* #122: Add `-Mode` parameter on `New-PodeWebAccordion`, to start Collapsed/Expanded
+* #125: Add `-HideSidebar` switch to `Use-PodeWebTemplates`
+* #140: Add Clear output actions for Charts, Tables, and Textboxes
+* #147: Add support for Select elements to be more dynamic
+* #149: Allow for the Size of a multi-select element to be alterted
+* #151: Enable `Update-PodeWebTableRow` to be able to alter a row's background/text colour
+* #153: Add more colours for charts, and let them be customised
+* #154: Display pages in groups in alphabetical order
+* #155: Remove the "choose an option" option from Select (if needed, add via `-Options`)
+* #162: Add new `-NoForm` switch on most form elements, so they can be used outside a Form
+* #164: Output actions for Hide/Show components, and Update/Remove component styles
+* #165: Add new `-Alignment` parameter for Cells
+* #176: Update charts rather than full rebuild
+* #177: Add better support for initialising empty tables
+* #179: Add FileStream output actions
+
+### Bugs
+* #128: Fix bug with `ConvertTo-PodeWebPage` on modules using cmdlets
+* #130: Fix FileUpload elements within a Step layout
+* #137: Add missing `-ArgumentList` to `Add-PodeWebPage`
+* #144: Fix bug when two pages with the same name could be set as Active
+* #167: The `-Name` parameter for a Timer doesn't need to be mandatory
+* #168: Make the home page redirect to the first page with no access restrictions
+
+### Packaging
+* #118: Bump chart.js to 3.5.1
+* #119: Bump highlightjs to 11.2.0
+* #123: Bump monaco-editor to 0.27.0
+* #178: Bump materialdesignicons to 6.1.95
+```
+
 ## v0.5.1
 
 ```plain
