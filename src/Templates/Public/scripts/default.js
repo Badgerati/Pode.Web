@@ -326,7 +326,12 @@ function newFormData(inputs) {
 
         switch(input.type.toLowerCase()) {
             case 'file':
-                data.append(input.name, input.files[0], input.files[0].name);
+                if (input.files.length > 0) {
+                    data.append(input.name, input.files[0], input.files[0].name);
+                }
+                else {
+                    data.append(input.name, '');
+                }
                 break;
 
             case 'checkbox':
