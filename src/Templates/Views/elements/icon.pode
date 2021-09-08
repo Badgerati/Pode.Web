@@ -1,7 +1,7 @@
 $(
     $colour = [string]::Empty
     if (![string]::IsNullOrWhiteSpace($data.Colour)) {
-        $colour = "style='color:$($data.Colour);'"
+        $colour = "color:$($data.Colour);"
     }
 
     $title = [string]::Empty
@@ -24,5 +24,5 @@ $(
         $rotate = "mdi-rotate-$($data.Rotate)"
     }
 
-    "<span class='mdi mdi-$($data.Name) $($spin) $($flip) $($rotate) $($data.CssClasses)' $($colour) $($title)></span>"
+    "<span id='$($data.ID)' class='mdi mdi-$($data.Name) $($spin) $($flip) $($rotate) $($data.CssClasses)' style='$($colour) $($data.CssStyles)' pode-object='$($data.ObjectType)' $($title) $(ConvertTo-PodeWebEvents -Events $data.Events)></span>"
 )

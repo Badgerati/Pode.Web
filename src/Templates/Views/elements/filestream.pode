@@ -1,4 +1,4 @@
-<div class="card file-stream">
+<div class="card file-stream $($data.CssClasses)">
     $(if (!$data.NoHeader) {
         "<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
             <h5>"
@@ -30,14 +30,17 @@
         <pre>
             <textarea
                 class="form-control"
+                style="$($data.CssStyles)"
                 pode-file="$($data.Url)"
                 pode-length="0"
                 pode-interval="$($data.Interval)"
                 pode-streaming="1"
                 id="$($data.ID)"
+                pode-object="$($data.ObjectType)"
                 name="$($data.Name)"
                 rows="$($data.Height)"
-                readonly></textarea>
+                readonly
+                $(ConvertTo-PodeWebEvents -Events $data.Events)></textarea>
         </pre>
     </div>
 </div>

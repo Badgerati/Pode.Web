@@ -1,4 +1,4 @@
-<div id="$($data.ID)" class="bs-stepper linear $($data.CssClasses)" role="stepper">
+<div id="$($data.ID)" class="bs-stepper linear $($data.CssClasses)" style="$($data.CssStyles)" role="stepper" pode-object="$($data.ObjectType)">
 
     <div class="bs-stepper-header" role="tablist">
         $(for ($i = 0; $i -lt $data.Steps.Length; $i++) {
@@ -30,7 +30,7 @@
             $(for ($i = 0; $i -lt $data.Steps.Length; $i++) {
                 $step = $data.Steps[$i]
 
-                "<div id='$($step.ID)' role='tabpanel' class='bs-stepper-pane content fade $(if ($i -eq 0) { "active" })' aria-labelledby='$($step.ID)-trigger' for='$($data.ID)' pode-dynamic='$($step.IsDynamic)'>"
+                "<div id='$($step.ID)' pode-object='$($step.ObjectType)' role='tabpanel' class='bs-stepper-pane content fade $(if ($i -eq 0) { "active" }) $($step.CssClasses)' style='$($data.CssStyles)' aria-labelledby='$($step.ID)-trigger' for='$($data.ID)' pode-dynamic='$($step.IsDynamic)'>"
                     Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $step.Content }
 
                     if ($i -gt 0) {

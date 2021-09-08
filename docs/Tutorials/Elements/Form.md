@@ -1,5 +1,9 @@
 # Form
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 A form is kind of like a layout, but is an element that contains other elements. It automatically wraps the `-Content` as a `<form>` and adds a submit button to the bottom. When clicked, the form is serialised and sent to the `-ScriptBlock`. To add a form to you page use [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) along with other form elements:
 
 ```powershell
@@ -26,6 +30,18 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![form](../../../images/form.png)
+
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebForm -Name 'Example' -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+} -Content @()
+```
 
 ## Elements
 

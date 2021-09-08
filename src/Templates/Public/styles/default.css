@@ -376,6 +376,10 @@ div.pode-grid {
     padding-right: 0 !important;
 }
 
+[pode-object="Cell"] > * {
+    text-align: left;
+}
+
 input[type="range"].pode-range-value {
     display: inline;
     width: 87% !important;
@@ -610,6 +614,18 @@ table tbody td {
 
 .pode-form-checkbox .col-form-label {
     margin-top: -5px;
+}
+
+div.no-form {
+    display: inline-block;
+}
+
+.no-form {
+    width: auto;
+}
+
+.no-form.pode-form-checkbox {
+    width: inherit;
 }
 
 /* Fallback for Edge

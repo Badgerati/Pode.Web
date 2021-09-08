@@ -1,5 +1,9 @@
 # Button
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 To display a button on your page you use [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton); a button can either be dynamic and run custom logic via a `-ScriptBlock`, or it can redirect a user to a `-Url`.
 
 ## Dynamic
@@ -21,6 +25,18 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![button_dynamic](../../../images/button_dynamic.png)
+
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebButton -Name 'Click Me' -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```
 
 ## URL
 

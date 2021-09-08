@@ -1,5 +1,9 @@
 # Charts
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 You can display data rendered as a chart by using [`New-PodeWebChart`](../../../Functions/Elements/New-PodeWebChart), and the following chart types are supported:
 
 * Line (default)
@@ -12,6 +16,18 @@ A chart gets its data from a supplied `-ScriptBlock`, more information below, an
 ## Data
 
 To supply data to be rendered on a chart, you have to supply a `-ScritpBlock` which returns the appropriate data in the correct format; fortunately there's [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData) to help with this format.
+
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebChart -Name 'Example Chart' -Type Line -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```
 
 ### Raw
 
@@ -70,6 +86,23 @@ New-PodeWebContainer -Content @(
 which renders a chart that looks like below:
 
 ![chart_bar_process](../../../images/chart_bar_process.png)
+
+## Colours
+
+A chart has 15 default colours that they can be rendered using. These colours can be customised if required, by suppling an array of hex colour codes to the `-Colours` parameter.
+
+For example, to render the below bar chart with reg/green bars, you could use:
+
+```powershell
+New-PodeWebContainer -Content @(
+    New-PodeWebChart -Name 'Top Processes' -Type Bar -AutoRefresh -Colours '#ff0000', '#00ff00' -ScriptBlock {
+        Get-Process |
+            Sort-Object -Property CPU -Descending |
+            Select-Object -First 10 |
+            ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU, Handles
+    }
+)
+```
 
 ## Append
 

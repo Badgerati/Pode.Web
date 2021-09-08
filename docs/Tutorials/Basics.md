@@ -58,7 +58,7 @@ Once the templates are enabled, you can start to add some pages! You can find mo
 * Login
 * Webpage
 
-To just add a new page, you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), supplying the `-Name` of the page and a `-ScriptBlock` for defining the layouts/elements on the page:
+To just add a new page, you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), supplying the `-Name` of the page and a `-ScriptBlock` for defining the layout/element components on the page:
 
 ```powershell
 Add-PodeWebPage -Name 'Services' -Icon 'Settings' -ScriptBlock {
@@ -79,10 +79,16 @@ The above would render a new page with a table, showing all the services on the 
 
 ### Sidebar
 
-Pages added to your site will appear in the sidebar on the left of your pages. The sidebar has a filter box at the top by default, but this can be hidden via `-NoPageFilter`:
+Pages added to your site will appear in the sidebar on the left of your pages. The sidebar has a filter box at the top by default, but this can be removed via `-NoPageFilter`:
 
 ```powershell
 Use-PodeWebTemplates -Title 'Example' -Theme Dark -NoPageFilter
+```
+
+You can also force the sidebar to be hidden by default via `-HideSidebar`:
+
+```powershell
+Use-PodeWebTemplates -Title 'Example' -Theme Dark -HideSidebar
 ```
 
 ## Custom Scripts/Styles

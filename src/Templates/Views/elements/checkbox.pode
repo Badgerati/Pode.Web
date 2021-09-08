@@ -1,5 +1,7 @@
-<div class="form-group row pode-form-checkbox $($data.CssClasses)">
-    <div class="col-sm-2 col-form-label">$($data.Name)</div>
+<div id="$($data.ID)" class="$(if (!$data.NoForm) { 'form-group row' } else { 'no-form' }) pode-form-checkbox $($data.CssClasses)" pode-object="$($data.ObjectType)" $(ConvertTo-PodeWebEvents -Events $data.Events)>
+    $(if (!$data.NoForm) {
+        "<div class='col-sm-2 col-form-label'>$($data.Name)</div>"
+    })
     <div class="col-sm-10">
         $(
             $inline = [string]::Empty
@@ -19,7 +21,7 @@
 
             for ($i = 0; $i -lt $data.Options.Length; $i++) {
                 if ($data.AsSwitch) {
-                    "<div class='custom-control custom-switch $($inline)'>
+                    "<div class='custom-control custom-switch $($inline)' style='$($data.CssStyles)'>
                         <input type='checkbox' class='custom-control-input' value='$($data.Options[$i])' id='$($data.ID)_option$($i)' name='$($data.Name)' pode-option-id='$($i)' $($disabled) $($checked)>
                         <label class='custom-control-label' for='$($data.ID)_option$($i)'>
                             $(if ($data.Options[$i] -ine 'true') { $data.Options[$i] })
@@ -27,7 +29,7 @@
                     </div>"
                 }
                 else {
-                    "<div class='form-check $($inline)'>
+                    "<div class='form-check $($inline)' style='$($data.CssStyles)'>
                         <input class='form-check-input' type='checkbox' value='$($data.Options[$i])' id='$($data.ID)_option$($i)' name='$($data.Name)' pode-option-id='$($i)' $($disabled) $($checked)>
                         <label class='form-check-label' for='$($data.ID)_option$($i)'>
                             $(if ($data.Options[$i] -ine 'true') { $data.Options[$i] })

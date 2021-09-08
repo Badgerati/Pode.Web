@@ -1,4 +1,4 @@
-<p id="$($data.ID)" class="text-$($data.Alignment) $($data.CssClasses)">
+<p id="$($data.ID)" class="text-$($data.Alignment) $($data.CssClasses)" style="$($data.CssStyles)" pode-object="$($data.ObjectType)">
     $(if (![string]::IsNullOrWhiteSpace($data.Value)) {
         $data.Value
     }

@@ -1,5 +1,9 @@
 # Tile
 
+| Support | |
+| ------- |-|
+| Events | No |
+
 A tile is a small coloured container, that contains either a static value or more elements. There purpose is to display quick informational data like: CPU, counters, charts, etc.
 
 To add a tile you use [`New-PodeWebTile`](../../../Functions/Elements/New-PodeWebTile), and supply a `-Name` and either a `-ScriptBlock` or `-Content`.
@@ -47,6 +51,18 @@ Which looks like below:
 
 ![tile_cpu_ok](../../../images/tile_cpu_ok.png)
 ![tile_cpu_warn](../../../images/tile_cpu_warn.png)
+
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebTile -Name 'Example' -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```
 
 ## Elements
 

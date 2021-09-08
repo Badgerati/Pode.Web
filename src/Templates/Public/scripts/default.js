@@ -4,6 +4,9 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
+var MIN_INT32 = (1 << 31);
+var MAX_INT32 = ((2**31) - 1);
+
 
 (function() {
     $('[data-toggle="tooltip"]').tooltip();
@@ -30,12 +33,14 @@ $(() => {
     loadCharts();
     loadAutoCompletes();
     loadTiles();
+    loadSelects();
 
     setupSteppers();
     setupAccordion();
 
     bindSidebarFilter();
-    bindMenuToggle();
+    bindSidebarToggle();
+    toggleSidebar();
     bindNavLinks();
     bindPageLinks();
     bindPageHelp();
@@ -67,8 +72,6 @@ $(() => {
     bindTimers();
 });
 
-var _fileStreams = {};
-
 function bindFileStreams() {
     $('div.file-stream pre textarea').each((i, e) => {
         var handle = setInterval(function() {
@@ -87,7 +90,13 @@ function bindFileStreams() {
                 dataType: 'text',
                 headers: { "Range": `bytes=${length}-` },
                 success: function(data, status, xhr) {
+                    if ($(e).closest('div.file-stream').hasClass('stream-error')) {
+                        removeClass($(e).closest('div.file-stream'), 'stream-error', true);
+                        show($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
+                    }
+
                     hideSpinner($(e).closest('div.file-stream'));
+
                     var header = xhr.getResponseHeader('Content-Range');
                     if (header) {
                         var rangeLength = header.split('/')[1];
@@ -109,14 +118,12 @@ function bindFileStreams() {
                 },
                 error: function() {
                     hideSpinner($(e).closest('div.file-stream'));
-                    clearInterval(_fileStreams[getId(e)]);
-                    $(e).closest('div.file-stream').addClass('stream-error');
-                    $(e).closest('div.file-stream').find('div.card-header div div.btn-group').hide();
+                    $(e).attr('pode-streaming', '0');
+                    addClass($(e).closest('div.file-stream'), 'stream-error');
+                    hide($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
                 }
             });
         }, $(e).attr('pode-interval'));
-
-        _fileStreams[getId(e)] = handle;
     });
 
     $('div.file-stream button.pode-stream-download').off('click').on('click', function(e) {
@@ -151,12 +158,12 @@ function bindFileStreams() {
 }
 
 function setupAccordion() {
-    $('div.accordion div.card div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
+    $('div.accordion div.bellow div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
         var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
         toggleIcon(icon, 'chevron-down', 'chevron-up');
     });
 
-    $('div.accordion div.card div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
+    $('div.accordion div.bellow div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
         var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
         toggleIcon(icon, 'chevron-up', 'chevron-down');
     });
@@ -213,25 +220,17 @@ function loadBreadcrumb() {
 }
 
 function checkAutoTheme() {
-    // is the them auto-switchable?
-    var targetTheme = $('body').attr('pode-theme-target');
+    var theme = getPodeTheme();
 
-    // check if the system is dark/light
-    if (targetTheme == 'auto') {
-        var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        targetTheme = (isSystemDark ? 'dark' : 'light');
+    if (theme != 'auto') {
+        return;
     }
 
-    // get the body theme, do we need to switch?
-    var bodyTheme = getPodeTheme();
-    if (bodyTheme == targetTheme) {
-        return false;
-    }
+    var isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    theme = (isSystemDark ? 'dark' : 'light');
 
-    // set the cookie, expire after 1 month
-    var d = new Date();
-    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
-    document.cookie = `pode.web.theme=${targetTheme}; expires=${d.toUTCString()}; path=/`
+    // set the cookie
+    setPodeThemeCookie(theme);
 
     // force a refresh
     refreshPage();
@@ -250,7 +249,7 @@ function mapElementThemes() {
     types.forEach((type) => {
         $(`.${type}-inbuilt-theme`).each((i, e) => {
             $(e).removeClass(`${type}-inbuilt-theme`);
-            $(e).addClass(`${type}-${defTheme}`);
+            addClass($(e), `${type}-${defTheme}`);
         });
     });
 }
@@ -259,8 +258,124 @@ function getPodeTheme() {
     return $('body').attr('pode-theme');
 }
 
+function setPodeTheme(theme, refresh) {
+    // update body
+    $('body').attr('pode-theme', theme);
+
+    // set the cookie
+    setPodeThemeCookie(theme);
+
+    // refresh?
+    if (refresh) {
+        refreshPage();
+    }
+}
+
+function setPodeThemeCookie(theme) {
+    // cookie expires after 1 month
+    var d = new Date();
+    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+
+    // save theme cookie
+    document.cookie = `pode.web.theme=${theme}; expires=${d.toUTCString()}; path=/`
+}
+
 function serializeInputs(element) {
-    return element.find('input, textarea, select').serialize();
+    if (!element) {
+        return {};
+    }
+
+    var data = null;
+    var opts = {
+        mimeType: 'multipart/form-data',
+        contentType: false,
+        processData: false
+    };
+
+    if (element.find('input[type=file]').length > 0) {
+        data = newFormData(element.find('input, textarea, select'));
+    }
+    else {
+        opts = null;
+
+        if (testTagName(element, 'form')) {
+            data = element.serialize();
+        }
+        else {
+            data = element.find('input, textarea, select').serialize();
+        }
+    }
+
+    return {
+        data: data,
+        opts: opts
+    };
+}
+
+function isFormDataEmpty(data) {
+    return (data == null || !data.entries().next().value);
+}
+
+function newFormData(inputs) {
+    var data = new FormData();
+
+    for (var input of inputs) {
+        if (!input.name) {
+            continue;
+        }
+
+        switch(input.type.toLowerCase()) {
+            case 'file':
+                if (input.files.length > 0) {
+                    data.append(input.name, input.files[0], input.files[0].name);
+                }
+                else {
+                    data.append(input.name, '');
+                }
+                break;
+
+            case 'checkbox':
+            case 'radio':
+                if (input.checked) {
+                    addFormDataInput(data, input);
+                }
+                break;
+
+            default:
+                addFormDataInput(data, input);
+                break;
+        }
+    }
+
+    return data;
+}
+
+function addFormDataInput(data, input) {
+    return addFormDataValue(data, input.name, $(input).val());
+}
+
+function addFormDataValue(data, name, value) {
+    if (data == null || typeof data === 'string') {
+        if (!data) {
+            data = '';
+        }
+
+        if (data) {
+            data += '&';
+        }
+
+        data += `${name}=${value}`;
+    }
+    else {
+        if (data.has(name)) {
+            data.set(name, `${data.get(name)},${value}`);
+        }
+        else {
+            data.append(name, value);
+        }
+    }
+
+    return data;
 }
 
 function isEnterKey(event) {
@@ -324,15 +439,15 @@ function setupSteppers() {
             // call ajax, or move along?
             if (isDynamic(step)) {
                 // serialize any step-form data
-                var data = serializeInputs(step);
-                var url = `/layouts/step/${step.attr('id')}`;
+                var inputs = serializeInputs(step);
+                var url = getComponentUrl(step);
 
                 // send ajax req, and call next on no validation errors
-                sendAjaxReq(url, data, step, true, (res, sender) => {
+                sendAjaxReq(url, inputs.data, step, true, (res, sender) => {
                     if (!hasValidationErrors(sender)) {
                         _steppers[sender.attr('for')].next();
                     }
-                });
+                }, inputs.opts);
             }
             else {
                 _steppers[step.attr('for')].next();
@@ -353,29 +468,32 @@ function setupSteppers() {
                 return;
             }
 
+            var inputs = null;
+            var url = null;
+
             // call ajax, or move along?
             if (isDynamic(step)) {
                 // serialize any step-form data
-                var data = serializeInputs(step);
-                var url = `/layouts/step/${step.attr('id')}`;
+                inputs = serializeInputs(step);
+                url = getComponentUrl(step);
 
                 // send ajax req, if not validation errors, send ajax for all steps
-                sendAjaxReq(url, data, step, true, (res, sender) => {
+                sendAjaxReq(url, inputs.data, step, true, (res, sender) => {
                     if (!hasValidationErrors(sender)) {
                         var _steps = sender.attr('for');
-                        var _data = sender.closest('form.pode-stepper-form').serialize();
-                        var _url = `/layouts/steps/${_steps}`;
+                        var _inputs = serializeInputs(sender.closest('form.pode-stepper-form'));
+                        var _url = getComponentUrl(_steps);
 
-                        sendAjaxReq(_url, _data, sender, true);
+                        sendAjaxReq(_url, _inputs.data, sender, true, null, _inputs.opts);
                     }
-                });
+                }, inputs.opts);
             }
             else {
                 var steps = step.attr('for');
-                var data = step.closest('form.pode-stepper-form').serialize();
-                var url = `/layouts/steps/${steps}`;
+                inputs = serializeInputs(step.closest('form.pode-stepper-form'));
+                url = getComponentUrl(steps);
 
-                sendAjaxReq(url, data, step, true);
+                sendAjaxReq(url, inputs.data, step, true, null, inputs.opts);
             }
         });
     });
@@ -410,17 +528,17 @@ function setValidationError(element) {
         return;
     }
 
-    element.addClass('is-invalid');
+    addClass(element, 'is-invalid');
 
     // form-row? flag inside inputs
     if (element.hasClass('form-row')) {
-        element.find('input').addClass('is-invalid');
+        addClass(element.find('input'), 'is-invalid');
     }
 
     // input? find parent input-group/form-row
     if (testTagName(element, 'input')) {
-        element.closest('div.input-group').addClass('is-invalid');
-        element.closest('div.form-row').addClass('is-invalid');
+        addClass(element.closest('div.input-group'), 'is-invalid');
+        addClass(element.closest('div.form-row'), 'is-invalid');
     }
 }
 
@@ -457,7 +575,10 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
         success: function(res, status, xhr) {
             // attempt to hide any spinners
             hideSpinner(sender);
-            unfocus(sender);
+
+            if (!opts.keepFocus) {
+                unfocus(sender);
+            }
 
             // attempt to get a filename, for downloading
             var filename = getAjaxFileName(xhr);
@@ -482,7 +603,11 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
         },
         error: function(err, msg, stack) {
             hideSpinner(sender);
-            unfocus(sender);
+
+            if (!opts.keepFocus) {
+                unfocus(sender);
+            }
+
             console.log(err);
             console.log(stack);
         }
@@ -552,10 +677,7 @@ function showSpinner(sender) {
         return;
     }
 
-    var spinner = sender.find('span.spinner-border');
-    if (spinner) {
-        spinner.show();
-    }
+    show(sender.find('span.spinner-border'));
 }
 
 function hideSpinner(sender) {
@@ -563,10 +685,7 @@ function hideSpinner(sender) {
         return;
     }
 
-    var spinner = sender.find('span.spinner-border');
-    if (spinner) {
-        spinner.hide();
-    }
+    hide(sender.find('span.spinner-border'));
 }
 
 function unfocus(sender) {
@@ -626,7 +745,7 @@ function bindCodeEditors() {
         var button = getButton(e);
         var editorId = button.attr('for');
 
-        var url = `/elements/code-editor/${editorId}/upload`;
+        var url = `${getComponentUrl(editorId)}/upload`;
         var data = JSON.stringify({
             language: $(`#${editorId} .code-editor`).attr('pode-language'),
             value: _editors[editorId].getValue()
@@ -682,10 +801,10 @@ function bindTimers() {
 }
 
 function invokeTimer(timerId) {
-    sendAjaxReq(`/elements/timer/${timerId}`, null, null, true);
+    sendAjaxReq(getComponentUrl(timerId), null, null, true);
 }
 
-function bindMenuToggle() {
+function bindSidebarToggle() {
     $('button#menu-toggle').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -695,6 +814,12 @@ function bindMenuToggle() {
 
         $('button#menu-toggle span').toggleClass('mdi-rotate-180');
     });
+}
+
+function toggleSidebar() {
+    if ($('nav#sidebarMenu').hasClass('hide-on-start')) {
+        $('button#menu-toggle').trigger('click');
+    }
 }
 
 function bindTablePagination() {
@@ -1024,7 +1149,7 @@ function loadTable(tableId, opts) {
 
     // things get funky here if we have a table with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var url = `/elements/table/${tableId}`;
+    var url = getComponentUrl(table);
 
     if (table.attr('for')) {
         var form = $(`#${table.attr('for')}`);
@@ -1042,7 +1167,7 @@ function loadTable(tableId, opts) {
 
 function loadAutoCompletes() {
     $(`input[pode-autocomplete='True']`).each((i, e) => {
-        sendAjaxReq(`/elements/autocomplete/${$(e).attr('id')}`, null, null, false, (res) => {
+        sendAjaxReq(`${getComponentUrl($(e))}/autocomplete`, null, null, false, (res) => {
             $(e).autocomplete({ source: res.Values });
         });
     });
@@ -1061,7 +1186,7 @@ function loadTile(tileId, firstLoad = false) {
 
     var tile = $(`div.pode-tile[pode-dynamic="True"]#${tileId}`);
     if (tile.length > 0) {
-        sendAjaxReq(`/elements/tile/${tileId}`, null, tile, true);
+        sendAjaxReq(getComponentUrl(tile), null, tile, true);
     }
     else if (!firstLoad) {
         $(`div.pode-tile[pode-dynamic="False"]#${tileId} .pode-tile-body .pode-refresh-btn`).each((i, e) => {
@@ -1070,9 +1195,26 @@ function loadTile(tileId, firstLoad = false) {
     }
 }
 
+function loadSelects() {
+    $(`select[pode-dynamic="True"]`).each((i, e) => {
+        loadSelect($(e).attr('id'));
+    });
+}
+
+function loadSelect(selectId) {
+    if (!selectId) {
+        return;
+    }
+
+    var select = $(`select[pode-dynamic="True"]#${selectId}`);
+    if (select.length > 0) {
+        sendAjaxReq(getComponentUrl(select), null, select, true);
+    }
+}
+
 function bindTileRefresh() {
     $("div.pode-tile .pode-tile-body .pode-refresh-btn").each((i, e) => {
-        $(e).hide();
+        hide($(e));
     });
 
     $("div.pode-tile span.pode-tile-refresh").off('click').on('click', function(e) {
@@ -1109,7 +1251,7 @@ function bindTileClick() {
         var tileId = $(e.target).closest('div.pode-tile').attr('id');
         var tile = $(`div.pode-tile#${tileId}`);
 
-        var url = `/elements/tile/${tileId}/click`;
+        var url = `${getComponentUrl(tile)}/click`;
         sendAjaxReq(url, null, tile, true);
     });
 }
@@ -1135,7 +1277,7 @@ function loadChart(chartId) {
 
     // things get funky here if we have a chart with a 'for' attr
     // if so, we need to serialize the form, and then send the request to the form instead
-    var url = `/elements/chart/${chartId}`;
+    var url = getComponentUrl(chart);
 
     if (chart.attr('for')) {
         var form = $(`#${chart.attr('for')}`);
@@ -1158,7 +1300,7 @@ function invokeActions(actions, sender) {
     actions = convertToArray(actions);
 
     actions.forEach((action) => {
-        var _type = action.ElementType;
+        var _type = action.ObjectType;
         if (_type) {
             _type = _type.toLowerCase();
         }
@@ -1248,6 +1390,26 @@ function invokeActions(actions, sender) {
                 actionTile(action, sender);
                 break;
 
+            case 'theme':
+                actionTheme(action);
+                break;
+
+            case 'component':
+                actionComponent(action);
+                break;
+
+            case 'component-style':
+                actionComponentStyle(action);
+                break;
+
+            case 'component-class':
+                actionComponentClass(action);
+                break;
+
+            case 'filestream':
+                actionFileStream(action);
+                break;
+
             default:
                 break;
         }
@@ -1264,7 +1426,7 @@ function buildElements(elements) {
     elements = convertToArray(elements);
 
     elements.forEach((ele) => {
-        var _type = ele.ElementType;
+        var _type = ele.ObjectType;
         if (_type) {
             _type = _type.toLowerCase();
         }
@@ -1307,23 +1469,8 @@ function bindFormSubmits() {
         var form = $(e.target);
 
         // submit the form
-        var data = null;
-        var opts = null;
-
-        if (form.find('input[type=file]').length > 0) {
-            data = new FormData(form[0]);
-            opts = {
-                mimeType: 'multipart/form-data',
-                contentType: false,
-                processData: false
-            }
-        }
-        else {
-            data = form.serialize();
-        }
-
-        // submit the form
-        sendAjaxReq(form.attr('method'), data, form, true, null, opts);
+        var inputs = serializeInputs(form);
+        sendAjaxReq(form.attr('method'), inputs.data, form, true, null, inputs.opts);
     });
 }
 
@@ -1362,12 +1509,12 @@ function bindModalSubmits() {
         }
 
         // find a form
-        var formData = '';
+        var inputs = {};
         var form = null;
 
         if (button.attr('pode-modal-form') == 'True') {
             form = modal.find('div.modal-body form');
-            formData = form.serialize();
+            inputs = serializeInputs(form);
             removeValidationErrors(form);
         }
 
@@ -1376,15 +1523,11 @@ function bindModalSubmits() {
 
         // build data
         if (dataValue) {
-            if (formData) {
-                formData += '&';
-            }
-
-            formData += `Value=${dataValue}`;
+            inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
         }
 
         // invoke url
-        sendAjaxReq(url, formData, (form ?? button), true);
+        sendAjaxReq(url, inputs.data, (form ?? button), true, null, inputs.opts);
     });
 }
 
@@ -1422,20 +1565,22 @@ function bindButtons() {
         var button = getButton(e);
         button.tooltip('hide');
 
-        // default data value
-        var dataValue = getDataValue(button);
-        var data = `Value=${dataValue}`;
+        // find a form
+        var inputs = {};
 
-        if (!dataValue) {
-            var form = button.closest('form');
-
-            if (form) {
-                data = form.serialize();
-            }
+        var form = button.closest('form');
+        if (form) {
+            inputs = serializeInputs(form);
         }
 
-        var url = `/elements/button/${button.attr('id')}`;
-        sendAjaxReq(url, data, button, true);
+        // get a data value
+        var dataValue = getDataValue(button);
+        if (dataValue) {
+            inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
+        }
+
+        var url = getComponentUrl(button);
+        sendAjaxReq(url, inputs.data, button, true, null, inputs.opts);
     });
 }
 
@@ -1526,8 +1671,8 @@ function filterTable(filter) {
     var tableId = filter.attr('for');
     var value = filter.val();
 
-    $(`table#${tableId} tbody tr:not(:icontains('${value}'))`).hide();
-    $(`table#${tableId} tbody tr:icontains('${value}')`).show();
+    hide($(`table#${tableId} tbody tr:not(:icontains('${value}'))`));
+    show($(`table#${tableId} tbody tr:icontains('${value}')`));
 }
 
 function bindSidebarFilter() {
@@ -1540,15 +1685,15 @@ function bindSidebarFilter() {
 
         if (value) {
             $('div.collapse').collapse('show');
-            $(`ul#${listId} li.nav-group-title`).hide();
+            hide($(`ul#${listId} li.nav-group-title`));
         }
         else {
             $('div.collapse').collapse('hide');
-            $(`ul#${listId} li.nav-group-title`).show();
+            show($(`ul#${listId} li.nav-group-title`));
         }
 
-        $(`ul#${listId} li.nav-page-item:not(:icontains('${value}'))`).hide();
-        $(`ul#${listId} li.nav-page-item:icontains('${value}')`).show();
+        hide($(`ul#${listId} li.nav-page-item:not(:icontains('${value}'))`));
+        show($(`ul#${listId} li.nav-page-item:icontains('${value}')`));
     });
 }
 
@@ -1605,7 +1750,7 @@ function bindTableButtons() {
         var table = $(`table#${tableId}`);
         var csv = exportTableAsCSV(tableId);
 
-        var url = `/elements/table/${tableId}/button/${button.attr('name')}`;
+        var url = `${getComponentUrl(table)}/button/${button.attr('name')}`;
         sendAjaxReq(url, csv, table, true, null, { contentType: 'text/csv' });
     });
 }
@@ -1646,13 +1791,9 @@ function actionTableRow(action, sender) {
 }
 
 function updateTableRow(action) {
-    if ((!action.ID && !action.Name) || !action.Data) {
-        return;
-    }
-
     // ensure the table exists
     var table = getElementByNameOrId(action, 'table');
-    if (table.length == 0) {
+    if (!table || table.length == 0) {
         return;
     }
 
@@ -1677,22 +1818,30 @@ function updateTableRow(action) {
         return;
     }
 
-    // update the rows cells
-    var keys = Object.keys(action.Data);
+    // update the row's data
+    if (action.Data) {
+        var keys = Object.keys(action.Data);
 
-    keys.forEach((key) => {
-        var _html = '';
-        var _value = action.Data[key];
+        keys.forEach((key) => {
+            var _html = '';
+            var _value = action.Data[key];
 
-        if (Array.isArray(_value) || _value.ElementType) {
-            _html += buildElements(_value);
-        }
-        else {
-            _html += _value;
-        }
+            if (Array.isArray(_value) || _value.ObjectType) {
+                _html += buildElements(_value);
+            }
+            else {
+                _html += _value;
+            }
 
-        row.find(`td[pode-column="${key}"]`).html(_html);
-    });
+            row.find(`td[pode-column="${key}"]`).html(_html);
+        });
+    }
+
+    // update the row's background colour
+    setObjectStyle(row[0], 'background-color', action.BackgroundColour);
+
+    // update the row's forecolour
+    setObjectStyle(row[0], 'color', action.Colour);
 
     // binds sort/buttons/etc
     $('[data-toggle="tooltip"]').tooltip();
@@ -1733,7 +1882,7 @@ function bindTableClickableRows(tableId) {
         }
 
         if (table.attr('pode-click-dynamic') == 'True') {
-            var url = `/elements/table/${table.attr('id')}/click`;
+            var url = `${getComponentUrl(table)}/click`;
             sendAjaxReq(url, data, null, true);
         }
         else {
@@ -1755,25 +1904,41 @@ function actionTable(action, sender) {
         case 'sync':
             syncTable(action);
             break;
+
+        case 'clear':
+            clearTable(action);
+            break;
     }
 }
 
-function syncTable(action) {
+function clearTable(action) {
     if (!action.ID && !action.Name) {
         return;
     }
 
+    // get table
     var table = getElementByNameOrId(action, 'table');
-    var id = getId(table);
+    var tableId = `table#${getId(table)}`;
 
-    loadTable(id);
+    // empty table
+    $(`${tableId} tbody`).empty();
+
+    // empty paging
+    if (isTablePaginated(table)) {
+        table.closest('div[role="table"]').find('nav ul').empty();
+    }
 }
 
-function updateTable(action, sender) {
-    if (action.Data == null) {
+function syncTable(action) {
+    var table = getElementByNameOrId(action, 'table', null, '[pode-dynamic="True"]');
+    if (!table) {
         return;
     }
 
+    loadTable(getId(table));
+}
+
+function updateTable(action, sender) {
     // convert data to array
     action.Data = convertToArray(action.Data);
 
@@ -1784,6 +1949,29 @@ function updateTable(action, sender) {
     var tableHead = $(`${tableId} thead`);
     var tableBody = $(`${tableId} tbody`);
     var isPaginated = isTablePaginated(table);
+
+    // get custom column meta - for widths etc
+    var columns = {};
+    if (action.Columns) {
+        columns = action.Columns;
+    }
+
+    // render initial columns?
+    var _value = '';
+    var _direction = 'none'
+
+    var columnKeys = Object.keys(columns);
+
+    if (tableHead.find('th').length == 0 && columnKeys.length > 0) {
+        _value = '<tr>';
+
+        columnKeys.forEach((key) => {
+            _value += buildTableHeader(columns[key], _direction);
+        });
+
+        _value += '</tr>';
+        tableHead.append(_value);
+    }
 
     // clear the table if no data
     if (action.Data.length <= 0) {
@@ -1800,12 +1988,6 @@ function updateTable(action, sender) {
     // get data keys for table columns
     var keys = Object.keys(action.Data[0]);
 
-    // get custom column meta - for widths etc
-    var columns = {};
-    if (action.Columns) {
-        columns = action.Columns;
-    }
-
     // get senderId if present, and set on table as 'for'
     var senderId = getId(sender);
     if (senderId && getTagName(sender) == 'form') {
@@ -1816,9 +1998,7 @@ function updateTable(action, sender) {
     var dataColumn = table.attr('pode-data-column');
 
     // table headers
-    var _value = '<tr>';
-    var _col = null;
-    var _direction = 'none'
+    _value = '<tr>';
     var _oldHeader = null;
 
     keys.forEach((key) => {
@@ -1833,24 +2013,7 @@ function updateTable(action, sender) {
 
         // add the table header
         if (key in columns) {
-            _col = columns[key];
-            _value += `<th sort-direction='${_direction}' name='${key}' style='`;
-
-            if (_col.Width > 0) {
-                _value += `width:${_col.Width}%;`;
-            }
-
-            if (_col.Alignment) {
-                _value += `text-align:${_col.Alignment};`;
-            }
-
-            _value += `'>`;
-
-            if (_col.Icon) {
-                _value += `<span class='mdi mdi-${_col.Icon.toLowerCase()} mRight02'></span>`;
-            }
-
-            _value += `${_col.Name ? _col.Name : key}</th>`;
+            _value += buildTableHeader(columns[key], _direction);
         }
         else {
             _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
@@ -1870,7 +2033,6 @@ function updateTable(action, sender) {
         keys.forEach((key) => {
             var col = columns[key];
             if (key in columns) {
-                _col = columns[key];
                 _value += `<td pode-column='${key}' style='`;
 
                 if (col.Alignment) {
@@ -1883,7 +2045,7 @@ function updateTable(action, sender) {
                 _value += `<td pode-column='${key}'>`;
             }
 
-            if (Array.isArray(item[key]) || (item[key] && item[key].ElementType)) {
+            if (Array.isArray(item[key]) || (item[key] && item[key].ObjectType)) {
                 _value += buildElements(item[key]);
             }
             else if (item[key]) {
@@ -1978,6 +2140,27 @@ function updateTable(action, sender) {
     bindTableClickableRows(tableId);
 }
 
+function buildTableHeader(column, direction) {
+    var value = `<th sort-direction='${direction}' name='${column.ID}' style='`;
+
+    if (column.Width > 0) {
+        value += `width:${column.Width}%;`;
+    }
+
+    if (column.Alignment) {
+        value += `text-align:${column.Alignment};`;
+    }
+
+    value += `'>`;
+
+    if (column.Icon) {
+        value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight02'></span>`;
+    }
+
+    value += `${column.Name}</th>`;
+    return value;
+}
+
 function writeTable(action, sender) {
     var senderId = getId(sender);
     var tableId = `table_${senderId}`;
@@ -2063,6 +2246,10 @@ function getElementByNameOrId(action, tag, sender, filter) {
 
     // by Name
     if (action.Name) {
+        if (!tag && action.Type) {
+            tag = `[pode-object="${action.Type}"]`;
+        }
+
         if (sender) {
             return sender.find(`${tag}[name="${action.Name}"]${filter}`);
         }
@@ -2165,19 +2352,137 @@ function updateTile(action, sender) {
     // change colour
     if (action.Colour) {
         removeClass(tile, 'alert-\\w+');
-        tile.addClass(`alert-${action.ColourType}`);
+        addClass(tile, `alert-${action.ColourType}`);
     }
 }
 
 function syncTile(action) {
-    if (!action.ID && !action.Name) {
+    var tile = getElementByNameOrId(action, 'div', null, '[pode-dynamic="True"]');
+    if (!tile) {
         return;
     }
 
-    var tile = getElementByNameOrId(action, 'div');
-    var id = getId(tile);
+    loadTile(getId(tile));
+}
 
-    loadTile(id);
+function actionComponentClass(action) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'add':
+            addComponentClass(action);
+            break;
+
+        case 'remove':
+            removeComponentClass(action);
+            break;
+    }
+}
+
+function addComponentClass(action) {
+    var obj = getElementByNameOrId(action);
+    if (!obj) {
+        return;
+    }
+
+    addClass(obj, action.Class);
+}
+
+function removeComponentClass(action) {
+    var obj = getElementByNameOrId(action);
+    if (!obj) {
+        return;
+    }
+
+    removeClass(obj, action.Class, true);
+}
+
+function actionComponentStyle(action) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'set':
+        case 'remove':
+            updateComponentStyle(action);
+            break;
+    }
+}
+
+function updateComponentStyle(action) {
+    var obj = getElementByNameOrId(action);
+    if (!obj) {
+        return;
+    }
+
+    setObjectStyle(obj[0], action.Property, action.Value);
+}
+
+function setObjectStyle(obj, property, value) {
+    if (value) {
+        obj.style.setProperty(property, value, 'important');
+    }
+    else {
+        obj.style.setProperty(property, null);
+    }
+}
+
+function actionComponent(action) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'show':
+        case 'hide':
+            toggleComponent(action, action.Operation.toLowerCase());
+            break;
+    }
+}
+
+function toggleComponent(action, toggle) {
+    var obj = getElementByNameOrId(action);
+    if (!obj) {
+        return;
+    }
+
+    if (toggle == 'show') {
+        obj.show();
+    }
+    else {
+        obj.hide();
+    }
+}
+
+function actionTheme(action) {
+    if (!action) {
+        return;
+    }
+
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateTheme(action);
+            break;
+
+        case 'reset':
+            resetTheme();
+            break;
+    }
+}
+
+function updateTheme(action) {
+    if (!action.Name) {
+        return;
+    }
+
+    setPodeTheme(action.Name, true);
+}
+
+function resetTheme() {
+    setPodeTheme('', true);
 }
 
 function actionSelect(action) {
@@ -2185,12 +2490,68 @@ function actionSelect(action) {
         return;
     }
 
+    switch (action.Operation.toLowerCase()) {
+        case 'set':
+            setSelect(action);
+            break;
+
+        case 'update':
+            updateSelect(action);
+            break;
+
+        case 'clear':
+            clearSelect(action);
+            break;
+
+        case 'sync':
+            syncSelect(action);
+            break;
+    }
+}
+
+function setSelect(action) {
     var select = getElementByNameOrId(action, 'select');
     if (!select) {
         return;
     }
 
     select.val(decodeHTML(action.Value));
+}
+
+function updateSelect(action) {
+    var select = getElementByNameOrId(action, 'select');
+    if (!select) {
+        return;
+    }
+
+    select.empty();
+
+    action.Options = convertToArray(action.Options);
+    if (action.Options.Length <= 0) {
+        return;
+    }
+
+    action.Options.forEach((opt) => {
+        select.append(`<option value="${opt}">${opt}</option>`);
+    })
+}
+
+function clearSelect(action) {
+    var select = getElementByNameOrId(action, 'select');
+    if (!select) {
+        return;
+    }
+
+    select.empty();
+}
+
+function syncSelect(action) {
+    var select = getElementByNameOrId(action, 'select', null, '[pode-dynamic="True"]');
+    if (!select) {
+        return;
+    }
+
+    loadSelect(getId(select));
 }
 
 function decodeHTML(value) {
@@ -2266,7 +2627,19 @@ function actionTextbox(action, sender) {
         case 'output':
             writeTextbox(action, sender);
             break;
+
+        case 'clear':
+            clearTextbox(action);
+            break;
     }
+}
+
+function clearTextbox(action) {
+    var txt = action.Multiline
+        ? getElementByNameOrId(action, 'textarea')
+        : getElementByNameOrId(action, 'input');
+
+    txt.val('');
 }
 
 function updateTextbox(action) {
@@ -2303,7 +2676,7 @@ function writeTextbox(action, sender) {
     if (action.Multiline) {
         txt = $(`textarea#${txtId}`);
         if (txt.length == 0) {
-            element = `<textarea class='form-control' id='${txtId}' rows='${action.Height}' ${readOnly}></textarea>`;
+            element = `<textarea class='form-control' id='${txtId}' rows='${action.Size}' ${readOnly}></textarea>`;
         }
     }
     else {
@@ -2371,6 +2744,85 @@ function downloadCSV(csv, filename) {
     $(downloadLink).remove();
 }
 
+function actionFileStream(action) {
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateFileStream(action);
+            break;
+
+        case 'stop':
+            stopFileStream(action);
+            break;
+
+        case 'start':
+            startFileStream(action);
+            break;
+
+        case 'restart':
+            stopFileStream(action);
+            clearFileStream(action);
+            startFileStream(action);
+            break;
+
+        case 'clear':
+            clearFileStream(action);
+            break;
+    }
+}
+
+function updateFileStream(action) {
+    var filestream = getElementByNameOrId(action, 'textarea');
+    if (!filestream) {
+        return;
+    }
+
+    if (action.Url && filestream.attr('pode-file') != action.Url) {
+        stopFileStream(action);
+        clearFileStream(action);
+        filestream.attr('pode-file', action.Url);
+        startFileStream(action);
+    }
+}
+
+function stopFileStream(action) {
+    var filestream = getElementByNameOrId(action, 'textarea');
+    if (!filestream) {
+        return;
+    }
+
+    filestream.attr('pode-streaming', '0');
+
+    var button = filestream.closest('div.file-stream').find('button.pode-stream-pause span');
+    if (!button.hasClass('mdi-play')) {
+        toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
+    }
+}
+
+function startFileStream(action) {
+    var filestream = getElementByNameOrId(action, 'textarea');
+    if (!filestream) {
+        return;
+    }
+
+    filestream.attr('pode-streaming', '1');
+
+    var button = filestream.closest('div.file-stream').find('button.pode-stream-pause span');
+    if (!button.hasClass('mdi-pause')) {
+        toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
+    }
+}
+
+function clearFileStream(action) {
+    var filestream = getElementByNameOrId(action, 'textarea');
+    if (!filestream) {
+        return;
+    }
+
+    filestream.text('');
+    filestream.attr('pode-length', 0);
+    filestream.scrollTop = filestream.scrollHeight;
+}
+
 function actionChart(action, sender) {
     switch (action.Operation.toLowerCase()) {
         case 'update':
@@ -2384,10 +2836,14 @@ function actionChart(action, sender) {
         case 'sync':
             syncChart(action);
             break;
+
+        case 'clear':
+            clearChart(action);
+            break;
     }
 }
 
-function syncChart(action) {
+function clearChart(action) {
     if (!action.ID && !action.Name) {
         return;
     }
@@ -2395,7 +2851,27 @@ function syncChart(action) {
     var chart = getElementByNameOrId(action, 'canvas');
     var id = getId(chart);
 
-    loadChart(id);
+    var _chart = _charts[id];
+
+    // clear labels (x-axis)
+    _chart.canvas.data.labels = [];
+
+    // clear data (y-axis)
+    _chart.canvas.data.datasets.forEach((dataset) => {
+        dataset.data = [];
+    });
+
+    // re-render
+    _chart.canvas.update();
+}
+
+function syncChart(action) {
+    var chart = getElementByNameOrId(action, 'canvas', null, '[pode-dynamic="True"]');
+    if (!chart) {
+        return;
+    }
+
+    loadChart(getId(chart));
 }
 
 var _charts = {};
@@ -2414,10 +2890,16 @@ function updateChart(action, sender) {
     action.ID = getId(canvas);
 
     var _append = (canvas.attr('pode-append') == 'True');
+    var _chart = _charts[action.ID];
 
-    // append new data, rather than rebuild the chart
-    if (_append && _charts[action.ID]) {
+    // append new data
+    if (_append && _chart) {
         appendToChart(canvas, action);
+    }
+
+    // update the chart with new data
+    else if (_chart) {
+        updateTheChart(canvas, action);
     }
 
     // build the chart
@@ -2458,6 +2940,34 @@ function appendToChart(canvas, action) {
     _chart.canvas.update();
 }
 
+function updateTheChart(canvas, action) {
+    var _chart = _charts[action.ID];
+    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
+
+    _chart.canvas.data.labels = [];
+    _chart.canvas.data.datasets.forEach((a) => a.data = []);
+
+    // labels (x-axis)
+    action.Data.forEach((item) => {
+        if (_timeLabels) {
+            _chart.canvas.data.labels.push(getTimeString());
+        }
+        else {
+            _chart.canvas.data.labels.push(item.Key);
+        }
+    });
+
+    // data (y-axis)
+    action.Data.forEach((item) => {
+        item.Values.forEach((set, index) => {
+            _chart.canvas.data.datasets[index].data.push(set.Value);
+        });
+    });
+
+    // re-render
+    _chart.canvas.update();
+}
+
 function truncateArray(array, maxItems) {
     if (maxItems <= 0) {
         return array;
@@ -2491,7 +3001,7 @@ function createTheChart(canvas, action, sender) {
     }
 
     // colours for lines/bars/segments
-    var palette = getChartColourPalette(theme);
+    var palette = getChartColourPalette(theme, canvas);
 
     // x-axis labels
     var xAxis = [];
@@ -2529,7 +3039,7 @@ function createTheChart(canvas, action, sender) {
     Object.keys(yAxises).forEach((key, index) => {
         switch (chartType.toLowerCase()) {
             case 'line':
-                yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.2)');
+                yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.2)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 3;
                 axesOpts.x = getChartAxesColours(theme, canvas, 'x');
@@ -2545,7 +3055,7 @@ function createTheChart(canvas, action, sender) {
                 break;
 
             case 'bar':
-                yAxises[key].backgroundColor = palette[index % palette.length].replace(')', ', 0.6)');
+                yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.6)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 1;
                 axesOpts.x = getChartAxesColours(theme, canvas, 'x');
@@ -2642,9 +3152,12 @@ function getChartAxesColours(theme, canvas, axis) {
 
     // add min/max
     var min = parseInt(canvas.attr(`pode-min-${axis}`));
-    var max = parseInt(canvas.attr(`pode-max-${axis}`));
-    if (min != max) {
+    if (min > MIN_INT32) {
         opts['min'] = min;
+    }
+
+    var max = parseInt(canvas.attr(`pode-max-${axis}`));
+    if (max < MAX_INT32) {
         opts['max'] = max;
     }
 
@@ -2665,24 +3178,54 @@ function getChartPieBorderColour(theme) {
     }
 }
 
-function getChartColourPalette(theme) {
+function getChartColourPalette(theme, canvas) {
+    // do the canvas have a defined set of colours?
+    var colours = canvas.attr('pode-colours');
+    if (colours) {
+        var converted = [];
+        colours.split(',').forEach((c) => { converted.push(hexToRgb(c.trim())); });
+        return converted;
+    }
+
+    // no colours, so use the defaults
     var first = [
-        'rgb(54, 162, 235)',    // blue
-        'rgb(255, 176, 0)'      // orange
+        hexToRgb('#36a2eb'), // cornflower blue
+        hexToRgb('#ffb000')  // orange
     ];
 
     if (theme == 'terminal') {
-        first = ['rgb(255, 176, 0)', 'rgb(54, 162, 235)'];
+        first = [hexToRgb('#ffb000'), hexToRgb('#36a2eb')]; // orange, blue
     }
 
-
     return first.concat([
-        'rgb(255, 99, 132)',    // red
-        'rgb(255, 205, 86)',    // yellow
-        'rgb(0, 163, 51)',      // green
-        'rgb(153, 102, 255)',   // purple
-        'rgb(201, 203, 207)'    // grey
+        hexToRgb('#ff6384'),    // red
+        hexToRgb('#ffcd56'),    // yellow
+        hexToRgb('#00a333'),    // green
+        hexToRgb('#9966ff'),    // purple
+        hexToRgb('#96b0c6'),    // grey
+        hexToRgb('#275c7b'),    // teal
+        hexToRgb('#665191'),    // purple
+        hexToRgb('#bc5090'),    // pink
+        hexToRgb('#f95d6a'),    // peach
+        hexToRgb('#488f31'),    // green
+        hexToRgb('#f1f1f1'),    // white
+        hexToRgb('#a9b450'),    // lime green
+        hexToRgb('#00d2ef')     // sky blue
     ]);
+}
+
+function hexToRgb(hex) {
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) {
+        return "rgba(0, 0, 0, 1.0)";
+    }
+
+    return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, 1.0)`;
 }
 
 function writeChart(action, sender) {
@@ -2711,10 +3254,10 @@ function buildButton(element) {
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip' pode-object='${element.ObjectType}'>${icon}</button>`;
     }
 
-    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}'>
+    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}'>
         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         ${icon}${element.Name}
     </button>`;
@@ -2746,11 +3289,11 @@ function buildIcon(element) {
         rotate = `mdi-rotate-${element.Rotate}`;
     }
 
-    return `<span class='mdi mdi-${element.Name.toLowerCase()} ${spin} ${flip} ${rotate} mdi-size-20' ${colour} ${title}></span>`;
+    return `<span id='${element.ID}' class='mdi mdi-${element.Name.toLowerCase()} ${spin} ${flip} ${rotate} mdi-size-20' pode-object='${element.ObjectType}' ${colour} ${title} ${buildEvents(element.Events)}></span>`;
 }
 
 function buildBadge(element) {
-    return `<span id='${element.ID}' class='badge badge-${element.ColourType}'>${element.Value}</span>`;
+    return `<span id='${element.ID}' class='badge badge-${element.ColourType}' pode-object='${element.ObjectType}' ${buildEvents(element.Events)}>${element.Value}</span>`;
 }
 
 function buildSpinner(element) {
@@ -2764,7 +3307,7 @@ function buildSpinner(element) {
         title = `title='${element.Title}' data-toggle='tooltip'`;
     }
 
-    return `<span class="spinner-border spinner-border-sm" role="status" ${colour} ${title}></span>`;
+    return `<span id='${element.ID}' class="spinner-border spinner-border-sm" role="status" pode-object='${element.ObjectType}' ${colour} ${title}></span>`;
 }
 
 function buildLink(element) {
@@ -2773,7 +3316,7 @@ function buildLink(element) {
         target = '_blank';
     }
 
-    return `<a href='${element.Source}' id='${element.ID}' target='${target}'>${element.Value}</a>`;
+    return `<a href='${element.Source}' id='${element.ID}' target='${target}' pode-object='${element.ObjectType}' ${buildEvents(element.Events)}>${element.Value}</a>`;
 }
 
 function actionNotification(action) {
@@ -2837,7 +3380,7 @@ function actionBadge(action) {
     // change colour
     if (action.Colour) {
         removeClass(badge, 'badge-\\w+');
-        badge.addClass(`badge-${action.ColourType}`);
+        addClass(badge, `badge-${action.ColourType}`);
     }
 }
 
@@ -2864,7 +3407,7 @@ function actionProgress(action) {
     // change colour
     if (action.Colour) {
         removeClass(progress, 'bg-\\w+');
-        progress.addClass(`bg-${action.ColourType}`);
+        addClass(progress, `bg-${action.ColourType}`);
     }
 }
 
@@ -2877,7 +3420,7 @@ function getClass(element, filter) {
     return (result ? result[0] : null);
 }
 
-function removeClass(element, filter) {
+function removeClass(element, filter, raw) {
     if (!element) {
         return;
     }
@@ -2886,8 +3429,36 @@ function removeClass(element, filter) {
         element.removeClass();
     }
     else {
-        element.removeClass(getClass(element, filter));
+        element.removeClass((raw ? filter : getClass(element, filter)));
     }
+}
+
+function addClass(element, _class) {
+    if (!element) {
+        return;
+    }
+
+    if (element.hasClass(_class)) {
+        return;
+    }
+
+    element.addClass(_class);
+}
+
+function hide(element) {
+    if (!element) {
+        return;
+    }
+
+    element.hide();
+}
+
+function show(element) {
+    if (!element) {
+        return;
+    }
+
+    element.show();
 }
 
 function actionTab(action) {
@@ -2913,7 +3484,7 @@ function actionAccordion(action) {
 }
 
 function moveAccordion(itemId) {
-    $(`div.accordion div.card#${itemId} div.card-header button`).trigger('click');
+    $(`div.accordion div.bellow#${itemId} div.bellow-header button`).trigger('click');
 }
 
 function actionPage(action) {
@@ -2988,9 +3559,55 @@ function actionBreadcrumb(action) {
 }
 
 function convertToArray(element) {
+    if (element == null) {
+        return [];
+    }
+
     if (!Array.isArray(element)) {
         element = [element];
     }
 
     return element;
+}
+
+function invokeEvent(type, sender) {
+    sender = $(sender);
+    var url = `${getComponentUrl(sender)}/events/${type}`;
+
+    var inputs = {};
+    inputs.data = sender.serialize();
+
+    if (!inputs.data) {
+        inputs = serializeInputs(sender);
+    }
+
+    if (!inputs.opts) {
+        inputs.opts = {};
+    }
+    inputs.opts.keepFocus = true;
+
+    sendAjaxReq(url, inputs.data, sender, true, null, inputs.opts);
+}
+
+function getComponentUrl(component) {
+    if (typeof component === 'string') {
+        component = $(`#${component}`);
+    }
+
+    return `/components/${component.attr('pode-object').toLowerCase()}/${component.attr('id')}`;
+}
+
+function buildEvents(events) {
+    if (!events) {
+        return '';
+    }
+
+    events = convertToArray(events);
+    var strEvents = '';
+
+    events.forEach((evt) => {
+        strEvents += `on${evt}="invokeEvent('${evt}', this);"`;
+    });
+
+    return strEvents;
 }

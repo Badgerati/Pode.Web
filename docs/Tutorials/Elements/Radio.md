@@ -1,5 +1,9 @@
 # Radio
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 The Radio element is a form input element, and can be added using [`New-PodeWebRadio`](../../../Functions/Elements/New-PodeWebRadio). This will add a series of radio buttons to your form:
 
 ```powershell
@@ -15,3 +19,7 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![radio](../../../images/radio.png)
+
+## Inline
+
+You can render this element inline with other non-form elements by using the `-NoForm` switch. This will remove the form layout, and render the element more cleanly when used outside of a form.

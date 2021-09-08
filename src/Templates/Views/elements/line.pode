@@ -1,1 +1,1 @@
-<hr class="my-4 $($data.CssClasses)">
+<hr id="$($data.ID)" class="my-4 $($data.CssClasses)" style="$($data.CssStyles)" pode-object="$($data.ObjectType)">

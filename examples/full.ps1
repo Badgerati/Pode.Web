@@ -72,7 +72,10 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "! "
-            New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan
+            New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan |
+                Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
+                    Show-PodeWebToast -Message 'Badge was clicked!'
+                }
         )
         $timer1
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right
@@ -81,6 +84,11 @@ Start-PodeServer -StatusPageExceptions Show {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
         }
+        New-PodeWebContainer -Content @(
+            New-PodeWebButton -Name 'Dark Theme' -NoAuth -Icon 'moon-new' -Colour Dark -ScriptBlock { Update-PodeWebTheme -Name Dark }
+            New-PodeWebButton -Name 'Light Theme' -NoAuth -Icon 'weather-sunny' -Colour Light -ScriptBlock { Update-PodeWebTheme -Name Light }
+            New-PodeWebButton -Name 'Reset Theme' -NoAuth -Icon 'refresh' -ScriptBlock { Reset-PodeWebTheme }
+        )
         New-PodeWebAlert -Type Note -Value 'Hello, world'
     )
 
@@ -144,10 +152,10 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebChart -Name 'Line Example 1' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 15 -AutoRefresh -AsCard
         )
         New-PodeWebCell -Content @(
-            New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData -AsCard
+            New-PodeWebChart -Name 'Top Processes' -NoAuth -Type Bar -ScriptBlock $processData -AutoRefresh -RefreshInterval 10 -AsCard
         )
         New-PodeWebCell -Content @(
-            New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -MaxY 100 -NoAuth -AsCard
+            New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -MinY 0 -MaxY 100 -NoAuth -AsCard
         )
     )
 

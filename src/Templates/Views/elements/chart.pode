@@ -17,7 +17,8 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
         class="my-4 w-100"
         id="$($data.ID)"
         name="$($data.Name)"
-        style="$(if ($data.Height -gt 0) { "height:$($data.Height)px;" })"
+        style="$(if ($data.Height -gt 0) { "height:$($data.Height)px;" }) $($data.CssStyles)"
+        pode-object="$($data.ObjectType)"
         pode-chart-type="$($data.ChartType)"
         pode-dynamic="$($data.IsDynamic)"
         pode-append="$($data.Append)"
@@ -29,6 +30,7 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
         pode-min-y="$($data.Min.Y)"
         pode-max-x="$($data.Max.X)"
         pode-max-y="$($data.Max.Y)"
-        pode-legend="$(!$data.NoLegend)">
+        pode-legend="$(!$data.NoLegend)"
+        pode-colours="$($data.Colours)">
     </canvas>
 </div>

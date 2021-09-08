@@ -11,7 +11,25 @@ Start-PodeServer -Threads 2 {
 
     # set the home page controls
     $con = New-PodeWebContainer -Content @(
-        New-PodeWebFileStream -Url '/logs/error.log' -Icon 'information'
+        New-PodeWebButton -Name 'Stop' -ScriptBlock {
+            Stop-PodeWebFileStream -Name 'Example'
+        }
+        New-PodeWebButton -Name 'Start' -ScriptBlock {
+            Start-PodeWebFileStream -Name 'Example'
+        }
+        New-PodeWebButton -Name 'Restart' -ScriptBlock {
+            Restart-PodeWebFileStream -Name 'Example'
+        }
+        New-PodeWebButton -Name 'Clear' -ScriptBlock {
+            Clear-PodeWebFileStream -Name 'Example'
+        }
+        New-PodeWebButton -Name 'Update 1' -ScriptBlock {
+            Update-PodeWebFileStream -Name 'Example' -Url '/logs/error.log'
+        }
+        New-PodeWebButton -Name 'Update 2' -ScriptBlock {
+            Update-PodeWebFileStream -Name 'Example' -Url '/logs/error2.log'
+        }
+        New-PodeWebFileStream -Name 'Example' -Url '/logs/error.log' -Icon 'information'
     )
 
     Set-PodeWebHomePage -Layouts $con -Title 'File Stream'

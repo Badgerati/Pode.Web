@@ -101,10 +101,9 @@ function Set-PodeWebLoginPage
     Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
 
     Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
-        $pages = @(Get-PodeWebState -Name 'pages')
-        if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
-            return
+        $page = Get-PodeWebFirstPublicPage
+        if ($null -ne $page) {
+            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
         }
 
         $authData = Get-PodeWebAuthData
@@ -190,10 +189,9 @@ function Set-PodeWebHomePage
         # we either render the home page, or move to the first page if home page is blank
         $comps = $using:Layouts
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
-            $pages = @(Get-PodeWebState -Name 'pages')
-            if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-                Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
-                return
+            $page = Get-PodeWebFirstPublicPage
+            if ($null -ne $page) {
+                Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
             }
         }
 
@@ -250,6 +248,10 @@ function Add-PodeWebPage
         [Parameter()]
         [scriptblock]
         $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
 
         [Parameter()]
         [string[]]
@@ -340,7 +342,8 @@ function Add-PodeWebPage
 
     # add the page route
     $routePath = $pageMeta.Url
-    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+        param($Data)
         $global:PageData = $using:pageMeta
 
         if (!$global:PageData.NoBackArrow) {
@@ -375,7 +378,7 @@ function Add-PodeWebPage
             # if we have a scriptblock, invoke that to get dynamic components
             $layouts =$null
             if ($null -ne $using:ScriptBlock) {
-                $layouts = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Return
+                $layouts = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
             }
 
             if (($null -eq $layouts) -or ($layouts.Length -eq 0)) {
@@ -386,7 +389,7 @@ function Add-PodeWebPage
             $filteredLayouts = @()
 
             foreach ($item in $layouts) {
-                if ($item.LayoutType -ieq 'breadcrumb') {
+                if ($item.ObjectType -ieq 'breadcrumb') {
                     if ($null -ne $breadcrumb) {
                         throw "Cannot set two brecrumb trails on one page"
                     }
@@ -415,7 +418,8 @@ function Add-PodeWebPage
     # add the page help route
     $helpPath = "$($routePath)/help"
     if (($null -ne $HelpScriptBlock) -and !(Test-PodeWebRoute -Path $helpPath)) {
-        Add-PodeRoute -Method Post -Path $helpPath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $helpPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
             $global:PageData = $using:pageMeta
 
             # get auth details of a user
@@ -435,7 +439,7 @@ function Add-PodeWebPage
                 Set-PodeResponseStatus -Code 403
             }
             else {
-                $result = Invoke-PodeScriptBlock -ScriptBlock $using:HelpScriptBlock -Return
+                $result = Invoke-PodeScriptBlock -ScriptBlock $using:HelpScriptBlock -Arguments $Data.Data -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
@@ -614,6 +618,7 @@ function ConvertTo-PodeWebPage
     
     # create the pages for each of the commands
     foreach ($cmd in $Commands) {
+        Write-Verbose "Building page for $($cmd)"
         $cmdInfo = (Get-Command -Name $cmd -ErrorAction Stop)
 
         $sets = $cmdInfo.ParameterSets
@@ -621,8 +626,14 @@ function ConvertTo-PodeWebPage
             continue
         }
 
+        # for cmdlets this will be null
         $ast = $cmdInfo.ScriptBlock.Ast
-        $paramDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.ParameterAst] }, $true)
+        $paramDefs = $null
+        if ($null -ne $ast) {
+            $paramDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.ParameterAst] }, $true) | Where-Object {
+                $_.Parent.Parent.Parent.Name -ieq $cmd
+            }
+        }
 
         $tabs = New-PodeWebTabs -Tabs @(foreach ($set in $sets) {
             $elements = @(foreach ($param in $set.Parameters) {
@@ -631,7 +642,11 @@ function ConvertTo-PodeWebPage
                 }
 
                 $type = $param.ParameterType.Name
-                $default = ($paramDefs | Where-Object { $_.DefaultValue -and $_.Name.Extent.Text -ieq "`$$($param.Name)" }).DefaultValue.Value
+
+                $default = $null
+                if ($null -ne $paramDefs) {
+                    $default = ($paramDefs | Where-Object { $_.DefaultValue -and $_.Name.Extent.Text -ieq "`$$($param.Name)" }).DefaultValue.Value
+                }
 
                 if ($type -iin @('boolean', 'switchparameter')) {
                     New-PodeWebCheckbox -Name $param.Name -AsSwitch

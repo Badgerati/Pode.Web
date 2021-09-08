@@ -76,3 +76,22 @@ New-PodeWebContainer -NoBackground -Content @(
     }
 )
 ```
+
+## Clear
+
+To clear a chart's data you can use [`Clear-PodeWebChart`](../../../Functions/Outputs/Clear-PodeWebChart):
+
+```powershell
+New-PodeWebContainer -NoBackground -Content @(
+    New-PodeWebButton -Name 'Clear Processes' -ScriptBlock {
+        Clear-PodeWebChart -Name 'Processes'
+    }
+
+    New-PodeWebChart -Name 'Processes' -Type Line -NoRefresh -ScriptBlock {
+        Get-Process |
+            Sort-Object -Property CPU -Descending |
+            Select-Object -First 15 |
+            ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU
+    }
+)
+```

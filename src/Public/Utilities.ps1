@@ -24,7 +24,10 @@ function Use-PodeWebTemplates
         $EndpointName,
 
         [switch]
-        $NoPageFilter
+        $NoPageFilter,
+
+        [switch]
+        $HideSidebar
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore | Sort-Object -Property Version -Descending | Select-Object -First 1)
@@ -42,6 +45,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'logo' -Value $Logo
     Set-PodeWebState -Name 'favicon' -Value $FavIcon
     Set-PodeWebState -Name 'no-page-filter' -Value $NoPageFilter.IsPresent
+    Set-PodeWebState -Name 'hide-sidebar' -Value $HideSidebar.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @()
     Set-PodeWebState -Name 'default-nav' -Value $null
@@ -61,10 +65,9 @@ function Use-PodeWebTemplates
     Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-PodeWebPath $templatePath 'Views')
 
     Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
-        $pages = @(Get-PodeWebState -Name 'pages')
-        if (($null -ne $pages) -and ($pages.Length -gt 0)) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $pages[0])
-            return
+        $page = Get-PodeWebFirstPublicPage
+        if ($null -ne $page) {
+            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
         }
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
@@ -167,6 +170,18 @@ function Get-PodeWebTheme
     }
 
     return $theme.ToLowerInvariant()
+}
+
+function Test-PodeWebTheme
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name
+    )
+
+    return ((Test-PodeWebThemeInbuilt -Name $Name) -or (Test-PodeWebThemeCustom -Name $Name))
 }
 
 function Get-PodeWebUsername

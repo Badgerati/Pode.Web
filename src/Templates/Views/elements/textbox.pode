@@ -1,5 +1,7 @@
-<div class="form-group row pode-form-textbox $($data.CssClasses)">
-    <label for="$($data.ID)" class="col-sm-2 col-form-label">$($data.Name)</label>
+<div class="$(if (!$data.NoForm) { 'form-group row' } else { 'no-form' }) pode-form-textbox $($data.CssClasses)">
+    $(if (!$data.NoForm) {
+        "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.Name)</label>"
+    })
     <div class="col-sm-10">
         $(
             $element = [string]::Empty
@@ -24,8 +26,10 @@
                 $width = "width: $($data.Width)%;"
             }
 
+            $events = ConvertTo-PodeWebEvents -Events $data.Events
+
             if ($data.Multiline) {
-                $element = "<textarea class='form-control' id='$($data.ID)' name='$($data.Name)' placeholder='$($data.Placeholder)' rows='$($data.Height)' style='$($width)' $($describedBy) $($readOnly) $($value)></textarea>"
+                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($value) $($events)></textarea>"
             }
             else {
                 if ($data.Prepend.Enabled -or $data.Append.Enabled) {
@@ -46,7 +50,7 @@
                     $_type = 'datetime-local'
                 }
 
-                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control' id='$($data.ID)' name='$($data.Name)' style='$($width)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($value)>"
+                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width) $($data.CssStyles)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($value) $($events)>"
 
                 if ($data.Append.Enabled) {
                     if (![string]::IsNullOrWhiteSpace($data.Append.Text)) {

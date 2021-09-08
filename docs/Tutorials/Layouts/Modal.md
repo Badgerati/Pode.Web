@@ -2,7 +2,7 @@
 
 A modal is a layout that renders on top of all other content on your web page - such as prompts to comfirm information before performing an action, or a quick edit dialog.
 
-A modal takes an array of content, that can be either other layouts or raw elements.
+A modal takes an array of components via `-Content`, that can be either other layouts or raw elements.
 
 ## Usage
 
@@ -94,3 +94,17 @@ New-PodeWebModal -Name 'Edit Service' -AsForm -Content @(
 Which would look like below:
 
 ![modal_form](../../../images/modal_form.png)
+
+### Arguments
+
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebModal -Name 'Stop Service' -Content @() -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```

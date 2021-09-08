@@ -1,4 +1,4 @@
-<div id="$($data.ID)" class="alert alert-$($data.ClassType) $($data.CssClasses)" role="alert">
+<div id="$($data.ID)" class="alert alert-$($data.ClassType) $($data.CssClasses)" style="$($data.CssStyles)" pode-object="$($data.ObjectType)" role="alert" $(ConvertTo-PodeWebEvents -Events $data.Events)>
     <h6 class='pode-alert-header'>
         <span class="mdi mdi-$($data.IconType)"></span>
         <strong>$($data.Type)</strong>

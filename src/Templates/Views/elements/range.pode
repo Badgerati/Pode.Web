@@ -1,5 +1,7 @@
-<div class="form-group row pode-form-range $($data.CssClasses)">
-    <label for="$($data.ID)" class="col-sm-2 col-form-label">$($data.Name)</label>
+<div class="$(if (!$data.NoForm) { 'form-group row' } else { 'no-form' }) pode-form-range $($data.CssClasses)">
+    $(if (!$data.NoForm) {
+        "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.Name)</label>"
+    })
     <div class="col-sm-10">
         $(
             $showValue = [string]::Empty
@@ -7,7 +9,7 @@
                 $showValue = 'pode-range-value'
             }
 
-            "<input type='range' class='form-control-range $($showValue)' id='$($data.ID)' name='$($data.Name)' value='$($data.Value)' min='$($data.Min)' max='$($data.Max)' $(if ($data.Disabled) { 'disabled' })>"
+            "<input type='range' class='form-control-range $($showValue)' style='$($data.CssStyles)' id='$($data.ID)' pode-object='$($data.ObjectType)' name='$($data.Name)' value='$($data.Value)' min='$($data.Min)' max='$($data.Max)' $(if ($data.Disabled) { 'disabled' }) $(ConvertTo-PodeWebEvents -Events $data.Events)>"
 
             if ($data.ShowValue) {
                 "<input type='number' class='form-control $($showValue)' id='$($data.ID)_value' for='$($data.ID)' value='$($data.Value)' min='$($data.Min)' max='$($data.Max)'>"

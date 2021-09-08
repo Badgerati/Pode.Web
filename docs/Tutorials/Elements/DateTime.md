@@ -1,5 +1,9 @@
 # DateTime
 
+| Support | |
+| ------- |-|
+| Events | Yes |
+
 The DateTime element is a form input element, and can be added using [`New-PodeWebDateTime`](../../../Functions/Elements/New-PodeWebDateTime). This will automatically add a date and time input fields to your form:
 
 ```powershell

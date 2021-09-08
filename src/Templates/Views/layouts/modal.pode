@@ -1,4 +1,4 @@
-<div class="modal fade $($data.CssClasses)" id="$($data.ID)" name="$($data.Name)" tabindex="-1" aria-labelledby="$($data.ID)_lbl" aria-hidden="true" pode-data-value="">
+<div class="modal fade $($data.CssClasses)" style="$($data.CssStyles)" id="$($data.ID)" pode-object="$($data.ObjectType)" name="$($data.Name)" tabindex="-1" aria-labelledby="$($data.ID)_lbl" aria-hidden="true" pode-data-value="">
     <div class="modal-dialog modal-dialog-scrollable pode-modal-$($data.Size.ToLowerInvariant())">
         <div class="modal-content">
 
@@ -32,7 +32,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">$($data.CloseText)</button>
 
                 $(if ($data.ShowSubmit) {
-                    "<button type='button' class='btn btn-inbuilt-theme pode-modal-submit' pode-url='/layouts/modal/$($data.ID)' pode-modal-form='$($data.AsForm)'>$($data.SubmitText)</button>"
+                    "<button type='button' class='btn btn-inbuilt-theme pode-modal-submit' pode-url='/components/modal/$($data.ID)' pode-modal-form='$($data.AsForm)'>$($data.SubmitText)</button>"
                 })
             </div>
 

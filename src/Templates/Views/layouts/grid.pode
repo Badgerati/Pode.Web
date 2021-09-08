@@ -1,4 +1,4 @@
-<div class="container pode-grid $($data.CssClasses)">
+<div id="$($data.ID)" class="container pode-grid $($data.CssClasses)" style="$($data.CssStyles)" pode-object="$($data.ObjectType)">
     <div class='row'>
 
     $(
@@ -17,7 +17,7 @@
                 $width = "col-$($cell.Width)"
             }
 
-            "<div class='$($width)'>"
+            "<div id='$($cell.ID)' class='text-$($cell.Alignment) $($width) $($cell.CssClasses)' style='$($cell.CssStyles)' pode-object='$($cell.ObjectType)'>"
                 Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $cell.Content }
             "</div>"
         }

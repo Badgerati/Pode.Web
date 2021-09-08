@@ -2,7 +2,7 @@
 
 A steps layout is an array of steps with content. You can use them to step through multiple parts of a setup process.
 
-The steps take an array of content, that can be either other layouts or raw elements.
+The steps take an array of components via `-Content`, that can be either other layouts or raw elements.
 
 ## Usage
 
@@ -42,3 +42,17 @@ Which would look like below:
 ![steps_step_1](../../../images/steps_step_1.png)
 ![steps_step_2](../../../images/steps_step_2.png)
 ![steps_step_3](../../../images/steps_step_3.png)
+
+### Arguments
+
+You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
+
+```powershell
+New-PodeWebSteps -Name 'AddUser' -Steps @() -ArgumentList 'Value1', 2, $false -ScriptBlock {
+    param($value1, $value2, $value3)
+
+    # $value1 = 'Value1'
+    # $value2 = 2
+    # $value3 = $false
+}
+```

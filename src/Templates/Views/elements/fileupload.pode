@@ -1,7 +1,9 @@
-<div class="form-group row pode-form-upload $($data.CssClasses)">
-    <label for="$($data.ID)" class="col-sm-2 col-form-label">$($data.Name)</label>
+<div class="$(if (!$data.NoForm) { 'form-group row' } else { 'no-form' }) pode-form-upload $($data.CssClasses)">
+    $(if (!$data.NoForm) {
+        "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.Name)</label>"
+    })
     <div class="col-sm-10">
-        <input type='file' class='form-control-file' id="$($data.ID)" name="$($data.Name)">
+        <input type='file' class="form-control-file $(if ($data.NoForm) { 'no-form' })" id="$($data.ID)" name="$($data.Name)" pode-object="$($data.ObjectType)" style="$($data.CssStyles)">
         <div id="$($data.ID)_validation" class="invalid-feedback"></div>
     </div>
 </div>

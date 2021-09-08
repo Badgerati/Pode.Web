@@ -10,10 +10,10 @@
     "popper.js": "1.16.1",
     "bootstrap": "4.6.0",
     "bs-stepper": "1.7.0",
-    "@mdi/font": "5.9.55",
-    "chart.js": "3.4.1",
-    "@highlightjs/cdn-assets": "11.1.0",
-    "monaco-editor": "0.26.1",
+    "@mdi/font": "6.1.95",
+    "chart.js": "3.5.1",
+    "@highlightjs/cdn-assets": "11.2.0",
+    "monaco-editor": "0.27.0",
     "moment": "2.29.1"
   }
 }

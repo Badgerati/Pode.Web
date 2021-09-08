@@ -1,4 +1,4 @@
-<div id="$($data.ID)" class="accordion $($data.CssClasses)" pode-cycle="$($data.Cycle.Enabled)" pode-interval="$($data.Cycle.Interval)">
+<div id="$($data.ID)" class="accordion $($data.CssClasses)" style="$($data.CssStyles)" pode-object="$($data.ObjectType)" pode-cycle="$($data.Cycle.Enabled)" pode-interval="$($data.Cycle.Interval)" pode-mode="$($data.Mode.ToLowerInvariant())">
 
     $(for ($i = 0; $i -lt $data.Bellows.Length; $i++) {
         $bellow = $data.Bellows[$i]
@@ -8,15 +8,15 @@
         $show = 'show'
         $arrow = 'up'
 
-        if ($i -gt 0) {
+        if ((($i -gt 0) -and ($data.Mode -ine 'expanded')) -or ($data.Mode -ieq 'collapsed')) {
             $collapsed = 'collapsed'
-            $expanded = 'false'
             $show = [string]::Empty
+            $expanded = 'false'
             $arrow = 'down'
         }
 
-        "<div class='card bellow' id='$($bellow.ID)' name='$($bellow.Name)'>
-            <div class='card-header bellow-head' id='$($bellow.ID)_head'>
+        "<div class='card bellow $($bellow.CssClasses)' style='$($bellow.CssStyles)' id='$($bellow.ID)' name='$($bellow.Name)' pode-object='$($bellow.ObjectType)'>
+            <div class='card-header bellow-header' id='$($bellow.ID)_head'>
                 <h2 class='mb-0'>
                     <button class='btn btn-link btn-block text-left $($collapsed)' type='button' data-toggle='collapse' data-target='#$($bellow.ID)_body' aria-expanded='$($expanded)' aria-controls='$($bellow.ID)_body'>"
                         if (![string]::IsNullOrWhiteSpace($bellow.Icon)) {

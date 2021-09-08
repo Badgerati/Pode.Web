@@ -18,14 +18,14 @@ $(
     $fluid = [string]::Empty
 
     if ($data.Height -gt 0 -and $data.Width -gt 0) {
-        $dim = "style='height:$($data.Height)px;width:$($data.Width)px'"
+        $dim = "height:$($data.Height)px;width:$($data.Width)px;"
     }
     elseif ($data.Height -gt 0) {
-        $dim = "style='height:$($data.Height)px'"
+        $dim = "height:$($data.Height)px;"
         $fluid = 'img-fluid'
     }
     elseif ($data.Width -gt 0) {
-        $dim = "style='width:$($data.Width)px'"
+        $dim = "width:$($data.Width)px;"
         $fluid = 'img-fluid'
     }
     else {
@@ -37,5 +37,5 @@ $(
         $title = "title='$($data.Title)' data-toggle='tooltip' data-placement='bottom'"
     }
 
-    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc) $($data.CssClasses)' $($title) $($dim)>"
+    "<img src='$($data.Source)' id='$($data.ID)' class='$($fluid) rounded $($loc) $($data.CssClasses)' style='$($dim) $($data.CssStyles)' pode-object='$($data.ObjectType)' $($title) $(ConvertTo-PodeWebEvents -Events $data.Events)>"
 )

@@ -16,26 +16,26 @@
 
         if ($data.IconOnly) {
             if ($data.IsDynamic) {
-                "<button type='button' class='btn btn-icon-only pode-button $($data.CssClasses)' id='$($data.ID)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
+                "<button type='button' class='btn btn-icon-only pode-button $($data.CssClasses)' style='$($data.CssStyles)' id='$($data.ID)' pode-object='$($data.ObjectType)' pode-data-value='$($data.DataValue)' title='$($data.Name)' data-toggle='tooltip'>
                     $($icon)
                 </button>"
             }
             else {
-                "<a id='$($data.ID)' class='btn btn-icon-only pode-link-button $($data.CssClasses)' href='$($data.Url)' target='$($target)' role='button' title='$($data.Name)' data-toggle='tooltip'>
+                "<a id='$($data.ID)' class='btn btn-icon-only pode-link-button $($data.CssClasses)' style='$($data.CssStyles)' pode-object='$($data.ObjectType)' href='$($data.Url)' target='$($target)' role='button' title='$($data.Name)' data-toggle='tooltip'>
                     $($icon)
                 </a>"
             }
         }
         else {
             if ($data.IsDynamic) {
-                "<button type='button' class='btn btn-$($data.ColourType) pode-button $($data.CssClasses)' id='$($data.ID)' pode-data-value='$($data.DataValue)'>
+                "<button type='button' class='btn btn-$($data.ColourType) pode-button $($data.CssClasses)' style='$($data.CssStyles)' id='$($data.ID)' pode-object='$($data.ObjectType)' pode-data-value='$($data.DataValue)'>
                     <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                     $($icon)
                     $($data.Name)
                 </button>"
             }
             else {
-                "<a id='$($data.ID)' class='btn pode-link-button btn-$($data.ColourType) $($data.CssClasses)' href='$($data.Url)' target='$($target)' role='button'>
+                "<a id='$($data.ID)' class='btn pode-link-button btn-$($data.ColourType) $($data.CssClasses)' style='$($data.CssStyles)' pode-object='$($data.ObjectType)' href='$($data.Url)' target='$($target)' role='button'>
                     $($icon)
                     $($data.Name)
                 </a>"

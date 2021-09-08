@@ -4,7 +4,7 @@
         Theme = $data.Theme
     })
 
-    <body id="normal-page" pode-theme="$($data.Theme)" pode-theme-target="$(Get-PodeWebTheme -IgnoreCookie)">
+    <body id="normal-page" pode-theme="$($data.Theme)">
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
                 <span class='mdi mdi-menu-open'></span>
@@ -76,7 +76,14 @@
 
         <div class="container-fluid">
             <div class="row">
-                <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                $(
+                    $hideSidebar = [string]::Empty
+                    if (Get-PodeWebState -Name 'hide-sidebar') {
+                        $hideSidebar = 'hide-on-start'
+                    }
+
+                    "<nav id='sidebarMenu' class='col-md-3 col-lg-2 d-md-block bg-light sidebar collapse $($hideSidebar)'>"
+                )
                     $(
                         $noPageFilter = Get-PodeWebState -Name 'no-page-filter'
 
@@ -137,7 +144,7 @@
                                         "<div class='collapse $($show)' id='nav-$($pageGroup.Name)'>"
                                     }
 
-                                    foreach ($page in $pageGroup.Group) {
+                                    foreach ($page in ($pageGroup.Group | Sort-Object -Property Name)) {
                                         if (!(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
                                             continue
                                         }
@@ -151,8 +158,13 @@
                                             }
                                         }
 
+                                        $activePage = [string]::Empty
+                                        if (($data.Page.Name -ieq $page.Name) -and ($data.Page.Group -ieq $pageGroup.Name)) {
+                                            $activePage = 'active'
+                                        }
+
                                         "<li class='nav-item nav-page-item'>
-                                            <a class='nav-link $(if ($data.Page.Name -ieq $page.Name) { "active" })' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
+                                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
                                                     $($page.Name)
