@@ -1,5 +1,13 @@
 # Release Notes
 
+## v0.6.1
+
+```plain
+### Packaging
+* #123: Bump monaco-editor to 0.29.1
+* #178: Bump materialdesignicons to 6.2.95
+```
+
 ## v0.6.0
 
 ```plain
