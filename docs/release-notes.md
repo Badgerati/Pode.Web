@@ -1,5 +1,16 @@
 # Release Notes
 
+## v0.6.2
+
+```plain
+### Packaging
+* #195: Bump highlightjs to 11.3.1
+* #198: Bump chart.js to 3.6.0
+* #203: Bump monaco-editor to 0.30.1
+* #204: Bump materialdesignicons to 6.5.95
+* #205: Bump bootstrap to 4.6.1
+```
+
 ## v0.6.1
 
 ```plain
