@@ -629,7 +629,7 @@ function Get-PodeWebFirstPublicPage
         return $null
     }
 
-    foreach ($page in ($pages | Sort-Object -Property Name)) {
+    foreach ($page in ($pages | Sort-Object -Property { $_.Name })) {
         if ((Test-PodeWebArrayEmpty -Array $page.Access.Groups) -and (Test-PodeWebArrayEmpty -Array $page.Access.Users)) {
             return $page
         }

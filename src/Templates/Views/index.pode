@@ -144,7 +144,7 @@
                                         "<div class='collapse $($show)' id='nav-$($pageGroup.Name)'>"
                                     }
 
-                                    foreach ($page in ($pageGroup.Group | Sort-Object -Property Name)) {
+                                    foreach ($page in ($pageGroup.Group | Sort-Object -Property { $_.Name })) {
                                         if (!(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
                                             continue
                                         }
