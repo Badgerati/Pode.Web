@@ -1158,7 +1158,7 @@ function loadTable(tableId, opts) {
         }
 
         data += form.serialize();
-        url = form.attr('method');
+        url = form.attr('action');
     }
 
     // invoke and load table content
@@ -1286,7 +1286,7 @@ function loadChart(chartId) {
         }
 
         data += form.serialize();
-        url = form.attr('method');
+        url = form.attr('action');
     }
 
     sendAjaxReq(url, data, chart, true);
@@ -1461,6 +1461,7 @@ function buildElements(elements) {
 }
 
 function bindFormSubmits() {
+    // general forms
     $("form.pode-form").off('submit').on('submit', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -1470,7 +1471,20 @@ function bindFormSubmits() {
 
         // submit the form
         var inputs = serializeInputs(form);
-        sendAjaxReq(form.attr('method'), inputs.data, form, true, null, inputs.opts);
+        sendAjaxReq(form.attr('action'), inputs.data, form, true, null, inputs.opts);
+    });
+
+    // login form
+    $("form.form-signin").off('submit').on('submit', function(e) {
+        // get the form
+        var form = $(e.target);
+
+        // show the spinner
+        showSpinner(form);
+        $('.alert').remove();
+    
+        // remove validation errors
+        removeValidationErrors(form);
     });
 }
 

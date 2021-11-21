@@ -26,14 +26,21 @@
 
                 if ($data.Flash['auth-error']) {
                     "<div class='alert alert-danger' role='alert'>
-                        $($data.Flash['auth-error'])
+                        <span class='mdi mdi-alert-circle'></span>
+                        <strong>$($data.Flash['auth-error'])</strong>
                     </div>"
                 }
 
-                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>Sign in</button>"
+                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
+                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                    Sign in
+                </button>"
             }
             else {
-                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>Sign in using OAuth2 ($($data.Auth.Name))</button>"
+                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
+                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                    Sign in using OAuth2 ($($data.Auth.Name))
+                </button>"
             })
 
             $(if (![string]::IsNullOrWhiteSpace($data.Copyright)) {
