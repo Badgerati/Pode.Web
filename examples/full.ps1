@@ -69,6 +69,10 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebText -Value ' paragraphs' -Style Bold
         )
         New-PodeWebParagraph -Elements @(
+            New-PodeWebText -Value 'Pronuncation example: '
+            New-PodeWebText -Value '漢' -Pronunciation 'ㄏㄢˋ'
+        )
+        New-PodeWebParagraph -Elements @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "! "
