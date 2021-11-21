@@ -12,7 +12,7 @@
 
                 for ($i = 0; $i -lt $data.Options.Length; $i++) {
                     "<div class='form-check $($inline)' style='$($data.CssStyles)'>
-                        <input class='form-check-input' type='radio' name='$($data.Name)' id='$($data.ID)_option$($i)' value='$($data.Options[$i])' $(if ($i -eq 0) { 'checked' }) $(if ($data.Disabled) { 'disabled' })>
+                        <input class='form-check-input' type='radio' name='$($data.Name)' id='$($data.ID)_option$($i)' value='$($data.Options[$i])' $(if ($i -eq 0) { 'checked' }) $(if ($data.Disabled) { 'disabled' }) $(if ($data.Required) { 'required' })>
                         <label class='form-check-label' for='$($data.ID)_option$($i)'>
                             $($data.Options[$i])
                         </label>
