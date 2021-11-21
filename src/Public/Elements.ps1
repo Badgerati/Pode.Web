@@ -1045,6 +1045,10 @@ function New-PodeWebText
         [hashtable]
         $CssStyle,
 
+        [Parameter()]
+        [string]
+        $Pronunciation,
+
         [Parameter(ParameterSetName='Paragraph')]
         [switch]
         $InParagraph
@@ -1056,6 +1060,7 @@ function New-PodeWebText
         Parent = $ElementData
         ID = (Get-PodeWebElementId -Tag Txt -Id $Id -RandomToken)
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        Pronunciation = [System.Net.WebUtility]::HtmlEncode($Pronunciation)
         Style = $Style
         InParagraph = $InParagraph.IsPresent
         Alignment = $Alignment.ToLowerInvariant()

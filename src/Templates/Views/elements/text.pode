@@ -31,6 +31,10 @@ $(
         }
     }
 
+    if (![string]::IsNullOrWhiteSpace($data.Pronunciation)) {
+        $value = "<ruby>$($value) <rt>$($data.Pronunciation)</rt></ruby>"
+    }
+
     if ($data.InParagraph) {
         $value = "<p class='text-$($data.Alignment)'>$($value)</p>"
     }
