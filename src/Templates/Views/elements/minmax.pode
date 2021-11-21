@@ -12,6 +12,11 @@
                 $readOnly = "readonly"
             }
 
+            $required = [string]::Empty
+            if ($data.Required) {
+                $required = "required"
+            }
+
             $wrapped = ($data.Prepend.Enabled -or $data.Append.Enabled)
 
             $prepend = [string]::Empty
@@ -46,7 +51,7 @@
                     }
 
                     $element += $prepend
-                    $element += "<input type='number' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_min' name='$($data.Name)_Min' value='$($data.Values.Min)' $($describedBy) $($readOnly)>"
+                    $element += "<input type='number' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_min' name='$($data.Name)_Min' value='$($data.Values.Min)' $($describedBy) $($readOnly) $($required)>"
                     $element += $append
 
                     if ($wrapped) {
@@ -66,7 +71,7 @@
                     }
 
                     $element += $prepend
-                    $element += "<input type='number' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_max' name='$($data.Name)_Max' value='$($data.Values.Max)' $($describedBy) $($readOnly)>"
+                    $element += "<input type='number' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_max' name='$($data.Name)_Max' value='$($data.Values.Max)' $($describedBy) $($readOnly) $($required)>"
                     $element += $append
 
                     if ($wrapped) {

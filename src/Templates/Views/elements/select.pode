@@ -17,6 +17,7 @@
                 pode-object='$($data.ObjectType)'
                 pode-dynamic='$($data.IsDynamic)'
                 $($multiple)
+                $(if ($data.Required) { 'required' })
                 $(ConvertTo-PodeWebEvents -Events $data.Events)
             >"
 

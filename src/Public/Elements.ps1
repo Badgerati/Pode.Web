@@ -84,7 +84,10 @@ function New-PodeWebTextbox
         $NoAuthentication,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
@@ -133,6 +136,7 @@ function New-PodeWebTextbox
         }
         NoAuthentication = $NoAuthentication.IsPresent
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 
     # create autocomplete route
@@ -184,7 +188,10 @@ function New-PodeWebFileUpload
         $CssStyle,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag File -Id $Id -Name $Name
@@ -199,6 +206,7 @@ function New-PodeWebFileUpload
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 }
 
@@ -379,7 +387,10 @@ function New-PodeWebCheckbox
         $Disabled,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Checkbox -Id $Id -Name $Name
@@ -402,6 +413,7 @@ function New-PodeWebCheckbox
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 }
 
@@ -436,7 +448,10 @@ function New-PodeWebRadio
         $Disabled,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Radio -Id $Id -Name $Name
@@ -453,6 +468,7 @@ function New-PodeWebRadio
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 }
 
@@ -499,7 +515,10 @@ function New-PodeWebSelect
         $Multiple,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
@@ -524,6 +543,7 @@ function New-PodeWebSelect
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoAuthentication = $NoAuthentication.IsPresent
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 
     $routePath = "/components/select/$($Id)"
@@ -597,7 +617,10 @@ function New-PodeWebRange
         $ShowValue,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Range -Id $Id -Name $Name
@@ -624,6 +647,7 @@ function New-PodeWebRange
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 }
 
@@ -1137,7 +1161,10 @@ function New-PodeWebCredential
         $ReadOnly,
 
         [switch]
-        $NoLabels
+        $NoLabels,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Cred -Id $Id -Name $Name
@@ -1153,6 +1180,7 @@ function New-PodeWebCredential
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Required = $Required.IsPresent
     }
 }
 
@@ -1184,7 +1212,10 @@ function New-PodeWebDateTime
         $ReadOnly,
 
         [switch]
-        $NoLabels
+        $NoLabels,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag DateTime -Id $Id -Name $Name
@@ -1200,6 +1231,7 @@ function New-PodeWebDateTime
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Required = $Required.IsPresent
     }
 }
 
@@ -1255,7 +1287,10 @@ function New-PodeWebMinMax
         $ReadOnly,
 
         [switch]
-        $NoLabels
+        $NoLabels,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag MinMax -Id $Id -Name $Name
@@ -1285,6 +1320,7 @@ function New-PodeWebMinMax
             Text = $AppendText
             Icon = $AppendIcon
         }
+        Required = $Required.IsPresent
     }
 }
 
