@@ -2529,7 +2529,15 @@ function setSelect(action) {
         return;
     }
 
-    select.val(decodeHTML(action.Value));
+    setSelectValue(select, action.Value);
+}
+
+function setSelectValue(select, value) {
+    if (!select || !value) {
+        return
+    }
+
+    select.val(decodeHTML(value));
 }
 
 function updateSelect(action) {
@@ -2545,9 +2553,13 @@ function updateSelect(action) {
         return;
     }
 
-    action.Options.forEach((opt) => {
-        select.append(`<option value="${opt}">${opt}</option>`);
+    action.DisplayOptions = convertToArray(action.DisplayOptions);
+
+    action.Options.forEach((opt, idx) => {
+        select.append(`<option value="${opt}">${action.DisplayOptions[idx]}</option>`);
     })
+
+    setSelectValue(select, action.SelectedValue);
 }
 
 function clearSelect(action) {
