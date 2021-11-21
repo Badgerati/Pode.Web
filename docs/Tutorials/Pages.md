@@ -195,6 +195,18 @@ If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`)
 
 If however you're added the elements/layouts using the `-Layouts` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise data/actions will fail with a 401 response.
 
+### Hide
+
+When you add a page Pode.Web by default will show the page in the sidebar. You can stop pages/links from appearing in the sidebar by using the `-Hide` switch:
+
+```powershell
+Add-PodeWebPage -Name Charts -Hide -Layouts @(
+    New-PodeWebCard -Content @(
+        New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
+    )
+)
+```
+
 ## Convert Module
 
 Similar to how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: [`ConvertTo-PodeWebPage`](../../Functions/Pages/ConvertTo-PodeWebPage)!

@@ -288,7 +288,10 @@ function Add-PodeWebPage
         $NoBreadcrumb,
 
         [switch]
-        $NewTab
+        $NewTab,
+
+        [switch]
+        $Hide
     )
 
     # ensure layouts are correct
@@ -320,6 +323,7 @@ function Add-PodeWebPage
         Icon = $Icon
         Group = $Group
         Url = (Get-PodeWebPagePath -Name $Name -Group $Group)
+        Hide = $Hide.IsPresent
         NoAuthentication = $NoAuthentication.IsPresent
         Access = @{
             Groups = @($AccessGroups)
@@ -502,7 +506,10 @@ function Add-PodeWebPageLink
 
         [Parameter(ParameterSetName='Url')]
         [switch]
-        $NewTab
+        $NewTab,
+
+        [switch]
+        $Hide
     )
 
     # test if page/page-link exists
@@ -518,6 +525,7 @@ function Add-PodeWebPageLink
         Icon = $Icon
         Group = $Group
         Url = $Url
+        Hide = $Hide.IsPresent
         IsDynamic = ($null -ne $ScriptBlock)
         Access = @{
             Groups = @($AccessGroups)

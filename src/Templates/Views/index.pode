@@ -122,6 +122,18 @@
                                 $pageGroups = (Get-PodeWebState -Name 'pages' | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
 
                                 foreach ($pageGroup in $pageGroups) {
+                                    $pages = @(foreach ($page in $pageGroup.Group) {
+                                        if ($page.Hide -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
+                                            continue
+                                        }
+
+                                        $page
+                                    })
+
+                                    if ($pages.Length -eq 0) {
+                                        continue
+                                    }
+
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
                                         $chevron = 'right'
                                         $show = [string]::Empty
@@ -136,7 +148,7 @@
                                                 <div>
                                                     <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$($pageGroup.Name)</span>
-                                                    <span class='badge badge-inbuilt-theme'>$($pageGroup.Count)</span>
+                                                    <span class='badge badge-inbuilt-theme'>$($pages.Length)</span>
                                                 </div>
                                             </a>
                                         </li>"
@@ -144,11 +156,7 @@
                                         "<div class='collapse $($show)' id='nav-$($pageGroup.Name)'>"
                                     }
 
-                                    foreach ($page in ($pageGroup.Group | Sort-Object -Property { $_.Name })) {
-                                        if (!(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
-                                            continue
-                                        }
-
+                                    foreach ($page in ($pages | Sort-Object -Property { $_.Name })) {
                                         $href = [string]::Empty
                                         if (!$page.IsDynamic) {
                                             $href = "href='$($page.Url)'"
