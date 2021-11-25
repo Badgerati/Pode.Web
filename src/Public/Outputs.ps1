@@ -711,7 +711,15 @@ function Update-PodeWebSelect
 
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [string[]]
-        $Options
+        $Options,
+
+        [Parameter()]
+        [string[]]
+        $DisplayOptions,
+
+        [Parameter()]
+        [string]
+        $SelectedValue
     )
 
     begin {
@@ -729,6 +737,8 @@ function Update-PodeWebSelect
             Name = $Name
             ID = $Id
             Options = $items
+            DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $items -EqualCount)
+            SelectedValue = [System.Net.WebUtility]::HtmlEncode($SelectedValue)
         }
     }
 }

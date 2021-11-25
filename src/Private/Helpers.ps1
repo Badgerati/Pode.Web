@@ -319,6 +319,51 @@ function Protect-PodeWebName
     return ($Name -ireplace '[^a-z0-9_]', '').Trim()
 }
 
+function Protect-PodeWebValue
+{
+    param(
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Default
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $Default
+    }
+
+    return $Value
+}
+
+function Protect-PodeWebValues
+{
+    param(
+        [Parameter()]
+        [string[]]
+        $Value,
+
+        [Parameter()]
+        [string[]]
+        $Default,
+
+        [switch]
+        $EqualCount
+    )
+
+    if (($null -eq $Value) -or ($Value.Length -eq 0)) {
+        return $Default
+    }
+
+    if ($EqualCount -and ($Value.Length -ne $Default.Length)) {
+        throw "Expected an equal number of values in both arrays"
+    }
+
+    return $Value
+}
+
 function Test-PodeWebRoute
 {
     param(
