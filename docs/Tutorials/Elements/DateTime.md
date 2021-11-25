@@ -20,3 +20,7 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![datetime](../../../images/datetime.png)
+
+## Display Name
+
+By default the label displays the `-Name` of the element. You can change the value displayed by also supplying an optional `-DisplayName` value; this value is purely visual, when the user submits the form the value of the element is still retrieved using the `-Name` from `$WebEvent.Data`.
