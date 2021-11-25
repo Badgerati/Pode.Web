@@ -2972,3 +2972,144 @@ function New-PodeWebIFrame
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
+
+function New-PodeWebAudio
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track,
+
+        [Parameter()]
+        [string]
+        $NotSupportedText,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [hashtable]
+        $CssStyle,
+
+        [Parameter()]
+        [string]
+        $Width, #TODO: use the intelligent width entry? (is, 100 = 100%, but if they know what they're doing they can put 100px?)
+
+        [switch]
+        $Muted,
+
+        [switch]
+        $AutoPlay,
+
+        [switch]
+        $AutoBuffer,
+
+        [switch]
+        $Loop,
+
+        [switch]
+        $NoControls
+    )
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'Audio'
+        Parent = $ElementData
+        ID = (Get-PodeWebElementId -Tag Audio -Id $Id -RandomToken)
+        Sources = $Source
+        Tracks = $Track
+        NotSupportedText = $NotSupportedText
+        Muted = $Muted.IsPresent
+        AutoPlay = $AutoPlay.IsPresent
+        AutoBuffer = $AutoBuffer.IsPresent
+        Loop = $Loop.IsPresent
+        NoControls = $NoControls.IsPresent
+        CssClasses = ($CssClass -join ' ')
+        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+    }
+}
+
+function New-PodeWebAudioSource
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    $type = [string]::Empty
+
+    switch (($Url -split '\.')[-1].ToLowerInvariant()) {
+        'mp3' { $type = 'audio/mpeg' }
+        'ogg' { $type = 'audio/ogg' }
+        'wav' { $type = 'audio/wav' }
+    }
+
+    return @{
+        ID = $Id
+        Url = $Url
+        Type = $type
+    }
+}
+
+function New-PodeWebMediaTrack
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $Language,
+
+        [Parameter()]
+        [string]
+        $Title,
+
+        [Parameter()]
+        [ValidateSet('captions', 'chapters', 'descriptions', 'metadata', 'subtitles')]
+        [string]
+        $Type = 'subtitles',
+
+        [switch]
+        $Default
+    )
+
+    if (($Url -split '\.')[-1] -ieq 'vtt') {
+        throw "Invalid media track file format supplied, expected a .vtt file"
+    }
+
+    if (($Type -ieq 'subtitles') -and [string]::IsNullOrWhiteSpace($Language)) {
+        throw "A language is required for subtitle tracks"
+    }
+
+    return @{
+        ID = $Id
+        Url = $Url
+        Language = $Language
+        Title = $Title
+        Type = $Type.ToLowerInvariant()
+        Default = $Default.IsPresent
+    }
+}
