@@ -54,6 +54,7 @@ function Register-PodeWebEventInternal
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $Component.EndpointName -ScriptBlock {
             param($Data)
             $global:ComponentData = $using:Component
+            $global:EventType = $using:Type
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
             if ($null -eq $result) {

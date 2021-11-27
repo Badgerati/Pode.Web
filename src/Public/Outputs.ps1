@@ -1491,7 +1491,6 @@ function Update-PodeWebFileStream
 
 function Start-PodeWebAudio
 {
-    # .play()
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
@@ -1513,7 +1512,6 @@ function Start-PodeWebAudio
 
 function Stop-PodeWebAudio
 {
-    # .pause()
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
@@ -1533,10 +1531,29 @@ function Stop-PodeWebAudio
     }
 }
 
+function Reset-PodeWebAudio
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Reset'
+        ObjectType = 'Audio'
+        ID = $Id
+        Name = $Name
+    }
+}
+
 function Update-PodeWebAudio
 {
-    # change src, and run .load()
-    # https://www.w3schools.com/tags/av_met_load.asp
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
         [Parameter(Mandatory=$true, ParameterSetName='Id')]

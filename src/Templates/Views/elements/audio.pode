@@ -12,11 +12,11 @@
     $(ConvertTo-PodeWebEvents -Events $data.Events)>
 
     $(foreach ($src in $data.Sources) {
-        "<source id='$($src.ID)' src='$($src.Url)' type='$($src.Type)'>"
+        "<source src='$($src.Url)' type='$($src.Type)'>"
     })
 
     $(foreach ($track in $data.Tracks) {
-        "<track id='$($track.ID)' src='$($track.Url)' kind='$($track.Type)' srclang='$($track.Language)' label='$($track.Title)' $(if ($track.Default) {'default'})>"
+        "<track src='$($track.Url)' kind='$($track.Type)' srclang='$($track.Language)' label='$($track.Title)' $(if ($track.Default) {'default'})>"
     })
 
     $($data.NotSupportedText)

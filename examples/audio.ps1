@@ -10,11 +10,38 @@ Start-PodeServer -Threads 2 {
     Use-PodeWebTemplates -Title 'Accordion' -Theme Dark
 
     # set the home page controls
-    $card = New-PodeWebCard -Content @(
-        New-PodeWebAudio -Loop -Width '100em' -Source @(
-            New-PodeWebAudioSource -Id 'synth' -Url 'https://samplelib.com/lib/preview/mp3/sample-6s.mp3'
+    Set-PodeWebHomePage -Title 'Audio' -Layouts @(
+        New-PodeWebCard -Content @(
+            New-PodeWebAudio -Name 'sample' -Source @(
+                New-PodeWebAudioSource -Url 'https://samplelib.com/lib/preview/mp3/sample-6s.mp3'
+            ) |
+            Register-PodeWebMediaEvent -Type Play, Pause, Ended -ScriptBlock {
+                Show-PodeWebToast -Title 'Action' -Message $EventType
+            }
+        )
+
+        New-PodeWebContainer -Content @(
+            New-PodeWebButton -Name 'Play' -ScriptBlock {
+                Start-PodeWebAudio -Name 'sample'
+            }
+
+            New-PodeWebButton -Name 'Pause' -ScriptBlock {
+                Stop-PodeWebAudio -Name 'sample'
+            }
+
+            New-PodeWebButton -Name 'Sample6' -ScriptBlock {
+                Update-PodeWebAudio -Name 'sample' -Source @(
+                    New-PodeWebAudioSource -Url 'https://samplelib.com/lib/preview/mp3/sample-6s.mp3'
+                )
+                Start-PodeWebAudio -Name 'sample'
+            }
+
+            New-PodeWebButton -Name 'Sample9' -ScriptBlock {
+                Update-PodeWebAudio -Name 'sample' -Source @(
+                    New-PodeWebAudioSource -Url 'https://samplelib.com/lib/preview/mp3/sample-9s.mp3'
+                )
+                Start-PodeWebAudio -Name 'sample'
+            }
         )
     )
-
-    Set-PodeWebHomePage -Layouts $card -Title 'Audio'
 }

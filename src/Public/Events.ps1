@@ -9,7 +9,7 @@ function Register-PodeWebEvent
 
         [Parameter(Mandatory=$true)]
         [ValidateSet('Change', 'Focus', 'FocusOut', 'Click', 'MouseOver', 'MouseOut', 'KeyDown', 'KeyUp')]
-        [string]
+        [string[]]
         $Type,
 
         [Parameter(Mandatory=$true)]
@@ -26,7 +26,11 @@ function Register-PodeWebEvent
         $NoAuthentication
     )
 
-    return (Register-PodeWebEventInternal -Component $Component -Type $Type -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList -NoAuthentication:$NoAuthentication)
+    foreach ($t in $Type) {
+        Register-PodeWebEventInternal -Component $Component -Type $t -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList -NoAuthentication:$NoAuthentication | Out-Null
+    }
+
+    return $Component
 }
 
 function Register-PodeWebMediaEvent
@@ -40,7 +44,7 @@ function Register-PodeWebMediaEvent
 
         [Parameter(Mandatory=$true)]
         [ValidateSet('CanPlay', 'Pause', 'Play', 'Ended')]
-        [string]
+        [string[]]
         $Type,
 
         [Parameter(Mandatory=$true)]
@@ -63,5 +67,9 @@ function Register-PodeWebMediaEvent
     }
 
     # register event
-    return (Register-PodeWebEventInternal -Component $Component -Type $Type -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList -NoAuthentication:$NoAuthentication)
+    foreach ($t in $Type) {
+        Register-PodeWebEventInternal -Component $Component -Type $t -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList -NoAuthentication:$NoAuthentication | Out-Null
+    }
+
+    return $Component
 }

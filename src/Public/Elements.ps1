@@ -3060,10 +3060,6 @@ function New-PodeWebAudioSource
     param(
         [Parameter(Mandatory=$true)]
         [string]
-        $Id,
-
-        [Parameter(Mandatory=$true)]
-        [string]
         $Url
     )
 
@@ -3078,7 +3074,6 @@ function New-PodeWebAudioSource
     return @{
         ComponentType = 'Element'
         ObjectType = 'AudioSource'
-        ID = $Id
         Url = $Url
         Type = $type
         NoEvents = $true
@@ -3089,10 +3084,6 @@ function New-PodeWebMediaTrack
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
-        [string]
-        $Id,
-
         [Parameter(Mandatory=$true)]
         [string]
         $Url,
@@ -3125,7 +3116,6 @@ function New-PodeWebMediaTrack
     return @{
         ComponentType = 'Element'
         ObjectType = 'MediaTrack'
-        ID = $Id
         Url = $Url
         Language = $Language
         Title = $Title
