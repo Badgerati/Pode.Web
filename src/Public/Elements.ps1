@@ -3069,6 +3069,9 @@ function New-PodeWebAudioSource
         'mp3' { $type = 'audio/mpeg' }
         'ogg' { $type = 'audio/ogg' }
         'wav' { $type = 'audio/wav' }
+        default {
+            throw "Audio source type unsupported: $($_)"
+        }
     }
 
     return @{
@@ -3105,7 +3108,7 @@ function New-PodeWebMediaTrack
         $Default
     )
 
-    if (($Url -split '\.')[-1] -ieq 'vtt') {
+    if (($Url -split '\.')[-1] -ine 'vtt') {
         throw "Invalid media track file format supplied, expected a .vtt file"
     }
 
