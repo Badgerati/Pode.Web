@@ -1488,3 +1488,88 @@ function Update-PodeWebFileStream
         Url = $Url
     }
 }
+
+function Start-PodeWebAudio
+{
+    # .play()
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Start'
+        ObjectType = 'Audio'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Stop-PodeWebAudio
+{
+    # .pause()
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Stop'
+        ObjectType = 'Audio'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Update-PodeWebAudio
+{
+    # change src, and run .load()
+    # https://www.w3schools.com/tags/av_met_load.asp
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track
+    )
+
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType AudioSource)) {
+        throw 'Audio sources can only contain AudioSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Audio tracks can only contain MediaTrack elements'
+    }
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Audio'
+        ID = $Id
+        Name = $Name
+        Sources = $Source
+        Tracks = $Track
+    }
+}

@@ -11,7 +11,7 @@ Start-PodeServer -Threads 2 {
 
     # set the home page controls
     $card = New-PodeWebCard -Content @(
-        New-PodeWebAudio -Loop -Source @(
+        New-PodeWebAudio -Loop -Width '100em' -Source @(
             New-PodeWebAudioSource -Id 'synth' -Url 'https://samplelib.com/lib/preview/mp3/sample-6s.mp3'
         )
     )

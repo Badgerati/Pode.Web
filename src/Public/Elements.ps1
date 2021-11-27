@@ -2979,9 +2979,14 @@ function New-PodeWebAudio
     param(
         [Parameter()]
         [string]
+        $Name,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [hashtable[]]
         $Source,
 
@@ -3003,7 +3008,7 @@ function New-PodeWebAudio
 
         [Parameter()]
         [string]
-        $Width, #TODO: use the intelligent width entry? (is, 100 = 100%, but if they know what they're doing they can put 100px?)
+        $Width = 20,
 
         [switch]
         $Muted,
@@ -3021,14 +3026,24 @@ function New-PodeWebAudio
         $NoControls
     )
 
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType AudioSource)) {
+        throw 'Audio sources can only contain AudioSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Audio tracks can only contain MediaTrack elements'
+    }
+
     return @{
         ComponentType = 'Element'
         ObjectType = 'Audio'
         Parent = $ElementData
-        ID = (Get-PodeWebElementId -Tag Audio -Id $Id -RandomToken)
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Audio -Id $Id -Name $Name -NameAsToken)
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 20 -Type '%')
         Sources = $Source
         Tracks = $Track
-        NotSupportedText = $NotSupportedText
+        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element')
         Muted = $Muted.IsPresent
         AutoPlay = $AutoPlay.IsPresent
         AutoBuffer = $AutoBuffer.IsPresent
@@ -3061,9 +3076,12 @@ function New-PodeWebAudioSource
     }
 
     return @{
+        ComponentType = 'Element'
+        ObjectType = 'AudioSource'
         ID = $Id
         Url = $Url
         Type = $type
+        NoEvents = $true
     }
 }
 
@@ -3105,11 +3123,14 @@ function New-PodeWebMediaTrack
     }
 
     return @{
+        ComponentType = 'Element'
+        ObjectType = 'MediaTrack'
         ID = $Id
         Url = $Url
         Language = $Language
         Title = $Title
         Type = $Type.ToLowerInvariant()
         Default = $Default.IsPresent
+        NoEvents = $true
     }
 }

@@ -756,3 +756,39 @@ function ConvertTo-PodeWebStyles
 
     return $styles
 }
+
+function ConvertTo-PodeWebSize
+{
+    param(
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [double]
+        $Default = 0,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('px', '%', 'em')]
+        [string]
+        $Type
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return "$($Default)$($Type)"
+    }
+
+    if ($Value -match '^\-?\d+(\.\d+){0,1}$') {
+        $_val = [double]$Value
+        if ($_val -le 0) {
+            $Value = $Default
+        }
+        elseif (($Type -eq '%') -and ($_val -gt 100)) {
+            $Value = 100
+        }
+
+        return "$($Value)$($Type)"
+    }
+
+    return $Value
+}

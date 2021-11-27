@@ -2,7 +2,7 @@
     id="$($data.ID)"
     name="$($data.Name)"
     class="$($data.CssClasses)"
-    style="$($data.CssStyles)"
+    style="width:$($data.Width);$($data.CssStyles)"
     pode-object="$($data.ObjectType)"
     $(if (!$data.NoControls) {'controls'})
     $(if ($data.AutoPlay) {'autoplay'})
