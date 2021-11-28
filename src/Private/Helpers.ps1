@@ -765,7 +765,7 @@ function ConvertTo-PodeWebSize
         $Value,
 
         [Parameter()]
-        [double]
+        [string]
         $Default = 0,
 
         [Parameter(Mandatory=$true)]
@@ -774,14 +774,27 @@ function ConvertTo-PodeWebSize
         $Type
     )
 
+    $pattern = '^\-?\d+(\.\d+){0,1}$'
+    $defIsNumber = ($Default -match $pattern)
+
     if ([string]::IsNullOrWhiteSpace($Value)) {
-        return "$($Default)$($Type)"
+        if ($defIsNumber) {
+            return "$($Default)$($Type)"
+        }
+        else {
+            return $Default
+        }
     }
 
-    if ($Value -match '^\-?\d+(\.\d+){0,1}$') {
+    if ($Value -match $pattern) {
         $_val = [double]$Value
         if ($_val -le 0) {
-            $Value = $Default
+            if ($defIsNumber) {
+                $Value = $Default
+            }
+            else {
+                return $Default
+            }
         }
         elseif (($Type -eq '%') -and ($_val -gt 100)) {
             $Value = 100

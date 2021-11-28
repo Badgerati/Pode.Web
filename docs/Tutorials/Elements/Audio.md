@@ -35,6 +35,10 @@ New-PodeWebCard -Content @(
 )
 ```
 
+## Size
+
+The `-Width` of an audio element has the default unit of `%`. If `0` is specified then `20%` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
+
 ## Events
 
 The following specific events are supported by the Audio element, and can be registered via [`Register-PodeWebMediaEvent`](../../../Functions/Events/Register-PodeWebMediaEvent):
