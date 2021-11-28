@@ -3023,7 +3023,10 @@ function New-PodeWebAudio
         $Loop,
 
         [switch]
-        $NoControls
+        $NoControls,
+
+        [switch]
+        $NoDownload
     )
 
     if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType AudioSource)) {
@@ -3049,6 +3052,7 @@ function New-PodeWebAudio
         AutoBuffer = $AutoBuffer.IsPresent
         Loop = $Loop.IsPresent
         NoControls = $NoControls.IsPresent
+        NoDownload = $NoDownload.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
@@ -3077,6 +3081,134 @@ function New-PodeWebAudioSource
     return @{
         ComponentType = 'Element'
         ObjectType = 'AudioSource'
+        Url = $Url
+        Type = $type
+        NoEvents = $true
+    }
+}
+
+function New-PodeWebVideo
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track,
+
+        [Parameter()]
+        [string]
+        $Thumbnail,
+
+        [Parameter()]
+        [string]
+        $NotSupportedText,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [hashtable]
+        $CssStyle,
+
+        [Parameter()]
+        [string]
+        $Width = 20,
+
+        [Parameter()]
+        [string]
+        $Height = 15,
+
+        [switch]
+        $Muted,
+
+        [switch]
+        $AutoPlay,
+
+        [switch]
+        $AutoBuffer,
+
+        [switch]
+        $Loop,
+
+        [switch]
+        $NoControls,
+
+        [switch]
+        $NoDownload,
+
+        [switch]
+        $NoPictureInPicture
+    )
+
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType VideoSource)) {
+        throw 'Video sources can only contain VideoSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Video tracks can only contain MediaTrack elements'
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'Video'
+        Parent = $ElementData
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Video -Id $Id -Name $Name -NameAsToken)
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 20 -Type '%')
+        Height = (ConvertTo-PodeWebSize -Value $Height -Default 15 -Type '%')
+        Sources = $Source
+        Tracks = $Track
+        Thumbnail = $Thumbnail
+        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the video element')
+        Muted = $Muted.IsPresent
+        AutoPlay = $AutoPlay.IsPresent
+        AutoBuffer = $AutoBuffer.IsPresent
+        Loop = $Loop.IsPresent
+        NoControls = $NoControls.IsPresent
+        NoDownload = $NoDownload.IsPresent
+        NoPictureInPicture = $NoPictureInPicture.IsPresent
+        CssClasses = ($CssClass -join ' ')
+        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+    }
+}
+
+function New-PodeWebVideoSource
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    $type = [string]::Empty
+
+    switch (($Url -split '\.')[-1].ToLowerInvariant()) {
+        'mp4' { $type = 'video/mp4' }
+        'ogg' { $type = 'video/ogg' }
+        'webm' { $type = 'video/webm' }
+        default {
+            throw "Video source type unsupported: $($_)"
+        }
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'VideoSource'
         Url = $Url
         Type = $type
         NoEvents = $true
