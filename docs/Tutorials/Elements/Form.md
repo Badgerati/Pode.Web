@@ -64,3 +64,7 @@ The available form elements in Pode.Web are:
 The default method for forms is `Post`, and the action is the internal route created for the form.
 
 You can change these values by using the `-Method` and `-Action` parameters. The method can only be `Get` or `Post`, and the action must be a valid URL.
+
+## Reset
+
+You can reset all form inputs by either using the [`Reset-PodeWebForm`](../../../Functions/Outputs/Reset-PodeWebForm) output action, or by using `-ShowReset` switch on [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) to display an optional reset button.

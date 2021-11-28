@@ -8,4 +8,10 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
         Submit
     </button>
+
+    $(if ($data.ShowReset) {
+        "<button class='btn btn-secondary form-reset' for='$($data.ID)' type='button'>
+            Reset
+        </button>"
+    })
 </form>

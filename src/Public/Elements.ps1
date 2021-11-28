@@ -2547,7 +2547,10 @@ function New-PodeWebForm
         $NoAuthentication,
 
         [switch]
-        $AsCard
+        $AsCard,
+
+        [switch]
+        $ShowReset
     )
 
     # ensure content are correct
@@ -2574,6 +2577,7 @@ function New-PodeWebForm
         Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
+        ShowReset = $ShowReset.IsPresent
     }
 
     if (!(Test-PodeWebRoute -Path $routePath)) {

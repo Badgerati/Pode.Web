@@ -60,6 +60,7 @@ $(() => {
     bindRangeValue();
     bindProgressValue();
     bindModalSubmits();
+    bindFormResets();
 
     bindTileRefresh();
     bindTileClick();
@@ -1494,6 +1495,20 @@ function bindFormSubmits() {
     
         // remove validation errors
         removeValidationErrors(form);
+    });
+}
+
+function bindFormResets() {
+    $('button.form-reset').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // get the button
+        var button = getButton(e);
+
+        // reset
+        resetForm($(`#${button.attr('for')}`));
+        unfocus(button);
     });
 }
 
