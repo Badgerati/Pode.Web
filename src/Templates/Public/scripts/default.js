@@ -559,11 +559,12 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     opts = (opts ?? {});
     opts.contentType = (opts.contentType == null ? 'application/x-www-form-urlencoded; charset=UTF-8' : opts.contentType);
     opts.processData = (opts.processData == null ? true : opts.processData);
+    opts.method = (opts.method == null ? 'post' : opts.method);
 
     // make the call
     $.ajax({
         url: url,
-        method: 'post',
+        method: opts.method,
         data: data,
         dataType: 'binary',
         processData: opts.processData,
@@ -1533,9 +1534,21 @@ function bindModalSubmits() {
         // find a form
         var inputs = {};
         var form = null;
+        var method = 'post';
 
         if (button.attr('pode-modal-form') == 'True') {
             form = modal.find('div.modal-body form');
+
+            var action = form.attr('action');
+            if (action) {
+                url = action;
+            }
+
+            var _method = form.attr('method');
+            if (_method) {
+                method = _method;
+            }
+
             inputs = serializeInputs(form);
             removeValidationErrors(form);
         }
@@ -1547,6 +1560,13 @@ function bindModalSubmits() {
         if (dataValue) {
             inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
         }
+
+        // add method
+        if (!inputs.opts) {
+            inputs.opts = {};
+        }
+
+        inputs.opts.method = method;
 
         // invoke url
         sendAjaxReq(url, inputs.data, (form ?? button), true, null, inputs.opts);

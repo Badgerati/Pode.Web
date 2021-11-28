@@ -2533,6 +2533,15 @@ function New-PodeWebForm
         $EndpointName,
 
         [Parameter()]
+        [ValidateSet('Get', 'Post')]
+        [string]
+        $Method = 'Post',
+
+        [Parameter()]
+        [string]
+        $Action,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -2548,6 +2557,7 @@ function New-PodeWebForm
 
     # generate ID
     $Id = Get-PodeWebElementId -Tag Form -Id $Id -Name $Name
+    $routePath = "/components/form/$($Id)"
 
     $element = @{
         ComponentType = 'Element'
@@ -2560,11 +2570,12 @@ function New-PodeWebForm
         NoHeader = $NoHeader.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Method = $Method
+        Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
     }
 
-    $routePath = "/components/form/$($Id)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {

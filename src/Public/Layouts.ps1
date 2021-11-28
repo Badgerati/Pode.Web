@@ -338,6 +338,15 @@ function New-PodeWebModal
         [string[]]
         $EndpointName,
 
+        [Parameter()]
+        [ValidateSet('Get', 'Post')]
+        [string]
+        $Method = 'Post',
+
+        [Parameter()]
+        [string]
+        $Action,
+
         [switch]
         $AsForm,
 
@@ -391,6 +400,8 @@ function New-PodeWebModal
         ShowSubmit = ($null -ne $ScriptBlock)
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Method = $Method
+        Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
     }
 }
 

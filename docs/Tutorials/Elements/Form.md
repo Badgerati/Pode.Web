@@ -52,7 +52,15 @@ The available form elements in Pode.Web are:
 * [DateTime](../DateTime)
 * [FileUpload](../FileUpload)
 * [Hidden](../Hidden)
+* [MinMax](../DateTime)
+* [Range](../Range)
 * [Radio](../Radio)
 * [Range](../Range)
 * [Select](../Select)
 * [Textbox](../Textbox)
+
+## Method/Action
+
+The default method for forms is `Post`, and the action is the internal route created for the form.
+
+You can change these values by using the `-Method` and `-Action` parameters. The method can only be `Get` or `Post`, and the action must be a valid URL.
