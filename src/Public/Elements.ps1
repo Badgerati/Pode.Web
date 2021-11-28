@@ -2972,3 +2972,158 @@ function New-PodeWebIFrame
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
+
+function New-PodeWebAudio
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track,
+
+        [Parameter()]
+        [string]
+        $NotSupportedText,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [hashtable]
+        $CssStyle,
+
+        [Parameter()]
+        [string]
+        $Width = 20,
+
+        [switch]
+        $Muted,
+
+        [switch]
+        $AutoPlay,
+
+        [switch]
+        $AutoBuffer,
+
+        [switch]
+        $Loop,
+
+        [switch]
+        $NoControls
+    )
+
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType AudioSource)) {
+        throw 'Audio sources can only contain AudioSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Audio tracks can only contain MediaTrack elements'
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'Audio'
+        Parent = $ElementData
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Audio -Id $Id -Name $Name -NameAsToken)
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 20 -Type '%')
+        Sources = $Source
+        Tracks = $Track
+        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element')
+        Muted = $Muted.IsPresent
+        AutoPlay = $AutoPlay.IsPresent
+        AutoBuffer = $AutoBuffer.IsPresent
+        Loop = $Loop.IsPresent
+        NoControls = $NoControls.IsPresent
+        CssClasses = ($CssClass -join ' ')
+        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+    }
+}
+
+function New-PodeWebAudioSource
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    $type = [string]::Empty
+
+    switch (($Url -split '\.')[-1].ToLowerInvariant()) {
+        'mp3' { $type = 'audio/mpeg' }
+        'ogg' { $type = 'audio/ogg' }
+        'wav' { $type = 'audio/wav' }
+        default {
+            throw "Audio source type unsupported: $($_)"
+        }
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'AudioSource'
+        Url = $Url
+        Type = $type
+        NoEvents = $true
+    }
+}
+
+function New-PodeWebMediaTrack
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $Language,
+
+        [Parameter()]
+        [string]
+        $Title,
+
+        [Parameter()]
+        [ValidateSet('captions', 'chapters', 'descriptions', 'metadata', 'subtitles')]
+        [string]
+        $Type = 'subtitles',
+
+        [switch]
+        $Default
+    )
+
+    if (($Url -split '\.')[-1] -ine 'vtt') {
+        throw "Invalid media track file format supplied, expected a .vtt file"
+    }
+
+    if (($Type -ieq 'subtitles') -and [string]::IsNullOrWhiteSpace($Language)) {
+        throw "A language is required for subtitle tracks"
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'MediaTrack'
+        Url = $Url
+        Language = $Language
+        Title = $Title
+        Type = $Type.ToLowerInvariant()
+        Default = $Default.IsPresent
+        NoEvents = $true
+    }
+}

@@ -1,10 +1,10 @@
 # Events
 
-In JavaScript you have events that can trigger, such as `onchange` or `onfocus`. You can bind scriptblocks to these events for different components by using [`Register-PodeWebEvent`](../../Functions/Events/Register-PodeWebEvent).
+In JavaScript you have general events that can trigger, such as `onchange` or `onfocus`. You can bind scriptblocks to these events for different components by using [`Register-PodeWebEvent`](../../Functions/Events/Register-PodeWebEvent).
 
 For now only Element components support registering events, and not all elements support events (check an elements page to see if it supports events!).
 
-The following events are supported:
+The following general events are supported:
 
 * Change
 * Focus
@@ -29,3 +29,18 @@ New-PodeWebSelect -Name 'Role' -Options @('Choose...', 'User', 'Admin', 'Operati
 ```
 
 If the element the event triggers for is a form input element, the value will be serialised and available in `$WebEvent.Data`.
+
+## Element Specific
+
+The events listed here are general events supported by almost every component. However some elements, like Audio, have their own specific events, and these can be found on the element's document page.
+
+For example, the Audio element has a `play` event which can be registered as follows:
+
+```powershell
+New-PodeWebAudio -Name 'example' -Source @(
+    New-PodeWebAudioSource -Id 'sample' -Url 'https://samplelib.com/lib/preview/mp3/sample-6s.mp3'
+) |
+Register-PodeWebMediaEvent -Type Play -ScriptBlock {
+    Show-PodeWebToast -Title 'Action' -Message $EventType
+}
+```

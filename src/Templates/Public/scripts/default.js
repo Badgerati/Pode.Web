@@ -1410,6 +1410,10 @@ function invokeActions(actions, sender) {
                 actionFileStream(action);
                 break;
 
+            case 'audio':
+                actionAudio(action);
+                break;
+
             default:
                 break;
         }
@@ -2768,6 +2772,92 @@ function downloadCSV(csv, filename) {
 
     // remove the link
     $(downloadLink).remove();
+}
+
+function actionAudio(action) {
+    switch(action.Operation.toLowerCase()) {
+        case 'start':
+        case 'stop':
+            toggleAudio(action, action.Operation.toLowerCase());
+            break;
+
+        case 'reset':
+            resetAudio(action);
+            break;
+
+        case 'update':
+            updateAudio(action);
+            break;
+    }
+}
+
+function toggleAudio(action, toggle) {
+    var audio = getElementByNameOrId(action, 'audio');
+    if (!audio) {
+        return;
+    }
+
+    // play
+    if (toggle == 'start') {
+        audio[0].play();
+    }
+
+    // pause
+    else {
+        audio[0].pause();
+    }
+}
+
+function resetAudio(action) {
+    var audio = getElementByNameOrId(action, 'audio');
+    if (!audio) {
+        return;
+    }
+
+    reloadAudio(audio);
+}
+
+function reloadAudio(audio) {
+    if (!audio) {
+        return;
+    }
+
+    audio[0].load();
+}
+
+function updateAudio(action) {
+    var audio = getElementByNameOrId(action, 'audio');
+    if (!audio) {
+        return;
+    }
+
+    // do nothing if no sources/tracks
+    if (!action.Sources && !action.Tracks) {
+        return;
+    }
+
+    // clear sources/tracks - both for new sources, only tracks for just tracks
+    if (action.Sources) {
+        audio.find('source, track').remove();
+    }
+    else {
+        audio.find('track').remove();
+    }
+
+    // add sources
+    var sources = convertToArray(action.Sources);
+    sources.forEach((src) => {
+        audio.append(`<source src='${src.Url}' type='${src.Type}'>`);
+    });
+
+    // add tracks
+    var tracks = convertToArray(action.Tracks);
+    tracks.forEach((track) => {
+        audio.append(`<track src='${track.Url}' kind='${track.Type}' srclang='${track.Language}' label='${track.Title}' ${track.Default ? 'default' : ''}>`);
+    });
+
+    // reload
+    reloadAudio(audio);
 }
 
 function actionFileStream(action) {
