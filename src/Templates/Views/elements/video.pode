@@ -1,15 +1,17 @@
-<audio
+<video
     id="$($data.ID)"
     name="$($data.Name)"
     class="$($data.CssClasses)"
-    style="width:$($data.Width);$($data.CssStyles)"
+    style="width:$($data.Width);height:$($data.Height);$($data.CssStyles)"
     pode-object="$($data.ObjectType)"
     $(if (!$data.NoControls) {'controls'})
     $(if ($data.NoDownload) {"controlslist='nodownload'"})
+    $(if ($data.NoPictureInPicture) {'disablepictureinpicture'})
     $(if ($data.AutoPlay) {'autoplay'})
     $(if ($data.AutoBuffer) {'autobuffer'})
     $(if ($data.Loop) {'loop'})
     $(if ($data.Muted) {'muted'})
+    $(if ($data.Thumbnail) {"thumbnail='$($data.Thumbnail)'"})
     $(ConvertTo-PodeWebEvents -Events $data.Events)>
 
     $(foreach ($src in $data.Sources) {
@@ -21,4 +23,4 @@
     })
 
     $($data.NotSupportedText)
-</audio>
+</video>

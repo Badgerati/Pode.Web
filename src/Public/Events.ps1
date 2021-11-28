@@ -62,8 +62,8 @@ function Register-PodeWebMediaEvent
     )
 
     # ensure component is Audio or Video only
-    if (!(Test-PodeWebContent -Content $Component -ComponentType Element -ObjectType Audio)) {
-        throw 'Media events can only be registered on Audio elements'
+    if (!(Test-PodeWebContent -Content $Component -ComponentType Element -ObjectType Audio, Video)) {
+        throw 'Media events can only be registered on Audio/Video elements'
     }
 
     # register event

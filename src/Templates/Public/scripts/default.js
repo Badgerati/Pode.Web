@@ -1414,6 +1414,10 @@ function invokeActions(actions, sender) {
                 actionAudio(action);
                 break;
 
+            case 'video':
+                actionVideo(action);
+                break;
+
             default:
                 break;
         }
@@ -2778,11 +2782,11 @@ function actionAudio(action) {
     switch(action.Operation.toLowerCase()) {
         case 'start':
         case 'stop':
-            toggleAudio(action, action.Operation.toLowerCase());
+            toggleMedia(action, action.Operation.toLowerCase(), 'audio');
             break;
 
         case 'reset':
-            resetAudio(action);
+            resetMedia(action, 'audio');
             break;
 
         case 'update':
@@ -2791,38 +2795,38 @@ function actionAudio(action) {
     }
 }
 
-function toggleAudio(action, toggle) {
-    var audio = getElementByNameOrId(action, 'audio');
-    if (!audio) {
+function toggleMedia(action, toggle, tag) {
+    var media = getElementByNameOrId(action, tag);
+    if (!media) {
         return;
     }
 
     // play
     if (toggle == 'start') {
-        audio[0].play();
+        media[0].play();
     }
 
     // pause
     else {
-        audio[0].pause();
+        media[0].pause();
     }
 }
 
-function resetAudio(action) {
-    var audio = getElementByNameOrId(action, 'audio');
-    if (!audio) {
+function resetMedia(action, tag) {
+    var media = getElementByNameOrId(action, tag);
+    if (!media) {
         return;
     }
 
-    reloadAudio(audio);
+    reloadMedia(media);
 }
 
-function reloadAudio(audio) {
-    if (!audio) {
+function reloadMedia(media) {
+    if (!media) {
         return;
     }
 
-    audio[0].load();
+    media[0].load();
 }
 
 function updateAudio(action) {
@@ -2831,33 +2835,81 @@ function updateAudio(action) {
         return;
     }
 
+    // update and reload if we did something
+    if (updateMediaSourceTracks(audio, action.Sources, action.Tracks)) {
+        reloadMedia(audio);
+    }
+}
+
+function updateMediaSourceTracks(media, sources, tracks) {
+    if (!media) {
+        return false;
+    }
+
     // do nothing if no sources/tracks
-    if (!action.Sources && !action.Tracks) {
-        return;
+    if (!sources && !tracks) {
+        return false;
     }
 
     // clear sources/tracks - both for new sources, only tracks for just tracks
-    if (action.Sources) {
-        audio.find('source, track').remove();
+    if (sources) {
+        media.find('source, track').remove();
     }
     else {
-        audio.find('track').remove();
+        media.find('track').remove();
     }
 
     // add sources
-    var sources = convertToArray(action.Sources);
-    sources.forEach((src) => {
-        audio.append(`<source src='${src.Url}' type='${src.Type}'>`);
+    convertToArray(sources).forEach((src) => {
+        media.append(`<source src='${src.Url}' type='${src.Type}'>`);
     });
 
     // add tracks
-    var tracks = convertToArray(action.Tracks);
-    tracks.forEach((track) => {
-        audio.append(`<track src='${track.Url}' kind='${track.Type}' srclang='${track.Language}' label='${track.Title}' ${track.Default ? 'default' : ''}>`);
+    convertToArray(tracks).forEach((track) => {
+        media.append(`<track src='${track.Url}' kind='${track.Type}' srclang='${track.Language}' label='${track.Title}' ${track.Default ? 'default' : ''}>`);
     });
 
+    return true;
+}
+
+function actionVideo(action) {
+    switch(action.Operation.toLowerCase()) {
+        case 'start':
+        case 'stop':
+            toggleMedia(action, action.Operation.toLowerCase(), 'video');
+            break;
+
+        case 'reset':
+            resetMedia(action, 'video');
+            break;
+
+        case 'update':
+            updateVideo(action);
+            break;
+    }
+}
+
+function updateVideo(action) {
+    var video = getElementByNameOrId(action, 'video');
+    if (!video) {
+        return;
+    }
+
+    var _updated = false;
+
+    // update source/tracks
+    _updated = updateMediaSourceTracks(video, action.Sources, action.Tracks);
+
+    // update thumbnail
+    if (action.Thumbnail) {
+        video.attr('thumbnail', action.Thumbnail);
+        _updated = true;
+    }
+
     // reload
-    reloadAudio(audio);
+    if (_updated) {
+        reloadMedia(video);
+    }
 }
 
 function actionFileStream(action) {

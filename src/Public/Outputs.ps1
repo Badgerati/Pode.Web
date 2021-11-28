@@ -1590,3 +1590,110 @@ function Update-PodeWebAudio
         Tracks = $Track
     }
 }
+
+function Start-PodeWebVideo
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Start'
+        ObjectType = 'Video'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Stop-PodeWebVideo
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Stop'
+        ObjectType = 'Video'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Reset-PodeWebVideo
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Reset'
+        ObjectType = 'Video'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Update-PodeWebVideo
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track,
+
+        [Parameter()]
+        [string]
+        $Thumbnail
+    )
+
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType VideoSource)) {
+        throw 'Video sources can only contain VideoSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Video tracks can only contain MediaTrack elements'
+    }
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Video'
+        ID = $Id
+        Name = $Name
+        Sources = $Source
+        Tracks = $Track
+        Thumbnail = $Thumbnail
+    }
+}

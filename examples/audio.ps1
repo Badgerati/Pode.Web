@@ -7,12 +7,12 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Accordion' -Theme Dark
+    Use-PodeWebTemplates -Title 'Audio' -Theme Dark
 
     # set the home page controls
     Set-PodeWebHomePage -Title 'Audio' -Layouts @(
         New-PodeWebCard -Content @(
-            New-PodeWebAudio -Name 'sample' -Source @(
+            New-PodeWebAudio -Name 'sample' -NoDownload -Source @(
                 New-PodeWebAudioSource -Url 'https://samplelib.com/lib/preview/mp3/sample-6s.mp3'
             ) |
             Register-PodeWebMediaEvent -Type Play, Pause, Ended -ScriptBlock {
