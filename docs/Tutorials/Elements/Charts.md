@@ -141,3 +141,7 @@ New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time' -AsCard
 which renders a chart that looks like below:
 
 ![chart_line_counter](../../../images/chart_line_counter.png)
+
+## Size
+
+The `-Height` of a chart has the default unit of `px`. If `0` is specified then `auto` is used instead. Any custom value such as `10%` can be used, but if a plain number is used then `px` is appended.

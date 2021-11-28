@@ -29,7 +29,7 @@ function New-PodeWebTextbox
         $Size = 4,
 
         [Parameter()]
-        [int]
+        [string]
         $Width = 100,
 
         [Parameter()]
@@ -101,14 +101,6 @@ function New-PodeWebTextbox
         $Size = 4
     }
 
-    # constrain width
-    if ($Width -lt 0) {
-        $Width = 0
-    }
-    if ($Width -gt 100) {
-        $Width = 100
-    }
-
     # build element
     $element = @{
         ComponentType = 'Element'
@@ -121,7 +113,7 @@ function New-PodeWebTextbox
         Multiline = $Multiline.IsPresent
         Placeholder = $Placeholder
         Size = $Size
-        Width = $Width
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
         Preformat = $Preformat.IsPresent
         HelpText = $HelpText
         ReadOnly = $ReadOnly.IsPresent
@@ -538,6 +530,7 @@ function New-PodeWebSelect
         [string]
         $SelectedValue,
 
+        [Parameter()]
         [int]
         $Size = 4,
 
@@ -802,11 +795,11 @@ function New-PodeWebImage
         $Alignment = 'Left',
 
         [Parameter()]
-        [int]
+        [string]
         $Height = 0,
 
         [Parameter()]
-        [int]
+        [string]
         $Width = 0,
 
         [Parameter()]
@@ -820,14 +813,6 @@ function New-PodeWebImage
 
     $Id = Get-PodeWebElementId -Tag Img -Id $Id -RandomToken
 
-    if ($Height -lt 0) {
-        $Height = 0
-    }
-
-    if ($Width -lt 0) {
-        $Width = 0
-    }
-
     return @{
         ComponentType = 'Element'
         ObjectType = 'Image'
@@ -836,8 +821,8 @@ function New-PodeWebImage
         Source = $Source
         Title = $Title
         Alignment = $Alignment.ToLowerInvariant()
-        Height = $Height
-        Width = $Width
+        Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px')
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type 'px')
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
@@ -1821,7 +1806,7 @@ function New-PodeWebChart
         $MaxItems = 0,
 
         [Parameter()]
-        [int]
+        [string]
         $Height = 0,
 
         [Parameter()]
@@ -1917,7 +1902,7 @@ function New-PodeWebChart
         IsDynamic = ($null -ne $ScriptBlock)
         Append = $Append.IsPresent
         MaxItems = $MaxItems
-        Height = $Height
+        Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px')
         TimeLabels = $TimeLabels.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
         RefreshInterval = ($RefreshInterval * 1000)
@@ -2295,7 +2280,7 @@ function Initialize-PodeWebTableColumn
         $Key,
 
         [Parameter()]
-        [int]
+        [string]
         $Width = 0,
 
         [Parameter()]
@@ -2318,7 +2303,7 @@ function Initialize-PodeWebTableColumn
 
     return @{
         Key = $Key
-        Width = $Width
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
         Alignment = $Alignment.ToLowerInvariant()
         Name = $Name
         Icon = $Icon

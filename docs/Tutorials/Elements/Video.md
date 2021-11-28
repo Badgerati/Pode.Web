@@ -35,6 +35,10 @@ New-PodeWebCard -Content @(
 )
 ```
 
+## Size
+
+The `-Width` and `-Height` of a video have the default unit of `%`. If `0` is specified then `20%` is used for the width, and `15%` for the height instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
+
 ## Events
 
 The following specific events are supported by the Video element, and can be registered via [`Register-PodeWebMediaEvent`](../../../Functions/Events/Register-PodeWebMediaEvent):

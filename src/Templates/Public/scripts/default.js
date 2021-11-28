@@ -2165,8 +2165,8 @@ function updateTable(action, sender) {
 function buildTableHeader(column, direction) {
     var value = `<th sort-direction='${direction}' name='${column.ID}' style='`;
 
-    if (column.Width > 0) {
-        value += `width:${column.Width}%;`;
+    if (column.Width) {
+        value += `width:${column.Width};`;
     }
 
     if (column.Alignment) {

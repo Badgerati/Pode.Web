@@ -221,6 +221,10 @@ which renders a table that looks like below:
 
 ![table_columns](../../../images/table_columns.png)
 
+### Size
+
+The `-Width` of a table column has the default unit of `%`. If `0` is specified then `auto` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
+
 ## Buttons
 
 At the bottom of a table, there are usually two buttons on the left: Refresh and Export. You can add more buttons to a table by piping a new table into [`Add-PodeWebTableButton`](../../../Functions/Elements/Add-PodeWebTableButton):

@@ -26,10 +26,7 @@
                 $value = "value='$($data.Value)'"
             }
 
-            $width = "width: auto;"
-            if ($data.Width -gt 0) {
-                $width = "width: $($data.Width)%;"
-            }
+            $width = "width: $($data.Width);"
 
             $events = ConvertTo-PodeWebEvents -Events $data.Events
 

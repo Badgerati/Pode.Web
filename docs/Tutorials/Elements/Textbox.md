@@ -79,3 +79,9 @@ You can render this element inline with other non-form elements by using the `-N
 ## Display Name
 
 By default the label displays the `-Name` of the element. You can change the value displayed by also supplying an optional `-DisplayName` value; this value is purely visual, when the user submits the form the value of the element is still retrieved using the `-Name` from `$WebEvent.Data`.
+
+## Size
+
+The `-Width` of a textbox has the default unit of `%`. If `0` is specified then `auto` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
+
+The `-Height` of the textbox is how many lines are displayed when the textbox is multilined.
