@@ -39,48 +39,53 @@
                 }
             }
 
-            "<div class='form-row' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' $(ConvertTo-PodeWebEvents -Events $data.Events)>
-                <div class='form-group col-md-6'>"
-                    if (!$data.NoLabels) {
-                        "<label for='$($data.ID)_min'>Minimum</label>"
-                    }
+            "<div class='form-row' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' $(ConvertTo-PodeWebEvents -Events $data.Events)>"
+                if ($data.Type -icontains 'min') {
+                    "<div class='form-group col-md-6'>"
+                        if (!$data.NoLabels) {
+                            "<label for='$($data.ID)_min'>Minimum</label>"
+                        }
 
-                    $element = [string]::Empty
-                    if ($wrapped) {
-                        $element += "<div class='input-group mb-2'>"
-                    }
+                        $element = [string]::Empty
+                        if ($wrapped) {
+                            $element += "<div class='input-group mb-2'>"
+                        }
 
-                    $element += $prepend
-                    $element += "<input type='number' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_min' name='$($data.Name)_Min' value='$($data.Values.Min)' $($describedBy) $($readOnly) $($required)>"
-                    $element += $append
+                        $element += $prepend
+                        $element += "<input type='number' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_min' name='$($data.Name)_Min' value='$($data.Values.Min)' $($describedBy) $($readOnly) $($required)>"
+                        $element += $append
 
-                    if ($wrapped) {
-                        $element += "</div>"
-                    }
+                        if ($wrapped) {
+                            $element += "</div>"
+                        }
 
-                    $element
-                "</div>
-                <div class='form-group col-md-6'>"
-                    if (!$data.NoLabels) {
-                        "<label for='$($data.ID)_max'>Maximum</label>"
-                    }
+                        $element
+                    "</div>"
+                }
 
-                    $element = [string]::Empty
-                    if ($wrapped) {
-                        $element += "<div class='input-group mb-2'>"
-                    }
+                if ($data.Type -icontains 'max') {
+                    "<div class='form-group col-md-6'>"
+                        if (!$data.NoLabels) {
+                            "<label for='$($data.ID)_max'>Maximum</label>"
+                        }
 
-                    $element += $prepend
-                    $element += "<input type='number' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_max' name='$($data.Name)_Max' value='$($data.Values.Max)' $($describedBy) $($readOnly) $($required)>"
-                    $element += $append
+                        $element = [string]::Empty
+                        if ($wrapped) {
+                            $element += "<div class='input-group mb-2'>"
+                        }
 
-                    if ($wrapped) {
-                        $element += "</div>"
-                    }
+                        $element += $prepend
+                        $element += "<input type='number' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_max' name='$($data.Name)_Max' value='$($data.Values.Max)' $($describedBy) $($readOnly) $($required)>"
+                        $element += $append
 
-                    $element
-                "</div>
-            </div>"
+                        if ($wrapped) {
+                            $element += "</div>"
+                        }
+
+                        $element
+                    "</div>"
+                }
+            "</div>"
         )
 
         $(if (![string]::IsNullOrWhiteSpace($data.HelpText)) {
