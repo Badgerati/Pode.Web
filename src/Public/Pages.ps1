@@ -53,15 +53,20 @@ function Set-PodeWebLoginPage
     if ([string]::IsNullOrWhiteSpace($Logo)) {
         $Logo = '/pode.web/images/icon.png'
     }
+    $Logo = (Add-PodeWebAppPath -Url $Logo)
 
     if ([string]::IsNullOrWhiteSpace($LogoUrl)) {
         $LogoUrl = '/'
     }
+    $LogoUrl = (Add-PodeWebAppPath -Url $LogoUrl)
+
+    # background image
+    $BackgroundImage = (Add-PodeWebAppPath -Url $BackgroundImage)
 
     # set default failure/success urls
     $auth = Get-PodeAuth -Name $Authentication
-    $auth.Failure.Url = '/login'
-    $auth.Success.Url = '/'
+    $auth.Failure.Url = (Add-PodeWebAppPath -Url '/login')
+    $auth.Success.Url = (Add-PodeWebAppPath -Url '/')
 
     # is this auto-redirect oauth2?
     $isOAuth2 = ($auth.Scheme.Scheme -ieq 'oauth2')
@@ -345,7 +350,7 @@ function Add-PodeWebPage
     }
 
     # add the page route
-    $routePath = $pageMeta.Url
+    $routePath = (Get-PodeWebPagePath -Name $Name -Group $Group -NoAppPath)
     Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
         param($Data)
         $global:PageData = $using:pageMeta
@@ -524,7 +529,7 @@ function Add-PodeWebPageLink
         NewTab = $NewTab.IsPresent
         Icon = $Icon
         Group = $Group
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Hide = $Hide.IsPresent
         IsDynamic = ($null -ne $ScriptBlock)
         Access = @{
@@ -535,7 +540,7 @@ function Add-PodeWebPageLink
 
     Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + $pageMeta)
 
-    $routePath = (Get-PodeWebPagePath -Name $Name -Group $Group)
+    $routePath = (Get-PodeWebPagePath -Name $Name -Group $Group -NoAppPath)
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {

@@ -749,7 +749,7 @@ function New-PodeWebBreadcrumbItem
         ComponentType = 'Layout'
         ObjectType = 'BreadcrumbItem'
         Name = $Name
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Active = $Active.IsPresent
         NoEvents = $true
     }

@@ -818,7 +818,7 @@ function New-PodeWebImage
         ObjectType = 'Image'
         Parent = $ElementData
         ID = $Id
-        Source = $Source
+        Source = (Add-PodeWebAppPath -Url $Source)
         Title = $Title
         Alignment = $Alignment.ToLowerInvariant()
         Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px')
@@ -1037,7 +1037,7 @@ function New-PodeWebLink
         ObjectType = 'Link'
         Parent = $ElementData
         ID = $Id
-        Source = $Source
+        Source = (Add-PodeWebAppPath -Url $Source)
         Value = $Value
         NewTab = $NewTab.IsPresent
         CssClasses = ($CssClass -join ' ')
@@ -1501,7 +1501,7 @@ function New-PodeWebButton
         ID = $Id
         DataValue = $DataValue
         Icon = $Icon
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         IsDynamic = ($null -ne $ScriptBlock)
         IconOnly = $IconOnly.IsPresent
         Colour = $Colour
@@ -1787,7 +1787,7 @@ function New-PodeWebComment
         ObjectType = 'Comment'
         Parent = $ElementData
         ID = $Id
-        Icon = $Icon
+        Icon = (Add-PodeWebAppPath -Url $Icon)
         Username = $Username
         Message = $Message
         TimeStamp = $TimeStamp
@@ -2936,7 +2936,7 @@ function New-PodeWebFileStream
         Name = $Name
         ID = $Id
         Height = $Height
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Interval = ($Interval * 1000)
         Icon = $Icon
         CssClasses = ($CssClass -join ' ')
@@ -2986,7 +2986,7 @@ function New-PodeWebIFrame
         Parent = $ElementData
         Name = $Name
         ID = (Get-PodeWebElementId -Tag iFrame -Id $Id -Name $Name)
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Title = $Title
         NoEvents = $true
         CssClasses = ($CssClass -join ' ')
@@ -3102,7 +3102,7 @@ function New-PodeWebAudioSource
     return @{
         ComponentType = 'Element'
         ObjectType = 'AudioSource'
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Type = $type
         NoEvents = $true
     }
@@ -3230,7 +3230,7 @@ function New-PodeWebVideoSource
     return @{
         ComponentType = 'Element'
         ObjectType = 'VideoSource'
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Type = $type
         NoEvents = $true
     }
@@ -3272,7 +3272,7 @@ function New-PodeWebMediaTrack
     return @{
         ComponentType = 'Element'
         ObjectType = 'MediaTrack'
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Language = $Language
         Title = $Title
         Type = $Type.ToLowerInvariant()

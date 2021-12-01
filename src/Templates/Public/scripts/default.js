@@ -551,6 +551,10 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     // remove validation errors
     removeValidationErrors(sender);
 
+    // add app-path to url (for the likes of IIS)
+    var appPath = $('body').attr('pode-app-path');
+    url = `${appPath}${url}`;
+
     // add current query string
     if (window.location.search) {
         url = `${url}${window.location.search}`;
