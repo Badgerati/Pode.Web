@@ -1204,6 +1204,12 @@ function New-PodeWebCredential
         [string]
         $PlaceholderPassword,
 
+        [Parameter()]
+        [ValidateSet('Username', 'Password')]
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $Type = @('Username', 'Password'),
+
         [switch]
         $ReadOnly,
 
@@ -1232,6 +1238,7 @@ function New-PodeWebCredential
             Username = (Protect-PodeWebValue -Value $PlaceholderUsername -Default 'Username')
             Password = (Protect-PodeWebValue -Value $PlaceholderPassword -Default 'Password')
         }
+        Type = @($Type)
         Required = $Required.IsPresent
     }
 }
@@ -1264,6 +1271,12 @@ function New-PodeWebDateTime
         [hashtable]
         $CssStyle,
 
+        [Parameter()]
+        [ValidateSet('Date', 'Time')]
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $Type = @('Date', 'Time'),
+
         [switch]
         $ReadOnly,
 
@@ -1288,6 +1301,7 @@ function New-PodeWebDateTime
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Type = @($Type)
         Required = $Required.IsPresent
     }
 }
@@ -1344,6 +1358,12 @@ function New-PodeWebMinMax
         [hashtable]
         $CssStyle,
 
+        [Parameter()]
+        [ValidateSet('Min', 'Max')]
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $Type = @('Min', 'Max'),
+
         [switch]
         $ReadOnly,
 
@@ -1382,6 +1402,7 @@ function New-PodeWebMinMax
             Text = $AppendText
             Icon = $AppendIcon
         }
+        Type = @($Type)
         Required = $Required.IsPresent
     }
 }
