@@ -58,6 +58,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $rand = Get-Random -Minimum 0 -Maximum 3
         $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
         Update-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
+        Update-PodeWebText -Id 'code_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss'))
     }
 
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
@@ -80,6 +81,9 @@ Start-PodeServer -StatusPageExceptions Show {
                 Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
                     Show-PodeWebToast -Message 'Badge was clicked!'
                 }
+        )
+        New-PodeWebParagraph -Elements @(
+            New-PodeWebCode -Id 'code_test' -Value "some code :o"
         )
         $timer1
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right

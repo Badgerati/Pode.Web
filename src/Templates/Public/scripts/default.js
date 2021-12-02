@@ -2377,7 +2377,8 @@ function actionText(action) {
     }
 
     if (!text.hasClass('pode-text')) {
-        text = text.find('.pode-text') ?? text;
+        var subText = text.find('.pode-text');
+        text = subText.length == 0 ? text : subText;
     }
 
     text.text(decodeHTML(action.Value));
