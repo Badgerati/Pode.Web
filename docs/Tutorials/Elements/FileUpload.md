@@ -20,6 +20,16 @@ Which looks like below:
 
 ![file_upload](../../../images/file_upload.png)
 
+## Accept
+
+By default the file upload dialog will accept every file type, but you can filter which files are accepted via the `-Accept` parameter. This accepts an array of file types/extensions such as:
+
+```powershell
+New-PodeWebFileUpload -Name 'File' -Accept '.png', 'audio/*'
+```
+
+which will accept any `.png` file, and all sound files.
+
 ## Inline
 
 You can render this element inline with other non-form elements by using the `-NoForm` switch. This will remove the form layout, and render the element more cleanly when used outside of a form.

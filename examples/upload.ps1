@@ -13,7 +13,7 @@ Start-PodeServer {
     $form = New-PodeWebForm -Name 'Test'  -AsCard -ScriptBlock {
         $WebEvent | Out-Default
     } -Content @(
-        New-PodeWebFileUpload -Name 'File'
+        New-PodeWebFileUpload -Name 'File' -Accept '.jpg', '.png'
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
         New-PodeWebTextbox -Name 'Date' -Type Date
     )

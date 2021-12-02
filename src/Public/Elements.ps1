@@ -182,6 +182,10 @@ function New-PodeWebFileUpload
 
         [Parameter()]
         [string[]]
+        $Accept = '*/*',
+
+        [Parameter()]
+        [string[]]
         $CssClass,
 
         [Parameter()]
@@ -204,6 +208,7 @@ function New-PodeWebFileUpload
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
         ID = $Id
+        Accept = ($Accept -join ',')
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
