@@ -2,15 +2,16 @@
     $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
         Title = $data.Page.Name
         Theme = $data.Theme
+        AppPath = $data.AppPath
     })
 
-    <body id="normal-page" pode-theme="$($data.Theme)">
+    <body id="normal-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)">
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
                 <span class='mdi mdi-menu-open'></span>
             </button>
 
-            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">
+            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$($data.AppPath)/">
                 $(
                     $title = Get-PodeWebState -Name 'title'
                     $logo = Get-PodeWebState -Name 'logo'
@@ -50,7 +51,7 @@
 
             $(if ($data.Auth.Enabled) {
                 if ($data.Auth.Authenticated) {
-                    "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
+                    "<form class='form-inline' action='$($data.AppPath)/logout' method='POST' style='margin-bottom: 0'>
                         <span class='navbar-text mRight1 welcome-msg'>"
                             if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
                                 "<img src='$($data.Auth.Avatar)'>"
@@ -64,7 +65,7 @@
                     </form>"
                 }
                 else {
-                    "<form class='form-inline' action='/login' method='GET' style='margin-bottom: 0'>
+                    "<form class='form-inline' action='$($data.AppPath)/login' method='GET' style='margin-bottom: 0'>
                         <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
                             <span class='mdi mdi-login mRight02'></span>
                             Sign in
@@ -110,7 +111,7 @@
                     <div class="sidebar-sticky pt-0">
                         <ul id="sidebar-list" class="nav flex-column">
                             <li class="nav-item nav-page-item">
-                                <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="/">
+                                <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="$($data.AppPath)/">
                                     <div>
                                         <span class="mdi mdi-home mdi-size-22 mRight02"></span>
                                         Home
@@ -226,6 +227,8 @@
             </div>
         </div>
 
-        $(Use-PodeWebPartialView -Path 'shared/scripts')
+        $(Use-PodeWebPartialView -Path 'shared/scripts' -Data @{
+            AppPath = $data.AppPath
+        })
     </body>
 </html>

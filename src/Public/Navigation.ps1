@@ -46,7 +46,7 @@ function New-PodeWebNavLink
         NavType = 'Link'
         Name = $Name
         ID = $Id
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Icon = $Icon
         IsDynamic = ($null -ne $ScriptBlock)
         Disabled = $Disabled.IsPresent

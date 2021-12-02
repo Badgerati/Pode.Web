@@ -936,7 +936,7 @@ function Show-PodeWebNotification
         ObjectType = 'Notification'
         Title = $Title
         Body = $Body
-        Icon = $Icon
+        Icon = (Add-PodeWebAppPath -Url $Icon)
     }
 }
 
@@ -989,7 +989,7 @@ function Move-PodeWebUrl
     return @{
         Operation = 'Move'
         ObjectType = 'Href'
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         NewTab = $NewTab.IsPresent
     }
 }
@@ -1485,7 +1485,7 @@ function Update-PodeWebFileStream
         ObjectType = 'FileStream'
         ID = $Id
         Name = $Name
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
     }
 }
 

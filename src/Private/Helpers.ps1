@@ -114,12 +114,12 @@ function Get-PodeWebAuthAvatarUrl
     # nothing if no property set
     $prop = (Get-PodeWebState -Name 'auth-props').Avatar
     if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
-        return $user.$prop
+        return (Add-PodeWebAppPath -Url $user.$prop)
     }
 
     # avatar url
     if (![string]::IsNullOrWhiteSpace($user.AvatarUrl)) {
-        return $user.AvatarUrl
+        return (Add-PodeWebAppPath -Url $user.AvatarUrl)
     }
 
     return [string]::Empty
@@ -241,7 +241,24 @@ function Write-PodeWebViewResponse
         $Data = @{}
     )
 
+    $Data['AppPath'] = (Get-PodeWebState -Name 'app-path')
     Write-PodeViewResponse -Path "$($Path).pode" -Data $Data -Folder 'pode.web.views' -FlashMessages
+}
+
+function Add-PodeWebAppPath
+{
+    param(
+        [Parameter()]
+        [string]
+        $Url
+    )
+
+    if (![string]::IsNullOrWhiteSpace($Url) -and $Url.StartsWith('/')) {
+        $appPath = Get-PodeWebState -Name 'app-path'
+        $Url = "$($appPath)$($Url)"
+    }
+
+    return $Url
 }
 
 function Use-PodeWebPartialView
@@ -697,7 +714,10 @@ function Get-PodeWebPagePath
 
         [Parameter(ParameterSetName='Page')]
         [hashtable]
-        $Page
+        $Page,
+
+        [switch]
+        $NoAppPath
     )
 
     $path = [string]::Empty
@@ -712,6 +732,11 @@ function Get-PodeWebPagePath
     }
 
     $path += "/pages/$($Name)"
+
+    if (!$NoAppPath) {
+        $path = (Add-PodeWebAppPath -Url $path)
+    }
+
     return $path
 }
 
