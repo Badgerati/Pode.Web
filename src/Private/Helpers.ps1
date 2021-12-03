@@ -686,12 +686,13 @@ function Test-PodeWebOutputWrapped
 
 function Get-PodeWebFirstPublicPage
 {
-    $pages = @(Get-PodeWebState -Name 'pages')
-    if (Test-PodeWebArrayEmpty -Array $pages) {
+    $pages = Get-PodeWebState -Name 'pages'
+    if (($null -eq $pages) -or ($pages.Count -eq 0)) {
         return $null
     }
 
-    foreach ($page in ($pages | Sort-Object -Property { $_.Name })) {
+    #TODO: what happens if we have a page in a group starting with A?
+    foreach ($page in ($pages.Values | Sort-Object -Property { $_.Name })) {
         if ((Test-PodeWebArrayEmpty -Array $page.Access.Groups) -and (Test-PodeWebArrayEmpty -Array $page.Access.Users)) {
             return $page
         }

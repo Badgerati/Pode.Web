@@ -208,7 +208,10 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs'
+    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs' -PassThru |
+        Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
+            Show-PodeWebToast -Message "Page $($EventType)!"
+        }
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]

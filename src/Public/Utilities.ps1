@@ -53,7 +53,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'no-page-filter' -Value $NoPageFilter.IsPresent
     Set-PodeWebState -Name 'hide-sidebar' -Value $HideSidebar.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
-    Set-PodeWebState -Name 'pages' -Value @()
+    Set-PodeWebState -Name 'pages' -Value @{}
     Set-PodeWebState -Name 'default-nav' -Value $null
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
@@ -79,6 +79,7 @@ function Use-PodeWebTemplates
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
+                Path = '/'
             }
         }
     }

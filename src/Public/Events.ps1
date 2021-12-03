@@ -27,7 +27,12 @@ function Register-PodeWebEvent
     )
 
     foreach ($t in $Type) {
-        Register-PodeWebEventInternal -Component $Component -Type $t -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList -NoAuthentication:$NoAuthentication | Out-Null
+        Register-PodeWebComponentEventInternal `
+            -Component $Component `
+            -Type $t `
+            -ScriptBlock $ScriptBlock `
+            -ArgumentList $ArgumentList `
+            -NoAuthentication:$NoAuthentication | Out-Null
     }
 
     return $Component
@@ -68,8 +73,64 @@ function Register-PodeWebMediaEvent
 
     # register event
     foreach ($t in $Type) {
-        Register-PodeWebEventInternal -Component $Component -Type $t -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList -NoAuthentication:$NoAuthentication | Out-Null
+        Register-PodeWebComponentEventInternal `
+            -Component $Component `
+            -Type $t `
+            -ScriptBlock $ScriptBlock `
+            -ArgumentList $ArgumentList `
+            -NoAuthentication:$NoAuthentication | Out-Null
     }
 
     return $Component
+}
+
+function Register-PodeWebPageEvent
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [ValidateNotNull()]
+        [hashtable]
+        $Page,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('Load', 'Unload', 'BeforeUnload')]
+        [string[]]
+        $Type,
+
+        [Parameter(Mandatory=$true)]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication,
+
+        [switch]
+        $PassThru
+    )
+
+    # ensure page is a page
+    if (!(Test-PodeWebContent -Content $Page -ComponentType Page)) {
+        throw 'Page events can only be registered onto pages'
+    }
+
+    # register event
+    foreach ($t in $Type) {
+        Register-PodeWebPageEventInternal `
+            -Page $Page `
+            -Type $t `
+            -ScriptBlock $ScriptBlock `
+            -ArgumentList $ArgumentList `
+            -NoAuthentication:$NoAuthentication | Out-Null
+    }
+
+    if ($PassThru) {
+        return $Page
+    }
 }
