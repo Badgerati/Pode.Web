@@ -71,7 +71,10 @@ function Update-PodeWebTable
 
         [Parameter()]
         [int]
-        $TotalItemCount
+        $TotalItemCount,
+
+        [switch]
+        $Force
     )
 
     begin {
@@ -98,7 +101,7 @@ function Update-PodeWebTable
 
         # - is table paginated?
         if ($Paginate -or (($PageIndex -gt 0) -and ($TotalItemCount -gt 0))) {
-            if ($null -ne $ElementData) {
+            if (!$Force -and ($null -ne $ElementData)) {
                 if (!$ElementData.Paging.Enabled) {
                     throw "You cannot paginate a table that does not have paging enabled: $($ElementData.ID)"
                 }
