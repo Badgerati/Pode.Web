@@ -116,7 +116,13 @@ function Register-PodeWebPageEventInternal
     $Page.Events += $Type.ToLowerInvariant()
 
     # setup the route
-    $routePath = "$($Page.Path)/events/$($Type.ToLowerInvariant())"
+    $pagePath = $Page.Path
+    if ($pagePath -eq '/') {
+        $pagePath = '/home'
+    }
+
+    $routePath = "$($pagePath)/events/$($Type.ToLowerInvariant())"
+
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$Page.NoAuthentication) {

@@ -80,6 +80,7 @@ function Use-PodeWebTemplates
             Page = @{
                 Name = 'Home'
                 Path = '/'
+                IsSystem = $true
             }
         }
     }

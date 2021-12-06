@@ -1,11 +1,16 @@
 <html>
     $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
-        Title = 'Login'
+        Title = $data.Page.Name
         Theme = $data.Theme
         AppPath = $data.AppPath
     })
 
-    <body id="login-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" style="background-image: url('$($data.Background.Image)'); background-repeat: no-repeat; background-size: cover">
+    <body id="login-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" style="background-image: url('$($data.Background.Image)'); background-repeat: no-repeat; background-size: cover" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
+        <div aria-live="polite" aria-atomic="true" style="min-height: 200px;" class="sticky">
+            <div id="toast-area">
+            </div>
+        </div>
+
         <form class="form-signin" action="$($data.AppPath)/login" method='POST'>
             <div class='text-center mb-4'>
                 <a href='$($data.LogoUrl)'>

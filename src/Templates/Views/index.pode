@@ -124,7 +124,7 @@
 
                                 foreach ($pageGroup in $pageGroups) {
                                     $pages = @(foreach ($page in $pageGroup.Group) {
-                                        if ($page.Hide -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
+                                        if ($page.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
                                             continue
                                         }
 

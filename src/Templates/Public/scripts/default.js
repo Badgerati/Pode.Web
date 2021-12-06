@@ -3806,7 +3806,7 @@ function getComponentUrl(component) {
     }
 
     if (getTagName(component) == null) {
-        return window.location.pathname;
+        return (window.location.pathname == '/' ? '/home' : window.location.pathname);
     }
     else {
         return `/components/${component.attr('pode-object').toLowerCase()}/${component.attr('id')}`;
