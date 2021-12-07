@@ -2138,6 +2138,9 @@ function New-PodeWebTable
         $RefreshInterval = 60,
 
         [switch]
+        $Compact,
+
+        [switch]
         $Filter,
 
         [switch]
@@ -2198,6 +2201,7 @@ function New-PodeWebTable
         Columns = $Columns
         Buttons = @()
         Message = $Message
+        Compact = $Compact.IsPresent
         Filter = @{
             Enabled = ($Filter.IsPresent -or $SimpleFilter.IsPresent)
             Simple = $SimpleFilter.IsPresent
@@ -2320,7 +2324,11 @@ function Initialize-PodeWebTableColumn
 
         [Parameter()]
         [string]
-        $Icon
+        $Icon,
+
+        [Parameter()]
+        [string]
+        $Default
     )
 
     if ([string]::IsNullOrWhiteSpace($Name)) {
@@ -2333,6 +2341,7 @@ function Initialize-PodeWebTableColumn
         Alignment = $Alignment.ToLowerInvariant()
         Name = $Name
         Icon = $Icon
+        Default = $Default
     }
 }
 

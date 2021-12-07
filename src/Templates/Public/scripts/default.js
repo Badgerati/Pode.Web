@@ -2061,6 +2061,7 @@ function updateTable(action, sender) {
     // table headers
     _value = '<tr>';
     var _oldHeader = null;
+    var _header = null;
 
     keys.forEach((key) => {
         // table header sort direction
@@ -2077,7 +2078,12 @@ function updateTable(action, sender) {
             _value += buildTableHeader(columns[key], _direction);
         }
         else {
-            _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
+            if (_oldHeader.length > 0) {
+                _value += _oldHeader[0].outerHTML;
+            }
+            else {
+                _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
+            }
         }
     });
     _value += '</tr>';
@@ -2089,15 +2095,15 @@ function updateTable(action, sender) {
     tableBody.empty();
 
     action.Data.forEach((item) => {
-        _value = `<tr pode-data-value="${item[dataColumn]}">`;
+        _value = `<tr ${item[dataColumn] != null ? `pode-data-value="${item[dataColumn]}"` : ''}>`;
 
         keys.forEach((key) => {
-            var col = columns[key];
-            if (key in columns) {
+            _header = tableHead.find(`th[name='${key}']`);
+            if (_header.length > 0) {
                 _value += `<td pode-column='${key}' style='`;
 
-                if (col.Alignment) {
-                    _value += `text-align:${col.Alignment};`;
+                if (_header.css('text-align')) {
+                    _value += `text-align:${_header.css('text-align')};`;
                 }
 
                 _value += `'>`;
@@ -2109,8 +2115,11 @@ function updateTable(action, sender) {
             if (Array.isArray(item[key]) || (item[key] && item[key].ObjectType)) {
                 _value += buildElements(item[key]);
             }
-            else if (item[key]) {
+            else if (item[key] != null) {
                 _value += item[key];
+            }
+            else if (!item[key] && _header.length > 0) {
+                _value += _header.attr('default-value');
             }
 
             _value += `</td>`;
@@ -2202,7 +2211,7 @@ function updateTable(action, sender) {
 }
 
 function buildTableHeader(column, direction) {
-    var value = `<th sort-direction='${direction}' name='${column.ID}' style='`;
+    var value = `<th sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
 
     if (column.Width) {
         value += `width:${column.Width};`;
