@@ -1,4 +1,4 @@
-<div id="$($data.ID)" class="pode-code-editor $($data.CssClasses)" pode-object="$($data.ObjectType)" $(ConvertTo-PodeWebEvents -Events $data.Events)>
+<div id="$($data.ID)" name="$($data.Name)" class="pode-code-editor $($data.CssClasses)" pode-object="$($data.ObjectType)" $(ConvertTo-PodeWebEvents -Events $data.Events)>
     $(if ($data.Uploadable) {
         "<button class='btn btn-inbuilt-theme pode-upload mBottom1' type='button' title='Upload' data-toggle='tooltip' for='$($data.ID)'>
             <span class='mdi mdi-upload mRight02'></span>
