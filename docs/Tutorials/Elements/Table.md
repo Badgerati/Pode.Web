@@ -100,6 +100,10 @@ New-PodeWebContainer -Content @(
 
 ## Options
 
+### Compact
+
+If you have a lot of data that needs to be displayed, and you need to see more on the screen without scrolling, you can supply the `-Compact` switch to `New-PodeWebTable`. This will remove extra padding space on rows, to help show more data than normal.
+
 ### Click
 
 You can set a table's rows to be clickable by passing `-Click`. This by default will set it so that when a row is clicked the page is reloaded, and the `-DataColumn` value for that row will be set in the query string as `?value=<value>` - available in `$WebEvent.Query.Value`.
@@ -221,7 +225,7 @@ which renders a table that looks like below:
 
 ![table_columns](../../../images/table_columns.png)
 
-### Size
+### Width
 
 The `-Width` of a table column has the default unit of `%`. If `0` is specified then `auto` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
 
