@@ -30,9 +30,15 @@ Start-PodeServer -StatusPageExceptions Show {
     }
 
 
-    # set the use of templates, and set a login page
+    # set the use of templates
     Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
-    Set-PodeWebLoginPage -Authentication Example #-BackgroundImage '/images/galaxy.jpg'
+
+    # set login page 
+    # -BackgroundImage '/images/galaxy.jpg'
+    Set-PodeWebLoginPage -Authentication Example -PassThru |
+        Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
+            Show-PodeWebToast -Message "Login page $($EventType)!"
+        }
 
     $link1 = New-PodeWebNavLink -Name 'Home' -Url '/' -Icon Home
     $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Cogs -NoAuth -ScriptBlock {
@@ -192,7 +198,10 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle
+    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
+        Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
+            Show-PodeWebToast -Message "Home page $($EventType)!"
+        }
 
 
     # tabs and charts
@@ -208,7 +217,10 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs'
+    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs' -PassThru |
+        Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
+            Show-PodeWebToast -Message "Page $($EventType)!"
+        }
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]

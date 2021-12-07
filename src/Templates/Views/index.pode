@@ -5,7 +5,7 @@
         AppPath = $data.AppPath
     })
 
-    <body id="normal-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)">
+    <body id="normal-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
                 <span class='mdi mdi-menu-open'></span>
@@ -120,11 +120,11 @@
                             </li>
 
                             $(
-                                $pageGroups = (Get-PodeWebState -Name 'pages' | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
+                                $pageGroups = ((Get-PodeWebState -Name 'pages').Values | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
 
                                 foreach ($pageGroup in $pageGroups) {
                                     $pages = @(foreach ($page in $pageGroup.Group) {
-                                        if ($page.Hide -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
+                                        if ($page.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
                                             continue
                                         }
 
@@ -173,7 +173,7 @@
                                         }
 
                                         "<li class='nav-item nav-page-item'>
-                                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
+                                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.ObjectType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
                                                     $($page.Name)

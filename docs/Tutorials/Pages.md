@@ -227,3 +227,37 @@ Start-PodeServer {
     ConvertTo-PodeWebPage -Module Pester -GroupVerbs
 }
 ```
+
+## Events
+
+The Login, Home and Webpages support registering the following events, and they can be registered via [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent):
+
+| Name | Description |
+| ---- | ----------- |
+| Load | Fires when the page has fully loaded, including js/css/etc. |
+| Unload | Fires when the has fully unloaded/closed |
+| BeforeUnload | Fires just before the page is about to unload/close |
+
+To register an event for each page type:
+
+* `Login`: you'll need to use `-PassThru` on [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
+* `Home`: you'll need to use `-PassThru` on [`Set-PodeWebHomePage`](../../Functions/Pages/Set-PodeWebHomePage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
+* `Webpage`: you'll need to use `-PassThru` on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
+
+For example, if you want to show a message on a Webpage just before it closes:
+
+```powershell
+Add-PodeWebPage -Name Example -Layouts $some_layouts -PassThru |
+    Register-PodeWebPageEvent -Type BeforeUnload -ScriptBlock {
+        Show-PodeWebToast -Message "Bye!"
+    }
+```
+
+Or on the Login page, after it's finished loading (note: you will need to use the `-NoAuth` switch):
+
+```powershell
+Set-PodeWebLoginPage -Authentication Example -PassThru |
+    Register-PodeWebPageEvent -Type Load -NoAuth -ScriptBlock {
+        Show-PodeWebToast -Message "Hi!"
+    }
+```

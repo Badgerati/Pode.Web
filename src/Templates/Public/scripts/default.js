@@ -3783,16 +3783,19 @@ function invokeEvent(type, sender) {
     var url = `${getComponentUrl(sender)}/events/${type}`;
 
     var inputs = {};
-    inputs.data = sender.serialize();
 
-    if (!inputs.data) {
-        inputs = serializeInputs(sender);
-    }
+    if (getTagName(sender) != null) {
+        inputs.data = sender.serialize();
 
-    if (!inputs.opts) {
-        inputs.opts = {};
+        if (!inputs.data) {
+            inputs = serializeInputs(sender);
+        }
+
+        if (!inputs.opts) {
+            inputs.opts = {};
+        }
+        inputs.opts.keepFocus = true;
     }
-    inputs.opts.keepFocus = true;
 
     sendAjaxReq(url, inputs.data, sender, true, null, inputs.opts);
 }
@@ -3802,7 +3805,12 @@ function getComponentUrl(component) {
         component = $(`#${component}`);
     }
 
-    return `/components/${component.attr('pode-object').toLowerCase()}/${component.attr('id')}`;
+    if (getTagName(component) == null) {
+        return (window.location.pathname == '/' ? '/home' : window.location.pathname);
+    }
+    else {
+        return `/components/${component.attr('pode-object').toLowerCase()}/${component.attr('id')}`;
+    }
 }
 
 function buildEvents(events) {
