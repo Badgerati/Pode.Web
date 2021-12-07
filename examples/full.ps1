@@ -35,7 +35,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # set login page 
     # -BackgroundImage '/images/galaxy.jpg'
-    Set-PodeWebLoginPage -Authentication Example  -PassThru |
+    Set-PodeWebLoginPage -Authentication Example -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
             Show-PodeWebToast -Message "Login page $($EventType)!"
         }
