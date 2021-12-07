@@ -691,8 +691,7 @@ function Get-PodeWebFirstPublicPage
         return $null
     }
 
-    #TODO: what happens if we have a page in a group starting with A?
-    foreach ($page in ($pages.Values | Sort-Object -Property { $_.Name })) {
+    foreach ($page in ($pages.Values | Sort-Object -Property { $_.Group }, { $_.Name })) {
         if ((Test-PodeWebArrayEmpty -Array $page.Access.Groups) -and (Test-PodeWebArrayEmpty -Array $page.Access.Users)) {
             return $page
         }

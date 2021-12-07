@@ -3784,7 +3784,7 @@ function invokeEvent(type, sender) {
 
     var inputs = {};
 
-    if (!testTagName(sender, 'body')) {
+    if (getTagName(sender) != null) {
         inputs.data = sender.serialize();
 
         if (!inputs.data) {
