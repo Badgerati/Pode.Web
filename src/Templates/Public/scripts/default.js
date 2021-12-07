@@ -1424,6 +1424,10 @@ function invokeActions(actions, sender) {
                 actionVideo(action);
                 break;
 
+            case 'code-editor':
+                actionCodeEditor(action);
+                break;
+
             default:
                 break;
         }
@@ -2985,6 +2989,54 @@ function actionFileStream(action) {
             clearFileStream(action);
             break;
     }
+}
+
+function actionCodeEditor(action) {
+    switch(action.Operation.toLowerCase()) {
+        case 'update':
+            updateCodeEditor(action);
+            break;
+
+        case 'clear':
+            clearCodeEditor(action);
+            break;
+    }
+}
+
+function updateCodeEditor(action) {
+    var editor = getElementByNameOrId(action, 'div');
+    if (!editor) {
+        return;
+    }
+
+    editor = _editors[editor.attr('id')];
+    if (!editor) {
+        return;
+    }
+
+    // set value
+    if (action.Value) {
+        editor.setValue(action.Value);
+    }
+
+    // set language
+    if (action.Language) {
+        monaco.editor.setModelLanguage(editor.getModel(), action.Language);
+    }
+}
+
+function clearCodeEditor(action) {
+    var editor = getElementByNameOrId(action, 'div');
+    if (!editor) {
+        return;
+    }
+
+    editor = _editors[editor.attr('id')];
+    if (!editor) {
+        return;
+    }
+
+    editor.setValue('');
 }
 
 function updateFileStream(action) {

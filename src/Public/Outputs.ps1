@@ -1704,3 +1704,55 @@ function Update-PodeWebVideo
         Thumbnail = $Thumbnail
     }
 }
+
+function Update-PodeWebCodeEditor
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Language
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Code-Editor'
+        ID = $Id
+        Name = $Name
+        Value = $Value
+        Language = $Language
+    }
+}
+
+function Clear-PodeWebCodeEditor
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Clear'
+        ObjectType = 'Code-Editor'
+        ID = $Id
+        Name = $Name
+    }
+}
