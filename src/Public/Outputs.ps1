@@ -839,6 +839,11 @@ function Update-PodeWebCheckbox
         $OptionId = 0,
 
         [Parameter()]
+        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
+        [string]
+        $State = 'Unchanged',
+
+        [Parameter()]
         [switch]
         $Checked
     )
@@ -849,7 +854,60 @@ function Update-PodeWebCheckbox
         ID = $Id
         Name = $Name
         OptionId = $OptionId
+        State = $State.ToLowerInvariant()
         Checked = $Checked.IsPresent
+    }
+}
+
+function Enable-PodeWebCheckbox
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [int]
+        $OptionId = 0
+    )
+
+    return @{
+        Operation = 'Enable'
+        ObjectType = 'Checkbox'
+        ID = $Id
+        Name = $Name
+        OptionId = $OptionId
+    }
+}
+
+function Disable-PodeWebCheckbox
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [int]
+        $OptionId = 0
+    )
+
+    return @{
+        Operation = 'Disable'
+        ObjectType = 'Checkbox'
+        ID = $Id
+        Name = $Name
+        OptionId = $OptionId
     }
 }
 
