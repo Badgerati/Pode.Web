@@ -131,6 +131,10 @@ ruby rt {
     align-items: center;
 }
 
+.bs-stepper {
+    margin-bottom: 20px;
+}
+
 div[role="chart"] div[role="controls"] {
     float: left;
     margin-bottom: -3px;

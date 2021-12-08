@@ -31,6 +31,9 @@ Which looks like below:
 
 ![form](../../../images/form.png)
 
+!!! note
+    If you have multiple forms on one page, make sure the Name/IDs are unique, including the Name/IDs of all form input elements as well.
+
 You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
 
 ```powershell
