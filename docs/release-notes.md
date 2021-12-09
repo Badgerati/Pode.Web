@@ -1,5 +1,43 @@
 # Release Notes
 
+## v0.7.0
+
+```plain
+### Features
+* #212: Add Video element support via `New-PodeWebVideo`
+* #213: Add Audio element support via `New-PodeWebAudio`
+* #234: Add events support for pages
+
+### Enhancements
+* #161: Add `-DisplayName` and `-DisplayOptions` parameters to various elements
+* #202: Add support for IIS Website Applications
+* #207: Add `-Hide` switch for pages so they don't appear in the sidebar
+* #208: Add `-Required` switch on form input elements
+* #210: Add `Update-PodeWebCodeEditor` and `Clear-PodeWebCodeEditor` output actions
+* #211: Add `-ShowReset` switch on forms, to display an optional Reset button
+* #214: Add support for customising a form's method/action properties
+* #222: Add ruby pronuncation support to `New-PodeWebText`
+* #226: Textboxes, Charts, Images, and Table Columns now allow raw CSS values for Widths
+* #230: Add `-Type` parameter for DateTime, Credentials and MinMax elements
+* #235: Add `-Accept` parameter on FileUpload
+* #242: Add `-Compact` switch on Tables, and `-Default` parameters on Table Columns
+* #245: Add Enable/Disable output actions for checkboxes, and support on Update
+* #246: Add `Update-PodeWebIFrame` output action
+* #247: Add `-NoSidebar` switch for pages, so they don't display the sidebar
+
+### Bugs
+* #199: Fix alphabetical page sorting in the sidebar
+* #209: Add spinner to the Sign In button
+* #215: Fix styling glitch when 2 Steps layouts displayed one after another
+* #233: Fix issue causing `Update-PodeWebText` to not work with code/blocks
+* #238: Add `-Force` switch on `Update-PodeWebTable` to update pagiable tables externally
+* #242: Fix `Initialize-PodeWebTable` not being respected on update calls
+* #242: Fix "0" values never being displayed
+
+### Packaging
+* #241: Bump chart.js to 3.6.2
+```
+
 ## v0.6.2
 
 ```plain
