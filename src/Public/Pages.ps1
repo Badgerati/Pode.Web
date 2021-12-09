@@ -353,6 +353,9 @@ function Add-PodeWebPage
         $Hide,
 
         [switch]
+        $NoSidebar,
+
+        [switch]
         $PassThru
     )
 
@@ -391,6 +394,7 @@ function Add-PodeWebPage
         Group = $Group
         Url = (Get-PodeWebPagePath -Name $Name -Group $Group)
         Hide = $Hide.IsPresent
+        NoSidebar = $NoSidebar.IsPresent
         Navigation = $Navigation
         ScriptBlock = $ScriptBlock
         HelpScriptBlock = $HelpScriptBlock

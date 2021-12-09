@@ -79,7 +79,7 @@
             <div class="row">
                 $(
                     $hideSidebar = [string]::Empty
-                    if (Get-PodeWebState -Name 'hide-sidebar') {
+                    if ($data.Page.NoSidebar -or (Get-PodeWebState -Name 'hide-sidebar')) {
                         $hideSidebar = 'hide-on-start'
                     }
 

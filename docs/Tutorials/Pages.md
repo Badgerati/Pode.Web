@@ -195,12 +195,22 @@ If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`)
 
 If however you're added the elements/layouts using the `-Layouts` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise data/actions will fail with a 401 response.
 
-### Hide
+### Sidebar
 
-When you add a page Pode.Web by default will show the page in the sidebar. You can stop pages/links from appearing in the sidebar by using the `-Hide` switch:
+When you add a page by default it will show in the sidebar. You can stop pages/links from appearing in the sidebar by using the `-Hide` switch:
 
 ```powershell
 Add-PodeWebPage -Name Charts -Hide -Layouts @(
+    New-PodeWebCard -Content @(
+        New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
+    )
+)
+```
+
+Alternatively, you can also hide the sidebar on a page by using the `-NoSidebar` switch; useful for dashboard pages:
+
+```powershell
+Add-PodeWebPage -Name Charts -NoSidebar -Layouts @(
     New-PodeWebCard -Content @(
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
     )
