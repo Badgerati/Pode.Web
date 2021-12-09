@@ -1814,3 +1814,34 @@ function Clear-PodeWebCodeEditor
         Name = $Name
     }
 }
+
+function Update-PodeWebIFrame
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $Title
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'IFrame'
+        ID = $Id
+        Name = $Name
+        Url = $Url
+        Title = $Title
+    }
+}
