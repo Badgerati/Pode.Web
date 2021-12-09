@@ -117,7 +117,11 @@ function bindFileStreams() {
                         }
                     }
                 },
-                error: function() {
+                error: function(err) {
+                    if (err.status == 416) {
+                        return;
+                    }
+
                     hideSpinner($(e).closest('div.file-stream'));
                     $(e).attr('pode-streaming', '0');
                     addClass($(e).closest('div.file-stream'), 'stream-error');
