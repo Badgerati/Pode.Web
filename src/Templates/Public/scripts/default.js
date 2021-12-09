@@ -1428,6 +1428,10 @@ function invokeActions(actions, sender) {
                 actionCodeEditor(action);
                 break;
 
+            case 'iframe':
+                actionIFrame(action);
+                break;
+
             default:
                 break;
         }
@@ -3028,6 +3032,31 @@ function actionFileStream(action) {
         case 'clear':
             clearFileStream(action);
             break;
+    }
+}
+
+function actionIFrame(action) {
+    switch(action.Operation.toLowerCase()) {
+        case 'update':
+            updateIFrame(action);
+            break;
+    }
+}
+
+function updateIFrame(action) {
+    var iframe = getElementByNameOrId(action, 'iframe');
+    if (!iframe) {
+        return;
+    }
+
+    // set url
+    if (action.Url) {
+        iframe.attr('src', action.Url);
+    }
+
+    // set title
+    if (action.Title) {
+        iframe.attr('title', action.Title);
     }
 }
 
