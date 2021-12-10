@@ -383,7 +383,7 @@ function Add-PodeWebPage
         ObjectType = 'Page'
         Path = $routePath
         Name = $Name
-        Title = $Title
+        Title = [System.Net.WebUtility]::HtmlEncode($Title)
         NoTitle = $NoTitle.IsPresent
         NoBackArrow = $NoBackArrow.IsPresent
         NoBreadcrumb = $NoBreadcrumb.IsPresent

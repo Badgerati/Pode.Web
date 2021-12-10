@@ -43,7 +43,7 @@
                 if ($data.Type -icontains 'min') {
                     "<div class='form-group col-md-6'>"
                         if (!$data.NoLabels) {
-                            "<label for='$($data.ID)_min'>Minimum</label>"
+                            "<label for='$($data.ID)_min'>$($data.Placeholders.Min)</label>"
                         }
 
                         $element = [string]::Empty
@@ -66,7 +66,7 @@
                 if ($data.Type -icontains 'max') {
                     "<div class='form-group col-md-6'>"
                         if (!$data.NoLabels) {
-                            "<label for='$($data.ID)_max'>Maximum</label>"
+                            "<label for='$($data.ID)_max'>$($data.Placeholders.Max)</label>"
                         }
 
                         $element = [string]::Empty

@@ -7,7 +7,7 @@
 
         "<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>"
             if (!$data.NoTitle) {
-                "<h5>$($icon)$($data.Name)</h5>"
+                "<h5>$($icon)$($data.DisplayName)</h5>"
             }
             else {
                 "<h5>$($icon)</h5>"

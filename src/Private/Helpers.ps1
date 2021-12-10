@@ -345,14 +345,27 @@ function Protect-PodeWebValue
 
         [Parameter()]
         [string]
-        $Default
+        $Default,
+
+        [switch]
+        $Encode
     )
 
     if ([string]::IsNullOrWhiteSpace($Value)) {
-        return $Default
+        if ($Encode) {
+            return [System.Net.WebUtility]::HtmlEncode($Default)
+        }
+        else {
+            return $Default
+        }
     }
 
-    return $Value
+    if ($Encode) {
+        return [System.Net.WebUtility]::HtmlEncode($Value)
+    }
+    else {
+        return $Value
+    }
 }
 
 function Protect-PodeWebValues
@@ -367,18 +380,35 @@ function Protect-PodeWebValues
         $Default,
 
         [switch]
-        $EqualCount
+        $EqualCount,
+
+        [switch]
+        $Encode
     )
 
     if (($null -eq $Value) -or ($Value.Length -eq 0)) {
-        return $Default
+        if ($Encode -and ($null -ne $Default) -and ($Default.Length -gt 0)) {
+            return @(foreach ($v in $Default) {
+                [System.Net.WebUtility]::HtmlEncode($v)
+            })
+        }
+        else {
+            return $Default
+        }
     }
 
     if ($EqualCount -and ($Value.Length -ne $Default.Length)) {
         throw "Expected an equal number of values in both arrays"
     }
 
-    return $Value
+    if ($Encode) {
+        return @(foreach ($v in $Value) {
+            [System.Net.WebUtility]::HtmlEncode($v)
+        })
+    }
+    else {
+        return $Value
+    }
 }
 
 function Test-PodeWebRoute

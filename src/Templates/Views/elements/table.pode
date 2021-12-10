@@ -56,7 +56,7 @@ $(if ($data.Filter.Enabled) {
                     <span class='mdi mdi-$($btn.Icon.ToLowerInvariant()) mdi-size-20 $(if ($btn.WithText) { "mRight02" })'></span>"
 
                     if ($btn.WithText) {
-                        $btn.Name
+                        $btn.DisplayName
                     }
 
                 "</button>"

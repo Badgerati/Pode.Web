@@ -56,7 +56,7 @@
                             if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
                                 "<img src='$($data.Auth.Avatar)'>"
                             }
-                            "Hello, $($data.Auth.Username)
+                            "Hello, $([System.Net.WebUtility]::HtmlEncode($data.Auth.Username))
                         </span>
                         <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
                             <span class='mdi mdi-logout mRight02'></span>
@@ -148,7 +148,7 @@
                                             <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
                                                 <div>
                                                     <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
-                                                    <span class='h6'>$($pageGroup.Name)</span>
+                                                    <span class='h6'>$([System.Net.WebUtility]::HtmlEncode($pageGroup.Name))</span>
                                                     <span class='badge badge-inbuilt-theme'>$($pages.Length)</span>
                                                 </div>
                                             </a>
@@ -176,7 +176,7 @@
                                             <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.ObjectType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
-                                                    $($page.Name)
+                                                    $([System.Net.WebUtility]::HtmlEncode($page.Name))
                                                 </div>
                                             </a>
                                         </li>"

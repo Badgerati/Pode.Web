@@ -207,7 +207,7 @@ function loadBreadcrumb() {
                 data = `base=${newBase}&${data}`;
             }
 
-            breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}?${data}'>${i}</a></li>`);
+            breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}?${data}'>${encodeHTML(i)}</a></li>`);
 
             if (newBase) {
                 newBase = `${newBase}/${i}`;
@@ -220,7 +220,7 @@ function loadBreadcrumb() {
 
     // add current value
     if (value) {
-        breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${value}</li>`);
+        breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${encodeHTML(value)}</li>`);
     }
 }
 
@@ -2655,6 +2655,10 @@ function decodeHTML(value) {
     value = textArea.value;
     textArea.remove();
     return value;
+}
+
+function encodeHTML(value) {
+    return $('<div/>').text(value).html();
 }
 
 function actionCheckbox(action) {

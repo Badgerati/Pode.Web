@@ -5,7 +5,7 @@
                 if (![string]::IsNullOrWhiteSpace($data.Icon)) {
                     "<span class='mdi mdi-$($data.Icon.ToLowerInvariant())'></span>"
                 }
-                $($data.Url)
+                $([System.Net.WebUtility]::HtmlEncode($data.Url))
             "</h5>
             <div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
                 <div class='icon-group mr-2'>

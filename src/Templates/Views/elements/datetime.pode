@@ -21,7 +21,7 @@
                 if ($data.Type -icontains 'date') {
                     "<div class='form-group col-md-6'>"
                         if (!$data.NoLabels) {
-                            "<label for='$($data.ID)_date'>Date</label>"
+                            "<label for='$($data.ID)_date'>$($data.Placeholders.Date)</label>"
                         }
                         "<input type='date' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_date' name='$($data.Name)_Date' $($describedBy) $($readOnly) $($required)>
                     </div>"
@@ -30,7 +30,7 @@
                 if ($data.Type -icontains 'time') {
                     "<div class='form-group col-md-6'>"
                         if (!$data.NoLabels) {
-                            "<label for='$($data.ID)_time'>Time</label>"
+                            "<label for='$($data.ID)_time'>$($data.Placeholders.Time)</label>"
                         }
                         "<input type='time' class='form-control' style='$($data.CssStyles)' id='$($data.ID)_time' name='$($data.Name)_Time' $($describedBy) $($readOnly) $($required)>
                     </div>"

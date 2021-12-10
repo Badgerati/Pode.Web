@@ -107,7 +107,7 @@ function New-PodeWebTextbox
         ObjectType = 'Textbox'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Type = $Type
         Multiline = $Multiline.IsPresent
@@ -115,7 +115,7 @@ function New-PodeWebTextbox
         Size = $Size
         Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
         Preformat = $Preformat.IsPresent
-        HelpText = $HelpText
+        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         IsAutoComplete = ($null -ne $AutoComplete)
         Value = $Value
@@ -206,7 +206,7 @@ function New-PodeWebFileUpload
         ObjectType = 'FileUpload'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Accept = ($Accept -join ',')
         CssClasses = ($CssClass -join ' ')
@@ -419,10 +419,10 @@ function New-PodeWebCheckbox
         ObjectType = 'Checkbox'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Options = @($Options)
-        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount)
+        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
         Inline = $Inline.IsPresent
         AsSwitch = $AsSwitch.IsPresent
         Checked = $Checked.IsPresent
@@ -486,10 +486,10 @@ function New-PodeWebRadio
         ObjectType = 'Radio'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Options = @($Options)
-        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount)
+        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
         Inline = $Inline.IsPresent
         Disabled = $Disabled.IsPresent
         CssClasses = ($CssClass -join ' ')
@@ -568,10 +568,10 @@ function New-PodeWebSelect
         ObjectType = 'Select'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Options = @($Options)
-        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount)
+        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
         ScriptBlock = $ScriptBlock
         IsDynamic = ($null -ne $ScriptBlock)
         SelectedValue = $SelectedValue
@@ -680,7 +680,7 @@ function New-PodeWebRange
         ObjectType = 'Range'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Value = $Value
         Min = $Min
@@ -701,6 +701,10 @@ function New-PodeWebProgress
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -762,6 +766,7 @@ function New-PodeWebProgress
         ObjectType = 'Progress'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Value = $Value
         Min = $Min
@@ -1043,7 +1048,7 @@ function New-PodeWebLink
         Parent = $ElementData
         ID = $Id
         Source = (Add-PodeWebAppPath -Url $Source)
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
         NewTab = $NewTab.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -1203,11 +1208,11 @@ function New-PodeWebCredential
 
         [Parameter()]
         [string]
-        $PlaceholderUsername,
+        $DisplayUsername,
 
         [Parameter()]
         [string]
-        $PlaceholderPassword,
+        $DisplayPassword,
 
         [Parameter()]
         [ValidateSet('Username', 'Password')]
@@ -1232,16 +1237,16 @@ function New-PodeWebCredential
         ObjectType = 'Credential'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
-        HelpText = $HelpText
+        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Placeholders = @{
-            Username = (Protect-PodeWebValue -Value $PlaceholderUsername -Default 'Username')
-            Password = (Protect-PodeWebValue -Value $PlaceholderPassword -Default 'Password')
+            Username = (Protect-PodeWebValue -Value $DisplayUsername -Default 'Username' -Encode)
+            Password = (Protect-PodeWebValue -Value $DisplayPassword -Default 'Password' -Encode)
         }
         Type = @($Type)
         Required = $Required.IsPresent
@@ -1277,6 +1282,14 @@ function New-PodeWebDateTime
         $CssStyle,
 
         [Parameter()]
+        [string]
+        $DisplayDate,
+
+        [Parameter()]
+        [string]
+        $DisplayTime,
+
+        [Parameter()]
         [ValidateSet('Date', 'Time')]
         [ValidateNotNullOrEmpty()]
         [string[]]
@@ -1299,13 +1312,17 @@ function New-PodeWebDateTime
         ObjectType = 'DateTime'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
-        HelpText = $HelpText
+        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Placeholders = @{
+            Date = (Protect-PodeWebValue -Value $DisplayDate -Default 'Date' -Encode)
+            Time = (Protect-PodeWebValue -Value $DisplayTime -Default 'Time' -Encode)
+        }
         Type = @($Type)
         Required = $Required.IsPresent
     }
@@ -1364,6 +1381,14 @@ function New-PodeWebMinMax
         $CssStyle,
 
         [Parameter()]
+        [string]
+        $DisplayMin,
+
+        [Parameter()]
+        [string]
+        $DisplayMax,
+
+        [Parameter()]
         [ValidateSet('Min', 'Max')]
         [ValidateNotNullOrEmpty()]
         [string[]]
@@ -1386,13 +1411,13 @@ function New-PodeWebMinMax
         ObjectType = 'MinMax'
         Parent = $ElementData
         Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name)
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Values = @{
             Min = $MinValue
             Max = $MaxValue
         }
-        HelpText = $HelpText
+        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
@@ -1406,6 +1431,10 @@ function New-PodeWebMinMax
             Enabled = (![string]::IsNullOrWhiteSpace($AppendText) -or ![string]::IsNullOrWhiteSpace($AppendIcon))
             Text = $AppendText
             Icon = $AppendIcon
+        }
+        Placeholders = @{
+            Min = (Protect-PodeWebValue -Value $DisplayMin -Default 'Minimum' -Encode)
+            Max = (Protect-PodeWebValue -Value $DisplayMax -Default 'Maximum' -Encode)
         }
         Type = @($Type)
         Required = $Required.IsPresent
@@ -1437,6 +1466,10 @@ function New-PodeWebButton
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -1503,6 +1536,7 @@ function New-PodeWebButton
         ObjectType = 'Button'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         DataValue = $DataValue
         Icon = $Icon
@@ -1594,7 +1628,7 @@ function New-PodeWebAlert
         ObjectType = 'Alert'
         Parent = $ElementData
         ID = $Id
-        Type = $Type
+        Type = [System.Net.WebUtility]::HtmlEncode($Type)
         ClassType = $classType
         IconType = $iconType
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
@@ -1793,8 +1827,8 @@ function New-PodeWebComment
         Parent = $ElementData
         ID = $Id
         Icon = (Add-PodeWebAppPath -Url $Icon)
-        Username = $Username
-        Message = $Message
+        Username = [System.Net.WebUtility]::HtmlEncode($Username)
+        Message = [System.Net.WebUtility]::HtmlEncode($Message)
         TimeStamp = $TimeStamp
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -2359,6 +2393,10 @@ function Add-PodeWebTableButton
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Icon,
 
         [Parameter(Mandatory=$true)]
@@ -2411,6 +2449,7 @@ function Add-PodeWebTableButton
 
     $Table.Buttons += @{
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         Icon = $Icon
         IsDynamic = ($null -ne $ScriptBlock)
         WithText = $WithText.IsPresent
@@ -2746,6 +2785,10 @@ function New-PodeWebTile
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter()]
@@ -2822,6 +2865,7 @@ function New-PodeWebTile
         ObjectType = 'Tile'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Click = ($null -ne $ClickScriptBlock)
         IsDynamic = ($null -ne $ScriptBlock)
@@ -3081,7 +3125,7 @@ function New-PodeWebAudio
         Width = (ConvertTo-PodeWebSize -Value $Width -Default 20 -Type '%')
         Sources = $Source
         Tracks = $Track
-        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element')
+        NotSupportedText = [System.Net.WebUtility]::HtmlEncode((Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element'))
         Muted = $Muted.IsPresent
         AutoPlay = $AutoPlay.IsPresent
         AutoBuffer = $AutoBuffer.IsPresent
@@ -3208,7 +3252,7 @@ function New-PodeWebVideo
         Sources = $Source
         Tracks = $Track
         Thumbnail = $Thumbnail
-        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the video element')
+        NotSupportedText = [System.Net.WebUtility]::HtmlEncode((Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the video element'))
         Muted = $Muted.IsPresent
         AutoPlay = $AutoPlay.IsPresent
         AutoBuffer = $AutoBuffer.IsPresent

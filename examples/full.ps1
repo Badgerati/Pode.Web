@@ -31,7 +31,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
+    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web/images/icon.png' -Theme Dark
 
     # set login page 
     # -BackgroundImage '/images/galaxy.jpg'
