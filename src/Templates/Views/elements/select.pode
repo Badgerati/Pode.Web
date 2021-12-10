@@ -1,6 +1,6 @@
 <div class="$(if (!$data.NoForm) { 'form-group row' } else { 'no-form' }) pode-form-select $($data.CssClasses)">
     $(if (!$data.NoForm) {
-        "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.Name)</label>"
+        "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.DisplayName)</label>"
     })
     <div class="col-sm-10">
         $(
@@ -17,19 +17,20 @@
                 pode-object='$($data.ObjectType)'
                 pode-dynamic='$($data.IsDynamic)'
                 $($multiple)
+                $(if ($data.Required) { 'required' })
                 $(ConvertTo-PodeWebEvents -Events $data.Events)
             >"
 
-            foreach ($option in $data.Options) {
-                if ([string]::IsNullOrWhiteSpace($option)) {
+            for ($i = 0; $i -lt $data.Options.Length; $i++) {
+                if ([string]::IsNullOrWhiteSpace($data.Options[$i])) {
                     continue
                 }
 
                 if ([string]::IsNullOrWhiteSpace($data.SelectedValue)) {
-                    "<option value='$($option)'>$($option)</option>"
+                    "<option value='$($data.Options[$i])'>$($data.DisplayOptions[$i])</option>"
                 }
                 else {
-                    "<option value='$($option)' $(if ($data.SelectedValue -ieq $option) { 'selected' })>$($option)</option>"
+                    "<option value='$($data.Options[$i])' $(if ($data.SelectedValue -ieq $data.Options[$i]) { 'selected' })>$($data.DisplayOptions[$i])</option>"
                 }
             }
 

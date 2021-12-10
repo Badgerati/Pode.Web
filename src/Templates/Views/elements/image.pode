@@ -14,21 +14,10 @@ $(
         }
     }
 
-    $dim = [string]::Empty
-    $fluid = [string]::Empty
+    $dim = "height:$($data.Height);width:$($data.Width);"
 
-    if ($data.Height -gt 0 -and $data.Width -gt 0) {
-        $dim = "height:$($data.Height)px;width:$($data.Width)px;"
-    }
-    elseif ($data.Height -gt 0) {
-        $dim = "height:$($data.Height)px;"
-        $fluid = 'img-fluid'
-    }
-    elseif ($data.Width -gt 0) {
-        $dim = "width:$($data.Width)px;"
-        $fluid = 'img-fluid'
-    }
-    else {
+    $fluid = [string]::Empty
+    if (($data.Height -ieq 'auto') -or ($data.Width -ieq 'auto')) {
         $fluid = 'img-fluid'
     }
 

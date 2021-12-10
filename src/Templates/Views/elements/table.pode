@@ -21,7 +21,7 @@ $(if ($data.Filter.Enabled) {
                 id='$($data.ID)'
                 name='$($data.Name)'
                 pode-object='$($data.ObjectType)'
-                class='table table-striped table-hover $($click)'
+                class='table table-striped table-hover $(if ($data.Compact) { 'table-sm' }) $($click)'
                 style='$($data.CssStyles)'
                 pode-dynamic='$($data.IsDynamic)'
                 pode-click-dynamic='$($data.ClickIsDynamic)'
@@ -56,7 +56,7 @@ $(if ($data.Filter.Enabled) {
                     <span class='mdi mdi-$($btn.Icon.ToLowerInvariant()) mdi-size-20 $(if ($btn.WithText) { "mRight02" })'></span>"
 
                     if ($btn.WithText) {
-                        $btn.Name
+                        $btn.DisplayName
                     }
 
                 "</button>"

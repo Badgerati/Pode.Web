@@ -195,6 +195,28 @@ If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`)
 
 If however you're added the elements/layouts using the `-Layouts` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise data/actions will fail with a 401 response.
 
+### Sidebar
+
+When you add a page by default it will show in the sidebar. You can stop pages/links from appearing in the sidebar by using the `-Hide` switch:
+
+```powershell
+Add-PodeWebPage -Name Charts -Hide -Layouts @(
+    New-PodeWebCard -Content @(
+        New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
+    )
+)
+```
+
+Alternatively, you can also hide the sidebar on a page by using the `-NoSidebar` switch; useful for dashboard pages:
+
+```powershell
+Add-PodeWebPage -Name Charts -NoSidebar -Layouts @(
+    New-PodeWebCard -Content @(
+        New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
+    )
+)
+```
+
 ## Convert Module
 
 Similar to how Pode has a function to convert a Module to a REST API; Pode.Web has one that can convert a Module into Web Pages: [`ConvertTo-PodeWebPage`](../../Functions/Pages/ConvertTo-PodeWebPage)!
@@ -214,4 +236,38 @@ Start-PodeServer {
     # convert module to pages
     ConvertTo-PodeWebPage -Module Pester -GroupVerbs
 }
+```
+
+## Events
+
+The Login, Home and Webpages support registering the following events, and they can be registered via [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent):
+
+| Name | Description |
+| ---- | ----------- |
+| Load | Fires when the page has fully loaded, including js/css/etc. |
+| Unload | Fires when the has fully unloaded/closed |
+| BeforeUnload | Fires just before the page is about to unload/close |
+
+To register an event for each page type:
+
+* `Login`: you'll need to use `-PassThru` on [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
+* `Home`: you'll need to use `-PassThru` on [`Set-PodeWebHomePage`](../../Functions/Pages/Set-PodeWebHomePage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
+* `Webpage`: you'll need to use `-PassThru` on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
+
+For example, if you want to show a message on a Webpage just before it closes:
+
+```powershell
+Add-PodeWebPage -Name Example -Layouts $some_layouts -PassThru |
+    Register-PodeWebPageEvent -Type BeforeUnload -ScriptBlock {
+        Show-PodeWebToast -Message "Bye!"
+    }
+```
+
+Or on the Login page, after it's finished loading (note: you will need to use the `-NoAuth` switch):
+
+```powershell
+Set-PodeWebLoginPage -Authentication Example -PassThru |
+    Register-PodeWebPageEvent -Type Load -NoAuth -ScriptBlock {
+        Show-PodeWebToast -Message "Hi!"
+    }
 ```

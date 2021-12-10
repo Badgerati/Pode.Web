@@ -30,9 +30,15 @@ Start-PodeServer -StatusPageExceptions Show {
     }
 
 
-    # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
-    Set-PodeWebLoginPage -Authentication Example #-BackgroundImage '/images/galaxy.jpg'
+    # set the use of templates
+    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web/images/icon.png' -Theme Dark
+
+    # set login page 
+    # -BackgroundImage '/images/galaxy.jpg'
+    Set-PodeWebLoginPage -Authentication Example -PassThru |
+        Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
+            Show-PodeWebToast -Message "Login page $($EventType)!"
+        }
 
     $link1 = New-PodeWebNavLink -Name 'Home' -Url '/' -Icon Home
     $link2 = New-PodeWebNavLink -Name 'Dynamic' -Icon Cogs -NoAuth -ScriptBlock {
@@ -58,6 +64,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $rand = Get-Random -Minimum 0 -Maximum 3
         $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
         Update-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
+        Update-PodeWebText -Id 'code_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss'))
     }
 
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
@@ -69,6 +76,10 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebText -Value ' paragraphs' -Style Bold
         )
         New-PodeWebParagraph -Elements @(
+            New-PodeWebText -Value 'Pronuncation example: '
+            New-PodeWebText -Value '漢' -Pronunciation 'ㄏㄢˋ'
+        )
+        New-PodeWebParagraph -Elements @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "! "
@@ -76,6 +87,9 @@ Start-PodeServer -StatusPageExceptions Show {
                 Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
                     Show-PodeWebToast -Message 'Badge was clicked!'
                 }
+        )
+        New-PodeWebParagraph -Elements @(
+            New-PodeWebCode -Id 'code_test' -Value "some code :o"
         )
         $timer1
         New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right
@@ -184,7 +198,10 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle
+    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
+        Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
+            Show-PodeWebToast -Message "Home page $($EventType)!"
+        }
 
 
     # tabs and charts
@@ -200,7 +217,10 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs'
+    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
+        Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
+            Show-PodeWebToast -Message "Page $($EventType)!"
+        }
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]

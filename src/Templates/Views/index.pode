@@ -2,15 +2,16 @@
     $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
         Title = $data.Page.Name
         Theme = $data.Theme
+        AppPath = $data.AppPath
     })
 
-    <body id="normal-page" pode-theme="$($data.Theme)">
+    <body id="normal-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
             <button type='button' class='btn btn-icon-only' id='menu-toggle'>
                 <span class='mdi mdi-menu-open'></span>
             </button>
 
-            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/">
+            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$($data.AppPath)/">
                 $(
                     $title = Get-PodeWebState -Name 'title'
                     $logo = Get-PodeWebState -Name 'logo'
@@ -50,12 +51,12 @@
 
             $(if ($data.Auth.Enabled) {
                 if ($data.Auth.Authenticated) {
-                    "<form class='form-inline' action='/logout' method='POST' style='margin-bottom: 0'>
+                    "<form class='form-inline' action='$($data.AppPath)/logout' method='POST' style='margin-bottom: 0'>
                         <span class='navbar-text mRight1 welcome-msg'>"
                             if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
                                 "<img src='$($data.Auth.Avatar)'>"
                             }
-                            "Hello, $($data.Auth.Username)
+                            "Hello, $([System.Net.WebUtility]::HtmlEncode($data.Auth.Username))
                         </span>
                         <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
                             <span class='mdi mdi-logout mRight02'></span>
@@ -64,7 +65,7 @@
                     </form>"
                 }
                 else {
-                    "<form class='form-inline' action='/login' method='GET' style='margin-bottom: 0'>
+                    "<form class='form-inline' action='$($data.AppPath)/login' method='GET' style='margin-bottom: 0'>
                         <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
                             <span class='mdi mdi-login mRight02'></span>
                             Sign in
@@ -78,7 +79,7 @@
             <div class="row">
                 $(
                     $hideSidebar = [string]::Empty
-                    if (Get-PodeWebState -Name 'hide-sidebar') {
+                    if ($data.Page.NoSidebar -or (Get-PodeWebState -Name 'hide-sidebar')) {
                         $hideSidebar = 'hide-on-start'
                     }
 
@@ -110,7 +111,7 @@
                     <div class="sidebar-sticky pt-0">
                         <ul id="sidebar-list" class="nav flex-column">
                             <li class="nav-item nav-page-item">
-                                <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="/">
+                                <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="$($data.AppPath)/">
                                     <div>
                                         <span class="mdi mdi-home mdi-size-22 mRight02"></span>
                                         Home
@@ -119,9 +120,21 @@
                             </li>
 
                             $(
-                                $pageGroups = (Get-PodeWebState -Name 'pages' | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
+                                $pageGroups = ((Get-PodeWebState -Name 'pages').Values | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
 
                                 foreach ($pageGroup in $pageGroups) {
+                                    $pages = @(foreach ($page in $pageGroup.Group) {
+                                        if ($page.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
+                                            continue
+                                        }
+
+                                        $page
+                                    })
+
+                                    if ($pages.Length -eq 0) {
+                                        continue
+                                    }
+
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
                                         $chevron = 'right'
                                         $show = [string]::Empty
@@ -135,8 +148,8 @@
                                             <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
                                                 <div>
                                                     <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
-                                                    <span class='h6'>$($pageGroup.Name)</span>
-                                                    <span class='badge badge-inbuilt-theme'>$($pageGroup.Count)</span>
+                                                    <span class='h6'>$([System.Net.WebUtility]::HtmlEncode($pageGroup.Name))</span>
+                                                    <span class='badge badge-inbuilt-theme'>$($pages.Length)</span>
                                                 </div>
                                             </a>
                                         </li>"
@@ -144,11 +157,7 @@
                                         "<div class='collapse $($show)' id='nav-$($pageGroup.Name)'>"
                                     }
 
-                                    foreach ($page in ($pageGroup.Group | Sort-Object -Property Name)) {
-                                        if (!(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
-                                            continue
-                                        }
-
+                                    foreach ($page in ($pages | Sort-Object -Property { $_.Name })) {
                                         $href = [string]::Empty
                                         if (!$page.IsDynamic) {
                                             $href = "href='$($page.Url)'"
@@ -164,10 +173,10 @@
                                         }
 
                                         "<li class='nav-item nav-page-item'>
-                                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.PageType)' pode-dynamic='$($page.IsDynamic)' $($href)>
+                                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.ObjectType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
-                                                    $($page.Name)
+                                                    $([System.Net.WebUtility]::HtmlEncode($page.Name))
                                                 </div>
                                             </a>
                                         </li>"
@@ -218,6 +227,8 @@
             </div>
         </div>
 
-        $(Use-PodeWebPartialView -Path 'shared/scripts')
+        $(Use-PodeWebPartialView -Path 'shared/scripts' -Data @{
+            AppPath = $data.AppPath
+        })
     </body>
 </html>

@@ -7,7 +7,7 @@ $(if ($data.NewLine) {
         $(if (![string]::IsNullOrWhiteSpace($data.Icon)) {
             "<span class='mdi mdi-$($data.Icon.ToLowerInvariant())'></span>"
         })
-        $($data.Name)
+        $($data.DisplayName)
         $(if (!$data.AutoRefresh -and !$data.NoRefresh) {
             "<span class='mdi mdi-refresh pode-tile-refresh pode-refresh-btn' for='$($data.ID)' title='Refresh' data-toggle='tooltip'></span>"
         })

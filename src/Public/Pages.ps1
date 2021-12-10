@@ -38,7 +38,10 @@ function Set-PodeWebLoginPage
 
         [Parameter()]
         [string]
-        $BackgroundImage
+        $BackgroundImage,
+
+        [switch]
+        $PassThru
     )
 
     Set-PodeWebState -Name 'auth' -Value $Authentication
@@ -53,15 +56,20 @@ function Set-PodeWebLoginPage
     if ([string]::IsNullOrWhiteSpace($Logo)) {
         $Logo = '/pode.web/images/icon.png'
     }
+    $Logo = (Add-PodeWebAppPath -Url $Logo)
 
     if ([string]::IsNullOrWhiteSpace($LogoUrl)) {
         $LogoUrl = '/'
     }
+    $LogoUrl = (Add-PodeWebAppPath -Url $LogoUrl)
+
+    # background image
+    $BackgroundImage = (Add-PodeWebAppPath -Url $BackgroundImage)
 
     # set default failure/success urls
     $auth = Get-PodeAuth -Name $Authentication
-    $auth.Failure.Url = '/login'
-    $auth.Success.Url = '/'
+    $auth.Failure.Url = (Add-PodeWebAppPath -Url '/login')
+    $auth.Success.Url = (Add-PodeWebAppPath -Url '/')
 
     # is this auto-redirect oauth2?
     $isOAuth2 = ($auth.Scheme.Scheme -ieq 'oauth2')
@@ -71,12 +79,32 @@ function Set-PodeWebLoginPage
         $grantType = 'password'
     }
 
+    # route path
+    $routePath = '/login'
+
+    # setup page meta
+    $pageMeta = @{
+        ComponentType = 'Page'
+        ObjectType = 'Page'
+        Path = $routePath
+        Name = 'Login'
+        IsSystem = $true
+    }
+
+    # add page meta to state
+    $pages = Get-PodeWebState -Name 'pages'
+    $pages[$routePath] = $pageMeta
+
     # get the endpoints to bind
     $endpointNames = Get-PodeWebState -Name 'endpoint-name'
 
     # add the login route
-    Add-PodeRoute -Method Get -Path '/login' -Authentication $Authentication -EndpointName $endpointNames -Login -ScriptBlock {
+    Add-PodeRoute -Method Get -Path '/login' -Authentication $Authentication -ArgumentList @{ Path = $routePath } -EndpointName $endpointNames -Login -ScriptBlock {
+        param($Data)
+        $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
+
         Write-PodeWebViewResponse -Path 'login' -Data @{
+            Page = $global:PageData
             Theme = Get-PodeWebTheme
             Logo = $using:Logo
             LogoUrl = $using:LogoUrl
@@ -90,6 +118,8 @@ function Set-PodeWebLoginPage
                 GrantType = $using:grantType
             }
         }
+
+        $global:PageData = $null
     }
 
     Add-PodeRoute -Method Post -Path '/login' -Authentication $Authentication -EndpointName $endpointNames -Login
@@ -116,6 +146,8 @@ function Set-PodeWebLoginPage
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
+                Path = '/'
+                IsSystem = $true
             }
             Theme = $theme
             Navigation = $navigation
@@ -127,6 +159,10 @@ function Set-PodeWebLoginPage
                 Avatar = $avatar
             }
         }
+    }
+
+    if ($PassThru) {
+        return $pageMeta
     }
 }
 
@@ -152,13 +188,41 @@ function Set-PodeWebHomePage
         $NoAuthentication,
 
         [switch]
-        $NoTitle
+        $NoTitle,
+
+        [switch]
+        $PassThru
     )
 
     # ensure layouts are correct
     if (!(Test-PodeWebContent -Content $Layouts -ComponentType Layout)) {
         throw 'The Home Page can only contain layouts'
     }
+
+    # set page title
+    if ([string]::IsNullOrWhiteSpace($Title)) {
+        $Title = 'Home'
+    }
+
+    # route path
+    $routePath = '/'
+
+    # setup page meta
+    $pageMeta = @{
+        ComponentType = 'Page'
+        ObjectType = 'Page'
+        Path = $routePath
+        Name = 'Home'
+        Title = $Title
+        NoTitle = $NoTitle.IsPresent
+        Navigation = $Navigation
+        Layouts = $Layouts
+        IsSystem = $true
+    }
+
+    # add page meta to state
+    $pages = Get-PodeWebState -Name 'pages'
+    $pages[$routePath] = $pageMeta
 
     # does the page need auth?
     $auth = $null
@@ -169,25 +233,16 @@ function Set-PodeWebHomePage
     # get the endpoints to bind
     $endpointNames = Get-PodeWebState -Name 'endpoint-name'
 
-    # set page title
-    if ([string]::IsNullOrWhiteSpace($Title)) {
-        $Title = 'Home'
-    }
+    # remove route
+    Remove-PodeWebRoute -Method Get -Path $routePath -EndpointName $endpointNames
 
-    # setup page meta
-    $pageMeta = @{
-        Name = 'Home'
-        Title = $Title
-        NoTitle = $NoTitle.IsPresent
-    }
-
-    Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
-
-    Add-PodeRoute -Method Get -Path '/' -Authentication $auth -EndpointName $endpointNames -ScriptBlock {
-        $global:PageData = $using:pageMeta
+    # re-add route
+    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -ArgumentList @{ Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
+        param($Data)
+        $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
 
         # we either render the home page, or move to the first page if home page is blank
-        $comps = $using:Layouts
+        $comps = $global:PageData.Layouts
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
             $page = Get-PodeWebFirstPublicPage
             if ($null -ne $page) {
@@ -200,7 +255,7 @@ function Set-PodeWebHomePage
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
         $theme = Get-PodeWebTheme
-        $navigation = Get-PodeWebNavDefault -Items $using:Navigation
+        $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = $global:PageData
@@ -217,6 +272,10 @@ function Set-PodeWebHomePage
         }
 
         $global:PageData = $null
+    }
+
+    if ($PassThru) {
+        return $pageMeta
     }
 }
 
@@ -288,7 +347,16 @@ function Add-PodeWebPage
         $NoBreadcrumb,
 
         [switch]
-        $NewTab
+        $NewTab,
+
+        [switch]
+        $Hide,
+
+        [switch]
+        $NoSidebar,
+
+        [switch]
+        $PassThru
     )
 
     # ensure layouts are correct
@@ -306,11 +374,16 @@ function Add-PodeWebPage
         $Title = $Name
     }
 
+    # build the route path
+    $routePath = (Get-PodeWebPagePath -Name $Name -Group $Group -NoAppPath)
+
     # setup page meta
     $pageMeta = @{
-        PageType = 'Page'
+        ComponentType = 'Page'
+        ObjectType = 'Page'
+        Path = $routePath
         Name = $Name
-        Title = $Title
+        Title = [System.Net.WebUtility]::HtmlEncode($Title)
         NoTitle = $NoTitle.IsPresent
         NoBackArrow = $NoBackArrow.IsPresent
         NoBreadcrumb = $NoBreadcrumb.IsPresent
@@ -320,6 +393,12 @@ function Add-PodeWebPage
         Icon = $Icon
         Group = $Group
         Url = (Get-PodeWebPagePath -Name $Name -Group $Group)
+        Hide = $Hide.IsPresent
+        NoSidebar = $NoSidebar.IsPresent
+        Navigation = $Navigation
+        ScriptBlock = $ScriptBlock
+        HelpScriptBlock = $HelpScriptBlock
+        Layouts = $Layouts
         NoAuthentication = $NoAuthentication.IsPresent
         Access = @{
             Groups = @($AccessGroups)
@@ -327,7 +406,9 @@ function Add-PodeWebPage
         }
     }
 
-    Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + $pageMeta)
+    # add page meta to state
+    $pages = Get-PodeWebState -Name 'pages'
+    $pages[$routePath] = $pageMeta
 
     # does the page need auth?
     $auth = $null
@@ -341,10 +422,9 @@ function Add-PodeWebPage
     }
 
     # add the page route
-    $routePath = $pageMeta.Url
-    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList; Path = $routePath } -EndpointName $EndpointName -ScriptBlock {
         param($Data)
-        $global:PageData = $using:pageMeta
+        $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
 
         if (!$global:PageData.NoBackArrow) {
             $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
@@ -359,7 +439,7 @@ function Add-PodeWebPage
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
         $theme = Get-PodeWebTheme
-        $navigation = Get-PodeWebNavDefault -Items $using:Navigation
+        $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -376,13 +456,13 @@ function Add-PodeWebPage
 
         else {
             # if we have a scriptblock, invoke that to get dynamic components
-            $layouts =$null
-            if ($null -ne $using:ScriptBlock) {
-                $layouts = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $layouts = $null
+            if ($null -ne $global:PageData.ScriptBlock) {
+                $layouts = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.ScriptBlock -Arguments $Data.Data -Splat -Return
             }
 
             if (($null -eq $layouts) -or ($layouts.Length -eq 0)) {
-                $layouts = $using:Layouts
+                $layouts = $global:PageData.Layouts
             }
 
             $breadcrumb = $null
@@ -403,7 +483,7 @@ function Add-PodeWebPage
 
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
-                Title = $using:Title
+                Title = $global:PageData.Title
                 Theme = $theme
                 Navigation = $navigation
                 Breadcrumb = $breadcrumb
@@ -418,9 +498,9 @@ function Add-PodeWebPage
     # add the page help route
     $helpPath = "$($routePath)/help"
     if (($null -ne $HelpScriptBlock) -and !(Test-PodeWebRoute -Path $helpPath)) {
-        Add-PodeRoute -Method Post -Path $helpPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $helpPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList; Path = $routePath } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
-            $global:PageData = $using:pageMeta
+            $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
 
             # get auth details of a user
             $authData = Get-PodeWebAuthData
@@ -439,7 +519,7 @@ function Add-PodeWebPage
                 Set-PodeResponseStatus -Code 403
             }
             else {
-                $result = Invoke-PodeScriptBlock -ScriptBlock $using:HelpScriptBlock -Arguments $Data.Data -Splat -Return
+                $result = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.HelpScriptBlock -Arguments $Data.Data -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
@@ -451,6 +531,10 @@ function Add-PodeWebPage
 
             $global:PageData = $null
         }
+    }
+
+    if ($PassThru) {
+        return $pageMeta
     }
 }
 
@@ -502,7 +586,10 @@ function Add-PodeWebPageLink
 
         [Parameter(ParameterSetName='Url')]
         [switch]
-        $NewTab
+        $NewTab,
+
+        [switch]
+        $Hide
     )
 
     # test if page/page-link exists
@@ -512,22 +599,31 @@ function Add-PodeWebPageLink
 
     # setup page meta
     $pageMeta = @{
-        PageType = 'Link'
+        ComponentType = 'Page'
+        ObjectType = 'Link'
         Name = $Name
         NewTab = $NewTab.IsPresent
         Icon = $Icon
         Group = $Group
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
+        Hide = $Hide.IsPresent
         IsDynamic = ($null -ne $ScriptBlock)
+        ScriptBlock = $ScriptBlock
         Access = @{
             Groups = @($AccessGroups)
             Users = @($AccessUsers)
         }
+        NoEvents = $true
     }
 
-    Set-PodeWebState -Name 'pages' -Value  (@(Get-PodeWebState -Name 'pages') + $pageMeta)
+    # build the route path
+    $routePath = (Get-PodeWebPagePath -Name $Name -Group $Group -NoAppPath)
 
-    $routePath = (Get-PodeWebPagePath -Name $Name -Group $Group)
+    # add page meta to state
+    $pages = Get-PodeWebState -Name 'pages'
+    $pages[$routePath] = $pageMeta
+
+    # add page link
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
@@ -538,10 +634,11 @@ function Add-PodeWebPageLink
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList; Path = $routePath } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
+            $pageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $result = Invoke-PodeScriptBlock -ScriptBlock $pageData.ScriptBlock -Arguments $Data.Data -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -786,6 +883,11 @@ function Get-PodeWebPage
 
     # get all pages
     $pages = Get-PodeWebState -Name 'pages'
+    if (($null -eq $pages) -or ($pages.Count -eq 0)) {
+        return $null
+    }
+
+    $pages = $pages.Values
 
     # filter by group
     if ($NoGroup -and [string]::IsNullOrWhiteSpace($Group)) {

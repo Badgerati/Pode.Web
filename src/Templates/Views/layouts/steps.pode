@@ -15,7 +15,7 @@
                             "$($i + 1)"
                         }
                     "</span>"
-                    "<span class='bs-stepper-label'>$($step.Name)</span>
+                    "<span class='bs-stepper-label'>$($step.DisplayName)</span>
                 </button>
             </div>"
 

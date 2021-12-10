@@ -22,7 +22,7 @@
                         if (![string]::IsNullOrWhiteSpace($bellow.Icon)) {
                             "<span class='mdi mdi-$($bellow.Icon.ToLowerInvariant())'></span>"
                         }
-                        $bellow.Name
+                        $bellow.DisplayName
                         "<span class='mdi mdi-chevron-$($arrow) arrow-toggle'></span>
                     </button>
                 </h2>

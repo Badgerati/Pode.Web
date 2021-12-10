@@ -60,6 +60,7 @@ $(() => {
     bindRangeValue();
     bindProgressValue();
     bindModalSubmits();
+    bindFormResets();
 
     bindTileRefresh();
     bindTileClick();
@@ -116,7 +117,11 @@ function bindFileStreams() {
                         }
                     }
                 },
-                error: function() {
+                error: function(err) {
+                    if (err.status == 416) {
+                        return;
+                    }
+
                     hideSpinner($(e).closest('div.file-stream'));
                     $(e).attr('pode-streaming', '0');
                     addClass($(e).closest('div.file-stream'), 'stream-error');
@@ -202,7 +207,7 @@ function loadBreadcrumb() {
                 data = `base=${newBase}&${data}`;
             }
 
-            breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}?${data}'>${i}</a></li>`);
+            breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}?${data}'>${encodeHTML(i)}</a></li>`);
 
             if (newBase) {
                 newBase = `${newBase}/${i}`;
@@ -215,7 +220,7 @@ function loadBreadcrumb() {
 
     // add current value
     if (value) {
-        breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${value}</li>`);
+        breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${encodeHTML(value)}</li>`);
     }
 }
 
@@ -550,6 +555,10 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     // remove validation errors
     removeValidationErrors(sender);
 
+    // add app-path to url (for the likes of IIS)
+    var appPath = $('body').attr('pode-app-path');
+    url = `${appPath}${url}`;
+
     // add current query string
     if (window.location.search) {
         url = `${url}${window.location.search}`;
@@ -559,11 +568,12 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
     opts = (opts ?? {});
     opts.contentType = (opts.contentType == null ? 'application/x-www-form-urlencoded; charset=UTF-8' : opts.contentType);
     opts.processData = (opts.processData == null ? true : opts.processData);
+    opts.method = (opts.method == null ? 'post' : opts.method);
 
     // make the call
     $.ajax({
         url: url,
-        method: 'post',
+        method: opts.method,
         data: data,
         dataType: 'binary',
         processData: opts.processData,
@@ -1158,7 +1168,7 @@ function loadTable(tableId, opts) {
         }
 
         data += form.serialize();
-        url = form.attr('method');
+        url = form.attr('action');
     }
 
     // invoke and load table content
@@ -1286,7 +1296,7 @@ function loadChart(chartId) {
         }
 
         data += form.serialize();
-        url = form.attr('method');
+        url = form.attr('action');
     }
 
     sendAjaxReq(url, data, chart, true);
@@ -1410,6 +1420,22 @@ function invokeActions(actions, sender) {
                 actionFileStream(action);
                 break;
 
+            case 'audio':
+                actionAudio(action);
+                break;
+
+            case 'video':
+                actionVideo(action);
+                break;
+
+            case 'code-editor':
+                actionCodeEditor(action);
+                break;
+
+            case 'iframe':
+                actionIFrame(action);
+                break;
+
             default:
                 break;
         }
@@ -1461,6 +1487,7 @@ function buildElements(elements) {
 }
 
 function bindFormSubmits() {
+    // general forms
     $("form.pode-form").off('submit').on('submit', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -1470,7 +1497,34 @@ function bindFormSubmits() {
 
         // submit the form
         var inputs = serializeInputs(form);
-        sendAjaxReq(form.attr('method'), inputs.data, form, true, null, inputs.opts);
+        sendAjaxReq(form.attr('action'), inputs.data, form, true, null, inputs.opts);
+    });
+
+    // login form
+    $("form.form-signin").off('submit').on('submit', function(e) {
+        // get the form
+        var form = $(e.target);
+
+        // show the spinner
+        showSpinner(form);
+        $('.alert').remove();
+    
+        // remove validation errors
+        removeValidationErrors(form);
+    });
+}
+
+function bindFormResets() {
+    $('button.form-reset').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // get the button
+        var button = getButton(e);
+
+        // reset
+        resetForm($(`#${button.attr('for')}`));
+        unfocus(button);
     });
 }
 
@@ -1511,9 +1565,21 @@ function bindModalSubmits() {
         // find a form
         var inputs = {};
         var form = null;
+        var method = 'post';
 
         if (button.attr('pode-modal-form') == 'True') {
             form = modal.find('div.modal-body form');
+
+            var action = form.attr('action');
+            if (action) {
+                url = action;
+            }
+
+            var _method = form.attr('method');
+            if (_method) {
+                method = _method;
+            }
+
             inputs = serializeInputs(form);
             removeValidationErrors(form);
         }
@@ -1525,6 +1591,13 @@ function bindModalSubmits() {
         if (dataValue) {
             inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
         }
+
+        // add method
+        if (!inputs.opts) {
+            inputs.opts = {};
+        }
+
+        inputs.opts.method = method;
 
         // invoke url
         sendAjaxReq(url, inputs.data, (form ?? button), true, null, inputs.opts);
@@ -2000,6 +2073,7 @@ function updateTable(action, sender) {
     // table headers
     _value = '<tr>';
     var _oldHeader = null;
+    var _header = null;
 
     keys.forEach((key) => {
         // table header sort direction
@@ -2016,7 +2090,12 @@ function updateTable(action, sender) {
             _value += buildTableHeader(columns[key], _direction);
         }
         else {
-            _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
+            if (_oldHeader.length > 0) {
+                _value += _oldHeader[0].outerHTML;
+            }
+            else {
+                _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
+            }
         }
     });
     _value += '</tr>';
@@ -2028,15 +2107,15 @@ function updateTable(action, sender) {
     tableBody.empty();
 
     action.Data.forEach((item) => {
-        _value = `<tr pode-data-value="${item[dataColumn]}">`;
+        _value = `<tr ${item[dataColumn] != null ? `pode-data-value="${item[dataColumn]}"` : ''}>`;
 
         keys.forEach((key) => {
-            var col = columns[key];
-            if (key in columns) {
+            _header = tableHead.find(`th[name='${key}']`);
+            if (_header.length > 0) {
                 _value += `<td pode-column='${key}' style='`;
 
-                if (col.Alignment) {
-                    _value += `text-align:${col.Alignment};`;
+                if (_header.css('text-align')) {
+                    _value += `text-align:${_header.css('text-align')};`;
                 }
 
                 _value += `'>`;
@@ -2048,8 +2127,11 @@ function updateTable(action, sender) {
             if (Array.isArray(item[key]) || (item[key] && item[key].ObjectType)) {
                 _value += buildElements(item[key]);
             }
-            else if (item[key]) {
+            else if (item[key] != null) {
                 _value += item[key];
+            }
+            else if (!item[key] && _header.length > 0) {
+                _value += _header.attr('default-value');
             }
 
             _value += `</td>`;
@@ -2141,10 +2223,10 @@ function updateTable(action, sender) {
 }
 
 function buildTableHeader(column, direction) {
-    var value = `<th sort-direction='${direction}' name='${column.ID}' style='`;
+    var value = `<th sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
 
-    if (column.Width > 0) {
-        value += `width:${column.Width}%;`;
+    if (column.Width) {
+        value += `width:${column.Width};`;
     }
 
     if (column.Alignment) {
@@ -2316,7 +2398,8 @@ function actionText(action) {
     }
 
     if (!text.hasClass('pode-text')) {
-        text = text.find('.pode-text') ?? text;
+        var subText = text.find('.pode-text');
+        text = subText.length == 0 ? text : subText;
     }
 
     text.text(decodeHTML(action.Value));
@@ -2515,7 +2598,15 @@ function setSelect(action) {
         return;
     }
 
-    select.val(decodeHTML(action.Value));
+    setSelectValue(select, action.Value);
+}
+
+function setSelectValue(select, value) {
+    if (!select || !value) {
+        return
+    }
+
+    select.val(decodeHTML(value));
 }
 
 function updateSelect(action) {
@@ -2531,9 +2622,13 @@ function updateSelect(action) {
         return;
     }
 
-    action.Options.forEach((opt) => {
-        select.append(`<option value="${opt}">${opt}</option>`);
+    action.DisplayOptions = convertToArray(action.DisplayOptions);
+
+    action.Options.forEach((opt, idx) => {
+        select.append(`<option value="${opt}">${action.DisplayOptions[idx]}</option>`);
     })
+
+    setSelectValue(select, action.SelectedValue);
 }
 
 function clearSelect(action) {
@@ -2562,7 +2657,24 @@ function decodeHTML(value) {
     return value;
 }
 
+function encodeHTML(value) {
+    return $('<div/>').text(value).html();
+}
+
 function actionCheckbox(action) {
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateCheckbox(action);
+            break;
+
+        case 'enable':
+        case 'disable':
+            toggleCheckboxState(action, action.Operation.toLowerCase());
+            break;
+    }
+}
+
+function updateCheckbox(action) {
     if (action.ID) {
         action.ID = `${action.ID}_option${action.OptionId}`;
     }
@@ -2572,7 +2684,34 @@ function actionCheckbox(action) {
         return;
     }
 
+    // check/uncheck
     checkbox.attr('checked', action.Checked);
+
+    // enable/disable
+    if (action.State == 'enabled') {
+        enable(checkbox);
+    }
+    else if (action.State == 'disabled') {
+        disable(checkbox);
+    }
+}
+
+function toggleCheckboxState(action, toggle) {
+    if (action.ID) {
+        action.ID = `${action.ID}_option${action.OptionId}`;
+    }
+
+    var checkbox = getElementByNameOrId(action, 'input', null, `[pode-option-id="${action.OptionId}"]`);
+    if (!checkbox) {
+        return;
+    }
+
+    if (toggle == 'enable') {
+        enable(checkbox);
+    }
+    else {
+        disable(checkbox);
+    }
 }
 
 function actionToast(action) {
@@ -2744,6 +2883,140 @@ function downloadCSV(csv, filename) {
     $(downloadLink).remove();
 }
 
+function actionAudio(action) {
+    switch(action.Operation.toLowerCase()) {
+        case 'start':
+        case 'stop':
+            toggleMedia(action, action.Operation.toLowerCase(), 'audio');
+            break;
+
+        case 'reset':
+            resetMedia(action, 'audio');
+            break;
+
+        case 'update':
+            updateAudio(action);
+            break;
+    }
+}
+
+function toggleMedia(action, toggle, tag) {
+    var media = getElementByNameOrId(action, tag);
+    if (!media) {
+        return;
+    }
+
+    // play
+    if (toggle == 'start') {
+        media[0].play();
+    }
+
+    // pause
+    else {
+        media[0].pause();
+    }
+}
+
+function resetMedia(action, tag) {
+    var media = getElementByNameOrId(action, tag);
+    if (!media) {
+        return;
+    }
+
+    reloadMedia(media);
+}
+
+function reloadMedia(media) {
+    if (!media) {
+        return;
+    }
+
+    media[0].load();
+}
+
+function updateAudio(action) {
+    var audio = getElementByNameOrId(action, 'audio');
+    if (!audio) {
+        return;
+    }
+
+    // update and reload if we did something
+    if (updateMediaSourceTracks(audio, action.Sources, action.Tracks)) {
+        reloadMedia(audio);
+    }
+}
+
+function updateMediaSourceTracks(media, sources, tracks) {
+    if (!media) {
+        return false;
+    }
+
+    // do nothing if no sources/tracks
+    if (!sources && !tracks) {
+        return false;
+    }
+
+    // clear sources/tracks - both for new sources, only tracks for just tracks
+    if (sources) {
+        media.find('source, track').remove();
+    }
+    else {
+        media.find('track').remove();
+    }
+
+    // add sources
+    convertToArray(sources).forEach((src) => {
+        media.append(`<source src='${src.Url}' type='${src.Type}'>`);
+    });
+
+    // add tracks
+    convertToArray(tracks).forEach((track) => {
+        media.append(`<track src='${track.Url}' kind='${track.Type}' srclang='${track.Language}' label='${track.Title}' ${track.Default ? 'default' : ''}>`);
+    });
+
+    return true;
+}
+
+function actionVideo(action) {
+    switch(action.Operation.toLowerCase()) {
+        case 'start':
+        case 'stop':
+            toggleMedia(action, action.Operation.toLowerCase(), 'video');
+            break;
+
+        case 'reset':
+            resetMedia(action, 'video');
+            break;
+
+        case 'update':
+            updateVideo(action);
+            break;
+    }
+}
+
+function updateVideo(action) {
+    var video = getElementByNameOrId(action, 'video');
+    if (!video) {
+        return;
+    }
+
+    var _updated = false;
+
+    // update source/tracks
+    _updated = updateMediaSourceTracks(video, action.Sources, action.Tracks);
+
+    // update thumbnail
+    if (action.Thumbnail) {
+        video.attr('thumbnail', action.Thumbnail);
+        _updated = true;
+    }
+
+    // reload
+    if (_updated) {
+        reloadMedia(video);
+    }
+}
+
 function actionFileStream(action) {
     switch (action.Operation.toLowerCase()) {
         case 'update':
@@ -2768,6 +3041,79 @@ function actionFileStream(action) {
             clearFileStream(action);
             break;
     }
+}
+
+function actionIFrame(action) {
+    switch(action.Operation.toLowerCase()) {
+        case 'update':
+            updateIFrame(action);
+            break;
+    }
+}
+
+function updateIFrame(action) {
+    var iframe = getElementByNameOrId(action, 'iframe');
+    if (!iframe) {
+        return;
+    }
+
+    // set url
+    if (action.Url) {
+        iframe.attr('src', action.Url);
+    }
+
+    // set title
+    if (action.Title) {
+        iframe.attr('title', action.Title);
+    }
+}
+
+function actionCodeEditor(action) {
+    switch(action.Operation.toLowerCase()) {
+        case 'update':
+            updateCodeEditor(action);
+            break;
+
+        case 'clear':
+            clearCodeEditor(action);
+            break;
+    }
+}
+
+function updateCodeEditor(action) {
+    var editor = getElementByNameOrId(action, 'div');
+    if (!editor) {
+        return;
+    }
+
+    editor = _editors[editor.attr('id')];
+    if (!editor) {
+        return;
+    }
+
+    // set value
+    if (action.Value) {
+        editor.setValue(action.Value);
+    }
+
+    // set language
+    if (action.Language) {
+        monaco.editor.setModelLanguage(editor.getModel(), action.Language);
+    }
+}
+
+function clearCodeEditor(action) {
+    var editor = getElementByNameOrId(action, 'div');
+    if (!editor) {
+        return;
+    }
+
+    editor = _editors[editor.attr('id')];
+    if (!editor) {
+        return;
+    }
+
+    editor.setValue('');
 }
 
 function updateFileStream(action) {
@@ -3461,6 +3807,22 @@ function show(element) {
     element.show();
 }
 
+function enable(element) {
+    if (!element) {
+        return;
+    }
+
+    element.prop('disabled', false);
+}
+
+function disable(element) {
+    if (!element) {
+        return;
+    }
+
+    element.prop('disabled', true);
+}
+
 function actionTab(action) {
     if (!action) {
         return;
@@ -3575,16 +3937,19 @@ function invokeEvent(type, sender) {
     var url = `${getComponentUrl(sender)}/events/${type}`;
 
     var inputs = {};
-    inputs.data = sender.serialize();
 
-    if (!inputs.data) {
-        inputs = serializeInputs(sender);
-    }
+    if (getTagName(sender) != null) {
+        inputs.data = sender.serialize();
 
-    if (!inputs.opts) {
-        inputs.opts = {};
+        if (!inputs.data) {
+            inputs = serializeInputs(sender);
+        }
+
+        if (!inputs.opts) {
+            inputs.opts = {};
+        }
+        inputs.opts.keepFocus = true;
     }
-    inputs.opts.keepFocus = true;
 
     sendAjaxReq(url, inputs.data, sender, true, null, inputs.opts);
 }
@@ -3594,7 +3959,12 @@ function getComponentUrl(component) {
         component = $(`#${component}`);
     }
 
-    return `/components/${component.attr('pode-object').toLowerCase()}/${component.attr('id')}`;
+    if (getTagName(component) == null) {
+        return (window.location.pathname == '/' ? '/home' : window.location.pathname);
+    }
+    else {
+        return `/components/${component.attr('pode-object').toLowerCase()}/${component.attr('id')}`;
+    }
 }
 
 function buildEvents(events) {

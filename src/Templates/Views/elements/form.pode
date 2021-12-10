@@ -2,10 +2,16 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
     "<p class='card-text'>$($data.Message)</p>"
 })
 
-<form id="$($data.ID)" name="$($data.Name)" class="pode-form $($data.CssClasses)" style="$($data.CssStyles)" action="POST" method="/components/form/$($data.ID)" pode-object="$($data.ObjectType)">
+<form id="$($data.ID)" name="$($data.Name)" class="pode-form $($data.CssClasses)" style="$($data.CssStyles)" method="$($data.Method)" action="$($data.Action)" pode-object="$($data.ObjectType)">
     $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content })
     <button class="btn btn-inbuilt-theme" type="submit">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
         Submit
     </button>
+
+    $(if ($data.ShowReset) {
+        "<button class='btn btn-secondary form-reset' for='$($data.ID)' type='button'>
+            Reset
+        </button>"
+    })
 </form>

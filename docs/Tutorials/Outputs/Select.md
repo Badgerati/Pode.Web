@@ -71,3 +71,5 @@ New-PodeWebContainer -NoBackground -Content @(
     }
 )
 ```
+
+You can also optionally supply `-DisplayOptions` to alter the values displayed in the Select element, as well as also supply as `-SelectedValue`.

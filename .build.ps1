@@ -198,13 +198,19 @@ task MoveLibs {
 
     # monaco
     New-Item -Path "$($libs_path)/monaco" -ItemType Directory -Force | Out-Null
+    New-Item -Path "$($libs_path)/vs" -ItemType Directory -Force | Out-Null
+
     New-Item -Path "$($libs_path)/monaco/editor" -ItemType Directory -Force | Out-Null
     New-Item -Path "$($libs_path)/monaco/basic-languages" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($libs_path)/monaco/base/worker" -ItemType Directory -Force | Out-Null
 
     Copy-Item -Path "$($src_path)/monaco-editor/min/vs/loader.js" -Destination "$($libs_path)/monaco/" -Force
     Copy-Item -Path "$($src_path)/monaco-editor/min/vs/editor/*.*" -Destination "$($libs_path)/monaco/editor/" -Force
+
+    New-Item -Path "$($libs_path)/monaco/base/worker" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/worker/*.*" -Destination "$($libs_path)/monaco/base/worker/" -Force
+
+    New-Item -Path "$($libs_path)/monaco/base/browser/ui/codicons/codicon" -ItemType Directory -Force | Out-Null
+    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/browser/ui/codicons/codicon/*.*" -Destination "$($libs_path)/monaco/base/browser/ui/codicons/codicon/" -Force
 
     $langs = @(
         'bat',
@@ -234,6 +240,17 @@ task MoveLibs {
             New-Item -Path "$($libs_path)/monaco/basic-languages/$($_)/" -ItemType Directory -Force | Out-Null
             Copy-Item -Path "$($src_path)/monaco-editor/min/vs/basic-languages/$($_)/*.*" -Destination "$($libs_path)/monaco/basic-languages/$($_)/" -Force
         }
+    }
+
+    New-Item -Path "$($libs_path)/monaco/language" -ItemType Directory -Force | Out-Null
+    New-Item -Path "$($libs_path)/vs/language" -ItemType Directory -Force | Out-Null
+
+    (Get-ChildItem -Path "$($src_path)/monaco-editor/min/vs/language" -Directory).Name | ForEach-Object {
+        New-Item -Path "$($libs_path)/monaco/language/$($_)/" -ItemType Directory -Force | Out-Null
+        Copy-Item -Path "$($src_path)/monaco-editor/min/vs/language/$($_)/*.*" -Destination "$($libs_path)/monaco/language/$($_)/" -Force
+
+        New-Item -Path "$($libs_path)/vs/language/$($_)/" -ItemType Directory -Force | Out-Null
+        Copy-Item -Path "$($src_path)/monaco-editor/min/vs/language/$($_)/*.*" -Destination "$($libs_path)/vs/language/$($_)/" -Force
     }
 
     $vs_maps_path = "$($dest_path)/min-maps/vs"

@@ -21,5 +21,27 @@ Start-PodeServer -Threads 2 {
             Initialize-PodeWebTableColumn -Key 'CPU'
         )
 
-    Set-PodeWebHomePage -Layouts $card1 -Title 'Tables'
+    $processes = New-PodeWebTable `
+        -Name 'Processes' `
+        -Paginate `
+        -Compact `
+        -AsCard `
+        -ScriptBlock {
+            $processes = Get-Process | Select-Object -Property Name, ID, WorkingSet, CPU
+
+            $totalCount = $processes.Length
+            $pageIndex = [int]$WebEvent.Data.PageIndex
+            $pageSize = [int]$WebEvent.Data.PageSize
+            $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
+
+            $processes | Update-PodeWebTable -Name $ElementData.Name -PageIndex $pageIndex -TotalItemCount $totalCount
+        } `
+        -Columns @(
+            Initialize-PodeWebTableColumn -Key 'Name'
+            Initialize-PodeWebTableColumn -Key 'ID'
+            Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory' -Alignment Center -Width 10
+            Initialize-PodeWebTableColumn -Key 'CPU'
+        )
+
+    Set-PodeWebHomePage -Layouts $card1, $processes -Title 'Tables'
 }

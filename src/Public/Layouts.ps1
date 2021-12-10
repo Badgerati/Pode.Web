@@ -154,6 +154,10 @@ function New-PodeWebTab
         [string]
         $Name,
 
+        [Parameter()]
+        [string]
+        $DisplayName,
+
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Layouts,
@@ -179,6 +183,7 @@ function New-PodeWebTab
         ComponentType = 'Layout'
         ObjectType = 'Tab'
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
         Layouts = $Layouts
         Icon = $Icon
@@ -194,6 +199,10 @@ function New-PodeWebCard
         [Parameter()]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -230,6 +239,7 @@ function New-PodeWebCard
         ComponentType = 'Layout'
         ObjectType = 'Card'
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name -NameAsToken)
         Content = $Content
         NoTitle = $NoTitle.IsPresent
@@ -293,6 +303,10 @@ function New-PodeWebModal
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(Mandatory=$true)]
@@ -338,6 +352,15 @@ function New-PodeWebModal
         [string[]]
         $EndpointName,
 
+        [Parameter()]
+        [ValidateSet('Get', 'Post')]
+        [string]
+        $Method = 'Post',
+
+        [Parameter()]
+        [string]
+        $Action,
+
         [switch]
         $AsForm,
 
@@ -381,6 +404,7 @@ function New-PodeWebModal
         ComponentType = 'Layout'
         ObjectType = 'Modal'
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Icon = $Icon
         Content = $Content
@@ -391,6 +415,8 @@ function New-PodeWebModal
         ShowSubmit = ($null -ne $ScriptBlock)
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Method = $Method
+        Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
     }
 }
 
@@ -607,6 +633,10 @@ function New-PodeWebStep
         $Name,
 
         [Parameter()]
+        [string]
+        $DisplayName,
+
+        [Parameter()]
         [hashtable[]]
         $Content,
 
@@ -675,6 +705,7 @@ function New-PodeWebStep
         ComponentType = 'Layout'
         ObjectType = 'Step'
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Content = $Content
         Icon = $Icon
@@ -726,6 +757,10 @@ function New-PodeWebBreadcrumbItem
         [string]
         $Name,
 
+        [Parameter()]
+        [string]
+        $DisplayName,
+
         [Parameter(Mandatory=$true)]
         [string]
         $Url,
@@ -738,7 +773,8 @@ function New-PodeWebBreadcrumbItem
         ComponentType = 'Layout'
         ObjectType = 'BreadcrumbItem'
         Name = $Name
-        Url = $Url
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        Url = (Add-PodeWebAppPath -Url $Url)
         Active = $Active.IsPresent
         NoEvents = $true
     }
@@ -809,6 +845,10 @@ function New-PodeWebBellow
         $Name,
 
         [Parameter()]
+        [string]
+        $DisplayName,
+
+        [Parameter()]
         [hashtable[]]
         $Content,
 
@@ -833,6 +873,7 @@ function New-PodeWebBellow
         ComponentType = 'Layout'
         ObjectType = 'Bellow'
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Bellow -Name $Name)
         Content = $Content
         Icon = $Icon

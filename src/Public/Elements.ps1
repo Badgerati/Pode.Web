@@ -8,6 +8,10 @@ function New-PodeWebTextbox
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(ParameterSetName='Single')]
@@ -25,7 +29,7 @@ function New-PodeWebTextbox
         $Size = 4,
 
         [Parameter()]
-        [int]
+        [string]
         $Width = 100,
 
         [Parameter()]
@@ -84,7 +88,10 @@ function New-PodeWebTextbox
         $NoAuthentication,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
@@ -94,28 +101,21 @@ function New-PodeWebTextbox
         $Size = 4
     }
 
-    # constrain width
-    if ($Width -lt 0) {
-        $Width = 0
-    }
-    if ($Width -gt 100) {
-        $Width = 100
-    }
-
     # build element
     $element = @{
         ComponentType = 'Element'
         ObjectType = 'Textbox'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Type = $Type
         Multiline = $Multiline.IsPresent
         Placeholder = $Placeholder
         Size = $Size
-        Width = $Width
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
         Preformat = $Preformat.IsPresent
-        HelpText = $HelpText
+        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         IsAutoComplete = ($null -ne $AutoComplete)
         Value = $Value
@@ -133,6 +133,7 @@ function New-PodeWebTextbox
         }
         NoAuthentication = $NoAuthentication.IsPresent
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 
     # create autocomplete route
@@ -173,7 +174,15 @@ function New-PodeWebFileUpload
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
+
+        [Parameter()]
+        [string[]]
+        $Accept = '*/*',
 
         [Parameter()]
         [string[]]
@@ -184,7 +193,10 @@ function New-PodeWebFileUpload
         $CssStyle,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag File -Id $Id -Name $Name
@@ -194,11 +206,14 @@ function New-PodeWebFileUpload
         ObjectType = 'FileUpload'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
+        Accept = ($Accept -join ',')
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 }
 
@@ -351,11 +366,19 @@ function New-PodeWebCheckbox
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(ParameterSetName='Multiple')]
         [string[]]
         $Options,
+
+        [Parameter(ParameterSetName='Multiple')]
+        [string[]]
+        $DisplayOptions,
 
         [Parameter()]
         [string[]]
@@ -379,7 +402,10 @@ function New-PodeWebCheckbox
         $Disabled,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Checkbox -Id $Id -Name $Name
@@ -393,8 +419,10 @@ function New-PodeWebCheckbox
         ObjectType = 'Checkbox'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Options = @($Options)
+        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
         Inline = $Inline.IsPresent
         AsSwitch = $AsSwitch.IsPresent
         Checked = $Checked.IsPresent
@@ -402,6 +430,7 @@ function New-PodeWebCheckbox
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 }
 
@@ -415,11 +444,19 @@ function New-PodeWebRadio
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(Mandatory=$true)]
         [string[]]
         $Options,
+
+        [Parameter()]
+        [string[]]
+        $DisplayOptions,
 
         [Parameter()]
         [string[]]
@@ -436,7 +473,10 @@ function New-PodeWebRadio
         $Disabled,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Radio -Id $Id -Name $Name
@@ -446,13 +486,16 @@ function New-PodeWebRadio
         ObjectType = 'Radio'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Options = @($Options)
+        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
         Inline = $Inline.IsPresent
         Disabled = $Disabled.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 }
 
@@ -466,11 +509,19 @@ function New-PodeWebSelect
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(ParameterSetName='Options')]
         [string[]]
         $Options,
+
+        [Parameter(ParameterSetName='Options')]
+        [string[]]
+        $DisplayOptions,
 
         [Parameter(ParameterSetName='ScriptBlock')]
         [scriptblock]
@@ -484,6 +535,7 @@ function New-PodeWebSelect
         [string]
         $SelectedValue,
 
+        [Parameter()]
         [int]
         $Size = 4,
 
@@ -499,7 +551,10 @@ function New-PodeWebSelect
         $Multiple,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
@@ -513,8 +568,10 @@ function New-PodeWebSelect
         ObjectType = 'Select'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Options = @($Options)
+        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
         ScriptBlock = $ScriptBlock
         IsDynamic = ($null -ne $ScriptBlock)
         SelectedValue = $SelectedValue
@@ -524,6 +581,7 @@ function New-PodeWebSelect
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoAuthentication = $NoAuthentication.IsPresent
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 
     $routePath = "/components/select/$($Id)"
@@ -568,6 +626,10 @@ function New-PodeWebRange
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter()]
@@ -597,7 +659,10 @@ function New-PodeWebRange
         $ShowValue,
 
         [switch]
-        $NoForm
+        $NoForm,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Range -Id $Id -Name $Name
@@ -615,6 +680,7 @@ function New-PodeWebRange
         ObjectType = 'Range'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Value = $Value
         Min = $Min
@@ -624,6 +690,7 @@ function New-PodeWebRange
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoForm = $NoForm.IsPresent
+        Required = $Required.IsPresent
     }
 }
 
@@ -634,6 +701,10 @@ function New-PodeWebProgress
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -695,6 +766,7 @@ function New-PodeWebProgress
         ObjectType = 'Progress'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Value = $Value
         Min = $Min
@@ -733,11 +805,11 @@ function New-PodeWebImage
         $Alignment = 'Left',
 
         [Parameter()]
-        [int]
+        [string]
         $Height = 0,
 
         [Parameter()]
-        [int]
+        [string]
         $Width = 0,
 
         [Parameter()]
@@ -751,24 +823,16 @@ function New-PodeWebImage
 
     $Id = Get-PodeWebElementId -Tag Img -Id $Id -RandomToken
 
-    if ($Height -lt 0) {
-        $Height = 0
-    }
-
-    if ($Width -lt 0) {
-        $Width = 0
-    }
-
     return @{
         ComponentType = 'Element'
         ObjectType = 'Image'
         Parent = $ElementData
         ID = $Id
-        Source = $Source
+        Source = (Add-PodeWebAppPath -Url $Source)
         Title = $Title
         Alignment = $Alignment.ToLowerInvariant()
-        Height = $Height
-        Width = $Width
+        Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px')
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type 'px')
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
@@ -983,8 +1047,8 @@ function New-PodeWebLink
         ObjectType = 'Link'
         Parent = $ElementData
         ID = $Id
-        Source = $Source
-        Value = $Value
+        Source = (Add-PodeWebAppPath -Url $Source)
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
         NewTab = $NewTab.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -1021,6 +1085,10 @@ function New-PodeWebText
         [hashtable]
         $CssStyle,
 
+        [Parameter()]
+        [string]
+        $Pronunciation,
+
         [Parameter(ParameterSetName='Paragraph')]
         [switch]
         $InParagraph
@@ -1032,6 +1100,7 @@ function New-PodeWebText
         Parent = $ElementData
         ID = (Get-PodeWebElementId -Tag Txt -Id $Id -RandomToken)
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        Pronunciation = [System.Net.WebUtility]::HtmlEncode($Pronunciation)
         Style = $Style
         InParagraph = $InParagraph.IsPresent
         Alignment = $Alignment.ToLowerInvariant()
@@ -1119,6 +1188,10 @@ function New-PodeWebCredential
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter()]
@@ -1133,11 +1206,28 @@ function New-PodeWebCredential
         [hashtable]
         $CssStyle,
 
+        [Parameter()]
+        [string]
+        $DisplayUsername,
+
+        [Parameter()]
+        [string]
+        $DisplayPassword,
+
+        [Parameter()]
+        [ValidateSet('Username', 'Password')]
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $Type = @('Username', 'Password'),
+
         [switch]
         $ReadOnly,
 
         [switch]
-        $NoLabels
+        $NoLabels,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Cred -Id $Id -Name $Name
@@ -1147,12 +1237,19 @@ function New-PodeWebCredential
         ObjectType = 'Credential'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
-        HelpText = $HelpText
+        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Placeholders = @{
+            Username = (Protect-PodeWebValue -Value $DisplayUsername -Default 'Username' -Encode)
+            Password = (Protect-PodeWebValue -Value $DisplayPassword -Default 'Password' -Encode)
+        }
+        Type = @($Type)
+        Required = $Required.IsPresent
     }
 }
 
@@ -1166,6 +1263,10 @@ function New-PodeWebDateTime
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter()]
@@ -1180,11 +1281,28 @@ function New-PodeWebDateTime
         [hashtable]
         $CssStyle,
 
+        [Parameter()]
+        [string]
+        $DisplayDate,
+
+        [Parameter()]
+        [string]
+        $DisplayTime,
+
+        [Parameter()]
+        [ValidateSet('Date', 'Time')]
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $Type = @('Date', 'Time'),
+
         [switch]
         $ReadOnly,
 
         [switch]
-        $NoLabels
+        $NoLabels,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag DateTime -Id $Id -Name $Name
@@ -1194,12 +1312,19 @@ function New-PodeWebDateTime
         ObjectType = 'DateTime'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
-        HelpText = $HelpText
+        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Placeholders = @{
+            Date = (Protect-PodeWebValue -Value $DisplayDate -Default 'Date' -Encode)
+            Time = (Protect-PodeWebValue -Value $DisplayTime -Default 'Time' -Encode)
+        }
+        Type = @($Type)
+        Required = $Required.IsPresent
     }
 }
 
@@ -1210,6 +1335,10 @@ function New-PodeWebMinMax
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -1251,11 +1380,28 @@ function New-PodeWebMinMax
         [hashtable]
         $CssStyle,
 
+        [Parameter()]
+        [string]
+        $DisplayMin,
+
+        [Parameter()]
+        [string]
+        $DisplayMax,
+
+        [Parameter()]
+        [ValidateSet('Min', 'Max')]
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $Type = @('Min', 'Max'),
+
         [switch]
         $ReadOnly,
 
         [switch]
-        $NoLabels
+        $NoLabels,
+
+        [switch]
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag MinMax -Id $Id -Name $Name
@@ -1265,12 +1411,13 @@ function New-PodeWebMinMax
         ObjectType = 'MinMax'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Values = @{
             Min = $MinValue
             Max = $MaxValue
         }
-        HelpText = $HelpText
+        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
@@ -1285,6 +1432,12 @@ function New-PodeWebMinMax
             Text = $AppendText
             Icon = $AppendIcon
         }
+        Placeholders = @{
+            Min = (Protect-PodeWebValue -Value $DisplayMin -Default 'Minimum' -Encode)
+            Max = (Protect-PodeWebValue -Value $DisplayMax -Default 'Maximum' -Encode)
+        }
+        Type = @($Type)
+        Required = $Required.IsPresent
     }
 }
 
@@ -1313,6 +1466,10 @@ function New-PodeWebButton
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -1379,10 +1536,11 @@ function New-PodeWebButton
         ObjectType = 'Button'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         DataValue = $DataValue
         Icon = $Icon
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         IsDynamic = ($null -ne $ScriptBlock)
         IconOnly = $IconOnly.IsPresent
         Colour = $Colour
@@ -1470,7 +1628,7 @@ function New-PodeWebAlert
         ObjectType = 'Alert'
         Parent = $ElementData
         ID = $Id
-        Type = $Type
+        Type = [System.Net.WebUtility]::HtmlEncode($Type)
         ClassType = $classType
         IconType = $iconType
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
@@ -1668,9 +1826,9 @@ function New-PodeWebComment
         ObjectType = 'Comment'
         Parent = $ElementData
         ID = $Id
-        Icon = $Icon
-        Username = $Username
-        Message = $Message
+        Icon = (Add-PodeWebAppPath -Url $Icon)
+        Username = [System.Net.WebUtility]::HtmlEncode($Username)
+        Message = [System.Net.WebUtility]::HtmlEncode($Message)
         TimeStamp = $TimeStamp
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -1708,7 +1866,7 @@ function New-PodeWebChart
         $MaxItems = 0,
 
         [Parameter()]
-        [int]
+        [string]
         $Height = 0,
 
         [Parameter()]
@@ -1804,7 +1962,7 @@ function New-PodeWebChart
         IsDynamic = ($null -ne $ScriptBlock)
         Append = $Append.IsPresent
         MaxItems = $MaxItems
-        Height = $Height
+        Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px')
         TimeLabels = $TimeLabels.IsPresent
         AutoRefresh = $AutoRefresh.IsPresent
         RefreshInterval = ($RefreshInterval * 1000)
@@ -2014,6 +2172,9 @@ function New-PodeWebTable
         $RefreshInterval = 60,
 
         [switch]
+        $Compact,
+
+        [switch]
         $Filter,
 
         [switch]
@@ -2074,6 +2235,7 @@ function New-PodeWebTable
         Columns = $Columns
         Buttons = @()
         Message = $Message
+        Compact = $Compact.IsPresent
         Filter = @{
             Enabled = ($Filter.IsPresent -or $SimpleFilter.IsPresent)
             Simple = $SimpleFilter.IsPresent
@@ -2182,7 +2344,7 @@ function Initialize-PodeWebTableColumn
         $Key,
 
         [Parameter()]
-        [int]
+        [string]
         $Width = 0,
 
         [Parameter()]
@@ -2196,7 +2358,11 @@ function Initialize-PodeWebTableColumn
 
         [Parameter()]
         [string]
-        $Icon
+        $Icon,
+
+        [Parameter()]
+        [string]
+        $Default
     )
 
     if ([string]::IsNullOrWhiteSpace($Name)) {
@@ -2205,10 +2371,11 @@ function Initialize-PodeWebTableColumn
 
     return @{
         Key = $Key
-        Width = $Width
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
         Alignment = $Alignment.ToLowerInvariant()
         Name = $Name
         Icon = $Icon
+        Default = $Default
     }
 }
 
@@ -2223,6 +2390,10 @@ function Add-PodeWebTableButton
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -2278,6 +2449,7 @@ function Add-PodeWebTableButton
 
     $Table.Buttons += @{
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         Icon = $Icon
         IsDynamic = ($null -ne $ScriptBlock)
         WithText = $WithText.IsPresent
@@ -2435,12 +2607,24 @@ function New-PodeWebForm
         $EndpointName,
 
         [Parameter()]
+        [ValidateSet('Get', 'Post')]
+        [string]
+        $Method = 'Post',
+
+        [Parameter()]
+        [string]
+        $Action,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
 
         [switch]
-        $AsCard
+        $AsCard,
+
+        [switch]
+        $ShowReset
     )
 
     # ensure content are correct
@@ -2450,6 +2634,7 @@ function New-PodeWebForm
 
     # generate ID
     $Id = Get-PodeWebElementId -Tag Form -Id $Id -Name $Name
+    $routePath = "/components/form/$($Id)"
 
     $element = @{
         ComponentType = 'Element'
@@ -2462,11 +2647,13 @@ function New-PodeWebForm
         NoHeader = $NoHeader.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Method = $Method
+        Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
+        ShowReset = $ShowReset.IsPresent
     }
 
-    $routePath = "/components/form/$($Id)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -2598,6 +2785,10 @@ function New-PodeWebTile
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter()]
@@ -2674,6 +2865,7 @@ function New-PodeWebTile
         ObjectType = 'Tile'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Click = ($null -ne $ClickScriptBlock)
         IsDynamic = ($null -ne $ScriptBlock)
@@ -2802,7 +2994,7 @@ function New-PodeWebFileStream
         Name = $Name
         ID = $Id
         Height = $Height
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Interval = ($Interval * 1000)
         Icon = $Icon
         CssClasses = ($CssClass -join ' ')
@@ -2852,10 +3044,297 @@ function New-PodeWebIFrame
         Parent = $ElementData
         Name = $Name
         ID = (Get-PodeWebElementId -Tag iFrame -Id $Id -Name $Name)
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Title = $Title
         NoEvents = $true
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+    }
+}
+
+function New-PodeWebAudio
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track,
+
+        [Parameter()]
+        [string]
+        $NotSupportedText,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [hashtable]
+        $CssStyle,
+
+        [Parameter()]
+        [string]
+        $Width = 20,
+
+        [switch]
+        $Muted,
+
+        [switch]
+        $AutoPlay,
+
+        [switch]
+        $AutoBuffer,
+
+        [switch]
+        $Loop,
+
+        [switch]
+        $NoControls,
+
+        [switch]
+        $NoDownload
+    )
+
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType AudioSource)) {
+        throw 'Audio sources can only contain AudioSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Audio tracks can only contain MediaTrack elements'
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'Audio'
+        Parent = $ElementData
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Audio -Id $Id -Name $Name -NameAsToken)
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 20 -Type '%')
+        Sources = $Source
+        Tracks = $Track
+        NotSupportedText = [System.Net.WebUtility]::HtmlEncode((Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element'))
+        Muted = $Muted.IsPresent
+        AutoPlay = $AutoPlay.IsPresent
+        AutoBuffer = $AutoBuffer.IsPresent
+        Loop = $Loop.IsPresent
+        NoControls = $NoControls.IsPresent
+        NoDownload = $NoDownload.IsPresent
+        CssClasses = ($CssClass -join ' ')
+        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+    }
+}
+
+function New-PodeWebAudioSource
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    $type = [string]::Empty
+
+    switch (($Url -split '\.')[-1].ToLowerInvariant()) {
+        'mp3' { $type = 'audio/mpeg' }
+        'ogg' { $type = 'audio/ogg' }
+        'wav' { $type = 'audio/wav' }
+        default {
+            throw "Audio source type unsupported: $($_)"
+        }
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'AudioSource'
+        Url = (Add-PodeWebAppPath -Url $Url)
+        Type = $type
+        NoEvents = $true
+    }
+}
+
+function New-PodeWebVideo
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track,
+
+        [Parameter()]
+        [string]
+        $Thumbnail,
+
+        [Parameter()]
+        [string]
+        $NotSupportedText,
+
+        [Parameter()]
+        [string[]]
+        $CssClass,
+
+        [Parameter()]
+        [hashtable]
+        $CssStyle,
+
+        [Parameter()]
+        [string]
+        $Width = 20,
+
+        [Parameter()]
+        [string]
+        $Height = 15,
+
+        [switch]
+        $Muted,
+
+        [switch]
+        $AutoPlay,
+
+        [switch]
+        $AutoBuffer,
+
+        [switch]
+        $Loop,
+
+        [switch]
+        $NoControls,
+
+        [switch]
+        $NoDownload,
+
+        [switch]
+        $NoPictureInPicture
+    )
+
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType VideoSource)) {
+        throw 'Video sources can only contain VideoSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Video tracks can only contain MediaTrack elements'
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'Video'
+        Parent = $ElementData
+        Name = $Name
+        ID = (Get-PodeWebElementId -Tag Video -Id $Id -Name $Name -NameAsToken)
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 20 -Type '%')
+        Height = (ConvertTo-PodeWebSize -Value $Height -Default 15 -Type '%')
+        Sources = $Source
+        Tracks = $Track
+        Thumbnail = $Thumbnail
+        NotSupportedText = [System.Net.WebUtility]::HtmlEncode((Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the video element'))
+        Muted = $Muted.IsPresent
+        AutoPlay = $AutoPlay.IsPresent
+        AutoBuffer = $AutoBuffer.IsPresent
+        Loop = $Loop.IsPresent
+        NoControls = $NoControls.IsPresent
+        NoDownload = $NoDownload.IsPresent
+        NoPictureInPicture = $NoPictureInPicture.IsPresent
+        CssClasses = ($CssClass -join ' ')
+        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+    }
+}
+
+function New-PodeWebVideoSource
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url
+    )
+
+    $type = [string]::Empty
+
+    switch (($Url -split '\.')[-1].ToLowerInvariant()) {
+        'mp4' { $type = 'video/mp4' }
+        'ogg' { $type = 'video/ogg' }
+        'webm' { $type = 'video/webm' }
+        default {
+            throw "Video source type unsupported: $($_)"
+        }
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'VideoSource'
+        Url = (Add-PodeWebAppPath -Url $Url)
+        Type = $type
+        NoEvents = $true
+    }
+}
+
+function New-PodeWebMediaTrack
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $Language,
+
+        [Parameter()]
+        [string]
+        $Title,
+
+        [Parameter()]
+        [ValidateSet('captions', 'chapters', 'descriptions', 'metadata', 'subtitles')]
+        [string]
+        $Type = 'subtitles',
+
+        [switch]
+        $Default
+    )
+
+    if (($Url -split '\.')[-1] -ine 'vtt') {
+        throw "Invalid media track file format supplied, expected a .vtt file"
+    }
+
+    if (($Type -ieq 'subtitles') -and [string]::IsNullOrWhiteSpace($Language)) {
+        throw "A language is required for subtitle tracks"
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'MediaTrack'
+        Url = (Add-PodeWebAppPath -Url $Url)
+        Language = $Language
+        Title = $Title
+        Type = $Type.ToLowerInvariant()
+        Default = $Default.IsPresent
+        NoEvents = $true
     }
 }

@@ -1,0 +1,24 @@
+<audio
+    id="$($data.ID)"
+    name="$($data.Name)"
+    class="$($data.CssClasses)"
+    style="width:$($data.Width);$($data.CssStyles)"
+    pode-object="$($data.ObjectType)"
+    $(if (!$data.NoControls) {'controls'})
+    $(if ($data.NoDownload) {"controlslist='nodownload'"})
+    $(if ($data.AutoPlay) {'autoplay'})
+    $(if ($data.AutoBuffer) {'autobuffer'})
+    $(if ($data.Loop) {'loop'})
+    $(if ($data.Muted) {'muted'})
+    $(ConvertTo-PodeWebEvents -Events $data.Events)>
+
+    $(foreach ($src in $data.Sources) {
+        "<source src='$($src.Url)' type='$($src.Type)'>"
+    })
+
+    $(foreach ($track in $data.Tracks) {
+        "<track src='$($track.Url)' kind='$($track.Type)' srclang='$($track.Language)' label='$($track.Title)' $(if ($track.Default) {'default'})>"
+    })
+
+    $($data.NotSupportedText)
+</audio>

@@ -31,8 +31,8 @@ function Use-PodeWebTemplates
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore | Sort-Object -Property Version -Descending | Select-Object -First 1)
-    if (($null -eq $mod) -or ($mod.Version.Major -lt 2)) {
-        throw "The Pode module is not loaded. You need at least Pode 2.0 to use the Pode.Web module."
+    if (($null -eq $mod) -or ($mod.Version -lt [version]'2.5.0')) {
+        throw "The Pode module is not loaded. You need at least Pode v2.5.0 to use this version of the Pode.Web module."
     }
 
     if ([string]::IsNullOrWhiteSpace($FavIcon)) {
@@ -41,13 +41,19 @@ function Use-PodeWebTemplates
 
     Export-PodeModule -Name Pode.Web
 
-    Set-PodeWebState -Name 'title' -Value $Title
-    Set-PodeWebState -Name 'logo' -Value $Logo
-    Set-PodeWebState -Name 'favicon' -Value $FavIcon
+    $appPath = Get-PodeIISApplicationPath
+    if ([string]::IsNullOrWhiteSpace($appPath) -or ($appPath -eq '/')) {
+        $appPath = [string]::Empty
+    }
+    Set-PodeWebState -Name 'app-path' -Value ($appPath.ToLowerInvariant())
+
+    Set-PodeWebState -Name 'title' -Value ([System.Net.WebUtility]::HtmlEncode($Title))
+    Set-PodeWebState -Name 'logo' -Value (Add-PodeWebAppPath -Url $Logo)
+    Set-PodeWebState -Name 'favicon' -Value (Add-PodeWebAppPath -Url $FavIcon)
     Set-PodeWebState -Name 'no-page-filter' -Value $NoPageFilter.IsPresent
     Set-PodeWebState -Name 'hide-sidebar' -Value $HideSidebar.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
-    Set-PodeWebState -Name 'pages' -Value @()
+    Set-PodeWebState -Name 'pages' -Value @{}
     Set-PodeWebState -Name 'default-nav' -Value $null
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
@@ -73,6 +79,8 @@ function Use-PodeWebTemplates
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
+                Path = '/'
+                IsSystem = $true
             }
         }
     }
@@ -87,7 +95,7 @@ function Import-PodeWebStylesheet
         $Url
     )
 
-    Set-PodeWebState -Name 'custom-css' -Value  (@(Get-PodeWebState -Name 'custom-css') + $Url)
+    Set-PodeWebState -Name 'custom-css' -Value  (@(Get-PodeWebState -Name 'custom-css') + (Add-PodeWebAppPath -Url $Url))
 }
 
 function Import-PodeWebJavaScript
@@ -99,7 +107,7 @@ function Import-PodeWebJavaScript
         $Url
     )
 
-    Set-PodeWebState -Name 'custom-js' -Value  (@(Get-PodeWebState -Name 'custom-js') + $Url)
+    Set-PodeWebState -Name 'custom-js' -Value  (@(Get-PodeWebState -Name 'custom-js') + (Add-PodeWebAppPath -Url $Url))
 }
 
 function Set-PodeWebSocial
@@ -222,7 +230,7 @@ function Add-PodeWebCustomTheme
 
     # add the custom theme
     $customThemes.Themes[$Name] = @{
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
     }
 
     # set as theme if first one

@@ -8,6 +8,10 @@ function New-PodeWebNavLink
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(Mandatory=$true, ParameterSetName='Url')]
@@ -45,8 +49,9 @@ function New-PodeWebNavLink
         ComponentType = 'Navigation'
         NavType = 'Link'
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         Icon = $Icon
         IsDynamic = ($null -ne $ScriptBlock)
         Disabled = $Disabled.IsPresent
@@ -95,6 +100,10 @@ function New-PodeWebNavDropdown
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(Mandatory=$true)]
@@ -120,6 +129,7 @@ function New-PodeWebNavDropdown
         ComponentType = 'Navigation'
         NavType = 'Dropdown'
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag 'Nav-Dropdown' -Id $Id -Name $Name)
         Items = $Items
         Icon = $Icon

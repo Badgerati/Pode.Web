@@ -23,12 +23,12 @@ $(
 
     if ($data.InDropdown) {
         "<li>
-            <a class='dropdown-item pode-nav-link $($disabled)' id='$($data.ID)' $($href) pode-dynamic='$($data.IsDynamic)' $($disabledAria)>$($icon)$($data.Name)</a>
+            <a class='dropdown-item pode-nav-link $($disabled)' id='$($data.ID)' $($href) pode-dynamic='$($data.IsDynamic)' $($disabledAria)>$($icon)$($data.DisplayName)</a>
         <li>"
     }
     else {
         "<li class='nav-item'>
-            <a class='nav-link pode-nav-link $($disabled)' id='$($data.ID)' $($href) pode-dynamic='$($data.IsDynamic)' $($disabledAria)>$($icon)$($data.Name)</a>
+            <a class='nav-link pode-nav-link $($disabled)' id='$($data.ID)' $($href) pode-dynamic='$($data.IsDynamic)' $($disabledAria)>$($icon)$($data.DisplayName)</a>
         </li>"
     }
 )

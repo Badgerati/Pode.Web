@@ -1,11 +1,17 @@
 <html>
     $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
-        Title = 'Login'
+        Title = $data.Page.Name
         Theme = $data.Theme
+        AppPath = $data.AppPath
     })
 
-    <body id="login-page" pode-theme="$($data.Theme)" style="background-image: url('$($data.Background.Image)'); background-repeat: no-repeat; background-size: cover">
-        <form class="form-signin" action='/login' method='POST'>
+    <body id="login-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" style="background-image: url('$($data.Background.Image)'); background-repeat: no-repeat; background-size: cover" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
+        <div aria-live="polite" aria-atomic="true" style="min-height: 200px;" class="sticky">
+            <div id="toast-area">
+            </div>
+        </div>
+
+        <form class="form-signin" action="$($data.AppPath)/login" method='POST'>
             <div class='text-center mb-4'>
                 <a href='$($data.LogoUrl)'>
                     <img class='mb-4 rounded' src='$($data.Logo)' alt='logo' height='72'>
@@ -26,14 +32,21 @@
 
                 if ($data.Flash['auth-error']) {
                     "<div class='alert alert-danger' role='alert'>
-                        $($data.Flash['auth-error'])
+                        <span class='mdi mdi-alert-circle'></span>
+                        <strong>$($data.Flash['auth-error'])</strong>
                     </div>"
                 }
 
-                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>Sign in</button>"
+                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
+                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                    Sign in
+                </button>"
             }
             else {
-                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>Sign in using OAuth2 ($($data.Auth.Name))</button>"
+                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
+                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                    Sign in using OAuth2 ($($data.Auth.Name))
+                </button>"
             })
 
             $(if (![string]::IsNullOrWhiteSpace($data.Copyright)) {
@@ -41,6 +54,8 @@
             })
         </form>
 
-        $(Use-PodeWebPartialView -Path 'shared/scripts')
+        $(Use-PodeWebPartialView -Path 'shared/scripts' -Data @{
+            AppPath = $data.AppPath
+        })
     </body>
 </html>

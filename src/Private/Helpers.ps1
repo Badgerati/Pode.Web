@@ -114,12 +114,12 @@ function Get-PodeWebAuthAvatarUrl
     # nothing if no property set
     $prop = (Get-PodeWebState -Name 'auth-props').Avatar
     if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
-        return $user.$prop
+        return (Add-PodeWebAppPath -Url $user.$prop)
     }
 
     # avatar url
     if (![string]::IsNullOrWhiteSpace($user.AvatarUrl)) {
-        return $user.AvatarUrl
+        return (Add-PodeWebAppPath -Url $user.AvatarUrl)
     }
 
     return [string]::Empty
@@ -241,7 +241,24 @@ function Write-PodeWebViewResponse
         $Data = @{}
     )
 
+    $Data['AppPath'] = (Get-PodeWebState -Name 'app-path')
     Write-PodeViewResponse -Path "$($Path).pode" -Data $Data -Folder 'pode.web.views' -FlashMessages
+}
+
+function Add-PodeWebAppPath
+{
+    param(
+        [Parameter()]
+        [string]
+        $Url
+    )
+
+    if (![string]::IsNullOrWhiteSpace($Url) -and $Url.StartsWith('/')) {
+        $appPath = Get-PodeWebState -Name 'app-path'
+        $Url = "$($appPath)$($Url)"
+    }
+
+    return $Url
 }
 
 function Use-PodeWebPartialView
@@ -317,6 +334,81 @@ function Protect-PodeWebName
     )
 
     return ($Name -ireplace '[^a-z0-9_]', '').Trim()
+}
+
+function Protect-PodeWebValue
+{
+    param(
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Default,
+
+        [switch]
+        $Encode
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        if ($Encode) {
+            return [System.Net.WebUtility]::HtmlEncode($Default)
+        }
+        else {
+            return $Default
+        }
+    }
+
+    if ($Encode) {
+        return [System.Net.WebUtility]::HtmlEncode($Value)
+    }
+    else {
+        return $Value
+    }
+}
+
+function Protect-PodeWebValues
+{
+    param(
+        [Parameter()]
+        [string[]]
+        $Value,
+
+        [Parameter()]
+        [string[]]
+        $Default,
+
+        [switch]
+        $EqualCount,
+
+        [switch]
+        $Encode
+    )
+
+    if (($null -eq $Value) -or ($Value.Length -eq 0)) {
+        if ($Encode -and ($null -ne $Default) -and ($Default.Length -gt 0)) {
+            return @(foreach ($v in $Default) {
+                [System.Net.WebUtility]::HtmlEncode($v)
+            })
+        }
+        else {
+            return $Default
+        }
+    }
+
+    if ($EqualCount -and ($Value.Length -ne $Default.Length)) {
+        throw "Expected an equal number of values in both arrays"
+    }
+
+    if ($Encode) {
+        return @(foreach ($v in $Value) {
+            [System.Net.WebUtility]::HtmlEncode($v)
+        })
+    }
+    else {
+        return $Value
+    }
 }
 
 function Test-PodeWebRoute
@@ -624,12 +716,12 @@ function Test-PodeWebOutputWrapped
 
 function Get-PodeWebFirstPublicPage
 {
-    $pages = @(Get-PodeWebState -Name 'pages')
-    if (Test-PodeWebArrayEmpty -Array $pages) {
+    $pages = Get-PodeWebState -Name 'pages'
+    if (($null -eq $pages) -or ($pages.Count -eq 0)) {
         return $null
     }
 
-    foreach ($page in ($pages | Sort-Object -Property Name)) {
+    foreach ($page in ($pages.Values | Sort-Object -Property { $_.Group }, { $_.Name })) {
         if ((Test-PodeWebArrayEmpty -Array $page.Access.Groups) -and (Test-PodeWebArrayEmpty -Array $page.Access.Users)) {
             return $page
         }
@@ -652,7 +744,10 @@ function Get-PodeWebPagePath
 
         [Parameter(ParameterSetName='Page')]
         [hashtable]
-        $Page
+        $Page,
+
+        [switch]
+        $NoAppPath
     )
 
     $path = [string]::Empty
@@ -667,6 +762,11 @@ function Get-PodeWebPagePath
     }
 
     $path += "/pages/$($Name)"
+
+    if (!$NoAppPath) {
+        $path = (Add-PodeWebAppPath -Url $path)
+    }
+
     return $path
 }
 
@@ -710,4 +810,53 @@ function ConvertTo-PodeWebStyles
     }
 
     return $styles
+}
+
+function ConvertTo-PodeWebSize
+{
+    param(
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Default = 0,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('px', '%', 'em')]
+        [string]
+        $Type
+    )
+
+    $pattern = '^\-?\d+(\.\d+){0,1}$'
+    $defIsNumber = ($Default -match $pattern)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        if ($defIsNumber) {
+            return "$($Default)$($Type)"
+        }
+        else {
+            return $Default
+        }
+    }
+
+    if ($Value -match $pattern) {
+        $_val = [double]$Value
+        if ($_val -le 0) {
+            if ($defIsNumber) {
+                $Value = $Default
+            }
+            else {
+                return $Default
+            }
+        }
+        elseif (($Type -eq '%') -and ($_val -gt 100)) {
+            $Value = 100
+        }
+
+        return "$($Value)$($Type)"
+    }
+
+    return $Value
 }

@@ -71,7 +71,10 @@ function Update-PodeWebTable
 
         [Parameter()]
         [int]
-        $TotalItemCount
+        $TotalItemCount,
+
+        [switch]
+        $Force
     )
 
     begin {
@@ -85,6 +88,10 @@ function Update-PodeWebTable
     end {
         # columns
         $_columns = [ordered]@{}
+        if ((($null -eq $Columns) -or ($Columns.Length -eq 0)) -and ($null -ne $ElementData.Columns) -and ($ElementData.Columns.Length -gt 0)) {
+            $Columns = $ElementData.Columns
+        }
+
         if (($null -ne $Columns) -and ($Columns.Length -gt 0)) {
             foreach ($col in $Columns) {
                 $_columns[$col.Key] = $col
@@ -98,7 +105,7 @@ function Update-PodeWebTable
 
         # - is table paginated?
         if ($Paginate -or (($PageIndex -gt 0) -and ($TotalItemCount -gt 0))) {
-            if ($null -ne $ElementData) {
+            if (!$Force -and ($null -ne $ElementData)) {
                 if (!$ElementData.Paging.Enabled) {
                     throw "You cannot paginate a table that does not have paging enabled: $($ElementData.ID)"
                 }
@@ -711,7 +718,15 @@ function Update-PodeWebSelect
 
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [string[]]
-        $Options
+        $Options,
+
+        [Parameter()]
+        [string[]]
+        $DisplayOptions,
+
+        [Parameter()]
+        [string]
+        $SelectedValue
     )
 
     begin {
@@ -729,6 +744,8 @@ function Update-PodeWebSelect
             Name = $Name
             ID = $Id
             Options = $items
+            DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $items -EqualCount)
+            SelectedValue = [System.Net.WebUtility]::HtmlEncode($SelectedValue)
         }
     }
 }
@@ -822,6 +839,11 @@ function Update-PodeWebCheckbox
         $OptionId = 0,
 
         [Parameter()]
+        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
+        [string]
+        $State = 'Unchanged',
+
+        [Parameter()]
         [switch]
         $Checked
     )
@@ -832,7 +854,60 @@ function Update-PodeWebCheckbox
         ID = $Id
         Name = $Name
         OptionId = $OptionId
+        State = $State.ToLowerInvariant()
         Checked = $Checked.IsPresent
+    }
+}
+
+function Enable-PodeWebCheckbox
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [int]
+        $OptionId = 0
+    )
+
+    return @{
+        Operation = 'Enable'
+        ObjectType = 'Checkbox'
+        ID = $Id
+        Name = $Name
+        OptionId = $OptionId
+    }
+}
+
+function Disable-PodeWebCheckbox
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [int]
+        $OptionId = 0
+    )
+
+    return @{
+        Operation = 'Disable'
+        ObjectType = 'Checkbox'
+        ID = $Id
+        Name = $Name
+        OptionId = $OptionId
     }
 }
 
@@ -926,7 +1001,7 @@ function Show-PodeWebNotification
         ObjectType = 'Notification'
         Title = $Title
         Body = $Body
-        Icon = $Icon
+        Icon = (Add-PodeWebAppPath -Url $Icon)
     }
 }
 
@@ -979,7 +1054,7 @@ function Move-PodeWebUrl
     return @{
         Operation = 'Move'
         ObjectType = 'Href'
-        Url = $Url
+        Url = (Add-PodeWebAppPath -Url $Url)
         NewTab = $NewTab.IsPresent
     }
 }
@@ -1475,6 +1550,298 @@ function Update-PodeWebFileStream
         ObjectType = 'FileStream'
         ID = $Id
         Name = $Name
+        Url = (Add-PodeWebAppPath -Url $Url)
+    }
+}
+
+function Start-PodeWebAudio
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Start'
+        ObjectType = 'Audio'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Stop-PodeWebAudio
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Stop'
+        ObjectType = 'Audio'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Reset-PodeWebAudio
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Reset'
+        ObjectType = 'Audio'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Update-PodeWebAudio
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track
+    )
+
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType AudioSource)) {
+        throw 'Audio sources can only contain AudioSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Audio tracks can only contain MediaTrack elements'
+    }
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Audio'
+        ID = $Id
+        Name = $Name
+        Sources = $Source
+        Tracks = $Track
+    }
+}
+
+function Start-PodeWebVideo
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Start'
+        ObjectType = 'Video'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Stop-PodeWebVideo
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Stop'
+        ObjectType = 'Video'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Reset-PodeWebVideo
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Reset'
+        ObjectType = 'Video'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Update-PodeWebVideo
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [hashtable[]]
+        $Source,
+
+        [Parameter()]
+        [hashtable[]]
+        $Track,
+
+        [Parameter()]
+        [string]
+        $Thumbnail
+    )
+
+    if (!(Test-PodeWebContent -Content $Source -ComponentType Element -ObjectType VideoSource)) {
+        throw 'Video sources can only contain VideoSource elements'
+    }
+
+    if (!(Test-PodeWebContent -Content $Track -ComponentType Element -ObjectType MediaTrack)) {
+        throw 'Video tracks can only contain MediaTrack elements'
+    }
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Video'
+        ID = $Id
+        Name = $Name
+        Sources = $Source
+        Tracks = $Track
+        Thumbnail = $Thumbnail
+    }
+}
+
+function Update-PodeWebCodeEditor
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Language
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Code-Editor'
+        ID = $Id
+        Name = $Name
+        Value = $Value
+        Language = $Language
+    }
+}
+
+function Clear-PodeWebCodeEditor
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Clear'
+        ObjectType = 'Code-Editor'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Update-PodeWebIFrame
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $Title
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'IFrame'
+        ID = $Id
+        Name = $Name
         Url = $Url
+        Title = $Title
     }
 }

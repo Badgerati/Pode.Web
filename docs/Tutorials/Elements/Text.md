@@ -17,3 +17,13 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![text](../../../images/text.png)
+
+## Pronunciation
+
+You can add small pronunciation text above displayed text by using `-Pronunciation`:
+
+```powershell
+New-PodeWebText -Value '漢' -Pronunciation 'ㄏㄢˋ'
+```
+
+(Note: for the above to render properly, use PowerShell 6+)

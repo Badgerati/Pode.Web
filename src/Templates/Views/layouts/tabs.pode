@@ -21,7 +21,7 @@
                 aria-controls='$($tab.ID)_content'
                 aria-selected='$($i -eq 0)'>
                 $($icon)
-                $($tab.Name)
+                $($tab.DisplayName)
             </a>
         </li>"
     })

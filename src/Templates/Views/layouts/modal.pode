@@ -7,7 +7,7 @@
                     $(if (![string]::IsNullOrWhiteSpace($data.Icon)) {
                         "<span class='mdi mdi-$($data.Icon.ToLowerInvariant())'></span>"
                     })
-                    $($data.Name)
+                    $($data.DisplayName)
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -17,7 +17,7 @@
             <div class="modal-body">
                 $(
                     if ($data.AsForm) {
-                        "<form class='pode-form'>"
+                        "<form class='pode-form' method='$($data.Method)' action='$($data.Action)'>"
                     }
 
                     Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content }
@@ -32,7 +32,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">$($data.CloseText)</button>
 
                 $(if ($data.ShowSubmit) {
-                    "<button type='button' class='btn btn-inbuilt-theme pode-modal-submit' pode-url='/components/modal/$($data.ID)' pode-modal-form='$($data.AsForm)'>$($data.SubmitText)</button>"
+                    "<button type='button' class='btn btn-inbuilt-theme pode-modal-submit' pode-url='$($data.Action)' pode-modal-form='$($data.AsForm)'>$($data.SubmitText)</button>"
                 })
             </div>
 

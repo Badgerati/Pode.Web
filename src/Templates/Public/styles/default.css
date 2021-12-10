@@ -21,6 +21,11 @@ button#menu-toggle {
     width: 50px;
 }
 
+ruby rt {
+    font-size: 53%;
+    font-style: normal;
+}
+
 .footer.powered-by {
     border-width: 1px;
     border-style: solid;
@@ -124,6 +129,10 @@ button#menu-toggle {
 
 .carousel .carousel-item div {
     align-items: center;
+}
+
+.bs-stepper {
+    margin-bottom: 20px;
 }
 
 div[role="chart"] div[role="controls"] {

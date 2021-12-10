@@ -95,6 +95,12 @@ Which would look like below:
 
 ![modal_form](../../../images/modal_form.png)
 
+#### Method/Action
+
+The default method for forms is `Post`, and the action is the internal route created for the form.
+
+You can change these values by using the `-Method` and `-Action` parameters. The method can only be `Get` or `Post`, and the action must be a valid URL.
+
 ### Arguments
 
 You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:

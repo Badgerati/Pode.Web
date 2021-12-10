@@ -18,26 +18,53 @@ Start-PodeServer {
     Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
 
 
-    # add a page to add some fake user
-    $steps = New-PodeWebSteps -Name 'AddUser' -Steps @(
-        New-PodeWebStep -Name 'Email' -Icon 'email' -Content @(
-            New-PodeWebTextbox -Name 'Email'
-            New-PodeWebFileUpload -Name 'SomeFile'
-        ) -ScriptBlock {
-            $WebEvent.Data | Out-Default
-        }
-        New-PodeWebStep -Name 'Password' -Icon 'lock' -Content @(
-            New-PodeWebTextbox -Name 'Password' -Type Password
-        ) -ScriptBlock {
-            if ([string]::IsNullOrWhiteSpace($WebEvent.Data['Password'])) {
-                Out-PodeWebValidation -Name 'Password' -Message 'No password supplied'
+    $acc = New-PodeWebAccordion -Cycle -Bellows @(
+        New-PodeWebBellow -Name 'Bellow 1' -Content @(
+            # add a page to add some fake user
+            New-PodeWebSteps -Name 'AddUser' -Steps @(
+                New-PodeWebStep -Name 'Email' -Icon 'email' -Content @(
+                    New-PodeWebTextbox -Name 'Email'
+                    New-PodeWebFileUpload -Name 'SomeFile'
+                ) -ScriptBlock {
+                    $WebEvent.Data | Out-Default
+                }
+                New-PodeWebStep -Name 'Password' -Icon 'lock' -Content @(
+                    New-PodeWebTextbox -Name 'Password' -Type Password
+                ) -ScriptBlock {
+                    if ([string]::IsNullOrWhiteSpace($WebEvent.Data['Password'])) {
+                        Out-PodeWebValidation -Name 'Password' -Message 'No password supplied'
+                    }
+                    $WebEvent.Data | Out-Default
+                }
+                New-PodeWebStep -Name 'Submit' -Icon 'account-plus'
+            ) -ScriptBlock {
+                $WebEvent.Data | Out-Default
             }
-            $WebEvent.Data | Out-Default
-        }
-        New-PodeWebStep -Name 'Submit' -Icon 'account-plus'
-    ) -ScriptBlock {
-        $WebEvent.Data | Out-Default
-    }
+        )
 
-    Add-PodeWebPage -Name 'Add User' -Icon 'account-plus' -Layouts $steps
+        New-PodeWebBellow -Name 'Bellow 2' -Content @(
+            # add a page to add some fake user
+            New-PodeWebSteps -Name 'AddUser2' -Steps @(
+                New-PodeWebStep -Name 'Email2' -Icon 'email' -Content @(
+                    New-PodeWebTextbox -Name 'Email2'
+                    New-PodeWebFileUpload -Name 'SomeFile2'
+                ) -ScriptBlock {
+                    $WebEvent.Data | Out-Default
+                }
+                New-PodeWebStep -Name 'Password2' -Icon 'lock' -Content @(
+                    New-PodeWebTextbox -Name 'Password2' -Type Password
+                ) -ScriptBlock {
+                    if ([string]::IsNullOrWhiteSpace($WebEvent.Data['Password2'])) {
+                        Out-PodeWebValidation -Name 'Password2' -Message 'No password supplied'
+                    }
+                    $WebEvent.Data | Out-Default
+                }
+                New-PodeWebStep -Name 'Submit2' -Icon 'account-plus'
+            ) -ScriptBlock {
+                $WebEvent.Data | Out-Default
+            }
+        )
+    )
+
+    Add-PodeWebPage -Name 'Add User' -Icon 'account-plus' -Layouts $acc
 }

@@ -1,6 +1,6 @@
 <div class="$(if (!$data.NoForm) { 'form-group row' } else { 'no-form' }) pode-form-textbox $($data.CssClasses)">
     $(if (!$data.NoForm) {
-        "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.Name)</label>"
+        "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.DisplayName)</label>"
     })
     <div class="col-sm-10">
         $(
@@ -16,20 +16,22 @@
                 $readOnly = "readonly"
             }
 
+            $required = [string]::Empty
+            if ($data.Required) {
+                $required = "required"
+            }
+
             $value = [string]::Empty
             if (![string]::IsNullOrWhiteSpace($data.Value)) {
                 $value = "value='$($data.Value)'"
             }
 
-            $width = "width: auto;"
-            if ($data.Width -gt 0) {
-                $width = "width: $($data.Width)%;"
-            }
+            $width = "width: $($data.Width);"
 
             $events = ConvertTo-PodeWebEvents -Events $data.Events
 
             if ($data.Multiline) {
-                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($value) $($events)></textarea>"
+                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($value) $($events)></textarea>"
             }
             else {
                 if ($data.Prepend.Enabled -or $data.Append.Enabled) {
@@ -50,7 +52,7 @@
                     $_type = 'datetime-local'
                 }
 
-                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width) $($data.CssStyles)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($value) $($events)>"
+                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width) $($data.CssStyles)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($required) $($value) $($events)>"
 
                 if ($data.Append.Enabled) {
                     if (![string]::IsNullOrWhiteSpace($data.Append.Text)) {

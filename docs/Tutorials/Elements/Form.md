@@ -31,6 +31,9 @@ Which looks like below:
 
 ![form](../../../images/form.png)
 
+!!! note
+    If you have multiple forms on one page, make sure the Name/IDs are unique, including the Name/IDs of all form input elements as well.
+
 You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
 
 ```powershell
@@ -52,7 +55,19 @@ The available form elements in Pode.Web are:
 * [DateTime](../DateTime)
 * [FileUpload](../FileUpload)
 * [Hidden](../Hidden)
+* [MinMax](../DateTime)
+* [Range](../Range)
 * [Radio](../Radio)
 * [Range](../Range)
 * [Select](../Select)
 * [Textbox](../Textbox)
+
+## Method/Action
+
+The default method for forms is `Post`, and the action is the internal route created for the form.
+
+You can change these values by using the `-Method` and `-Action` parameters. The method can only be `Get` or `Post`, and the action must be a valid URL.
+
+## Reset
+
+You can reset all form inputs by either using the [`Reset-PodeWebForm`](../../../Functions/Outputs/Reset-PodeWebForm) output action, or by using `-ShowReset` switch on [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) to display an optional reset button.

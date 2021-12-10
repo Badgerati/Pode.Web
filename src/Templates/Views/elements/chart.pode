@@ -17,7 +17,7 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
         class="my-4 w-100"
         id="$($data.ID)"
         name="$($data.Name)"
-        style="$(if ($data.Height -gt 0) { "height:$($data.Height)px;" }) $($data.CssStyles)"
+        style="$(if ($data.Height -ine 'auto') { "height:$($data.Height);" }) $($data.CssStyles)"
         pode-object="$($data.ObjectType)"
         pode-chart-type="$($data.ChartType)"
         pode-dynamic="$($data.IsDynamic)"
