@@ -31,7 +31,7 @@
             $events = ConvertTo-PodeWebEvents -Events $data.Events
 
             if ($data.Multiline) {
-                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($value) $($events)>$($data.Value)</textarea>"
+                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($events)>$($data.Value)</textarea>"
             }
             else {
                 if ($data.Prepend.Enabled -or $data.Append.Enabled) {

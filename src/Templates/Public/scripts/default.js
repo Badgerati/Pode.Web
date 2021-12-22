@@ -2795,7 +2795,7 @@ function updateTextbox(action) {
     }
 
     txt.val(action.Value);
-    if (Number.isInteger(action.Size)) {
+    if (action.Multiline && action.Size > 0) {
         txt[0].rows = action.Size;
     }
 }

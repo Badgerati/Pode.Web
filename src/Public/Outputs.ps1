@@ -516,7 +516,7 @@ function Update-PodeWebTextbox
 
         [Alias('Height')]
         [int]
-        $Size = 4,
+        $Size = 0,
 
         [Parameter()]
         [switch]
@@ -538,10 +538,6 @@ function Update-PodeWebTextbox
     end {
         if (!$AsJson) {
             $items = ($items | Out-String)
-        }
-
-        if ($Size -le 0) {
-            $Size = 4
         }
 
         return @{
