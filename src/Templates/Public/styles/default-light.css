@@ -34,7 +34,11 @@ body, main[role="main"], body#login-page, body#normal-page {
 }
 
 .btn-icon-only {
-    color: #f5f5f5 !important;
+    color: #777 !important;
+}
+
+.btn-icon-only:hover {
+    color: #333 !important;
 }
 
 .card {
