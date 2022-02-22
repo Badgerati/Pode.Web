@@ -2236,7 +2236,7 @@ function buildTableHeader(column, direction) {
     value += `'>`;
 
     if (column.Icon) {
-        value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight02'></span>`;
+        value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight04'></span>`;
     }
 
     value += `${column.Name}</th>`;
