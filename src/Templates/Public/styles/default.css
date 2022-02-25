@@ -831,6 +831,10 @@ iframe {
     line-height: 14px;
 }
 
+th .mdi::before {
+    vertical-align: sub;
+}
+
 .btn:not(.btn-icon-only, .btn-no-text, .btn-block) .mdi::before {
     position: relative;
     top: 4px;
