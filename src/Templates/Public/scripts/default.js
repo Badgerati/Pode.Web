@@ -2236,7 +2236,7 @@ function buildTableHeader(column, direction) {
     value += `'>`;
 
     if (column.Icon) {
-        value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight02'></span>`;
+        value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight04'></span>`;
     }
 
     value += `${column.Name}</th>`;
@@ -3600,12 +3600,12 @@ function buildButton(element) {
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.Name}' data-toggle='tooltip' pode-object='${element.ObjectType}'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.DisplayName}' data-toggle='tooltip' pode-object='${element.ObjectType}'>${icon}</button>`;
     }
 
     return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}'>
         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
-        ${icon}${element.Name}
+        ${icon}${element.DisplayName}
     </button>`;
 }
 

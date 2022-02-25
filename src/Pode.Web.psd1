@@ -11,7 +11,7 @@
     RootModule = 'Pode.Web.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.7.0'
+    ModuleVersion = '0.7.1'
 
     # ID used to uniquely identify this module
     GUID = '5c6cae5a-8e62-48a4-c2e5-7511ffe2d439'
@@ -20,7 +20,7 @@
     Author = 'Matthew Kelly (Badgerati)'
 
     # Copyright statement for this module
-    Copyright = 'Copyright (c) 2020-2021 Matthew Kelly (Badgerati), licensed under the MIT License.'
+    Copyright = 'Copyright (c) 2020-2022 Matthew Kelly (Badgerati), licensed under the MIT License.'
 
     # Description of the functionality provided by this module
     Description = 'Web template framework for the Pode PowerShell web server'
