@@ -1,5 +1,20 @@
 # Release Notes
 
+## v0.7.1
+
+```plain
+### Bugs
+* #254: Fix the colour of IconOnly buttons in the Light theme
+* #267: Fix icon positioning when used in table headers
+* #268: Fix the hover value of buttons to be the DisplayName
+
+### Packaging
+* #257: Bump highlightjs to 11.4.0
+* #262: Bump monaco-editor to 0.32.1
+* #204: Bump jquery-ui to 1.13.1
+* #198: Bump chart.js to 3.7.1
+```
+
 ## v0.7.0
 
 ```plain
