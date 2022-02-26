@@ -1525,11 +1525,18 @@ function New-PodeWebButton
 
         [Parameter(ParameterSetName='Url')]
         [switch]
-        $NewTab
+        $NewTab,
+
+        [switch]
+        $Outline
     )
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
+
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
+    if ($Outline) {
+        $colourType = "outline-$($colourType)"
+    }
 
     $element = @{
         ComponentType = 'Element'
@@ -1545,6 +1552,7 @@ function New-PodeWebButton
         IconOnly = $IconOnly.IsPresent
         Colour = $Colour
         ColourType = $ColourType
+        Outline = $Outline.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NewLine = $NewLine.IsPresent
