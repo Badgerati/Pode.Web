@@ -98,6 +98,10 @@ Start-PodeServer -StatusPageExceptions Show {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
         }
+        New-PodeWebButton -Name 'Click Me Outlined' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -Outline -ScriptBlock {
+            Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
+            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
+        }
         New-PodeWebContainer -Content @(
             New-PodeWebButton -Name 'Dark Theme' -NoAuth -Icon 'moon-new' -Colour Dark -ScriptBlock { Update-PodeWebTheme -Name Dark }
             New-PodeWebButton -Name 'Light Theme' -NoAuth -Icon 'weather-sunny' -Colour Light -ScriptBlock { Update-PodeWebTheme -Name Light }
