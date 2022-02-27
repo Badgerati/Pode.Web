@@ -577,46 +577,85 @@ function Convert-PodeWebColourToClass
     param(
         [Parameter()]
         [string]
-        $Colour
+        $Colour,
+
+        [switch]
+        $Outline
     )
 
     switch ($Colour.ToLowerInvariant()) {
         'blue' {
-            return 'primary'
+            $css = 'primary'
         }
 
         'green' {
-            return 'success'
+            $css = 'success'
         }
 
         'grey' {
-            return 'secondary'
+            $css = 'secondary'
         }
 
         'red' {
-            return 'danger'
+            $css = 'danger'
         }
 
         'yellow' {
-            return 'warning'
+            $css = 'warning'
         }
 
         'cyan' {
-            return 'info'
+            $css = 'info'
         }
 
         'light' {
-            return 'light'
+            $css = 'light'
         }
 
         'dark' {
-            return 'dark'
+            $css = 'dark'
         }
 
         default {
-            return 'primary'
+            $css = 'primary'
         }
     }
+
+    if ($Outline) {
+        $css = "outline-$($css)"
+    }
+
+    return $css.ToLowerInvariant()
+}
+
+function Convert-PodeWebButtonSizeToClass
+{
+    param(
+        [Parameter()]
+        [string]
+        $Size,
+
+        [switch]
+        $FullWidth
+    )
+
+    $css = ''
+
+    switch ($Size.ToLowerInvariant()) {
+        'small' {
+            $css = 'btn-sm'
+        }
+
+        'large' {
+            $css = 'btn-lg'
+        }
+    }
+
+    if ($FullWidth) {
+        $css += ' btn-block'
+    }
+
+    return $css.ToLowerInvariant()
 }
 
 function Test-PodeWebContent

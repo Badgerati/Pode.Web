@@ -1436,6 +1436,10 @@ function invokeActions(actions, sender) {
                 actionIFrame(action);
                 break;
 
+            case 'button':
+                actionButton(action);
+                break;
+
             default:
                 break;
         }
@@ -2661,6 +2665,70 @@ function encodeHTML(value) {
     return $('<div/>').text(value).html();
 }
 
+function actionButton(action) {
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateButton(action);
+            break;
+
+        case 'invoke':
+            invokeButton(action);
+            break;
+
+        case 'enable':
+        case 'disable':
+            toggleButtonState(action, action.Operation.toLowerCase());
+            break;
+    }
+}
+
+function updateButton(action) {
+    var btn = getElementByNameOrId(action, 'button');
+    if (!btn) {
+        var btn = getElementByNameOrId(action, 'a', null, "[role='button']");
+    }
+
+    if (!btn) {
+        return;
+    }
+
+    //TODO:
+    // change the display name (and icon?)
+    // change colour
+    // change size
+}
+
+function invokeButton(action) {
+    var btn = getElementByNameOrId(action, 'button');
+    if (!btn) {
+        var btn = getElementByNameOrId(action, 'a', null, "[role='button']");
+    }
+
+    if (!btn) {
+        return;
+    }
+
+    btn.click();
+}
+
+function toggleButtonState(action, toggle) {
+    var btn = getElementByNameOrId(action, 'button');
+    if (!btn) {
+        var btn = getElementByNameOrId(action, 'a', null, "[role='button']");
+    }
+
+    if (!btn) {
+        return;
+    }
+
+    if (toggle == 'enable') {
+        enable(btn);
+    }
+    else {
+        disable(btn);
+    }
+}
+
 function actionCheckbox(action) {
     switch (action.Operation.toLowerCase()) {
         case 'update':
@@ -3596,14 +3664,19 @@ function getTimeString() {
 function buildButton(element) {
     var icon = '';
     if (element.Icon) {
-        icon = `<span class='mdi mdi-${element.Icon.toLowerCase()} mdi-size-20 mRight02'></span>`
+        icon = `<span class='mdi mdi-${element.Icon.toLowerCase()} mdi-size-20 mRight02'></span>`;
+    }
+
+    var disabled = '';
+    if (element.Disabled) {
+        disabled = 'disabled';
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.DisplayName}' data-toggle='tooltip' pode-object='${element.ObjectType}'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.DisplayName}' data-toggle='tooltip' pode-object='${element.ObjectType}' ${disabled}>${icon}</button>`;
     }
 
-    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}'>
+    return `<button type='button' class='btn btn-${element.ColourType} ${element.SizeType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}' ${disabled}>
         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         ${icon}${element.DisplayName}
     </button>`;
@@ -3812,7 +3885,14 @@ function enable(element) {
         return;
     }
 
-    element.prop('disabled', false);
+    if (testTagName(element, 'a')) {
+        element.removeClass('disabled');
+        element.prop('tabindex', null);
+        element.prop('aria-disabled', null);
+    }
+    else {
+        element.prop('disabled', false);
+    }
 }
 
 function disable(element) {
@@ -3820,7 +3900,14 @@ function disable(element) {
         return;
     }
 
-    element.prop('disabled', true);
+    if (testTagName(element, 'a')) {
+        element.addClass('disabled');
+        element.prop('tabindex', '-1');
+        element.prop('aria-disabled', 'true');
+    }
+    else {
+        element.prop('disabled', true);
+    }
 }
 
 function actionTab(action) {
