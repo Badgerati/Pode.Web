@@ -2682,28 +2682,77 @@ function actionButton(action) {
     }
 }
 
-function updateButton(action) {
+function getButtonElement(action) {
     var btn = getElementByNameOrId(action, 'button');
-    if (!btn) {
-        var btn = getElementByNameOrId(action, 'a', null, "[role='button']");
+    if (btn.length == 0) {
+        btn = getElementByNameOrId(action, 'a', null, "[role='button']");
     }
 
+    return btn;
+}
+
+function updateButton(action) {
+    var btn = getButtonElement(action);
     if (!btn) {
         return;
     }
 
-    //TODO:
+    var isIconOnly = hasClass(btn, 'btn-icon-only', true);
+
     // change the display name (and icon?)
+    if (action.Icon) {
+        replaceClass(btn.find('span.mdi'), 'mdi-\\w+', `mdi-${action.Icon.toLowerCase()}`);
+    }
+
+    if (action.DisplayName) {
+        if (isIconOnly) {
+            setTitle(btn, action.DisplayName);
+        }
+        else {
+            btn.find('span.pode-text').text(action.DisplayName);
+        }
+    }
+
     // change colour
+    if (!isIconOnly && (action.Colour || action.ColourState != 'unchanged')) {
+        var isOutline = hasClass(btn, 'btn-outline-\\w+');
+        var colour = btn.attr('pode-colour');
+
+        var _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
+        removeClass(btn, _class, true);
+
+        if (action.ColourState != 'unchanged') {
+            isOutline = (action.ColourState == 'outline');
+        }
+
+        if (action.Colour) {
+            colour = action.ColourType;
+            btn.attr('pode-colour', colour);
+        }
+
+        _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
+        addClass(btn, _class);
+    }
+
     // change size
+    if (!isIconOnly && (action.Size || action.SizeState != 'unchanged')) {
+        if (action.SizeState != 'unchanged') {
+            if (action.SizeState == 'normal') {
+                removeClass(btn, 'btn-block', true);
+            }
+            else {
+                addClass(btn, 'btn-block');
+            }
+        }
+
+        if (action.Size) {
+            replaceClass(btn, 'btn-(sm|lg)', action.SizeType);
+        }
+    }
 }
 
 function invokeButton(action) {
-    var btn = getElementByNameOrId(action, 'button');
-    if (!btn) {
-        var btn = getElementByNameOrId(action, 'a', null, "[role='button']");
-    }
-
+    var btn = getButtonElement(action);
     if (!btn) {
         return;
     }
@@ -2712,11 +2761,7 @@ function invokeButton(action) {
 }
 
 function toggleButtonState(action, toggle) {
-    var btn = getElementByNameOrId(action, 'button');
-    if (!btn) {
-        var btn = getElementByNameOrId(action, 'a', null, "[role='button']");
-    }
-
+    var btn = getButtonElement(action);
     if (!btn) {
         return;
     }
@@ -3830,38 +3875,66 @@ function actionProgress(action) {
     }
 }
 
-function getClass(element, filter) {
-    if (!element || !filter) {
+function getClass(element, _class) {
+    if (!element) {
         return null;
     }
 
-    var result = element.attr('class').match(new RegExp(filter));
+    var result = element.attr('class');
+    if (!result) {
+        return null;
+    }
+
+    if (_class) {
+        result = result.match(new RegExp(_class));
+    }
+    else {
+        result = result.split(' ');
+    }
+
     return (result ? result[0] : null);
 }
 
-function removeClass(element, filter, raw) {
+function hasClass(element, _class, raw) {
+    if (!element) {
+        return false;
+    }
+
+    return (raw ? element.hasClass(_class) : getClass(element, _class) != null);
+}
+
+function removeClass(element, _class, raw) {
     if (!element) {
         return;
     }
 
-    if (!filter) {
+    if (!_class) {
         element.removeClass();
     }
     else {
-        element.removeClass((raw ? filter : getClass(element, filter)));
+        element.removeClass((raw ? _class : getClass(element, _class)));
     }
 }
 
 function addClass(element, _class) {
-    if (!element) {
+    if (!element || !_class) {
         return;
     }
 
-    if (element.hasClass(_class)) {
+    if (hasClass(element, _class, true)) {
         return;
     }
 
     element.addClass(_class);
+}
+
+function replaceClass(element, oldClass, newClass) {
+    if (!element) {
+        return;
+    }
+
+    removeClass(element, oldClass);
+    addClass(element, newClass);
 }
 
 function hide(element) {
@@ -3887,8 +3960,8 @@ function enable(element) {
 
     if (testTagName(element, 'a')) {
         element.removeClass('disabled');
-        element.prop('tabindex', null);
-        element.prop('aria-disabled', null);
+        element.removeAttr('tabindex');
+        element.removeAttr('aria-disabled');
     }
     else {
         element.prop('disabled', false);

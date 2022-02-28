@@ -1914,17 +1914,17 @@ function Update-PodeWebButton
         $Colour = '',
 
         [Parameter()]
+        [ValidateSet('Unchanged', 'Outline', 'Solid')]
+        [string]
+        $ColourState = 'Unchanged',
+
+        [Parameter()]
         [ValidateSet('', 'Normal', 'Small', 'Large')]
         [string]
         $Size = '',
 
         [Parameter()]
-        [Validate('Unchanged', 'Outline', 'Solid')]
-        [string]
-        $ColourState = 'Unchanged',
-
-        [Parameter()]
-        [Validate('Unchanged', 'Normal', 'Full')]
+        [ValidateSet('Unchanged', 'Normal', 'Full')]
         [string]
         $SizeState = 'Unchanged'
     )
@@ -1943,7 +1943,7 @@ function Update-PodeWebButton
         Size = $Size
         SizeType = $sizeType
         SizeState = $SizeState.ToLowerInvariant()
-        DisplayName = [System.Net.WebUtility]::HtmlEncode($Value)
+        DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         Icon = $Icon
     }
 }

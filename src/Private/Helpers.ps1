@@ -577,10 +577,7 @@ function Convert-PodeWebColourToClass
     param(
         [Parameter()]
         [string]
-        $Colour,
-
-        [switch]
-        $Outline
+        $Colour
     )
 
     switch ($Colour.ToLowerInvariant()) {
@@ -619,10 +616,6 @@ function Convert-PodeWebColourToClass
         default {
             $css = 'primary'
         }
-    }
-
-    if ($Outline) {
-        $css = "outline-$($css)"
     }
 
     return $css.ToLowerInvariant()

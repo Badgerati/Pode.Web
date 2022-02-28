@@ -1544,7 +1544,7 @@ function New-PodeWebButton
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
 
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour -Outline:$Outline
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
     $sizeType = Convert-PodeWebButtonSizeToClass -Size $Size -FullWidth:$FullWidth
 
     $element = @{
