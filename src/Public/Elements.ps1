@@ -1501,6 +1501,11 @@ function New-PodeWebButton
         $Colour = 'Blue',
 
         [Parameter()]
+        [ValidateSet('Normal', 'Small', 'Large')]
+        [string]
+        $Size = 'Normal',
+
+        [Parameter()]
         [string[]]
         $CssClass,
 
@@ -1528,15 +1533,19 @@ function New-PodeWebButton
         $NewTab,
 
         [switch]
-        $Outline
+        $Outline,
+
+        [switch]
+        $Disabled,
+
+        [switch]
+        $FullWidth
     )
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
 
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
-    if ($Outline) {
-        $colourType = "outline-$($colourType)"
-    }
+    $sizeType = Convert-PodeWebButtonSizeToClass -Size $Size -FullWidth:$FullWidth
 
     $element = @{
         ComponentType = 'Element'
@@ -1553,12 +1562,14 @@ function New-PodeWebButton
         Colour = $Colour
         ColourType = $ColourType
         Outline = $Outline.IsPresent
+        SizeType = $sizeType
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NewLine = $NewLine.IsPresent
         NewTab = $NewTab.IsPresent
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
+        Disabled = $Disabled.IsPresent
     }
 
     $routePath = "/components/button/$($Id)"

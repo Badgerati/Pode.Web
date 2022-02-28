@@ -1436,6 +1436,10 @@ function invokeActions(actions, sender) {
                 actionIFrame(action);
                 break;
 
+            case 'button':
+                actionButton(action);
+                break;
+
             default:
                 break;
         }
@@ -2661,6 +2665,115 @@ function encodeHTML(value) {
     return $('<div/>').text(value).html();
 }
 
+function actionButton(action) {
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateButton(action);
+            break;
+
+        case 'invoke':
+            invokeButton(action);
+            break;
+
+        case 'enable':
+        case 'disable':
+            toggleButtonState(action, action.Operation.toLowerCase());
+            break;
+    }
+}
+
+function getButtonElement(action) {
+    var btn = getElementByNameOrId(action, 'button');
+    if (btn.length == 0) {
+        btn = getElementByNameOrId(action, 'a', null, "[role='button']");
+    }
+
+    return btn;
+}
+
+function updateButton(action) {
+    var btn = getButtonElement(action);
+    if (!btn) {
+        return;
+    }
+
+    var isIconOnly = hasClass(btn, 'btn-icon-only', true);
+
+    // change the display name (and icon?)
+    if (action.Icon) {
+        replaceClass(btn.find('span.mdi'), 'mdi-\\w+', `mdi-${action.Icon.toLowerCase()}`);
+    }
+
+    if (action.DisplayName) {
+        if (isIconOnly) {
+            setTitle(btn, action.DisplayName);
+        }
+        else {
+            btn.find('span.pode-text').text(action.DisplayName);
+        }
+    }
+
+    // change colour
+    if (!isIconOnly && (action.Colour || action.ColourState != 'unchanged')) {
+        var isOutline = hasClass(btn, 'btn-outline-\\w+');
+        var colour = btn.attr('pode-colour');
+
+        var _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
+        removeClass(btn, _class, true);
+
+        if (action.ColourState != 'unchanged') {
+            isOutline = (action.ColourState == 'outline');
+        }
+
+        if (action.Colour) {
+            colour = action.ColourType;
+            btn.attr('pode-colour', colour);
+        }
+
+        _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
+        addClass(btn, _class);
+    }
+
+    // change size
+    if (!isIconOnly && (action.Size || action.SizeState != 'unchanged')) {
+        if (action.SizeState != 'unchanged') {
+            if (action.SizeState == 'normal') {
+                removeClass(btn, 'btn-block', true);
+            }
+            else {
+                addClass(btn, 'btn-block');
+            }
+        }
+
+        if (action.Size) {
+            replaceClass(btn, 'btn-(sm|lg)', action.SizeType);
+        }
+    }
+}
+
+function invokeButton(action) {
+    var btn = getButtonElement(action);
+    if (!btn) {
+        return;
+    }
+
+    btn.click();
+}
+
+function toggleButtonState(action, toggle) {
+    var btn = getButtonElement(action);
+    if (!btn) {
+        return;
+    }
+
+    if (toggle == 'enable') {
+        enable(btn);
+    }
+    else {
+        disable(btn);
+    }
+}
+
 function actionCheckbox(action) {
     switch (action.Operation.toLowerCase()) {
         case 'update':
@@ -3596,14 +3709,19 @@ function getTimeString() {
 function buildButton(element) {
     var icon = '';
     if (element.Icon) {
-        icon = `<span class='mdi mdi-${element.Icon.toLowerCase()} mdi-size-20 mRight02'></span>`
+        icon = `<span class='mdi mdi-${element.Icon.toLowerCase()} mdi-size-20 mRight02'></span>`;
+    }
+
+    var disabled = '';
+    if (element.Disabled) {
+        disabled = 'disabled';
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.DisplayName}' data-toggle='tooltip' pode-object='${element.ObjectType}'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.DisplayName}' data-toggle='tooltip' pode-object='${element.ObjectType}' ${disabled}>${icon}</button>`;
     }
 
-    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}'>
+    return `<button type='button' class='btn btn-${element.ColourType} ${element.SizeType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}' ${disabled}>
         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         ${icon}${element.DisplayName}
     </button>`;
@@ -3757,38 +3875,66 @@ function actionProgress(action) {
     }
 }
 
-function getClass(element, filter) {
-    if (!element || !filter) {
+function getClass(element, _class) {
+    if (!element) {
         return null;
     }
 
-    var result = element.attr('class').match(new RegExp(filter));
+    var result = element.attr('class');
+    if (!result) {
+        return null;
+    }
+
+    if (_class) {
+        result = result.match(new RegExp(_class));
+    }
+    else {
+        result = result.split(' ');
+    }
+
     return (result ? result[0] : null);
 }
 
-function removeClass(element, filter, raw) {
+function hasClass(element, _class, raw) {
+    if (!element) {
+        return false;
+    }
+
+    return (raw ? element.hasClass(_class) : getClass(element, _class) != null);
+}
+
+function removeClass(element, _class, raw) {
     if (!element) {
         return;
     }
 
-    if (!filter) {
+    if (!_class) {
         element.removeClass();
     }
     else {
-        element.removeClass((raw ? filter : getClass(element, filter)));
+        element.removeClass((raw ? _class : getClass(element, _class)));
     }
 }
 
 function addClass(element, _class) {
-    if (!element) {
+    if (!element || !_class) {
         return;
     }
 
-    if (element.hasClass(_class)) {
+    if (hasClass(element, _class, true)) {
         return;
     }
 
     element.addClass(_class);
+}
+
+function replaceClass(element, oldClass, newClass) {
+    if (!element) {
+        return;
+    }
+
+    removeClass(element, oldClass);
+    addClass(element, newClass);
 }
 
 function hide(element) {
@@ -3812,7 +3958,14 @@ function enable(element) {
         return;
     }
 
-    element.prop('disabled', false);
+    if (testTagName(element, 'a')) {
+        element.removeClass('disabled');
+        element.removeAttr('tabindex');
+        element.removeAttr('aria-disabled');
+    }
+    else {
+        element.prop('disabled', false);
+    }
 }
 
 function disable(element) {
@@ -3820,7 +3973,14 @@ function disable(element) {
         return;
     }
 
-    element.prop('disabled', true);
+    if (testTagName(element, 'a')) {
+        element.addClass('disabled');
+        element.prop('tabindex', '-1');
+        element.prop('aria-disabled', 'true');
+    }
+    else {
+        element.prop('disabled', true);
+    }
 }
 
 function actionTab(action) {

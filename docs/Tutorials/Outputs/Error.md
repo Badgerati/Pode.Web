@@ -1,6 +1,6 @@
 # Error
 
-This page details the available output actions available to Errors.
+This page details the output actions available to Errors.
 
 ## Out
 

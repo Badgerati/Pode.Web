@@ -1,6 +1,6 @@
 # Audio
 
-This page details the available output actions available to Audio.
+This page details the output actions available to Audio.
 
 ## Start
 

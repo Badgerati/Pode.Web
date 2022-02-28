@@ -1,6 +1,6 @@
 # Components
 
-This page details the available output actions available to all components of Pode.Web.
+This page details the output actions available to all components of Pode.Web.
 
 ## General
 
