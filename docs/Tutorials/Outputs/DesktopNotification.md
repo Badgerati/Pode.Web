@@ -1,6 +1,6 @@
 # Desktop Notification
 
-This page details the available output actions available to Desktop Notifications.
+This page details the output actions available to Desktop Notifications.
 
 ## Show
 

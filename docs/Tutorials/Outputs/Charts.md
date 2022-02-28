@@ -1,6 +1,6 @@
 # Charts
 
-This page details the available output actions available to Charts.
+This page details the output actions available to Charts.
 
 ## Out
 

@@ -1,6 +1,6 @@
 # URL
 
-This page details the available output actions available to redirect users to other URLs.
+This page details the output actions available to redirect users to other URLs.
 
 ## Move
 

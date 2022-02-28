@@ -1,6 +1,6 @@
 # Table
 
-This page details the available output actions available to Tables.
+This page details the output actions available to Tables.
 
 ## Out
 

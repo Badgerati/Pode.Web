@@ -1,6 +1,6 @@
 # IFrame
 
-This page details the available output actions available to IFrames.
+This page details the output actions available to IFrames.
 
 ## Update
 

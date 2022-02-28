@@ -1,6 +1,6 @@
 # Accordion
 
-This page details the available output actions available to control an Accordion layout.
+This page details the output actions available to control an Accordion layout.
 
 ## Move
 

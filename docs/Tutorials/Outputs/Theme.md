@@ -1,6 +1,6 @@
 # Theme
 
-This page details the available output actions available to the Theme of pages.
+This page details the output actions available to the Theme of pages.
 
 ## Update
 
