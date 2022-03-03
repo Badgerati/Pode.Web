@@ -2293,12 +2293,15 @@ function testTagName(element, tagName) {
 }
 
 function actionForm(action) {
-    var form = getElementByNameOrId(action, 'form');
-    if (!form) {
-        return;
-    }
+    switch (action.Operation.toLowerCase()) {
+        case 'reset':
+            resetForm(getElementByNameOrId(action, 'form'));
+            break;
 
-    resetForm(form);
+        case 'submit':
+            submitForm(getElementByNameOrId(action, 'form'));
+            break;
+    }
 }
 
 function resetForm(form, isInner = false) {
@@ -2314,6 +2317,22 @@ function resetForm(form, isInner = false) {
     }
     else {
         resetForm(form.find('form'), true);
+    }
+}
+
+function submitForm(form, isInner = false) {
+    if (!form) {
+        return;
+    }
+
+    if (testTagName(form, 'form')) {
+        $(form[0]).find('[type="submit"]').trigger('click');
+    }
+    else if (isInner) {
+        return;
+    }
+    else {
+        submitForm(form.find('form'), true);
     }
 }
 
