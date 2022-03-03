@@ -657,6 +657,27 @@ function Reset-PodeWebForm
     }
 }
 
+function Submit-PodeWebForm
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Submit'
+        ObjectType = 'Form'
+        ID = $Id
+        Name = $Name
+    }
+}
+
 function Update-PodeWebText
 {
     [CmdletBinding()]
