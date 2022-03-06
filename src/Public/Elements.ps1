@@ -2635,6 +2635,16 @@ function New-PodeWebForm
         $Action,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $SubmitText = 'Submit',
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $ResetText = 'Reset',
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -2671,6 +2681,8 @@ function New-PodeWebForm
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
         ShowReset = $ShowReset.IsPresent
+        ResetText = [System.Net.WebUtility]::HtmlEncode($ResetText)
+        SubmitText = [System.Net.WebUtility]::HtmlEncode($SubmitText)
     }
 
     if (!(Test-PodeWebRoute -Path $routePath)) {
