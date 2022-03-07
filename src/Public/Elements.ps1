@@ -2381,7 +2381,10 @@ function Initialize-PodeWebTableColumn
 
         [Parameter()]
         [string]
-        $Default
+        $Default,
+
+        [switch]
+        $Hide
     )
 
     if ([string]::IsNullOrWhiteSpace($Name)) {
@@ -2395,6 +2398,7 @@ function Initialize-PodeWebTableColumn
         Name = $Name
         Icon = $Icon
         Default = $Default
+        Hide = $Hide.IsPresent
     }
 }
 
