@@ -225,6 +225,8 @@ which renders a table that looks like below:
 
 ![table_columns](../../../images/table_columns.png)
 
+You can also use the `-Hide` switch so a particular column isn't displayed on the page.
+
 ### Width
 
 The `-Width` of a table column has the default unit of `%`. If `0` is specified then `auto` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.

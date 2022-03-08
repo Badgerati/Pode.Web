@@ -1933,7 +1933,6 @@ function updateTableRow(action) {
 }
 
 function actionTableColumn(action) {
-    //TODO:
     switch (action.Operation.toLowerCase()) {
         case 'hide':
             hideTableColumn(action);
