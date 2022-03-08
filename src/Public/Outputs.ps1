@@ -213,6 +213,58 @@ function Clear-PodeWebTable
     }
 }
 
+function Hide-PodeWebTableColumn
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Key
+    )
+
+    return @{
+        Operation = 'Hide'
+        ObjectType = 'TableColumn'
+        ID = $Id
+        Name = $Name
+        Key = $Key
+    }
+}
+
+function Show-PodeWebTableColumn
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Key
+    )
+
+    return @{
+        Operation = 'Show'
+        ObjectType = 'TableColumn'
+        ID = $Id
+        Name = $Name
+        Key = $Key
+    }
+}
+
 function Update-PodeWebTableRow
 {
     [CmdletBinding(DefaultParameterSetName='Name_and_DataValue')]

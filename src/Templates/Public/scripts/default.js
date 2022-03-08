@@ -1324,6 +1324,10 @@ function invokeActions(actions, sender) {
                 actionTableRow(action, sender);
                 break;
 
+            case 'tablecolumn':
+                actionTableColumn(action);
+                break;
+
             case 'chart':
                 actionChart(action, sender);
                 break;
@@ -1928,6 +1932,38 @@ function updateTableRow(action) {
     bindTableClickableRows(tableId);
 }
 
+function actionTableColumn(action) {
+    switch (action.Operation.toLowerCase()) {
+        case 'hide':
+            hideTableColumn(action);
+            break;
+
+        case 'show':
+            showTableColumn(action);
+            break;
+    }
+}
+
+function hideTableColumn(action) {
+    var table = getElementByNameOrId(action, 'table');
+    if (!table) {
+        return;
+    }
+
+    addClass(table.find(`thead th[name="${action.Key}"]`), 'd-none');
+    addClass(table.find(`tbody td[pode-column="${action.Key}"]`), 'd-none');
+}
+
+function showTableColumn(action) {
+    var table = getElementByNameOrId(action, 'table');
+    if (!table) {
+        return;
+    }
+
+    removeClass(table.find(`thead th[name="${action.Key}"]`), 'd-none', true);
+    removeClass(table.find(`tbody td[pode-column="${action.Key}"]`), 'd-none', true);
+}
+
 function getQueryStringValue(name) {
     if (!window.location.search) {
         return null;
@@ -2035,7 +2071,8 @@ function updateTable(action, sender) {
 
     // render initial columns?
     var _value = '';
-    var _direction = 'none'
+    var _direction = 'none';
+    var _columnHidden = false;
 
     var columnKeys = Object.keys(columns);
 
@@ -2084,14 +2121,16 @@ function updateTable(action, sender) {
         _oldHeader = tableHead.find(`th[name='${key}']`);
         if (_oldHeader.length > 0) {
             _direction = _oldHeader.attr('sort-direction');
+            _columnHidden = _oldHeader.hasClass('d-none');
         }
         else {
             _direction = 'none';
+            _columnHidden = false;
         }
 
         // add the table header
         if (key in columns) {
-            _value += buildTableHeader(columns[key], _direction);
+            _value += buildTableHeader(columns[key], _direction, _columnHidden);
         }
         else {
             if (_oldHeader.length > 0) {
@@ -2122,7 +2161,13 @@ function updateTable(action, sender) {
                     _value += `text-align:${_header.css('text-align')};`;
                 }
 
-                _value += `'>`;
+                _value += "'";
+
+                if (_header.hasClass('d-none')) {
+                    _value += ` class='d-none'`;
+                }
+
+                _value += ">";
             }
             else {
                 _value += `<td pode-column='${key}'>`;
@@ -2226,7 +2271,7 @@ function updateTable(action, sender) {
     bindTableClickableRows(tableId);
 }
 
-function buildTableHeader(column, direction) {
+function buildTableHeader(column, direction, hidden) {
     var value = `<th sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
 
     if (column.Width) {
@@ -2237,7 +2282,13 @@ function buildTableHeader(column, direction) {
         value += `text-align:${column.Alignment};`;
     }
 
-    value += `'>`;
+    value += "'";
+
+    if (hidden || (hidden == null && column.Hide)) {
+        value += ` class='d-none'`;
+    }
+
+    value += ">";
 
     if (column.Icon) {
         value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight04'></span>`;
