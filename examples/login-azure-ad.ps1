@@ -17,7 +17,7 @@ Start-PodeServer {
     # $scheme = New-PodeAuthAzureADScheme -Tenant $tenantId -ClientId $clientId -ClientSecret $clientSecret -InnerScheme $form
 
     # for OAuth2 grant type = auth_code
-    $scheme = New-PodeAuthAzureADScheme -Tenant $tenantId -ClientId $clientId -ClientSecret $clientSecret
+    $scheme = New-PodeAuthAzureADScheme -Tenant $tenantId -ClientId $clientId -UsePKCE
 
     $scheme | Add-PodeAuth -Name 'AzureAD' -ScriptBlock {
         param($user, $accessToken, $refreshToken)

@@ -23,16 +23,24 @@ function Use-PodeWebTemplates
         [string[]]
         $EndpointName,
 
+        [Parameter()]
+        [ValidateSet('None', 'Default', 'Simple', 'Strict')]
+        [string]
+        $Security = 'Default',
+
         [switch]
         $NoPageFilter,
 
         [switch]
-        $HideSidebar
+        $HideSidebar,
+
+        [switch]
+        $UseHsts
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore | Sort-Object -Property Version -Descending | Select-Object -First 1)
-    if (($null -eq $mod) -or ($mod.Version -lt [version]'2.5.0')) {
-        throw "The Pode module is not loaded. You need at least Pode v2.5.0 to use this version of the Pode.Web module."
+    if (($null -eq $mod) -or ($mod.Version -lt [version]'2.6.0')) {
+        throw "The Pode module is not loaded. You need at least Pode v2.6.0 to use this version of the Pode.Web module."
     }
 
     if ([string]::IsNullOrWhiteSpace($FavIcon)) {
@@ -84,6 +92,8 @@ function Use-PodeWebTemplates
             }
         }
     }
+
+    Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
 }
 
 function Import-PodeWebStylesheet
