@@ -31,7 +31,7 @@ This type is pretty self-explanatory, if specified Pode.Web will call `Remove-Po
 This type is the default that Pode.Web uses when no `-Security` is supplied. Under the hood this type uses the Simple security type within Pode, plus some extras:
 
 * The default-src, script-src, style-src, and media-src for Content Security Policy are extended with `http` and `https`, to allow content to be retrieved externally
-* CORS is removed
+* The Cross-Origin headers are removed
 * The essentials above
 
 ### Simple
