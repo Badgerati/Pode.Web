@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8090:8090"
+    container_name: pode-web-example
+    restart: always
