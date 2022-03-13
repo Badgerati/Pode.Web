@@ -913,8 +913,13 @@ function Set-PodeWebSecurity
     switch ($Security.ToLowerInvariant()) {
         'default' {
             Set-PodeSecurity -Type Simple -UseHsts:$UseHsts
-            Add-PodeSecurityContentSecurityPolicy -Default 'http', 'https'
             Remove-PodeSecurityCrossOrigin
+
+            Add-PodeSecurityContentSecurityPolicy `
+                -Default 'http', 'https' `
+                -Style 'http', 'https' `
+                -Scripts 'http', 'https' `
+                -Image 'http', 'https'
         }
 
         'simple' {
