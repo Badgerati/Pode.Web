@@ -58,8 +58,7 @@ function New-PodeWebCell
         $Content,
 
         [Parameter()]
-        [ValidateRange(1, 12)]
-        [int]
+        [string]
         $Width,
 
         [Parameter()]
@@ -84,7 +83,7 @@ function New-PodeWebCell
         ComponentType = 'Layout'
         ObjectType = 'Cell'
         Content = $Content
-        Width = $Width
+        Width = (Protect-PodeWebRange -Value $Width -Min 1 -Max 12)
         ID = (Get-PodeWebElementId -Tag Cell -Id $Id -RandomToken)
         Alignment = $Alignment.ToLowerInvariant()
         CssClasses = ($CssClass -join ' ')

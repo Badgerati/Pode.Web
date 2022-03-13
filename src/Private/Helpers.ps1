@@ -844,6 +844,54 @@ function ConvertTo-PodeWebStyles
     return $styles
 }
 
+function Protect-PodeWebRange
+{
+    param(
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter(Mandatory=$true)]
+        [int]
+        $Min,
+
+        [Parameter(Mandatory=$true)]
+        [int]
+        $Max
+    )
+
+    # null for no value
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $null
+    }
+
+    $pattern = Get-PodeWebNumberRegex
+
+    # if it's a percentage, calculate value
+    if ($Value.EndsWith('%')) {
+        $_val = [double]$Value.TrimEnd('%')
+        $Value = $Max * $_val * 0.01
+    }
+
+    # if value is number, check range
+    if ($Value -match $pattern) {
+        $_val = [int]$Value
+
+        if ($_val -lt $Min) {
+            return $Min
+        }
+
+        if ($_val -gt $Max) {
+            return $Max
+        }
+
+        return $_val
+    }
+
+    # invalid value
+    throw "Invalid value supplied for range: $($Value). Expected a value between $($Min)-$($Max), or a percentage."
+}
+
 function ConvertTo-PodeWebSize
 {
     param(
@@ -861,7 +909,7 @@ function ConvertTo-PodeWebSize
         $Type
     )
 
-    $pattern = '^\-?\d+(\.\d+){0,1}$'
+    $pattern = Get-PodeWebNumberRegex
     $defIsNumber = ($Default -match $pattern)
 
     if ([string]::IsNullOrWhiteSpace($Value)) {
@@ -891,6 +939,11 @@ function ConvertTo-PodeWebSize
     }
 
     return $Value
+}
+
+function Get-PodeWebNumberRegex
+{
+    return '^\-?\d+(\.\d+){0,1}$'
 }
 
 function Set-PodeWebSecurity
