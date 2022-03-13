@@ -137,3 +137,25 @@ New-PodeWebGrid -Width 3 -Cells @(
     )
 )
 ```
+
+## Cell Width
+
+You can optionally specify the width of a cell within a grid, by using the `-Width` parameter on [`New-PodeWebCell`](../../../Functions/Layouts/New-PodeWebCell). A grid is split up into 12 segments, and the `-Width` parameter lets you specify a value between 1 and 12. A value of 12 means the cells takes up the full width of the grid, where as 6 would be half the width.
+
+You can also supply the value as a percentage as well; 50% being 6 segments, etc.
+
+```powershell
+New-PodeWebGrid -Cells @(
+    New-PodeWebCell -Width 6 -Content @(
+        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+    )
+    New-PodeWebCell -Width '25%' -Content @(
+        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+    )
+    New-PodeWebCell -Width 3 -Content @(
+        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+    )
+)
+```
+
+The above example would display a grid, with 1 cell occupying 50% of the width, and the last 2 just 25% each.
