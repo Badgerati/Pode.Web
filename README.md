@@ -11,7 +11,7 @@
 
 > 💝 A lot of my free time, evenings, and weekends goes into making Pode happen; please do consider sponsoring as it will really help! 😊
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.5.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.6.0+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
 

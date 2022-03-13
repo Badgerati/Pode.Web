@@ -118,11 +118,12 @@ function bindFileStreams() {
                     }
                 },
                 error: function(err) {
+                    hideSpinner($(e).closest('div.file-stream'));
+
                     if (err.status == 416) {
                         return;
                     }
 
-                    hideSpinner($(e).closest('div.file-stream'));
                     $(e).attr('pode-streaming', '0');
                     addClass($(e).closest('div.file-stream'), 'stream-error');
                     hide($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));

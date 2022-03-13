@@ -892,3 +892,47 @@ function ConvertTo-PodeWebSize
 
     return $Value
 }
+
+function Set-PodeWebSecurity
+{
+    param(
+        [Parameter()]
+        [ValidateSet('None', 'Default', 'Simple', 'Strict')]
+        [string]
+        $Security,
+
+        [switch]
+        $UseHsts
+    )
+
+    if ($Security -ieq 'none') {
+        Remove-PodeSecurity
+        return
+    }
+
+    switch ($Security.ToLowerInvariant()) {
+        'default' {
+            Set-PodeSecurity -Type Simple -UseHsts:$UseHsts
+            Remove-PodeSecurityCrossOrigin
+
+            Add-PodeSecurityContentSecurityPolicy `
+                -Default 'http', 'https' `
+                -Style 'http', 'https' `
+                -Scripts 'http', 'https' `
+                -Image 'http', 'https'
+        }
+
+        'simple' {
+            Set-PodeSecurity -Type Simple -UseHsts:$UseHsts
+        }
+
+        'strict' {
+            Set-PodeSecurity -Type Strict -UseHsts:$UseHsts
+        }
+    }
+
+    Add-PodeSecurityContentSecurityPolicy `
+        -Style 'self', 'unsafe-inline' `
+        -Scripts 'self', 'unsafe-inline' `
+        -Image 'self', 'data'
+}
