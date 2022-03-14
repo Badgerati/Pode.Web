@@ -887,6 +887,12 @@ div.file-stream .card-header span.spinner-border {
     top: 7px;
 }
 
+span.canvas-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
 a.nav-link .mdi:before {
     position: relative;
     top: 3px;

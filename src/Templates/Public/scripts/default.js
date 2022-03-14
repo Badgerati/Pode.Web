@@ -245,16 +245,25 @@ function checkAutoTheme() {
 
 function mapElementThemes() {
     var bodyTheme = getPodeTheme();
+    var isTerminal = bodyTheme == 'terminal';
+    var types = ['badge', 'btn', 'text'];
 
-    var defTheme = 'primary';
-    if (bodyTheme == 'terminal') {
-        defTheme = 'success';
-    }
+    // main theme
+    var defTheme = isTerminal ? 'success' : 'primary';
 
-    var types = ['badge', 'btn'];
     types.forEach((type) => {
         $(`.${type}-inbuilt-theme`).each((i, e) => {
             $(e).removeClass(`${type}-inbuilt-theme`);
+            addClass($(e), `${type}-${defTheme}`);
+        });
+    });
+
+    // secondary theme
+    defTheme = isTerminal ? 'success' : 'secondary';
+
+    types.forEach((type) => {
+        $(`.${type}-inbuilt-sec-theme`).each((i, e) => {
+            $(e).removeClass(`${type}-inbuilt-sec-theme`);
             addClass($(e), `${type}-${defTheme}`);
         });
     });
@@ -2058,10 +2067,11 @@ function updateTable(action, sender) {
 
     // table meta
     var table = getElementByNameOrId(action, 'table');
-    var tableId = `table#${getId(table)}`;
+    var tableId = getId(table);
+    var fullTableId = `table#${tableId}`;
 
-    var tableHead = $(`${tableId} thead`);
-    var tableBody = $(`${tableId} tbody`);
+    var tableHead = $(`${fullTableId} thead`);
+    var tableBody = $(`${fullTableId} tbody`);
     var isPaginated = isTablePaginated(table);
 
     // get custom column meta - for widths etc
@@ -2097,6 +2107,9 @@ function updateTable(action, sender) {
         if (isPaginated) {
             table.closest('div[role="table"]').find('nav ul').empty();
         }
+
+        // hide spinner
+        $(`span#${tableId}_spinner`).hide();
         return;
     }
 
@@ -2190,6 +2203,9 @@ function updateTable(action, sender) {
         tableBody.append(_value);
     });
 
+    // hide spinner
+    $(`span#${tableId}_spinner`).hide();
+
     // is the table paginated?
     if (isPaginated) {
         var paging = table.closest('div[role="table"]').find('nav ul');
@@ -2261,7 +2277,7 @@ function updateTable(action, sender) {
 
     // binds sort/buttons/etc
     $('[data-toggle="tooltip"]').tooltip();
-    bindTableSort(tableId);
+    bindTableSort(fullTableId);
     bindButtons();
     bindTablePagination();
 
@@ -2269,7 +2285,7 @@ function updateTable(action, sender) {
     filterTable(table.closest('div.card-body').find('input.pode-table-filter'));
 
     // setup clickable rows
-    bindTableClickableRows(tableId);
+    bindTableClickableRows(fullTableId);
 }
 
 function buildTableHeader(column, direction, hidden) {
@@ -3411,13 +3427,14 @@ function updateChart(action, sender) {
         return;
     }
 
-    action.Data = convertToArray(action.Data);
-    if (action.Data.length <= 0) {
-        return;
-    }
-
     var canvas = getElementByNameOrId(action, 'canvas');
     action.ID = getId(canvas);
+
+    action.Data = convertToArray(action.Data);
+    if (action.Data.length <= 0) {
+        $(`span#${action.ID}_spinner`).hide();
+        return;
+    }
 
     var _append = (canvas.attr('pode-append') == 'True');
     var _chart = _charts[action.ID];
@@ -3436,6 +3453,8 @@ function updateChart(action, sender) {
     else {
         createTheChart(canvas, action, sender);
     }
+
+    $(`span#${action.ID}_spinner`).hide();
 }
 
 function appendToChart(canvas, action) {
