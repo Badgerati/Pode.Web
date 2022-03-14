@@ -54,7 +54,10 @@
                     "<form class='form-inline' action='$($data.AppPath)/logout' method='POST' style='margin-bottom: 0'>
                         <span class='navbar-text mRight1 welcome-msg'>"
                             if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
-                                "<img src='$($data.Auth.Avatar)'>"
+                                "<img id='avatar' src='$($data.Auth.Avatar)'>"
+                            }
+                            else {
+                                "<span id='avatar' class='mdi mdi-account'></span>"
                             }
                             "Hello, $([System.Net.WebUtility]::HtmlEncode($data.Auth.Username))
                         </span>

@@ -396,3 +396,7 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator:hover {
 iframe {
     border-color: #33ff00;
 }
+
+.navbar #avatar.mdi::before {
+    top: 3px;
+}
