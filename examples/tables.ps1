@@ -42,6 +42,8 @@ Start-PodeServer -Threads 2 {
                 $pageSize = [int]$WebEvent.Data.PageSize
                 $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
 
+                Start-Sleep -Seconds 5
+
                 $processes | Update-PodeWebTable -Name $ElementData.Name -PageIndex $pageIndex -TotalItemCount $totalCount
             } `
             -Columns @(

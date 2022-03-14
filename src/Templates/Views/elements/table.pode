@@ -33,7 +33,10 @@ $(if ($data.Filter.Enabled) {
                 pode-paginate='$($data.Paging.Enabled)'>
                 <thead></thead>
                 <tbody></tbody>
-            </table>"
+            </table>
+            <div class='text-center'>
+                <span id='$($data.ID)_spinner' class='spinner-grow text-inbuilt-sec-theme' role='status'></span>
+            </div>"
         )
     </div>
 

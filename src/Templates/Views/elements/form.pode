@@ -10,7 +10,7 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
     </button>
 
     $(if ($data.ShowReset) {
-        "<button class='btn btn-secondary form-reset' for='$($data.ID)' type='button'>
+        "<button class='btn btn-inbuilt-sec-theme form-reset' for='$($data.ID)' type='button'>
             $($data.ResetText)
         </button>"
     })
