@@ -492,7 +492,7 @@ table tbody td {
     font-size: 1.2em;
 }
 
-.welcome-msg span#avatar {
+.welcome-msg #avatar {
     width: 35px;
     height: 35px;
     margin-right: 0.3rem;
