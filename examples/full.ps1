@@ -21,7 +21,7 @@ Start-PodeServer -StatusPageExceptions Show {
                     Name = 'Morty'
                     Type = 'Human'
                     Groups = @('Developer')
-                    AvatarUrl = '/pode.web/images/icon.png'
+                    #AvatarUrl = '/pode.web/images/icon.png'
                 }
             }
         }
