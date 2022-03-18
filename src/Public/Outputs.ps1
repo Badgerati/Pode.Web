@@ -566,6 +566,10 @@ function Update-PodeWebTextbox
         [string]
         $Id,
 
+        [Alias('Height')]
+        [int]
+        $Size = 0,
+
         [Parameter()]
         [switch]
         $AsJson,
@@ -594,6 +598,7 @@ function Update-PodeWebTextbox
             Value = $items
             ID = $Id
             Name = $Name
+            Size = $Size
             AsJson = $AsJson.IsPresent
             Multiline = $Multiline.IsPresent
         }
