@@ -1111,6 +1111,10 @@ function loadTables() {
     $(`table[pode-dynamic='True']`).each((i, e) => {
         loadTable($(e).attr('id'));
     });
+
+    $(`table[pode-dynamic='False']`).each((i, e) => {
+        hideLoadingSpinner($(e).attr('id'));
+    });
 }
 
 function loadTable(tableId, opts) {
@@ -1121,6 +1125,7 @@ function loadTable(tableId, opts) {
     // ensure the table is dynamic, or has the 'for' attr set
     var table = $(`table#${tableId}`);
     if (!isDynamic(table) && !table.attr('for')) {
+        hideLoadingSpinner(tableId);
         return;
     }
 
@@ -1279,6 +1284,10 @@ function bindTileClick() {
 function loadCharts() {
     $(`canvas[pode-dynamic='True']`).each((i, e) => {
         loadChart($(e).attr('id'));
+    });
+
+    $(`canvas[pode-dynamic='False']`).each((i, e) => {
+        hideLoadingSpinner($(e).attr('id'));
     });
 }
 
@@ -2061,6 +2070,15 @@ function syncTable(action) {
     loadTable(getId(table));
 }
 
+function showLoadingSpinner(elementId) {
+    $(`span#${elementId}_spinner`).show();
+}
+
+function hideLoadingSpinner(elementId) {
+    $(`span#${elementId}_spinner`).hide();
+}
+
+
 function updateTable(action, sender) {
     // convert data to array
     action.Data = convertToArray(action.Data);
@@ -2109,7 +2127,7 @@ function updateTable(action, sender) {
         }
 
         // hide spinner
-        $(`span#${tableId}_spinner`).hide();
+        hideLoadingSpinner(tableId);
         return;
     }
 
@@ -2204,7 +2222,7 @@ function updateTable(action, sender) {
     });
 
     // hide spinner
-    $(`span#${tableId}_spinner`).hide();
+    hideLoadingSpinner(tableId);
 
     // is the table paginated?
     if (isPaginated) {
@@ -3432,7 +3450,7 @@ function updateChart(action, sender) {
 
     action.Data = convertToArray(action.Data);
     if (action.Data.length <= 0) {
-        $(`span#${action.ID}_spinner`).hide();
+        hideLoadingSpinner(action.ID);
         return;
     }
 
@@ -3454,7 +3472,7 @@ function updateChart(action, sender) {
         createTheChart(canvas, action, sender);
     }
 
-    $(`span#${action.ID}_spinner`).hide();
+    hideLoadingSpinner(action.ID);
 }
 
 function appendToChart(canvas, action) {

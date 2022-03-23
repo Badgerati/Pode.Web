@@ -754,6 +754,10 @@ function Get-PodeWebFirstPublicPage
     }
 
     foreach ($page in ($pages.Values | Sort-Object -Property { $_.Group }, { $_.Name })) {
+        if ($page.IsSystem) {
+            continue
+        }
+
         if ((Test-PodeWebArrayEmpty -Array $page.Access.Groups) -and (Test-PodeWebArrayEmpty -Array $page.Access.Users)) {
             return $page
         }

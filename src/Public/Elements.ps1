@@ -3160,7 +3160,7 @@ function New-PodeWebAudio
         Width = (ConvertTo-PodeWebSize -Value $Width -Default 20 -Type '%')
         Sources = $Source
         Tracks = $Track
-        NotSupportedText = [System.Net.WebUtility]::HtmlEncode((Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element'))
+        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element' -Encode)
         Muted = $Muted.IsPresent
         AutoPlay = $AutoPlay.IsPresent
         AutoBuffer = $AutoBuffer.IsPresent
@@ -3287,7 +3287,7 @@ function New-PodeWebVideo
         Sources = $Source
         Tracks = $Track
         Thumbnail = $Thumbnail
-        NotSupportedText = [System.Net.WebUtility]::HtmlEncode((Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the video element'))
+        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the video element' -Encode)
         Muted = $Muted.IsPresent
         AutoPlay = $AutoPlay.IsPresent
         AutoBuffer = $AutoBuffer.IsPresent

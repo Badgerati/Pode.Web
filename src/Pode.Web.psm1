@@ -5,6 +5,11 @@ $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Path
 Add-Type -AssemblyName System.Web
 Add-Type -AssemblyName System.Net.Http
 
+# stop ansi colours in ps7.2+
+if ($PSVersionTable.PSVersion -ge [version]'7.2.0') {
+    $PSStyle.OutputRendering = 'PlainText'
+}
+
 # import everything if in a runspace
 if ($PODE_SCOPE_RUNSPACE) {
     $sysfuncs = Get-ChildItem Function:
