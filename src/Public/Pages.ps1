@@ -153,6 +153,7 @@ function Set-PodeWebLoginPage
             Navigation = $navigation
             Auth = @{
                 Enabled = $true
+                Logout = $true
                 Authenticated = $authData.IsAuthenticated
                 Username = $username
                 Groups = $groups
