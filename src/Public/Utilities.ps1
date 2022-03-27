@@ -317,6 +317,7 @@ function Set-PodeWebAuth
         Group = $GroupProperty
         Avatar = $AvatarProperty
         Theme = $ThemeProperty
+        Logout = $false
     }
 
     # set default failure/success urls
@@ -353,7 +354,7 @@ function Set-PodeWebAuth
             Navigation = $navigation
             Auth = @{
                 Enabled = $true
-                Logout = $false
+                Logout = (Get-PodeWebState -Name 'auth-props').Logout
                 Authenticated = $authData.IsAuthenticated
                 Username = $username
                 Groups = $groups
