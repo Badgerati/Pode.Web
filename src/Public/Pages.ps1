@@ -50,6 +50,7 @@ function Set-PodeWebLoginPage
         Group = $GroupProperty
         Avatar = $AvatarProperty
         Theme = $ThemeProperty
+        Logout = $true
     }
 
     # set a default logo/url
@@ -153,6 +154,7 @@ function Set-PodeWebLoginPage
             Navigation = $navigation
             Auth = @{
                 Enabled = $true
+                Logout = (Get-PodeWebState -Name 'auth-props').Logout
                 Authenticated = $authData.IsAuthenticated
                 Username = $username
                 Groups = $groups
@@ -264,6 +266,7 @@ function Set-PodeWebHomePage
             Layouts = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
+                Logout = (Get-PodeWebState -Name 'auth-props').Logout
                 Authenticated = $authData.IsAuthenticated
                 Username = $username
                 Groups = $groups
@@ -443,6 +446,7 @@ function Add-PodeWebPage
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
+            Logout = (Get-PodeWebState -Name 'auth-props').Logout
             Authenticated = $authData.IsAuthenticated
             Username = $username
             Groups = $groups

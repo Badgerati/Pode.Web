@@ -60,12 +60,14 @@
                                 "<span id='avatar' class='mdi mdi-account'></span>"
                             }
                             "Hello, $([System.Net.WebUtility]::HtmlEncode($data.Auth.Username))
-                        </span>
-                        <button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                            <span class='mdi mdi-logout mRight02'></span>
-                            Sign out
-                        </button>
-                    </form>"
+                        </span>"
+                        if ($data.Auth.Logout) {
+                            "<button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                                <span class='mdi mdi-logout mRight02'></span>
+                                Sign out
+                            </button>"
+                        }
+                    "</form>"
                 }
                 else {
                     "<form class='form-inline' action='$($data.AppPath)/login' method='GET' style='margin-bottom: 0'>
