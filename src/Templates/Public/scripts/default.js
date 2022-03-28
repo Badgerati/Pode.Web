@@ -843,7 +843,34 @@ function toggleSidebar() {
 }
 
 function bindTablePagination() {
-    $('nav .pagination a.page-link').off('click').on('click', function(e) {
+    $('nav[role="pagination"] input.page-size').off('keyup').on('keyup', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var size = $(this);
+
+        // nav
+        var pageNav = size.closest('nav');
+
+        // on enter, reload table
+        if (isEnterKey(e)) {
+            unfocus(size);
+
+            loadTable(pageNav.attr('for'), {
+                page: {
+                    index: 1,
+                    size: parseInt((pageNav.attr('pode-page-size') ?? 20))
+                },
+                reload: true
+            });
+        }
+
+        // otherwise, set the size
+        else {
+            pageNav.attr('pode-page-size', size.val());
+        }
+    });
+
+    $('nav[role="pagination"] .pagination a.page-link').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         var link = $(this);
@@ -866,9 +893,14 @@ function bindTablePagination() {
             if (link.hasClass('page-previous')) {
                 current--;
             }
-
-            if (link.hasClass('page-next')) {
+            else if (link.hasClass('page-next')) {
                 current++;
+            }
+            else if (link.hasClass('page-first')) {
+                current = 1;
+            }
+            else if (link.hasClass('page-last')) {
+                current = link.attr('pode-max');
             }
 
             pageIndex = current;
@@ -881,7 +913,8 @@ function bindTablePagination() {
             page: {
                 index: parseInt(pageIndex),
                 size: parseInt(pageSize)
-            }
+            },
+            reload: true
         });
     });
 }
@@ -1122,6 +1155,9 @@ function loadTable(tableId, opts) {
         return;
     }
 
+    // options
+    opts = opts ?? {};
+
     // ensure the table is dynamic, or has the 'for' attr set
     var table = $(`table#${tableId}`);
     if (!isDynamic(table) && !table.attr('for')) {
@@ -1184,6 +1220,12 @@ function loadTable(tableId, opts) {
 
         data += form.serialize();
         url = form.attr('action');
+    }
+
+    // if we're reloading, hide all data and show spinner
+    if (opts.reload) {
+        table.find('tbody').empty();
+        showLoadingSpinner(tableId);
     }
 
     // invoke and load table content
@@ -2226,71 +2268,7 @@ function updateTable(action, sender) {
 
     // is the table paginated?
     if (isPaginated) {
-        var paging = table.closest('div[role="table"]').find('nav ul');
-        paging.empty();
-
-        // previous
-        paging.append(`
-            <li class="page-item">
-                <a class="page-link page-arrows page-previous" href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>`);
-
-        var pageActive = '';
-
-        // first page
-        pageActive = (1 == action.Paging.Index ? 'active' : '');
-        paging.append(`
-            <li class="page-item">
-                <a class="page-link ${pageActive}" href="#">1</a>
-            </li>`);
-
-        // ...
-        if (action.Paging.Index > 4) {
-            paging.append(`
-                <li class="page-item">
-                    <a class="page-link disabled" href="#">...</a>
-                </li>`);
-        }
-
-        // pages
-        for (var i = (action.Paging.Index - 2); i <= (action.Paging.Index + 2); i++) {
-            if (i <= 1 || i >= action.Paging.Max) {
-                continue;
-            }
-
-            pageActive = (i == action.Paging.Index ? 'active' : '');
-            paging.append(`
-                <li class="page-item">
-                    <a class="page-link ${pageActive}" href="#">${i}</a>
-                </li>`);
-        }
-
-        // ...
-        if (action.Paging.Index < action.Paging.Max - 3) {
-            paging.append(`
-                <li class="page-item">
-                    <a class="page-link disabled" href="#">...</a>
-                </li>`);
-        }
-
-        // last page
-        if (action.Paging.Max > 1) {
-            pageActive = (action.Paging.Max == action.Paging.Index ? 'active' : '');
-            paging.append(`
-                <li class="page-item">
-                    <a class="page-link ${pageActive}" href="#">${action.Paging.Max}</a>
-                </li>`);
-        }
-
-        // next
-        paging.append(`
-            <li class="page-item">
-                <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${action.Paging.Max}">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>`);
+        buildTablePaging(table, action.Paging.Index, action.Paging.Max, action.Paging.Size);
     }
 
     // binds sort/buttons/etc
@@ -2304,6 +2282,74 @@ function updateTable(action, sender) {
 
     // setup clickable rows
     bindTableClickableRows(fullTableId);
+}
+
+function buildTablePaging(table, currentIndex, totalPages, size) {
+    var paging = table.closest('div[role="table"]').find('nav ul');
+    var parent = paging.parent();
+
+    parent.find('input.page-size').remove();
+    paging.empty();
+
+    // current page
+    parent.attr('pode-current-page', currentIndex);
+
+    // page size
+    parent.prepend(`<input type="number" id="${parent.attr('for')}_size" class="form-control page-size" value="${size}" min="1">`);
+
+    // if there is only 1 total page, don't even bother showing pagination
+    if (totalPages <= 1) {
+        return;
+    }
+
+    // first
+    paging.append(`
+        <li class="page-item">
+            <a class="page-link page-arrows page-first" href="#" aria-label="First" title="First (1)" data-toggle="tooltip">
+                <span aria-hidden="true">&lt;&lt;</span>
+            </a>
+        </li>`);
+
+    // previous
+    paging.append(`
+        <li class="page-item">
+            <a class="page-link page-arrows page-previous" href="#" aria-label="Previous" title="Previous" data-toggle="tooltip">
+                <span aria-hidden="true">&lt;</span>
+            </a>
+        </li>`);
+
+    var pageActive = '';
+
+    // pages
+    var gap = (currentIndex == 1 || currentIndex == totalPages ? 2 : 1);
+
+    for (var i = (currentIndex - gap); i <= (currentIndex + gap); i++) {
+        if (i < 1 || i > totalPages) {
+            continue;
+        }
+
+        pageActive = (i == currentIndex ? 'active' : '');
+        paging.append(`
+            <li class="page-item">
+                <a class="page-link ${pageActive}" href="#">${i}</a>
+            </li>`);
+    }
+
+    // next
+    paging.append(`
+        <li class="page-item">
+            <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${totalPages}" title="Next" data-toggle="tooltip">
+                <span aria-hidden="true">&gt;</span>
+            </a>
+        </li>`);
+
+    // last
+    paging.append(`
+        <li class="page-item">
+            <a class="page-link page-arrows page-last" href="#" aria-label="Last" pode-max="${totalPages}" title="Last (${totalPages})" data-toggle="tooltip">
+                <span aria-hidden="true">&gt;&gt;</span>
+            </a>
+        </li>`);
 }
 
 function buildTableHeader(column, direction, hidden) {

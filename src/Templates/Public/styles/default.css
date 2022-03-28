@@ -150,6 +150,14 @@ main[role="main"].fullscreen {
 
 nav[role="pagination"] {
     float: right;
+    display: inline-flex;
+}
+
+nav[role="pagination"] input.page-size {
+    width: 4.5em;
+    font-size: 1em;
+    margin-right: 1em;
+    display: flex;
 }
 
 .breadcrumb {

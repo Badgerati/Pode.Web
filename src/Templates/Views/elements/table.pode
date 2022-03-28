@@ -67,7 +67,7 @@ $(if ($data.Filter.Enabled) {
         </div>
 
         $(if ($data.Paging.Enabled) {
-            "<nav role='pagination' aria-label='$($data.Name) Pages' for='$($data.ID)' pode-page-size='$($data.Paging.Size)'>
+            "<nav role='pagination' aria-label='$($data.Name) Pages' for='$($data.ID)' pode-page-size='$($data.Paging.Size)' pode-current-page='1'>
                 <ul class='pagination justify-content-end'>
                 </ul>
             </nav>"
