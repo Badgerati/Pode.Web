@@ -39,6 +39,56 @@ Add-PodeAuthIIS -Name Example
 Set-PodeWebAuth -Authentication Example
 ```
 
+### Custom Fields
+
+By default the Login page will display a login form with Username and Password inputs. This can be overridden by supplying custom Layouts and Elements to the `-Content` parameter of [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage). Any custom content will be placed between the "Please sign in" message and the "Sign In" button.
+
+```powershell
+# setup sessions
+Enable-PodeSessionMiddleware -Duration 120 -Extend
+
+# define a new custom authentication scheme, which needs a client, username, and password
+$custom_scheme = New-PodeAuthScheme -Custom -ScriptBlock {
+    param($opts)
+
+    # get the client/user/password from the request's post data
+    $client = $WebEvent.Data.client
+    $username = $WebEvent.Data.username
+    $password = $WebEvent.Data.password
+
+    # return the data in a array, which will be passed to the validator script
+    return @($client, $username, $password)
+}
+
+# now, add a new custom authentication validator using the scheme you created above
+$custom_scheme | Add-PodeAuth -Name Example -ScriptBlock {
+    param($client, $username, $password)
+
+    # check if the client is valid in some database
+    return @{
+        User = @{
+            ID ='M0R7Y302'
+            Name = 'Morty'
+            Type = 'Human'
+        }
+    }
+
+    # return a user object (return $null if validation failed)
+    return  @{ User = $user }
+}
+
+# set the login page to use the custom auth, and also custom login fields
+Set-PodeWebLoginPage -Authentication Example -Content @(
+    New-PodeWebTextbox -Type Text -Name 'client' -Id 'client' -Placeholder 'Client' -Required -AutoFocus -DynamicLabel
+    New-PodeWebTextbox -Type Text -Name 'username' -Id 'username' -Placeholder 'Username' -Required -DynamicLabel
+    New-PodeWebTextbox -Type Password -Name 'password' -Id 'password' -Placeholder 'Password' -Required -DynamicLabel
+)
+```
+
+Which would look like below:
+
+![login_custom](../../images/login_custom.png)
+
 ## Home
 
 Every site is setup with a default empty home page. If you choose not to add anything to your home page, then Pode.Web will automatically redirect to the first Webpage.

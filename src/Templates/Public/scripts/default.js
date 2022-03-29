@@ -1570,7 +1570,7 @@ function bindFormSubmits() {
     });
 
     // login form
-    $("form.form-signin").off('submit').on('submit', function(e) {
+    $("body#login-page .form-signin").off('submit').on('submit', function(e) {
         // get the form
         var form = $(e.target);
 

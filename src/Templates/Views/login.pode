@@ -11,48 +11,42 @@
             </div>
         </div>
 
-        <form class="form-signin" action="$($data.AppPath)/login" method='POST'>
+        <div class="form-signin">
             <div class='text-center mb-4'>
                 <a href='$($data.LogoUrl)'>
                     <img class='mb-4 rounded' src='$($data.Logo)' alt='logo' height='72'>
                 </a>
-                <h1 class='h3 mb-3 font-weight-normal'>Please sign in</h1>
+                <h1 class='h3 mb-3 font-weight-normal'>$($data.SignInMessage)</h1>
             </div>
 
-            $(if (!$data.Auth.IsOAuth2 -or  ($data.Auth.GrantType -ieq 'password')) {
-                "<div class='form-label-group'>
-                    <input type='text' id='username' name='username' class='form-control' placeholder='Username' required autofocus>
-                    <label for='username'>Username</label>
-                </div>
+            <form action="$($data.AppPath)/login" method='POST'>
+                $(if (!$data.Auth.IsOAuth2 -or ($data.Auth.GrantType -ieq 'password')) {
+                    Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content }
 
-                <div class='form-label-group'>
-                    <input type='password' id='password' name='password' class='form-control' placeholder='Password' required>
-                    <label for='password'>Password</label>
-                </div>"
+                    if ($data.Flash['auth-error']) {
+                        "<div class='alert alert-danger' role='alert'>
+                            <span class='mdi mdi-alert-circle'></span>
+                            <strong>$($data.Flash['auth-error'])</strong>
+                        </div>"
+                    }
 
-                if ($data.Flash['auth-error']) {
-                    "<div class='alert alert-danger' role='alert'>
-                        <span class='mdi mdi-alert-circle'></span>
-                        <strong>$($data.Flash['auth-error'])</strong>
-                    </div>"
+                    "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
+                        <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                        Sign in
+                    </button>"
                 }
+                else {
+                    "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
+                        <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                        Sign in using OAuth2 ($($data.Auth.Name))
+                    </button>"
+                })
 
-                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
-                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
-                    Sign in
-                </button>"
-            }
-            else {
-                "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
-                    <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
-                    Sign in using OAuth2 ($($data.Auth.Name))
-                </button>"
-            })
-
-            $(if (![string]::IsNullOrWhiteSpace($data.Copyright)) {
-                "<p class='mt-5 mb-3 text-muted'>&copy; $($data.Copyright)</p>"
-            })
-        </form>
+                $(if (![string]::IsNullOrWhiteSpace($data.Copyright)) {
+                    "<p class='mt-5 mb-3 text-muted'>&copy; $($data.Copyright)</p>"
+                })
+            </form>
+        </div>
 
         $(Use-PodeWebPartialView -Path 'shared/scripts' -Data @{
             AppPath = $data.AppPath
