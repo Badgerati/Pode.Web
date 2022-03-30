@@ -91,7 +91,13 @@ function New-PodeWebTextbox
         $NoForm,
 
         [switch]
-        $Required
+        $Required,
+
+        [switch]
+        $AutoFocus,
+
+        [switch]
+        $DynamicLabel
     )
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
@@ -134,6 +140,8 @@ function New-PodeWebTextbox
         NoAuthentication = $NoAuthentication.IsPresent
         NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
+        AutoFocus = $AutoFocus.IsPresent
+        DynamicLabel = $DynamicLabel.IsPresent
     }
 
     # create autocomplete route
