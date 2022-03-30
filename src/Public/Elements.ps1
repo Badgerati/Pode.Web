@@ -2693,8 +2693,8 @@ function New-PodeWebForm
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
         ShowReset = $ShowReset.IsPresent
-        ResetText = [System.Net.WebUtility]::HtmlEncode($ResetText)
-        SubmitText = [System.Net.WebUtility]::HtmlEncode($SubmitText)
+        ResetText = (Protect-PodeWebValue -Value $ResetText -Default 'Reset' -Encode)
+        SubmitText = (Protect-PodeWebValue -Value $SubmitText -Default 'Submit' -Encode)
     }
 
     if (!(Test-PodeWebRoute -Path $routePath)) {
