@@ -1,5 +1,35 @@
 # Release Notes
 
+## v0.8.0
+
+```plain
+### Features
+* #276: Enable security headers by default
+
+### Enhancements
+* #91: While Charts and Tables are loading, a growing spinner is displayed
+* #129: Adds a new `Set-PodeWebAuth` for auths that don't need a login page, like IIS
+* #270: Allow Buttons to be shown as an outline, rather than a solid colour
+* #272: Add output actions for Buttons: Disable, Enable, Update, Invoke
+* #273: Add a Submit output action for Forms
+* #275: Allow for Table Columns to be hidden
+* #284: Allow for a Grid Cell `-Width` to allow be supplied as a percentage
+* #290: Show a default "avatar" icon for logged in users
+* #295: Clean up table pagination controls, and add items per page support
+* #297: Add support for custom Layouts/Elements on the login page
+
+### Bugs
+* #273: Allow the Submit/Reset text of Form buttons to be customised
+* #291: Fix for ANSI colour characters appearing in textboxes on PS7.2+
+* #291: Fix a rare issue for an empty home page to redirect to a login page and 404
+
+### Packaging
+* #281: Bump monaco-editor to 0.33.0
+* #282: Bump highlightjs to 11.5.0
+* #286: Package Pode.Web as a Docker image
+* #296: Bump mdi/fonts to 6.6.96
+```
+
 ## v0.7.1
 
 ```plain
