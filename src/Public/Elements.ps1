@@ -91,7 +91,13 @@ function New-PodeWebTextbox
         $NoForm,
 
         [switch]
-        $Required
+        $Required,
+
+        [switch]
+        $AutoFocus,
+
+        [switch]
+        $DynamicLabel
     )
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
@@ -134,6 +140,8 @@ function New-PodeWebTextbox
         NoAuthentication = $NoAuthentication.IsPresent
         NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
+        AutoFocus = $AutoFocus.IsPresent
+        DynamicLabel = $DynamicLabel.IsPresent
     }
 
     # create autocomplete route
@@ -1501,6 +1509,11 @@ function New-PodeWebButton
         $Colour = 'Blue',
 
         [Parameter()]
+        [ValidateSet('Normal', 'Small', 'Large')]
+        [string]
+        $Size = 'Normal',
+
+        [Parameter()]
         [string[]]
         $CssClass,
 
@@ -1525,11 +1538,22 @@ function New-PodeWebButton
 
         [Parameter(ParameterSetName='Url')]
         [switch]
-        $NewTab
+        $NewTab,
+
+        [switch]
+        $Outline,
+
+        [switch]
+        $Disabled,
+
+        [switch]
+        $FullWidth
     )
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
+
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
+    $sizeType = Convert-PodeWebButtonSizeToClass -Size $Size -FullWidth:$FullWidth
 
     $element = @{
         ComponentType = 'Element'
@@ -1545,12 +1569,15 @@ function New-PodeWebButton
         IconOnly = $IconOnly.IsPresent
         Colour = $Colour
         ColourType = $ColourType
+        Outline = $Outline.IsPresent
+        SizeType = $sizeType
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NewLine = $NewLine.IsPresent
         NewTab = $NewTab.IsPresent
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
+        Disabled = $Disabled.IsPresent
     }
 
     $routePath = "/components/button/$($Id)"
@@ -2362,7 +2389,10 @@ function Initialize-PodeWebTableColumn
 
         [Parameter()]
         [string]
-        $Default
+        $Default,
+
+        [switch]
+        $Hide
     )
 
     if ([string]::IsNullOrWhiteSpace($Name)) {
@@ -2376,6 +2406,7 @@ function Initialize-PodeWebTableColumn
         Name = $Name
         Icon = $Icon
         Default = $Default
+        Hide = $Hide.IsPresent
     }
 }
 
@@ -2616,6 +2647,16 @@ function New-PodeWebForm
         $Action,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $SubmitText = 'Submit',
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $ResetText = 'Reset',
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -2652,6 +2693,8 @@ function New-PodeWebForm
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
         ShowReset = $ShowReset.IsPresent
+        ResetText = (Protect-PodeWebValue -Value $ResetText -Default 'Reset' -Encode)
+        SubmitText = (Protect-PodeWebValue -Value $SubmitText -Default 'Submit' -Encode)
     }
 
     if (!(Test-PodeWebRoute -Path $routePath)) {
@@ -3125,7 +3168,7 @@ function New-PodeWebAudio
         Width = (ConvertTo-PodeWebSize -Value $Width -Default 20 -Type '%')
         Sources = $Source
         Tracks = $Track
-        NotSupportedText = [System.Net.WebUtility]::HtmlEncode((Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element'))
+        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the audio element' -Encode)
         Muted = $Muted.IsPresent
         AutoPlay = $AutoPlay.IsPresent
         AutoBuffer = $AutoBuffer.IsPresent
@@ -3252,7 +3295,7 @@ function New-PodeWebVideo
         Sources = $Source
         Tracks = $Track
         Thumbnail = $Thumbnail
-        NotSupportedText = [System.Net.WebUtility]::HtmlEncode((Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the video element'))
+        NotSupportedText = (Protect-PodeWebValue -Value $NotSupportedText -Default 'Your browser does not support the video element' -Encode)
         Muted = $Muted.IsPresent
         AutoPlay = $AutoPlay.IsPresent
         AutoBuffer = $AutoBuffer.IsPresent

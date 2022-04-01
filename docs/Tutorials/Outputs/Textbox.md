@@ -1,6 +1,6 @@
 # Textbox
 
-This page details the available output actions available to Textboxes.
+This page details the output actions available to Textboxes.
 
 ## Out
 

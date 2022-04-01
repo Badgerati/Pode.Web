@@ -33,4 +33,8 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
         pode-legend="$(!$data.NoLegend)"
         pode-colours="$($data.Colours)">
     </canvas>
+
+    <div class="text-center">
+        <span id="$($data.ID)_spinner" class="spinner-grow text-inbuilt-sec-theme canvas-spinner" role="status"></span>
+    </div>
 </div>

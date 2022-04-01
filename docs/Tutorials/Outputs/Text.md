@@ -1,6 +1,6 @@
 # Text
 
-This page details the available output actions available to Text elements, or elements available to have text updated within them.
+This page details the output actions available to Text elements, or elements available to have text updated within them.
 
 This output action differs slightly, as it doesn't just update elements created by [`New-PodeWebText`](../../../Functions/Elements/New-PodeWebText), but instead applies to the following list:
 

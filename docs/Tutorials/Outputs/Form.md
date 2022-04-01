@@ -1,6 +1,6 @@
 # Form
 
-This page details the available output actions available to Forms.
+This page details the output actions available to Forms.
 
 ## Reset
 
@@ -19,6 +19,27 @@ New-PodeWebCard -Content @(
 New-PodeWebContainer -NoBackground -Content @(
     New-PodeWebButton -Name 'Reset Form' -ScriptBlock {
         Reset-PodeWebForm -Name 'Example'
+    }
+)
+```
+
+## Submit
+
+You can adhoc submit a form by using [`Submit-PodeWebForm`](../../../Functions/Outputs/Submit-PodeWebForm):
+
+```powershell
+New-PodeWebCard -Content @(
+    New-PodeWebForm -Name 'Example' -ScriptBlock {} -Content @(
+        New-PodeWebTextbox -Name 'Name'
+        New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
+        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
+        New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple
+    )
+)
+
+New-PodeWebContainer -NoBackground -Content @(
+    New-PodeWebButton -Name 'Submit Form' -ScriptBlock {
+        Submit-PodeWebForm -Name 'Example'
     }
 )
 ```

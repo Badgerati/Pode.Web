@@ -213,6 +213,58 @@ function Clear-PodeWebTable
     }
 }
 
+function Hide-PodeWebTableColumn
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Key
+    )
+
+    return @{
+        Operation = 'Hide'
+        ObjectType = 'TableColumn'
+        ID = $Id
+        Name = $Name
+        Key = $Key
+    }
+}
+
+function Show-PodeWebTableColumn
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Key
+    )
+
+    return @{
+        Operation = 'Show'
+        ObjectType = 'TableColumn'
+        ID = $Id
+        Name = $Name
+        Key = $Key
+    }
+}
+
 function Update-PodeWebTableRow
 {
     [CmdletBinding(DefaultParameterSetName='Name_and_DataValue')]
@@ -657,6 +709,27 @@ function Reset-PodeWebForm
     }
 }
 
+function Submit-PodeWebForm
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Submit'
+        ObjectType = 'Form'
+        ID = $Id
+        Name = $Name
+    }
+}
+
 function Update-PodeWebText
 {
     [CmdletBinding()]
@@ -817,7 +890,7 @@ function Update-PodeWebBadge
         ObjectType = 'Badge'
         ID = $Id
         Colour = $Colour
-        ColourType = $ColourType.ToLowerInvariant()
+        ColourType = $ColourType
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
@@ -1171,7 +1244,7 @@ function Update-PodeWebProgress
         ID = $Id
         Name = $Name
         Colour = $Colour
-        ColourType = $ColourType.ToLowerInvariant()
+        ColourType = $ColourType
         Value = $Value
     }
 }
@@ -1207,7 +1280,7 @@ function Update-PodeWebTile
         ID = $Id
         Name = $Name
         Colour = $Colour
-        ColourType = $ColourType.ToLowerInvariant()
+        ColourType = $ColourType
     }
 }
 
@@ -1843,5 +1916,128 @@ function Update-PodeWebIFrame
         Name = $Name
         Url = $Url
         Title = $Title
+    }
+}
+
+function Enable-PodeWebButton
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Enable'
+        ObjectType = 'Button'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Disable-PodeWebButton
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Disable'
+        ObjectType = 'Button'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Update-PodeWebButton
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
+        $Icon,
+
+        [Parameter()]
+        [ValidateSet('', 'Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
+        [string]
+        $Colour = '',
+
+        [Parameter()]
+        [ValidateSet('Unchanged', 'Outline', 'Solid')]
+        [string]
+        $ColourState = 'Unchanged',
+
+        [Parameter()]
+        [ValidateSet('', 'Normal', 'Small', 'Large')]
+        [string]
+        $Size = '',
+
+        [Parameter()]
+        [ValidateSet('Unchanged', 'Normal', 'Full')]
+        [string]
+        $SizeState = 'Unchanged'
+    )
+
+    $colourType = Convert-PodeWebColourToClass -Colour $Colour
+    $sizeType = Convert-PodeWebButtonSizeToClass -Size $Size
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Button'
+        ID = $Id
+        Name = $Name
+        Colour = $Colour
+        ColourType = $ColourType
+        ColourState = $ColourState.ToLowerInvariant()
+        Size = $Size
+        SizeType = $sizeType
+        SizeState = $SizeState.ToLowerInvariant()
+        DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
+        Icon = $Icon
+    }
+}
+
+function Invoke-PodeWebButton
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name
+    )
+
+    return @{
+        Operation = 'Invoke'
+        ObjectType = 'Button'
+        ID = $Id
+        Name = $Name
     }
 }

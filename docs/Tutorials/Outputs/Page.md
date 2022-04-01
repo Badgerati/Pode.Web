@@ -1,6 +1,6 @@
 # Page
 
-This page details the available output actions available to Pages.
+This page details the output actions available to Pages.
 
 ## Move
 

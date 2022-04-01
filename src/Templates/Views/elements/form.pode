@@ -6,12 +6,12 @@ $(if (![string]::IsNullOrWhiteSpace($data.Message)) {
     $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content })
     <button class="btn btn-inbuilt-theme" type="submit">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
-        Submit
+        $($data.SubmitText)
     </button>
 
     $(if ($data.ShowReset) {
-        "<button class='btn btn-secondary form-reset' for='$($data.ID)' type='button'>
-            Reset
+        "<button class='btn btn-inbuilt-sec-theme form-reset' for='$($data.ID)' type='button'>
+            $($data.ResetText)
         </button>"
     })
 </form>

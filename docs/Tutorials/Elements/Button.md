@@ -55,3 +55,17 @@ To open the URL in a new tab, supply the `-NewTab` switch:
 ```powershell
 New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
 ```
+
+## Outlined
+
+By default a button will be displayed as a block colour, but you can show a button as an outline by using the `-Outline` switch:
+
+```powershell
+New-PodeWebButton -Name 'Example' -Colour Cyan -Outline -ScriptBlock {
+    # logic
+}
+```
+
+Which looks like below:
+
+![button_outline](../../../images/button_outline.png)

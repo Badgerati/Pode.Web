@@ -10,11 +10,25 @@ Start-PodeServer -StatusPageExceptions Show {
     # enable sessions and authentication
     Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
 
-    New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -SuccessUseOrigin -ScriptBlock {
-        param($username, $password)
+    # define a new custom authentication scheme, which needs a client, username, and password
+    $custom_scheme = New-PodeAuthScheme -Custom -ScriptBlock {
+        param($opts)
+
+        # get the client/user/password from the request's post data
+        $client = $WebEvent.Data.client
+        $username = $WebEvent.Data.username
+        $password = $WebEvent.Data.password
+
+        # return the data in a array, which will be passed to the validator script
+        return @($client, $username, $password)
+    }
+
+    # now, add a new custom authentication validator using the scheme you created above
+    $custom_scheme | Add-PodeAuth -Name Example -ScriptBlock {
+        param($client, $username, $password)
 
         # here you'd check a real user storage, this is just for example
-        if ($username -eq 'morty' -and $password -eq 'pickle') {
+        if ($client -eq 'woop' -and $username -eq 'morty' -and $password -eq 'pickle') {
             return @{
                 User = @{
                     ID ='M0R7Y302'
@@ -26,7 +40,8 @@ Start-PodeServer -StatusPageExceptions Show {
             }
         }
 
-        return @{ Message = 'Invalid details supplied' }
+        # return a user object (return $null if validation failed)
+        return  @{ User = $user }
     }
 
 
@@ -35,7 +50,12 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # set login page 
     # -BackgroundImage '/images/galaxy.jpg'
-    Set-PodeWebLoginPage -Authentication Example -PassThru |
+    $lc = @(
+        New-PodeWebTextbox -Type Text -Name 'client' -Id 'client' -Placeholder 'Client' -Required -AutoFocus -DynamicLabel
+        New-PodeWebTextbox -Type Text -Name 'username' -Id 'username' -Placeholder 'Username' -Required -DynamicLabel
+        New-PodeWebTextbox -Type Password -Name 'password' -Id 'password' -Placeholder 'Password' -Required -DynamicLabel
+    )
+    Set-PodeWebLoginPage -Authentication Example -Content $lc -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
             Show-PodeWebToast -Message "Login page $($EventType)!"
         }

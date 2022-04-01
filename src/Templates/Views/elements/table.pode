@@ -33,7 +33,10 @@ $(if ($data.Filter.Enabled) {
                 pode-paginate='$($data.Paging.Enabled)'>
                 <thead></thead>
                 <tbody></tbody>
-            </table>"
+            </table>
+            <div class='text-center'>
+                <span id='$($data.ID)_spinner' class='spinner-grow text-inbuilt-sec-theme' role='status'></span>
+            </div>"
         )
     </div>
 
@@ -64,7 +67,7 @@ $(if ($data.Filter.Enabled) {
         </div>
 
         $(if ($data.Paging.Enabled) {
-            "<nav role='pagination' aria-label='$($data.Name) Pages' for='$($data.ID)' pode-page-size='$($data.Paging.Size)'>
+            "<nav role='pagination' aria-label='$($data.Name) Pages' for='$($data.ID)' pode-page-size='$($data.Paging.Size)' pode-current-page='1'>
                 <ul class='pagination justify-content-end'>
                 </ul>
             </nav>"

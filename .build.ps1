@@ -8,8 +8,8 @@ $src_path = './pode_modules'
 #>
 
 $Versions = @{
-    MkDocs = '1.1.2'
-    MkDocsTheme = '7.1.6'
+    MkDocs = '1.2.3'
+    MkDocsTheme = '8.1.2'
     PlatyPS = '0.14.0'
 }
 
@@ -301,11 +301,11 @@ task DocsHelpBuild DocsDeps, {
         $content = (Get-Content -Path $_.FullName | ForEach-Object {
             $line = $_
 
-            while ($line -imatch '\[`(?<name>[a-z]+\-podeweb[a-z]+)`\](?<char>[^(])') {
+            while ($line -imatch '\[`(?<name>[a-z]+\-podeweb[a-z]+)`\](?<char>([^(]|$))') {
                 $updated = $true
                 $name = $Matches['name']
                 $char = $Matches['char']
-                $line = ($line -ireplace "\[``$($name)``\][^(]", "[``$($name)``]($('../' * $depth)Functions/$($map[$name])/$($name))$($char)")
+                $line = ($line -ireplace "\[``$($name)``\]([^(]|$)", "[``$($name)``]($('../' * $depth)Functions/$($map[$name])/$($name))$($char)")
             }
 
             $line

@@ -1,6 +1,6 @@
 # FileStream
 
-This page details the available output actions available to FileStream elements.
+This page details the output actions available to FileStream elements.
 
 ## Clear
 

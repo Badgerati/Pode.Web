@@ -1,6 +1,6 @@
 # Badge
 
-This page details the available output actions available to Badges.
+This page details the output actions available to Badges.
 
 ## Update
 

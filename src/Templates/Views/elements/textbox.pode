@@ -1,8 +1,19 @@
-<div class="$(if (!$data.NoForm) { 'form-group row' } else { 'no-form' }) pode-form-textbox $($data.CssClasses)">
-    $(if (!$data.NoForm) {
+$(
+    $controlDivClass = 'form-group row'
+    if ($data.DynamicLabel) {
+        $controlDivClass = [string]::Empty
+    }
+    if ($data.NoForm) {
+        $controlDivClass = 'no-form'
+    }
+
+    "<div class='$($controlDivClass) pode-form-textbox $($data.CssClasses)'>"
+)
+
+    $(if (!$data.NoForm -and !$data.DynamicLabel) {
         "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.DisplayName)</label>"
     })
-    <div class="col-sm-10">
+    <div class="$(if (!$data.DynamicLabel) { 'col-sm-10' })">
         $(
             $element = [string]::Empty
 
@@ -21,6 +32,11 @@
                 $required = "required"
             }
 
+            $autofocus = [string]::Empty
+            if ($data.AutoFocus) {
+                $autofocus = "autofocus"
+            }
+
             $value = [string]::Empty
             if (![string]::IsNullOrWhiteSpace($data.Value)) {
                 $value = "value='$($data.Value)'"
@@ -30,8 +46,12 @@
 
             $events = ConvertTo-PodeWebEvents -Events $data.Events
 
+            if ($data.DynamicLabel) {
+                "<div class='form-label-group'>"
+            }
+
             if ($data.Multiline) {
-                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($value) $($events)></textarea>"
+                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($autofocus) $($value) $($events)></textarea>"
             }
             else {
                 if ($data.Prepend.Enabled -or $data.Append.Enabled) {
@@ -52,7 +72,7 @@
                     $_type = 'datetime-local'
                 }
 
-                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width) $($data.CssStyles)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($required) $($value) $($events)>"
+                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width) $($data.CssStyles)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($required) $($autofocus) $($value) $($events)>"
 
                 if ($data.Append.Enabled) {
                     if (![string]::IsNullOrWhiteSpace($data.Append.Text)) {
@@ -74,6 +94,10 @@
 
             $element
         )
+
+        $(if ($data.DynamicLabel) {
+            "<label for='$($data.ID)'>$($data.DisplayName)</label></div>"
+        })
 
         $(if (![string]::IsNullOrWhiteSpace($data.HelpText)) {
             "<small id='$($data.ID)_help' class='form-text text-muted'>$($data.HelpText)</small>"

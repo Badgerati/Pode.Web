@@ -7,6 +7,10 @@ function Set-PodeWebLoginPage
         $Authentication,
 
         [Parameter()]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
         [Alias('Icon')]
         [string]
         $Logo,
@@ -40,16 +44,35 @@ function Set-PodeWebLoginPage
         [string]
         $BackgroundImage,
 
+        [Parameter()]
+        [string]
+        $SignInMessage,
+
         [switch]
         $PassThru
     )
 
+    # check content
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'The Login page can only contain layouts and/or elements'
+    }
+
+    # if no content, add default
+    if (Test-PodeIsEmpty -Value $Content) {
+        $Content = @(
+            New-PodeWebTextbox -Type Text -Name 'username' -Id 'username' -Placeholder 'Username' -Required -AutoFocus -DynamicLabel
+            New-PodeWebTextbox -Type Password -Name 'password' -Id 'password' -Placeholder 'Password' -Required -DynamicLabel
+        )
+    }
+
+    # set auth to be used on other pages
     Set-PodeWebState -Name 'auth' -Value $Authentication
     Set-PodeWebState -Name 'auth-props' -Value @{
         Username = $UsernameProperty
         Group = $GroupProperty
         Avatar = $AvatarProperty
         Theme = $ThemeProperty
+        Logout = $true
     }
 
     # set a default logo/url
@@ -88,6 +111,8 @@ function Set-PodeWebLoginPage
         ObjectType = 'Page'
         Path = $routePath
         Name = 'Login'
+        Content = $Content
+        SignInMessage = (Protect-PodeWebValue -Value $SignInMessage -Default 'Please sign in' -Encode)
         IsSystem = $true
     }
 
@@ -105,12 +130,14 @@ function Set-PodeWebLoginPage
 
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Page = $global:PageData
+            Content = $global:PageData.Content
             Theme = Get-PodeWebTheme
             Logo = $using:Logo
             LogoUrl = $using:LogoUrl
             Background = @{
                 Image = $using:BackgroundImage
             }
+            SignInMessage = $global:PageData.SignInMessage
             Copyright = $using:Copyright
             Auth = @{
                 Name = $using:Authentication
@@ -153,6 +180,7 @@ function Set-PodeWebLoginPage
             Navigation = $navigation
             Auth = @{
                 Enabled = $true
+                Logout = (Get-PodeWebState -Name 'auth-props').Logout
                 Authenticated = $authData.IsAuthenticated
                 Username = $username
                 Groups = $groups
@@ -264,6 +292,7 @@ function Set-PodeWebHomePage
             Layouts = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
+                Logout = (Get-PodeWebState -Name 'auth-props').Logout
                 Authenticated = $authData.IsAuthenticated
                 Username = $username
                 Groups = $groups
@@ -443,6 +472,7 @@ function Add-PodeWebPage
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
+            Logout = (Get-PodeWebState -Name 'auth-props').Logout
             Authenticated = $authData.IsAuthenticated
             Username = $username
             Groups = $groups

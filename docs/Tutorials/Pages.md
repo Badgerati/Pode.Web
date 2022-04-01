@@ -1,13 +1,16 @@
 # Pages
 
-There are 3 different kinds of pages in Pode.Web, which are defined below. Besides the Login page, the Home and normal Webpages can be populated with Layout/Element components. When you add pages to your site, they appear on sidebar for navigation.
+There are 3 different kinds of pages in Pode.Web, which are defined below. Other than the Login page, the Home and normal Webpages can be populated with custom Layout/Element components. When you add pages to your site, they appear on the sidebar for navigation - unless they are specified to be hidden from the sidebar.
 
 ## Login
 
 To enable the use of a login page, and lock your site behind authentication is simple! First, just setup sessions and define the authentication method you want via the usual `Enable-PodeSessionMiddleware`, `New-PodeAuthScheme` and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
 
+!!! note
+    Since the login page uses a form to logging a user in, the best scheme to use is Forms: `New-PodeAuthScheme -Form`. OAuth also works, as the login page will automatically trigger the relevant redirects.
+
 ```powershell
-Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration 120 -Extend
+Enable-PodeSessionMiddleware -Duration 120 -Extend
 
 New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
     param($username, $password)
@@ -25,6 +28,66 @@ Set-PodeWebLoginPage -Authentication Example
 ```
 
 By default the Pode icon is displayed as the logo, but you can change this by using the `-Logo` parameter; this takes a literal or relative URL to an image file.
+
+### IIS
+
+If you're hosting the site using IIS, and want to use Windows Authentication within IIS, then you can setup authentication in Pode.Web via [`Set-PodeWebAuth`](../../Functions/Utilities/Set-PodeWebAuth). This works similar to `Set-PodeWebLoginPage`, and sets up authentication on the pages, but it doesn't cause a login page or the sign-in/out buttons to appear. Instead, Pode.Web gets the session from IIS, and then displays the logged in user at the top - similar to how the login page would after a successful login.
+
+```powershell
+Enable-PodeSessionMiddleware -Duration 120 -Extend
+Add-PodeAuthIIS -Name Example
+Set-PodeWebAuth -Authentication Example
+```
+
+### Custom Fields
+
+By default the Login page will display a login form with Username and Password inputs. This can be overridden by supplying custom Layouts and Elements to the `-Content` parameter of [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage). Any custom content will be placed between the "Please sign in" message and the "Sign In" button.
+
+```powershell
+# setup sessions
+Enable-PodeSessionMiddleware -Duration 120 -Extend
+
+# define a new custom authentication scheme, which needs a client, username, and password
+$custom_scheme = New-PodeAuthScheme -Custom -ScriptBlock {
+    param($opts)
+
+    # get the client/user/password from the request's post data
+    $client = $WebEvent.Data.client
+    $username = $WebEvent.Data.username
+    $password = $WebEvent.Data.password
+
+    # return the data in a array, which will be passed to the validator script
+    return @($client, $username, $password)
+}
+
+# now, add a new custom authentication validator using the scheme you created above
+$custom_scheme | Add-PodeAuth -Name Example -ScriptBlock {
+    param($client, $username, $password)
+
+    # check if the client is valid in some database
+    return @{
+        User = @{
+            ID ='M0R7Y302'
+            Name = 'Morty'
+            Type = 'Human'
+        }
+    }
+
+    # return a user object (return $null if validation failed)
+    return  @{ User = $user }
+}
+
+# set the login page to use the custom auth, and also custom login fields
+Set-PodeWebLoginPage -Authentication Example -Content @(
+    New-PodeWebTextbox -Type Text -Name 'client' -Id 'client' -Placeholder 'Client' -Required -AutoFocus -DynamicLabel
+    New-PodeWebTextbox -Type Text -Name 'username' -Id 'username' -Placeholder 'Username' -Required -DynamicLabel
+    New-PodeWebTextbox -Type Password -Name 'password' -Id 'password' -Placeholder 'Password' -Required -DynamicLabel
+)
+```
+
+Which would look like below:
+
+![login_custom](../../images/login_custom.png)
 
 ## Home
 

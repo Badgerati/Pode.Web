@@ -118,11 +118,12 @@ function bindFileStreams() {
                     }
                 },
                 error: function(err) {
+                    hideSpinner($(e).closest('div.file-stream'));
+
                     if (err.status == 416) {
                         return;
                     }
 
-                    hideSpinner($(e).closest('div.file-stream'));
                     $(e).attr('pode-streaming', '0');
                     addClass($(e).closest('div.file-stream'), 'stream-error');
                     hide($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
@@ -244,16 +245,25 @@ function checkAutoTheme() {
 
 function mapElementThemes() {
     var bodyTheme = getPodeTheme();
+    var isTerminal = bodyTheme == 'terminal';
+    var types = ['badge', 'btn', 'text'];
 
-    var defTheme = 'primary';
-    if (bodyTheme == 'terminal') {
-        defTheme = 'success';
-    }
+    // main theme
+    var defTheme = isTerminal ? 'success' : 'primary';
 
-    var types = ['badge', 'btn'];
     types.forEach((type) => {
         $(`.${type}-inbuilt-theme`).each((i, e) => {
             $(e).removeClass(`${type}-inbuilt-theme`);
+            addClass($(e), `${type}-${defTheme}`);
+        });
+    });
+
+    // secondary theme
+    defTheme = isTerminal ? 'success' : 'secondary';
+
+    types.forEach((type) => {
+        $(`.${type}-inbuilt-sec-theme`).each((i, e) => {
+            $(e).removeClass(`${type}-inbuilt-sec-theme`);
             addClass($(e), `${type}-${defTheme}`);
         });
     });
@@ -833,7 +843,34 @@ function toggleSidebar() {
 }
 
 function bindTablePagination() {
-    $('nav .pagination a.page-link').off('click').on('click', function(e) {
+    $('nav[role="pagination"] input.page-size').off('keyup').on('keyup', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var size = $(this);
+
+        // nav
+        var pageNav = size.closest('nav');
+
+        // on enter, reload table
+        if (isEnterKey(e)) {
+            unfocus(size);
+
+            loadTable(pageNav.attr('for'), {
+                page: {
+                    index: 1,
+                    size: parseInt((pageNav.attr('pode-page-size') ?? 20))
+                },
+                reload: true
+            });
+        }
+
+        // otherwise, set the size
+        else {
+            pageNav.attr('pode-page-size', size.val());
+        }
+    });
+
+    $('nav[role="pagination"] .pagination a.page-link').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         var link = $(this);
@@ -856,9 +893,14 @@ function bindTablePagination() {
             if (link.hasClass('page-previous')) {
                 current--;
             }
-
-            if (link.hasClass('page-next')) {
+            else if (link.hasClass('page-next')) {
                 current++;
+            }
+            else if (link.hasClass('page-first')) {
+                current = 1;
+            }
+            else if (link.hasClass('page-last')) {
+                current = link.attr('pode-max');
             }
 
             pageIndex = current;
@@ -871,7 +913,8 @@ function bindTablePagination() {
             page: {
                 index: parseInt(pageIndex),
                 size: parseInt(pageSize)
-            }
+            },
+            reload: true
         });
     });
 }
@@ -1101,6 +1144,10 @@ function loadTables() {
     $(`table[pode-dynamic='True']`).each((i, e) => {
         loadTable($(e).attr('id'));
     });
+
+    $(`table[pode-dynamic='False']`).each((i, e) => {
+        hideLoadingSpinner($(e).attr('id'));
+    });
 }
 
 function loadTable(tableId, opts) {
@@ -1108,9 +1155,13 @@ function loadTable(tableId, opts) {
         return;
     }
 
+    // options
+    opts = opts ?? {};
+
     // ensure the table is dynamic, or has the 'for' attr set
     var table = $(`table#${tableId}`);
     if (!isDynamic(table) && !table.attr('for')) {
+        hideLoadingSpinner(tableId);
         return;
     }
 
@@ -1169,6 +1220,12 @@ function loadTable(tableId, opts) {
 
         data += form.serialize();
         url = form.attr('action');
+    }
+
+    // if we're reloading, hide all data and show spinner
+    if (opts.reload) {
+        table.find('tbody').empty();
+        showLoadingSpinner(tableId);
     }
 
     // invoke and load table content
@@ -1270,6 +1327,10 @@ function loadCharts() {
     $(`canvas[pode-dynamic='True']`).each((i, e) => {
         loadChart($(e).attr('id'));
     });
+
+    $(`canvas[pode-dynamic='False']`).each((i, e) => {
+        hideLoadingSpinner($(e).attr('id'));
+    });
 }
 
 function loadChart(chartId) {
@@ -1322,6 +1383,10 @@ function invokeActions(actions, sender) {
 
             case 'tablerow':
                 actionTableRow(action, sender);
+                break;
+
+            case 'tablecolumn':
+                actionTableColumn(action);
                 break;
 
             case 'chart':
@@ -1436,6 +1501,10 @@ function invokeActions(actions, sender) {
                 actionIFrame(action);
                 break;
 
+            case 'button':
+                actionButton(action);
+                break;
+
             default:
                 break;
         }
@@ -1501,7 +1570,7 @@ function bindFormSubmits() {
     });
 
     // login form
-    $("form.form-signin").off('submit').on('submit', function(e) {
+    $("body#login-page .form-signin").off('submit').on('submit', function(e) {
         // get the form
         var form = $(e.target);
 
@@ -1924,6 +1993,38 @@ function updateTableRow(action) {
     bindTableClickableRows(tableId);
 }
 
+function actionTableColumn(action) {
+    switch (action.Operation.toLowerCase()) {
+        case 'hide':
+            hideTableColumn(action);
+            break;
+
+        case 'show':
+            showTableColumn(action);
+            break;
+    }
+}
+
+function hideTableColumn(action) {
+    var table = getElementByNameOrId(action, 'table');
+    if (!table) {
+        return;
+    }
+
+    addClass(table.find(`thead th[name="${action.Key}"]`), 'd-none');
+    addClass(table.find(`tbody td[pode-column="${action.Key}"]`), 'd-none');
+}
+
+function showTableColumn(action) {
+    var table = getElementByNameOrId(action, 'table');
+    if (!table) {
+        return;
+    }
+
+    removeClass(table.find(`thead th[name="${action.Key}"]`), 'd-none', true);
+    removeClass(table.find(`tbody td[pode-column="${action.Key}"]`), 'd-none', true);
+}
+
 function getQueryStringValue(name) {
     if (!window.location.search) {
         return null;
@@ -2011,16 +2112,26 @@ function syncTable(action) {
     loadTable(getId(table));
 }
 
+function showLoadingSpinner(elementId) {
+    $(`span#${elementId}_spinner`).show();
+}
+
+function hideLoadingSpinner(elementId) {
+    $(`span#${elementId}_spinner`).hide();
+}
+
+
 function updateTable(action, sender) {
     // convert data to array
     action.Data = convertToArray(action.Data);
 
     // table meta
     var table = getElementByNameOrId(action, 'table');
-    var tableId = `table#${getId(table)}`;
+    var tableId = getId(table);
+    var fullTableId = `table#${tableId}`;
 
-    var tableHead = $(`${tableId} thead`);
-    var tableBody = $(`${tableId} tbody`);
+    var tableHead = $(`${fullTableId} thead`);
+    var tableBody = $(`${fullTableId} tbody`);
     var isPaginated = isTablePaginated(table);
 
     // get custom column meta - for widths etc
@@ -2031,7 +2142,8 @@ function updateTable(action, sender) {
 
     // render initial columns?
     var _value = '';
-    var _direction = 'none'
+    var _direction = 'none';
+    var _columnHidden = false;
 
     var columnKeys = Object.keys(columns);
 
@@ -2055,6 +2167,9 @@ function updateTable(action, sender) {
         if (isPaginated) {
             table.closest('div[role="table"]').find('nav ul').empty();
         }
+
+        // hide spinner
+        hideLoadingSpinner(tableId);
         return;
     }
 
@@ -2080,14 +2195,16 @@ function updateTable(action, sender) {
         _oldHeader = tableHead.find(`th[name='${key}']`);
         if (_oldHeader.length > 0) {
             _direction = _oldHeader.attr('sort-direction');
+            _columnHidden = _oldHeader.hasClass('d-none');
         }
         else {
             _direction = 'none';
+            _columnHidden = false;
         }
 
         // add the table header
         if (key in columns) {
-            _value += buildTableHeader(columns[key], _direction);
+            _value += buildTableHeader(columns[key], _direction, _columnHidden);
         }
         else {
             if (_oldHeader.length > 0) {
@@ -2118,7 +2235,13 @@ function updateTable(action, sender) {
                     _value += `text-align:${_header.css('text-align')};`;
                 }
 
-                _value += `'>`;
+                _value += "'";
+
+                if (_header.hasClass('d-none')) {
+                    _value += ` class='d-none'`;
+                }
+
+                _value += ">";
             }
             else {
                 _value += `<td pode-column='${key}'>`;
@@ -2140,78 +2263,17 @@ function updateTable(action, sender) {
         tableBody.append(_value);
     });
 
+    // hide spinner
+    hideLoadingSpinner(tableId);
+
     // is the table paginated?
     if (isPaginated) {
-        var paging = table.closest('div[role="table"]').find('nav ul');
-        paging.empty();
-
-        // previous
-        paging.append(`
-            <li class="page-item">
-                <a class="page-link page-arrows page-previous" href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>`);
-
-        var pageActive = '';
-
-        // first page
-        pageActive = (1 == action.Paging.Index ? 'active' : '');
-        paging.append(`
-            <li class="page-item">
-                <a class="page-link ${pageActive}" href="#">1</a>
-            </li>`);
-
-        // ...
-        if (action.Paging.Index > 4) {
-            paging.append(`
-                <li class="page-item">
-                    <a class="page-link disabled" href="#">...</a>
-                </li>`);
-        }
-
-        // pages
-        for (var i = (action.Paging.Index - 2); i <= (action.Paging.Index + 2); i++) {
-            if (i <= 1 || i >= action.Paging.Max) {
-                continue;
-            }
-
-            pageActive = (i == action.Paging.Index ? 'active' : '');
-            paging.append(`
-                <li class="page-item">
-                    <a class="page-link ${pageActive}" href="#">${i}</a>
-                </li>`);
-        }
-
-        // ...
-        if (action.Paging.Index < action.Paging.Max - 3) {
-            paging.append(`
-                <li class="page-item">
-                    <a class="page-link disabled" href="#">...</a>
-                </li>`);
-        }
-
-        // last page
-        if (action.Paging.Max > 1) {
-            pageActive = (action.Paging.Max == action.Paging.Index ? 'active' : '');
-            paging.append(`
-                <li class="page-item">
-                    <a class="page-link ${pageActive}" href="#">${action.Paging.Max}</a>
-                </li>`);
-        }
-
-        // next
-        paging.append(`
-            <li class="page-item">
-                <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${action.Paging.Max}">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>`);
+        buildTablePaging(table, action.Paging.Index, action.Paging.Max, action.Paging.Size);
     }
 
     // binds sort/buttons/etc
     $('[data-toggle="tooltip"]').tooltip();
-    bindTableSort(tableId);
+    bindTableSort(fullTableId);
     bindButtons();
     bindTablePagination();
 
@@ -2219,10 +2281,78 @@ function updateTable(action, sender) {
     filterTable(table.closest('div.card-body').find('input.pode-table-filter'));
 
     // setup clickable rows
-    bindTableClickableRows(tableId);
+    bindTableClickableRows(fullTableId);
 }
 
-function buildTableHeader(column, direction) {
+function buildTablePaging(table, currentIndex, totalPages, size) {
+    var paging = table.closest('div[role="table"]').find('nav ul');
+    var parent = paging.parent();
+
+    parent.find('input.page-size').remove();
+    paging.empty();
+
+    // current page
+    parent.attr('pode-current-page', currentIndex);
+
+    // page size
+    parent.prepend(`<input type="number" id="${parent.attr('for')}_size" class="form-control page-size" value="${size}" min="1">`);
+
+    // if there is only 1 total page, don't even bother showing pagination
+    if (totalPages <= 1) {
+        return;
+    }
+
+    // first
+    paging.append(`
+        <li class="page-item">
+            <a class="page-link page-arrows page-first" href="#" aria-label="First" title="First (1)" data-toggle="tooltip">
+                <span aria-hidden="true">&lt;&lt;</span>
+            </a>
+        </li>`);
+
+    // previous
+    paging.append(`
+        <li class="page-item">
+            <a class="page-link page-arrows page-previous" href="#" aria-label="Previous" title="Previous" data-toggle="tooltip">
+                <span aria-hidden="true">&lt;</span>
+            </a>
+        </li>`);
+
+    var pageActive = '';
+
+    // pages
+    var gap = (currentIndex == 1 || currentIndex == totalPages ? 2 : 1);
+
+    for (var i = (currentIndex - gap); i <= (currentIndex + gap); i++) {
+        if (i < 1 || i > totalPages) {
+            continue;
+        }
+
+        pageActive = (i == currentIndex ? 'active' : '');
+        paging.append(`
+            <li class="page-item">
+                <a class="page-link ${pageActive}" href="#">${i}</a>
+            </li>`);
+    }
+
+    // next
+    paging.append(`
+        <li class="page-item">
+            <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${totalPages}" title="Next" data-toggle="tooltip">
+                <span aria-hidden="true">&gt;</span>
+            </a>
+        </li>`);
+
+    // last
+    paging.append(`
+        <li class="page-item">
+            <a class="page-link page-arrows page-last" href="#" aria-label="Last" pode-max="${totalPages}" title="Last (${totalPages})" data-toggle="tooltip">
+                <span aria-hidden="true">&gt;&gt;</span>
+            </a>
+        </li>`);
+}
+
+function buildTableHeader(column, direction, hidden) {
     var value = `<th sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
 
     if (column.Width) {
@@ -2233,7 +2363,13 @@ function buildTableHeader(column, direction) {
         value += `text-align:${column.Alignment};`;
     }
 
-    value += `'>`;
+    value += "'";
+
+    if (hidden || (hidden == null && column.Hide)) {
+        value += ` class='d-none'`;
+    }
+
+    value += ">";
 
     if (column.Icon) {
         value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight04'></span>`;
@@ -2289,12 +2425,15 @@ function testTagName(element, tagName) {
 }
 
 function actionForm(action) {
-    var form = getElementByNameOrId(action, 'form');
-    if (!form) {
-        return;
-    }
+    switch (action.Operation.toLowerCase()) {
+        case 'reset':
+            resetForm(getElementByNameOrId(action, 'form'));
+            break;
 
-    resetForm(form);
+        case 'submit':
+            submitForm(getElementByNameOrId(action, 'form'));
+            break;
+    }
 }
 
 function resetForm(form, isInner = false) {
@@ -2310,6 +2449,22 @@ function resetForm(form, isInner = false) {
     }
     else {
         resetForm(form.find('form'), true);
+    }
+}
+
+function submitForm(form, isInner = false) {
+    if (!form) {
+        return;
+    }
+
+    if (testTagName(form, 'form')) {
+        $(form[0]).find('[type="submit"]').trigger('click');
+    }
+    else if (isInner) {
+        return;
+    }
+    else {
+        submitForm(form.find('form'), true);
     }
 }
 
@@ -2659,6 +2814,115 @@ function decodeHTML(value) {
 
 function encodeHTML(value) {
     return $('<div/>').text(value).html();
+}
+
+function actionButton(action) {
+    switch (action.Operation.toLowerCase()) {
+        case 'update':
+            updateButton(action);
+            break;
+
+        case 'invoke':
+            invokeButton(action);
+            break;
+
+        case 'enable':
+        case 'disable':
+            toggleButtonState(action, action.Operation.toLowerCase());
+            break;
+    }
+}
+
+function getButtonElement(action) {
+    var btn = getElementByNameOrId(action, 'button');
+    if (btn.length == 0) {
+        btn = getElementByNameOrId(action, 'a', null, "[role='button']");
+    }
+
+    return btn;
+}
+
+function updateButton(action) {
+    var btn = getButtonElement(action);
+    if (!btn) {
+        return;
+    }
+
+    var isIconOnly = hasClass(btn, 'btn-icon-only', true);
+
+    // change the display name (and icon?)
+    if (action.Icon) {
+        replaceClass(btn.find('span.mdi'), 'mdi-\\w+', `mdi-${action.Icon.toLowerCase()}`);
+    }
+
+    if (action.DisplayName) {
+        if (isIconOnly) {
+            setTitle(btn, action.DisplayName);
+        }
+        else {
+            btn.find('span.pode-text').text(action.DisplayName);
+        }
+    }
+
+    // change colour
+    if (!isIconOnly && (action.Colour || action.ColourState != 'unchanged')) {
+        var isOutline = hasClass(btn, 'btn-outline-\\w+');
+        var colour = btn.attr('pode-colour');
+
+        var _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
+        removeClass(btn, _class, true);
+
+        if (action.ColourState != 'unchanged') {
+            isOutline = (action.ColourState == 'outline');
+        }
+
+        if (action.Colour) {
+            colour = action.ColourType;
+            btn.attr('pode-colour', colour);
+        }
+
+        _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
+        addClass(btn, _class);
+    }
+
+    // change size
+    if (!isIconOnly && (action.Size || action.SizeState != 'unchanged')) {
+        if (action.SizeState != 'unchanged') {
+            if (action.SizeState == 'normal') {
+                removeClass(btn, 'btn-block', true);
+            }
+            else {
+                addClass(btn, 'btn-block');
+            }
+        }
+
+        if (action.Size) {
+            replaceClass(btn, 'btn-(sm|lg)', action.SizeType);
+        }
+    }
+}
+
+function invokeButton(action) {
+    var btn = getButtonElement(action);
+    if (!btn) {
+        return;
+    }
+
+    btn.click();
+}
+
+function toggleButtonState(action, toggle) {
+    var btn = getButtonElement(action);
+    if (!btn) {
+        return;
+    }
+
+    if (toggle == 'enable') {
+        enable(btn);
+    }
+    else {
+        disable(btn);
+    }
 }
 
 function actionCheckbox(action) {
@@ -3227,13 +3491,14 @@ function updateChart(action, sender) {
         return;
     }
 
-    action.Data = convertToArray(action.Data);
-    if (action.Data.length <= 0) {
-        return;
-    }
-
     var canvas = getElementByNameOrId(action, 'canvas');
     action.ID = getId(canvas);
+
+    action.Data = convertToArray(action.Data);
+    if (action.Data.length <= 0) {
+        hideLoadingSpinner(action.ID);
+        return;
+    }
 
     var _append = (canvas.attr('pode-append') == 'True');
     var _chart = _charts[action.ID];
@@ -3252,6 +3517,8 @@ function updateChart(action, sender) {
     else {
         createTheChart(canvas, action, sender);
     }
+
+    hideLoadingSpinner(action.ID);
 }
 
 function appendToChart(canvas, action) {
@@ -3596,14 +3863,19 @@ function getTimeString() {
 function buildButton(element) {
     var icon = '';
     if (element.Icon) {
-        icon = `<span class='mdi mdi-${element.Icon.toLowerCase()} mdi-size-20 mRight02'></span>`
+        icon = `<span class='mdi mdi-${element.Icon.toLowerCase()} mdi-size-20 mRight02'></span>`;
+    }
+
+    var disabled = '';
+    if (element.Disabled) {
+        disabled = 'disabled';
     }
 
     if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.DisplayName}' data-toggle='tooltip' pode-object='${element.ObjectType}'>${icon}</button>`;
+        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.DisplayName}' data-toggle='tooltip' pode-object='${element.ObjectType}' ${disabled}>${icon}</button>`;
     }
 
-    return `<button type='button' class='btn btn-${element.ColourType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}'>
+    return `<button type='button' class='btn btn-${element.ColourType} ${element.SizeType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}' ${disabled}>
         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         ${icon}${element.DisplayName}
     </button>`;
@@ -3757,38 +4029,66 @@ function actionProgress(action) {
     }
 }
 
-function getClass(element, filter) {
-    if (!element || !filter) {
+function getClass(element, _class) {
+    if (!element) {
         return null;
     }
 
-    var result = element.attr('class').match(new RegExp(filter));
+    var result = element.attr('class');
+    if (!result) {
+        return null;
+    }
+
+    if (_class) {
+        result = result.match(new RegExp(_class));
+    }
+    else {
+        result = result.split(' ');
+    }
+
     return (result ? result[0] : null);
 }
 
-function removeClass(element, filter, raw) {
+function hasClass(element, _class, raw) {
+    if (!element) {
+        return false;
+    }
+
+    return (raw ? element.hasClass(_class) : getClass(element, _class) != null);
+}
+
+function removeClass(element, _class, raw) {
     if (!element) {
         return;
     }
 
-    if (!filter) {
+    if (!_class) {
         element.removeClass();
     }
     else {
-        element.removeClass((raw ? filter : getClass(element, filter)));
+        element.removeClass((raw ? _class : getClass(element, _class)));
     }
 }
 
 function addClass(element, _class) {
-    if (!element) {
+    if (!element || !_class) {
         return;
     }
 
-    if (element.hasClass(_class)) {
+    if (hasClass(element, _class, true)) {
         return;
     }
 
     element.addClass(_class);
+}
+
+function replaceClass(element, oldClass, newClass) {
+    if (!element) {
+        return;
+    }
+
+    removeClass(element, oldClass);
+    addClass(element, newClass);
 }
 
 function hide(element) {
@@ -3812,7 +4112,14 @@ function enable(element) {
         return;
     }
 
-    element.prop('disabled', false);
+    if (testTagName(element, 'a')) {
+        element.removeClass('disabled');
+        element.removeAttr('tabindex');
+        element.removeAttr('aria-disabled');
+    }
+    else {
+        element.prop('disabled', false);
+    }
 }
 
 function disable(element) {
@@ -3820,7 +4127,14 @@ function disable(element) {
         return;
     }
 
-    element.prop('disabled', true);
+    if (testTagName(element, 'a')) {
+        element.addClass('disabled');
+        element.prop('tabindex', '-1');
+        element.prop('aria-disabled', 'true');
+    }
+    else {
+        element.prop('disabled', true);
+    }
 }
 
 function actionTab(action) {

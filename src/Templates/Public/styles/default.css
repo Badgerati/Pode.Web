@@ -150,6 +150,14 @@ main[role="main"].fullscreen {
 
 nav[role="pagination"] {
     float: right;
+    display: inline-flex;
+}
+
+nav[role="pagination"] input.page-size {
+    width: 4.5em;
+    font-size: 1em;
+    margin-right: 1em;
+    display: flex;
 }
 
 .breadcrumb {
@@ -492,7 +500,7 @@ table tbody td {
     font-size: 1.2em;
 }
 
-.welcome-msg img {
+.welcome-msg #avatar {
     width: 35px;
     height: 35px;
     margin-right: 0.3rem;
@@ -887,6 +895,12 @@ div.file-stream .card-header span.spinner-border {
     top: 7px;
 }
 
+span.canvas-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
 a.nav-link .mdi:before {
     position: relative;
     top: 3px;
@@ -948,6 +962,11 @@ a.nav-link .mdi:before {
     position: relative;
     top: 4px;
     color: #FFF;
+}
+
+.navbar #avatar.mdi::before {
+    position: relative;
+    top: 1px;
 }
 
 .breadcrumb .mdi::before {

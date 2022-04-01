@@ -1,6 +1,6 @@
 # Code Editor
 
-This page details the available output actions available to Code Editors.
+This page details the output actions available to Code Editors.
 
 ## Clear
 

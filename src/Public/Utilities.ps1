@@ -23,16 +23,24 @@ function Use-PodeWebTemplates
         [string[]]
         $EndpointName,
 
+        [Parameter()]
+        [ValidateSet('None', 'Default', 'Simple', 'Strict')]
+        [string]
+        $Security = 'Default',
+
         [switch]
         $NoPageFilter,
 
         [switch]
-        $HideSidebar
+        $HideSidebar,
+
+        [switch]
+        $UseHsts
     )
 
     $mod = (Get-Module -Name Pode -ErrorAction Ignore | Sort-Object -Property Version -Descending | Select-Object -First 1)
-    if (($null -eq $mod) -or ($mod.Version -lt [version]'2.5.0')) {
-        throw "The Pode module is not loaded. You need at least Pode v2.5.0 to use this version of the Pode.Web module."
+    if (($null -eq $mod) -or ($mod.Version -lt [version]'2.6.0')) {
+        throw "The Pode module is not loaded. You need at least Pode v2.6.0 to use this version of the Pode.Web module."
     }
 
     if ([string]::IsNullOrWhiteSpace($FavIcon)) {
@@ -84,6 +92,8 @@ function Use-PodeWebTemplates
             }
         }
     }
+
+    Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
 }
 
 function Import-PodeWebStylesheet
@@ -274,4 +284,86 @@ function Join-PodeWebPath
     }
 
     return $result
+}
+
+function Set-PodeWebAuth
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Authentication,
+
+        [Parameter()]
+        [string]
+        $UsernameProperty,
+
+        [Parameter()]
+        [string]
+        $GroupProperty,
+
+        [Parameter()]
+        [string]
+        $AvatarProperty,
+
+        [Parameter()]
+        [string]
+        $ThemeProperty
+    )
+
+    Set-PodeWebState -Name 'auth' -Value $Authentication
+    Set-PodeWebState -Name 'auth-props' -Value @{
+        Username = $UsernameProperty
+        Group = $GroupProperty
+        Avatar = $AvatarProperty
+        Theme = $ThemeProperty
+        Logout = $false
+    }
+
+    # set default failure/success urls
+    $auth = Get-PodeAuth -Name $Authentication
+    $auth.Failure.Url = (Add-PodeWebAppPath -Url '/')
+    $auth.Success.Url = (Add-PodeWebAppPath -Url '/')
+
+    # get the endpoints to bind
+    $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+
+    # add an authenticated home route
+    Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
+
+    Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
+        $page = Get-PodeWebFirstPublicPage
+        if ($null -ne $page) {
+            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
+        }
+
+        $authData = Get-PodeWebAuthData
+        $username = Get-PodeWebAuthUsername -AuthData $authData
+        $groups = Get-PodeWebAuthGroups -AuthData $authData
+        $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
+        $theme = Get-PodeWebTheme
+        $navigation = Get-PodeWebNavDefault
+
+        Write-PodeWebViewResponse -Path 'index' -Data @{
+            Page = @{
+                Name = 'Home'
+                Path = '/'
+                IsSystem = $true
+            }
+            Theme = $theme
+            Navigation = $navigation
+            Auth = @{
+                Enabled = $true
+                Logout = (Get-PodeWebState -Name 'auth-props').Logout
+                Authenticated = $authData.IsAuthenticated
+                Username = $username
+                Groups = $groups
+                Avatar = $avatar
+            }
+        }
+    }
+
+    if ($PassThru) {
+        return $pageMeta
+    }
 }
