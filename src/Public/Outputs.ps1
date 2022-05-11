@@ -798,7 +798,7 @@ function Update-PodeWebSelect
         $DisplayOptions,
 
         [Parameter()]
-        [string]
+        [string[]]
         $SelectedValue
     )
 
@@ -818,7 +818,7 @@ function Update-PodeWebSelect
             ID = $Id
             Options = $items
             DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $items -EqualCount)
-            SelectedValue = [System.Net.WebUtility]::HtmlEncode($SelectedValue)
+            SelectedValue = @(Protect-PodeWebValues -Value $SelectedValue -Encode)
         }
     }
 }
