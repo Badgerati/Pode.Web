@@ -9,6 +9,11 @@
                 $multiple = "multiple size='$($data.Size)'"
             }
 
+            $selectedValue = $data.SelectedValue
+            if (!$data.Multiple -and $selectedValue.Length -ge 2) {
+                $selectedValue = $data.SelectedValue[0]
+            }
+
             "<select
                 class='custom-select $(if ($data.NoForm) { 'no-form' })'
                 style='$($data.CssStyles)'
@@ -26,11 +31,11 @@
                     continue
                 }
 
-                if ([string]::IsNullOrWhiteSpace($data.SelectedValue)) {
+                if ([string]::IsNullOrWhiteSpace($selectedValue)) {
                     "<option value='$($data.Options[$i])'>$($data.DisplayOptions[$i])</option>"
                 }
                 else {
-                    "<option value='$($data.Options[$i])' $(if ($data.SelectedValue -ieq $data.Options[$i]) { 'selected' })>$($data.DisplayOptions[$i])</option>"
+                    "<option value='$($data.Options[$i])' $(if ($selectedValue -icontains $data.Options[$i]) { 'selected' })>$($data.DisplayOptions[$i])</option>"
                 }
             }
 
