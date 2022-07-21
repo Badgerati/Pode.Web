@@ -2778,12 +2778,15 @@ function updateSelect(action) {
     }
 
     action.DisplayOptions = convertToArray(action.DisplayOptions);
+    action.SelectedValue = convertToArray(action.SelectedValue);
 
     action.Options.forEach((opt, idx) => {
-        select.append(`<option value="${opt}">${action.DisplayOptions[idx]}</option>`);
+        var optSelected = '';
+        if (action.SelectedValue.includes(opt) == true) {
+            optSelected = ' selected';
+        }
+        select.append(`<option value="${opt}"${optSelected}>${action.DisplayOptions[idx]}</option>`);
     })
-
-    setSelectValue(select, action.SelectedValue);
 }
 
 function clearSelect(action) {

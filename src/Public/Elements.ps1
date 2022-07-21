@@ -540,7 +540,7 @@ function New-PodeWebSelect
         $ArgumentList,
 
         [Parameter()]
-        [string]
+        [string[]]
         $SelectedValue,
 
         [Parameter()]
@@ -564,6 +564,10 @@ function New-PodeWebSelect
         [switch]
         $Required
     )
+
+    if (!$Multiple.IsPresent -and $SelectedValue.Length -ge 2) {
+        throw 'Multiple selected values require -Multiple switch'
+    }
 
     $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
 
