@@ -1,6 +1,6 @@
 function Get-PodeWebTemplatePath
 {
-    $path = Split-Path -Parent -Path ((Get-Module -Name 'Pode.Web').Path)
+    $path = Split-Path -Parent -Path ((Get-Module -Name 'Pode.Web' | Sort-Object -Property Version -Descending | Select-Object -First 1).Path)
     return (Join-PodeWebPath $path 'Templates')
 }
 
