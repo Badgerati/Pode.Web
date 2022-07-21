@@ -1,5 +1,21 @@
 # Release Notes
 
+## v0.8.1
+
+```plain
+### Enhancements
+* #304: Add support for multiple pre-selected values for select element (thanks @DoLearnWhileAlive)
+
+### Bugs
+* #299: Choose latest module version when multiple are imported
+
+### Packaging
+* #312: Bump chart.js to 3.8.0
+* #321: Bump moment to 2.29.4
+* #322: Bump highlightjs to 11.6.0
+* #324: Bump mdi/fonts to 7.0.96
+```
+
 ## v0.8.0
 
 ```plain
