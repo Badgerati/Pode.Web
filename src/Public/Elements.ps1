@@ -124,7 +124,7 @@ function New-PodeWebTextbox
         HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         IsAutoComplete = ($null -ne $AutoComplete)
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Prepend = @{
