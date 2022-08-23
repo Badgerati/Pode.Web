@@ -1163,6 +1163,7 @@ function New-PodeWebHidden
         $Id,
 
         [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
         [string]
         $Value,
 
