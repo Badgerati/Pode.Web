@@ -38,8 +38,15 @@ $(
             }
 
             $value = [string]::Empty
+            $textareavalue = [string]::Empty
             if (![string]::IsNullOrWhiteSpace($data.Value)) {
                 $value = "value='$($data.Value)'"
+                $textareavalue = "$($data.Value)"
+            }
+
+            $maxLength = [string]::Empty
+            if (![string]::IsNullOrWhiteSpace($data.maxLength)) {
+                $maxLength = "maxlength='$($data.maxLength)'"
             }
 
             $width = "width: $($data.Width);"
@@ -51,7 +58,7 @@ $(
             }
 
             if ($data.Multiline) {
-                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($autofocus) $($value) $($events)></textarea>"
+                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($autofocus) $($events) $($maxLength)>$($textareavalue)</textarea>"
             }
             else {
                 if ($data.Prepend.Enabled -or $data.Append.Enabled) {
@@ -72,7 +79,7 @@ $(
                     $_type = 'datetime-local'
                 }
 
-                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width) $($data.CssStyles)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($required) $($autofocus) $($value) $($events)>"
+                $element += "<input type='$($_type.ToLowerInvariant())' class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' style='$($width) $($data.CssStyles)' placeholder='$($data.Placeholder)' pode-autocomplete='$($data.IsAutoComplete)' $($describedBy) $($readOnly) $($required) $($autofocus) $($value) $($events) $($maxLength)>"
 
                 if ($data.Append.Enabled) {
                     if (![string]::IsNullOrWhiteSpace($data.Append.Text)) {
