@@ -99,6 +99,7 @@ function New-PodeWebTextbox
         [switch]
         $DynamicLabel,
 
+        [ValidateRange(0, [int]::MaxValue)]
         [int]
         $MaxLength = 524288
     )
