@@ -38,10 +38,13 @@ $(
             }
 
             $value = [string]::Empty
-            $textareavalue = [string]::Empty
-            if (![string]::IsNullOrWhiteSpace($data.Value)) {
-                $value = "value='$($data.Value)'"
-                $textareavalue = "$($data.Value)"
+            if (![string]::IsNullOrWhitespace($data.Value)) {
+                if ($data.Multiline) {
+                    $value = $data.Value
+                }
+                else {
+                    $value = "value='$($data.Value)'"
+                }
             }
 
             $maxLength = [string]::Empty
@@ -58,7 +61,7 @@ $(
             }
 
             if ($data.Multiline) {
-                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($autofocus) $($events) $($maxLength)>$($textareavalue)</textarea>"
+                $element = "<textarea class='form-control $(if ($data.NoForm) { 'no-form' })' id='$($data.ID)' name='$($data.Name)' pode-object='$($data.ObjectType)' placeholder='$($data.Placeholder)' rows='$($data.Size)' style='$($width) $($data.CssStyles)' $($describedBy) $($readOnly) $($required) $($autofocus) $($events) $($maxLength)>$($value)</textarea>"
             }
             else {
                 if ($data.Prepend.Enabled -or $data.Append.Enabled) {
