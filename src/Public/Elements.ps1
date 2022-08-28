@@ -97,7 +97,11 @@ function New-PodeWebTextbox
         $AutoFocus,
 
         [switch]
-        $DynamicLabel
+        $DynamicLabel,
+
+        [ValidateRange(0, [int]::MaxValue)]
+        [int]
+        $MaxLength = 524288
     )
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
@@ -142,6 +146,7 @@ function New-PodeWebTextbox
         Required = $Required.IsPresent
         AutoFocus = $AutoFocus.IsPresent
         DynamicLabel = $DynamicLabel.IsPresent
+        MaxLength = $MaxLength
     }
 
     # create autocomplete route
