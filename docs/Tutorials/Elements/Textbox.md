@@ -85,3 +85,9 @@ By default the label displays the `-Name` of the element. You can change the val
 The `-Width` of a textbox has the default unit of `%`. If `0` is specified then `auto` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
 
 The `-Height` of the textbox is how many lines are displayed when the textbox is multilined.
+
+## Max Length
+
+The `-MaxLength` parameter limits how many characters a user is allowed to enter into the text box.
+
+When parameter is not specified, the default value is 524288. The minimum allowed value is 0.
