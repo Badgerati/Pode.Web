@@ -74,6 +74,31 @@ Invoke-Build Build
 
 To work on issues you can fork Pode.Web, and then open a Pull Request for approval. Pull Requests should be made against the `develop` branch. Each Pull Request should also have an appropriate issue created.
 
+To quickly get up and running on Windows you can follow steps below.
+Please note you might need to restart powershell session after issuing both winget commands.
+
+```powershell
+# Install Git and Node.js (NPM)
+winget install Git.Git
+winget install OpenJS.NodeJS.LTS 
+
+# Install Yarn
+npm install --global yarn
+
+# Install InvokeBuild module
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Install-Module -Name InvokeBuild -RequiredVersion '5.5.1' -Force
+
+# Clone repository
+git clone https://github.com/Badgerati/Pode.Web.git
+
+# Change directory
+cd Pode.Web
+
+# Build from local source
+Invoke-Build Build
+```
+
 ## 🔥 Quick Example
 
 The below will build a web page that shows a chart with the top 10 processes running on your machine, and that auto-refreshes every minute:
