@@ -336,6 +336,17 @@ function Protect-PodeWebName
     return ($Name -ireplace '[^a-z0-9_]', '').Trim()
 }
 
+function Protect-PodeWebSpaces
+{
+    param(
+        [Parameter()]
+        [string]
+        $Value
+    )
+
+    return ($Value -replace '\s', '_')
+}
+
 function Protect-PodeWebValue
 {
     param(
@@ -792,6 +803,9 @@ function Get-PodeWebPagePath
         $Name = $Page.Name
         $Group = $Page.Group
     }
+
+    $Name = Protect-PodeWebSpaces -Value $Name
+    $Group = Protect-PodeWebSpaces -Value $Group
 
     if (![string]::IsNullOrWhiteSpace($Group)) {
         $path += "/groups/$($Group)"
