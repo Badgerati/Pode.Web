@@ -1,0 +1,25 @@
+name: Add labeled issues to project
+
+on:
+  issues:
+    types:
+      - labeled
+
+jobs:
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v0.3.0
+        with:
+          project-url: https://github.com/users/Badgerati/projects/3
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          labeled: 'roadmap :rocket:, backlog :scroll:'
+          label-operator: OR
+
+      - uses: actions/add-to-project@v0.3.0
+        with:
+          project-url: https://github.com/users/Badgerati/projects/5
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          labeled: 'draft :pencil2:, idea :bulb:'
+          label-operator: OR
