@@ -143,7 +143,7 @@
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
                                         $chevron = 'right'
                                         $show = [string]::Empty
-                                        $safeGrpName = Protect-PodeWebSpaces -Value $pageGroup.Name
+                                        $safeGrpName = Protect-PodeWebSpecialCharacters -Value $pageGroup.Name
 
                                         if ($data.Page.Group -ieq $pageGroup.Name) {
                                             $chevron = 'down'
