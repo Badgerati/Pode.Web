@@ -344,8 +344,7 @@ function Protect-PodeWebSpecialCharacters
         $Value
     )
 
-    return ($Value -replace "[!`"#\$%&'\(\)*+,\./:;<=>?@\[\\\]^``{\|}~]", '_')
-    # return ($Value -replace '[\s]', '_')
+    return ($Value -replace "[\s!`"#\$%&'\(\)*+,\./:;<=>?@\[\\\]^``{\|}~]", '_')
 }
 
 function Protect-PodeWebValue
