@@ -336,7 +336,7 @@ function Protect-PodeWebName
     return ($Name -ireplace '[^a-z0-9_]', '').Trim()
 }
 
-function Protect-PodeWebSpaces
+function Protect-PodeWebSpecialCharacters
 {
     param(
         [Parameter()]
@@ -344,7 +344,7 @@ function Protect-PodeWebSpaces
         $Value
     )
 
-    return ($Value -replace '\s', '_')
+    return ($Value -replace "[\s!`"#\$%&'\(\)*+,\./:;<=>?@\[\\\]^``{\|}~]", '_')
 }
 
 function Protect-PodeWebValue
@@ -804,8 +804,8 @@ function Get-PodeWebPagePath
         $Group = $Page.Group
     }
 
-    $Name = Protect-PodeWebSpaces -Value $Name
-    $Group = Protect-PodeWebSpaces -Value $Group
+    $Name = Protect-PodeWebSpecialCharacters -Value $Name
+    $Group = Protect-PodeWebSpecialCharacters -Value $Group
 
     if (![string]::IsNullOrWhiteSpace($Group)) {
         $path += "/groups/$($Group)"
