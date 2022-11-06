@@ -1,5 +1,5 @@
 Import-Module Pode -MaximumVersion 2.99.99 -Force
-Import-Module ..\src\Pode.Web.psm1 -Force
+Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer {
     # add a simple endpoint
