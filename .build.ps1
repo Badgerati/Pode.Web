@@ -1,3 +1,7 @@
+param (
+    [string]
+    $Version = ''
+)
 
 $dest_path = './src/Templates/Public'
 $src_path = './pode_modules'
@@ -264,6 +268,35 @@ task MoveLibs {
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/loader.js.map" -Destination $vs_maps_path -Force
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/editor/*.*" -Destination "$($vs_maps_path)/editor/" -Force
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/base/worker/*.*" -Destination "$($vs_maps_path)/base/worker/" -Force
+}
+
+
+<#
+# Pack
+#>
+
+# Synopsis: Package up the Module
+task Pack -If (Test-PodeBuildIsWindows) Build, {
+    if (!$Version) {
+        $Version = (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').ModuleVersion
+    }
+}, DockerPack
+
+# Synopsis: Create docker tags
+task DockerPack {
+    docker build -t badgerati/pode.web:$Version -f ./Dockerfile .
+    docker build -t badgerati/pode.web:latest -f ./Dockerfile .
+    docker build -t badgerati/pode.web:$Version-alpine -f ./alpine.dockerfile .
+    docker build -t badgerati/pode.web:latest-alpine -f ./alpine.dockerfile .
+    docker build -t badgerati/pode.web:$Version-arm32 -f ./arm32.dockerfile .
+    docker build -t badgerati/pode.web:latest-arm32 -f ./arm32.dockerfile .
+
+    docker tag badgerati/pode.web:latest docker.pkg.github.com/badgerati/pode.web/pode.web:latest
+    docker tag badgerati/pode.web:$Version docker.pkg.github.com/badgerati/pode.web/pode.web:$Version
+    docker tag badgerati/pode.web:latest-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:latest-alpine
+    docker tag badgerati/pode.web:$Version-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$Version-alpine
+    docker tag badgerati/pode.web:latest-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:latest-arm32
+    docker tag badgerati/pode.web:$Version-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$Version-arm32
 }
 
 
