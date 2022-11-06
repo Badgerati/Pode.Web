@@ -38,4 +38,4 @@ jobs:
       shell: pwsh
       run: |
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        Invoke-Build DockerPack -Version '0.0.0'
+        Invoke-Build DockerPack
