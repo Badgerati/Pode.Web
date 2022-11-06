@@ -11,7 +11,7 @@
     RootModule = 'Pode.Web.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.8.1'
+    ModuleVersion = '0.8.2'
 
     # ID used to uniquely identify this module
     GUID = '5c6cae5a-8e62-48a4-c2e5-7511ffe2d439'
