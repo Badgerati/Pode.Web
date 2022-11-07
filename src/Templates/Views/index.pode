@@ -1,6 +1,6 @@
 <html>
     $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
-        Title = $data.Page.Name
+        Title = $data.Page.Title
         Theme = $data.Theme
         AppPath = $data.AppPath
     })
@@ -119,7 +119,7 @@
                                 <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="$($data.AppPath)/">
                                     <div>
                                         <span class="mdi mdi-home mdi-size-22 mRight02"></span>
-                                        Home
+                                        $(Get-PodeWebHomeName)
                                     </div>
                                 </a>
                             </li>
@@ -182,7 +182,7 @@
                                             <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.ObjectType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
-                                                    $([System.Net.WebUtility]::HtmlEncode($page.Name))
+                                                    $([System.Net.WebUtility]::HtmlEncode($page.Title))
                                                 </div>
                                             </a>
                                         </li>"

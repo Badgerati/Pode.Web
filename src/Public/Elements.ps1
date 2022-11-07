@@ -1883,6 +1883,10 @@ function New-PodeWebChart
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter()]
@@ -1993,6 +1997,7 @@ function New-PodeWebChart
         ObjectType = 'Chart'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Message = $Message
         ChartType = $Type
@@ -2050,7 +2055,7 @@ function New-PodeWebChart
     }
 
     if ($AsCard) {
-        $element = New-PodeWebCard -Name $Name -Content $element
+        $element = New-PodeWebCard -Name $Name -DisplayName $DisplayName -Content $element
     }
 
     return $element
@@ -2067,6 +2072,10 @@ function New-PodeWebCounterChart
         [Parameter()]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string[]]
@@ -2122,6 +2131,7 @@ function New-PodeWebCounterChart
 
     New-PodeWebChart `
         -Name $Name `
+        -DisplayName $DisplayName `
         -Type Line `
         -MaxItems $MaxItems `
         -ArgumentList $Counter `
@@ -2153,6 +2163,10 @@ function New-PodeWebTable
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -2267,6 +2281,7 @@ function New-PodeWebTable
         ObjectType = 'Table'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         DataColumn = $DataColumn
         Columns = $Columns
@@ -2366,7 +2381,7 @@ function New-PodeWebTable
     }
 
     if ($AsCard) {
-        $element = New-PodeWebCard -Name $Name -Content $element
+        $element = New-PodeWebCard -Name $Name -DisplayName $DisplayName -Content $element
     }
 
     return $element

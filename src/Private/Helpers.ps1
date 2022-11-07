@@ -302,6 +302,16 @@ function Get-PodeWebState
     return (Get-PodeState -Name "pode.web.$($Name)")
 }
 
+function Get-PodeWebHomeName
+{
+    $name = (Get-PodeWebState -Name 'pages')['/'].Title
+    if ([string]::IsNullOrWhiteSpace($name)) {
+        return 'Home'
+    }
+
+    return $name
+}
+
 function Get-PodeWebCookie
 {
     param(
