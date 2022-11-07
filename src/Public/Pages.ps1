@@ -173,6 +173,7 @@ function Set-PodeWebLoginPage
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
+                Title = 'Home'
                 Path = '/'
                 IsSystem = $true
             }
@@ -578,6 +579,10 @@ function Add-PodeWebPageLink
 
         [Parameter()]
         [string]
+        $Title,
+
+        [Parameter()]
+        [string]
         $Group,
 
         [Parameter()]
@@ -627,11 +632,17 @@ function Add-PodeWebPageLink
         throw "Web page/link already exists: $($Name) [Group: $($Group)]"
     }
 
+    # set page title
+    if ([string]::IsNullOrWhiteSpace($Title)) {
+        $Title = $Name
+    }
+
     # setup page meta
     $pageMeta = @{
         ComponentType = 'Page'
         ObjectType = 'Link'
         Name = $Name
+        Title = [System.Net.WebUtility]::HtmlEncode($Title)
         NewTab = $NewTab.IsPresent
         Icon = $Icon
         Group = $Group
