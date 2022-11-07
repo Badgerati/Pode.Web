@@ -52,7 +52,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -Layouts $grid1 -Title '家'
+    Set-PodeWebHomePage -Layouts $grid1 -DisplayName '家'
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]
@@ -113,7 +113,7 @@ Start-PodeServer -StatusPageExceptions Show {
         }
     }
 
-    Add-PodeWebPage -Name Services -Title 'サービス' -Icon 'cogs' -Group Tools -Layouts $editModal, $helpModal, $table -ScriptBlock {
+    Add-PodeWebPage -Name Services -DisplayName 'サービス' -Icon 'cogs' -Group Tools -Layouts $editModal, $helpModal, $table -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -131,7 +131,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # open twitter
-    Add-PodeWebPageLink -Name Twitter -Title 'Tweet' -Icon Twitter -Group Social -ScriptBlock {
+    Add-PodeWebPageLink -Name Twitter -DisplayName 'Tweet' -Icon Twitter -Group Social -ScriptBlock {
         Move-PodeWebUrl -Url 'https://twitter.com' -NewTab
     }
 }

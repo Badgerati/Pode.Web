@@ -84,6 +84,7 @@ function Use-PodeWebTemplates
                 Name = 'Home'
                 Path = '/'
                 TItle = 'Home'
+                DisplayName = 'Home'
                 IsSystem = $true
             }
         }

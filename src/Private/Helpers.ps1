@@ -304,7 +304,7 @@ function Get-PodeWebState
 
 function Get-PodeWebHomeName
 {
-    $name = (Get-PodeWebState -Name 'pages')['/'].Title
+    $name = (Get-PodeWebState -Name 'pages')['/'].DisplayName
     if ([string]::IsNullOrWhiteSpace($name)) {
         return 'Home'
     }
