@@ -5,7 +5,7 @@
 ```plain
 ### Enhancements
 * #340: Add new `-MaxLength` for textboxes (thanks @thekamilpro!)
-* #361: Add DisplayName for Tables/Charts, and also for Pages for their name in the sidebar
+* #361: Add `-DisplayName` for Tables/Charts, and also for Pages for their name in the sidebar
 
 ### Bugs
 * #255: Fixes page group names not allowing spaces
