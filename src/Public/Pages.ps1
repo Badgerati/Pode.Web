@@ -173,6 +173,8 @@ function Set-PodeWebLoginPage
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = @{
                 Name = 'Home'
+                Title = 'Home'
+                DisplayName = 'Home'
                 Path = '/'
                 IsSystem = $true
             }
@@ -204,6 +206,10 @@ function Set-PodeWebHomePage
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Title,
 
         [Parameter()]
@@ -228,8 +234,12 @@ function Set-PodeWebHomePage
     }
 
     # set page title
+    if ([string]::IsNullOrWhiteSpace($DisplayName)) {
+        $DisplayName = 'Home'
+    }
+
     if ([string]::IsNullOrWhiteSpace($Title)) {
-        $Title = 'Home'
+        $Title = $DisplayName
     }
 
     # route path
@@ -241,7 +251,8 @@ function Set-PodeWebHomePage
         ObjectType = 'Page'
         Path = $routePath
         Name = 'Home'
-        Title = $Title
+        Title = [System.Net.WebUtility]::HtmlEncode($Title)
+        DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         NoTitle = $NoTitle.IsPresent
         Navigation = $Navigation
         Layouts = $Layouts
@@ -315,6 +326,10 @@ function Add-PodeWebPage
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -399,8 +414,12 @@ function Add-PodeWebPage
     }
 
     # set page title
+    if ([string]::IsNullOrWhiteSpace($DisplayName)) {
+        $DisplayName = $Name
+    }
+
     if ([string]::IsNullOrWhiteSpace($Title)) {
-        $Title = $Name
+        $Title = $DisplayName
     }
 
     # build the route path
@@ -413,6 +432,7 @@ function Add-PodeWebPage
         Path = $routePath
         Name = $Name
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
+        DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         NoTitle = $NoTitle.IsPresent
         NoBackArrow = $NoBackArrow.IsPresent
         NoBreadcrumb = $NoBreadcrumb.IsPresent
@@ -514,6 +534,7 @@ function Add-PodeWebPage
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $global:PageData.Title
+                DisplayName = $global:PageData.DisplayName
                 Theme = $theme
                 Navigation = $navigation
                 Breadcrumb = $breadcrumb
@@ -578,6 +599,10 @@ function Add-PodeWebPageLink
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Group,
 
         [Parameter()]
@@ -627,11 +652,17 @@ function Add-PodeWebPageLink
         throw "Web page/link already exists: $($Name) [Group: $($Group)]"
     }
 
+    # set page title
+    if ([string]::IsNullOrWhiteSpace($DisplayName)) {
+        $DisplayName = $Name
+    }
+
     # setup page meta
     $pageMeta = @{
         ComponentType = 'Page'
         ObjectType = 'Link'
         Name = $Name
+        DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         NewTab = $NewTab.IsPresent
         Icon = $Icon
         Group = $Group

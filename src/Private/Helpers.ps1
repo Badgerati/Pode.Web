@@ -302,6 +302,16 @@ function Get-PodeWebState
     return (Get-PodeState -Name "pode.web.$($Name)")
 }
 
+function Get-PodeWebHomeName
+{
+    $name = (Get-PodeWebState -Name 'pages')['/'].DisplayName
+    if ([string]::IsNullOrWhiteSpace($name)) {
+        return 'Home'
+    }
+
+    return $name
+}
+
 function Get-PodeWebCookie
 {
     param(
@@ -334,6 +344,17 @@ function Protect-PodeWebName
     )
 
     return ($Name -ireplace '[^a-z0-9_]', '').Trim()
+}
+
+function Protect-PodeWebSpecialCharacters
+{
+    param(
+        [Parameter()]
+        [string]
+        $Value
+    )
+
+    return ($Value -replace "[\s!`"#\$%&'\(\)*+,\./:;<=>?@\[\\\]^``{\|}~]", '_')
 }
 
 function Protect-PodeWebValue
@@ -792,6 +813,9 @@ function Get-PodeWebPagePath
         $Name = $Page.Name
         $Group = $Page.Group
     }
+
+    $Name = Protect-PodeWebSpecialCharacters -Value $Name
+    $Group = Protect-PodeWebSpecialCharacters -Value $Group
 
     if (![string]::IsNullOrWhiteSpace($Group)) {
         $path += "/groups/$($Group)"

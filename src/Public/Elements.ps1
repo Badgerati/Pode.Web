@@ -97,7 +97,11 @@ function New-PodeWebTextbox
         $AutoFocus,
 
         [switch]
-        $DynamicLabel
+        $DynamicLabel,
+
+        [ValidateRange(0, [int]::MaxValue)]
+        [int]
+        $MaxLength = 524288
     )
 
     $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
@@ -124,7 +128,7 @@ function New-PodeWebTextbox
         HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
         IsAutoComplete = ($null -ne $AutoComplete)
-        Value = $Value
+        Value = [System.Net.WebUtility]::HtmlEncode($Value)
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Prepend = @{
@@ -142,6 +146,7 @@ function New-PodeWebTextbox
         Required = $Required.IsPresent
         AutoFocus = $AutoFocus.IsPresent
         DynamicLabel = $DynamicLabel.IsPresent
+        MaxLength = $MaxLength
     }
 
     # create autocomplete route
@@ -1163,6 +1168,7 @@ function New-PodeWebHidden
         $Id,
 
         [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
         [string]
         $Value,
 
@@ -1877,6 +1883,10 @@ function New-PodeWebChart
 
         [Parameter()]
         [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter()]
@@ -1987,6 +1997,7 @@ function New-PodeWebChart
         ObjectType = 'Chart'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Message = $Message
         ChartType = $Type
@@ -2044,7 +2055,7 @@ function New-PodeWebChart
     }
 
     if ($AsCard) {
-        $element = New-PodeWebCard -Name $Name -Content $element
+        $element = New-PodeWebCard -Name $Name -DisplayName $DisplayName -Content $element
     }
 
     return $element
@@ -2061,6 +2072,10 @@ function New-PodeWebCounterChart
         [Parameter()]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string[]]
@@ -2116,6 +2131,7 @@ function New-PodeWebCounterChart
 
     New-PodeWebChart `
         -Name $Name `
+        -DisplayName $DisplayName `
         -Type Line `
         -MaxItems $MaxItems `
         -ArgumentList $Counter `
@@ -2147,6 +2163,10 @@ function New-PodeWebTable
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
 
         [Parameter()]
         [string]
@@ -2261,6 +2281,7 @@ function New-PodeWebTable
         ObjectType = 'Table'
         Parent = $ElementData
         Name = $Name
+        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         DataColumn = $DataColumn
         Columns = $Columns
@@ -2360,7 +2381,7 @@ function New-PodeWebTable
     }
 
     if ($AsCard) {
-        $element = New-PodeWebCard -Name $Name -Content $element
+        $element = New-PodeWebCard -Name $Name -DisplayName $DisplayName -Content $element
     }
 
     return $element

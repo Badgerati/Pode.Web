@@ -1,3 +1,4 @@
+<!-- omit in toc -->
 # <img src="https://github.com/Badgerati/Pode/blob/develop/images/icon.png?raw=true" width="25" /> Pode.Web
 
 > This is still a work in progress, until v1.0.0 expect possible breaking changes in some releases.
@@ -6,12 +7,23 @@
 [![Documentation](https://img.shields.io/github/v/release/badgerati/pode.web?label=docs)](https://badgerati.github.io/Pode.Web)
 [![GitHub Actions](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fbadgerati%2Fpode.web%2Fbadge&style=flat&label=GitHub)](https://actions-badge.atrox.dev/badgerati/pode.web/goto)
 [![Discord](https://img.shields.io/discord/887398607727255642)](https://discord.gg/fRqeGcbF6h)
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/Badgerati?color=%23ff69b4&logo=github&style=flat&label=Sponsers)](https://github.com/sponsors/Badgerati)
 
 [![PowerShell](https://img.shields.io/powershellgallery/dt/pode.web.svg?label=PowerShell&colorB=085298)](https://www.powershellgallery.com/packages/Pode.Web)
 [![Docker](https://img.shields.io/docker/pulls/badgerati/pode.web.svg?label=Docker)](https://hub.docker.com/r/badgerati/pode.web/)
 
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/Badgerati?color=%23ff69b4&logo=github&style=flat&label=Sponsers)](https://github.com/sponsors/Badgerati)
+[![Ko-fi](https://img.shields.io/static/v1?logo=kofi&label=Ko-fi&logoColor=white&message=Buy+me+a+coffee&color=ff5f5f)](https://ko-fi.com/badgerati)
+[![PayPal](https://img.shields.io/static/v1?logo=paypal&label=PayPal&logoColor=white&message=Donate&color=00457C)](https://paypal.me/badgerati)
+
 > 💝 A lot of my free time, evenings, and weekends goes into making Pode happen; please do consider sponsoring as it will really help! 😊
+
+- [📦 Libraries](#-libraries)
+- [📘 Documentation](#-documentation)
+- [🚀 Features](#-features)
+- [📦 Install](#-install)
+- [🙌 Contributing](#-contributing)
+- [🔥 Quick Example](#-quick-example)
+- [🌎 Roadmap](#-roadmap)
 
 This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.6.0+).
 
@@ -101,3 +113,9 @@ Start-PodeServer {
 ```
 
 ![chart_processes](/images/chart_processes.png)
+
+## 🌎 Roadmap
+
+You can find a list of the features, enhancements and ideas that will hopefully one day make it into Pode.Web [here in the documentation](https://badgerati.github.io/Pode.Web/roadmap/).
+
+There is also a [Project](https://github.com/users/Badgerati/projects/3) in the beginnings of being setup for Pode.Web, with milestone progression and current roadmap issues. Plus, there is a [Draft Board](https://github.com/users/Badgerati/projects/5) which contains a range of ideas for Pode.Web features/enhancements which are either brilliant, ludicrous, or down right insane! Draft Issues are purely ideas, and any in the design stage might one day make it in! If you see a Draft Issue you which to discuss, or have an idea for one, please dicuss it over on [Discord](https://discord.gg/fRqeGcbF6h) in the `#ideas` or `#pode-web` channel.

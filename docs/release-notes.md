@@ -1,5 +1,30 @@
 # Release Notes
 
+## v0.8.2
+
+```plain
+### Enhancements
+* #340: Add new `-MaxLength` for textboxes (thanks @thekamilpro!)
+* #361: Add `-DisplayName` for Tables/Charts, and also for Pages for their name in the sidebar
+
+### Bugs
+* #255: Fixes page group names not allowing spaces
+* #331: Fixes encoding issue with values in textboxes (thanks @thekamilpro!)
+* #335: Fixes `New-PodeWebHidden` not allowing empty values (thanks @thekamilpro!)
+* #370: Fixes page group names not allowing special characters
+
+### Packaging
+* #329: Bump chart.js to 3.9.1
+* #365: Bump monaco to 0.34.1
+* #333: Use RequiredModules in Pode.Web.psd1
+* #334: Bump jquery-ui to 1.13.2
+* #345: Bump jquery to 3.6.1
+* #350: Bump Pode to 2.7.2 in Dockerfiles
+
+### Documentation
+* #371: Add Project workflow actions, and Roadmap
+```
+
 ## v0.8.1
 
 ```plain

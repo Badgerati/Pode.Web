@@ -1,6 +1,6 @@
 <html>
     $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
-        Title = $data.Page.Name
+        Title = $data.Page.DisplayName
         Theme = $data.Theme
         AppPath = $data.AppPath
     })
@@ -119,7 +119,7 @@
                                 <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="$($data.AppPath)/">
                                     <div>
                                         <span class="mdi mdi-home mdi-size-22 mRight02"></span>
-                                        Home
+                                        $(Get-PodeWebHomeName)
                                     </div>
                                 </a>
                             </li>
@@ -143,6 +143,7 @@
                                     if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
                                         $chevron = 'right'
                                         $show = [string]::Empty
+                                        $safeGrpName = Protect-PodeWebSpecialCharacters -Value $pageGroup.Name
 
                                         if ($data.Page.Group -ieq $pageGroup.Name) {
                                             $chevron = 'down'
@@ -150,7 +151,7 @@
                                         }
 
                                         "<li class='nav-item mTop1 nav-group-title'>
-                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($pageGroup.Name)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($pageGroup.Name)'>
+                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($safeGrpName)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($safeGrpName)'>
                                                 <div>
                                                     <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$([System.Net.WebUtility]::HtmlEncode($pageGroup.Name))</span>
@@ -159,7 +160,7 @@
                                             </a>
                                         </li>"
 
-                                        "<div class='collapse $($show)' id='nav-$($pageGroup.Name)'>"
+                                        "<div class='collapse $($show)' id='nav-$($safeGrpName)'>"
                                     }
 
                                     foreach ($page in ($pages | Sort-Object -Property { $_.Name })) {
@@ -181,7 +182,7 @@
                                             <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.ObjectType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
-                                                    $([System.Net.WebUtility]::HtmlEncode($page.Name))
+                                                    $([System.Net.WebUtility]::HtmlEncode($page.DisplayName))
                                                 </div>
                                             </a>
                                         </li>"
