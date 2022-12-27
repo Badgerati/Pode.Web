@@ -1577,7 +1577,7 @@ function bindFormSubmits() {
         // show the spinner
         showSpinner(form);
         $('.alert').remove();
-    
+
         // remove validation errors
         removeValidationErrors(form);
     });
@@ -2863,7 +2863,7 @@ function updateButton(action) {
             setTitle(btn, action.DisplayName);
         }
         else {
-            btn.find('span.pode-text').text(action.DisplayName);
+            btn.find('span.pode-text').text(decodeHTML(action.DisplayName));
         }
     }
 
@@ -3019,7 +3019,7 @@ function actionValidation(action, sender) {
     }
 
     var validationId = `div#${$(input).attr('id')}_validation`;
-    $(validationId).text(action.Message);
+    $(validationId).text(decodeHTML(action.Message));
 
     setValidationError(input);
 }
