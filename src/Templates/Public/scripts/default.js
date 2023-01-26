@@ -422,6 +422,7 @@ function setupSteppers() {
             if (btn) {
                 btn.trigger('click');
             }
+            return false;
         });
 
         // previous buttons
@@ -1577,7 +1578,7 @@ function bindFormSubmits() {
         // show the spinner
         showSpinner(form);
         $('.alert').remove();
-    
+
         // remove validation errors
         removeValidationErrors(form);
     });
