@@ -3060,6 +3060,10 @@ function updateTextbox(action) {
     if (action.AsJson) {
         action.Value = JSON.stringify(action.Value, null, 4);
     }
+    
+    if (action.hasOwnProperty('ReadOnly')) {
+        txt.attr('readonly', action.ReadOnly);
+    }
 
     txt.val(action.Value);
 }
