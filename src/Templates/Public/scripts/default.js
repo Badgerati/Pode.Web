@@ -3061,8 +3061,12 @@ function updateTextbox(action) {
         action.Value = JSON.stringify(action.Value, null, 4);
     }
     
-    if (action.hasOwnProperty('ReadOnly')) {
-        txt.attr('readonly', action.ReadOnly);
+    switch (action.ReadOnlyState) {
+        case 'Enabled':
+            txt.attr('readonly', 1);
+
+        case 'Disabled':
+            txt.attr('readonly', 0);
     }
 
     txt.val(action.Value);

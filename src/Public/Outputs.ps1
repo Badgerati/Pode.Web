@@ -575,8 +575,9 @@ function Update-PodeWebTextbox
         $Multiline,
 
         [Parameter()]
-        [Bool]
-        $ReadOnly
+        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
+        [string]
+        $ReadOnlyState = 'Unchanged'
     )
 
     begin {
@@ -591,8 +592,8 @@ function Update-PodeWebTextbox
         if (!$AsJson) {
             $items = ($items | Out-String)
         }
-
-        $obj = @{
+        
+        return @{
             Operation = 'Update'
             ObjectType = 'Textbox'
             Value = $items
@@ -600,12 +601,8 @@ function Update-PodeWebTextbox
             Name = $Name
             AsJson = $AsJson.IsPresent
             Multiline = $Multiline.IsPresent
+            ReadOnlyState = $ReadOnlyState
         }
-        if($PSBoundParameters.ContainsKey('ReadOnly')){
-            $obj.ReadOnly = $ReadOnly
-        }
-
-        return $obj
     }
 }
 
