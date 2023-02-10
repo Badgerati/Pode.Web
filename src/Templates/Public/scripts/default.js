@@ -1599,7 +1599,7 @@ function bindFormResets() {
 
 function bindModalSubmits() {
     $("div.modal-content form.pode-form").off('keypress').on('keypress', function(e) {
-        if (!isEnterKey(e)) {
+        if (!isEnterKey(e) || testTagName(e.target, 'textarea')) {
             return;
         }
 
