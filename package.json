@@ -12,7 +12,7 @@
     "bs-stepper": "1.7.0",
     "@mdi/font": "7.0.96",
     "chart.js": "3.9.1",
-    "@highlightjs/cdn-assets": "11.6.0",
+    "@highlightjs/cdn-assets": "11.7.0",
     "monaco-editor": "0.34.1",
     "moment": "2.29.4"
   }
