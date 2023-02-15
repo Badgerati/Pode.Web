@@ -3658,6 +3658,8 @@ function createTheChart(canvas, action, sender) {
                 yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.2)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 3;
+                yAxises[key].fill = true;
+                yAxises[key].tension = 0.4;
                 axesOpts.x = getChartAxesColours(theme, canvas, 'x');
                 axesOpts.y = getChartAxesColours(theme, canvas, 'y');
                 break;
