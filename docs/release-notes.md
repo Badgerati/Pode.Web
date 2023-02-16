@@ -1,5 +1,29 @@
 # Release Notes
 
+## v0.8.3
+
+```plain
+### Bugs
+* #380: Fixes a bug where you couldn't hit the enter key in multiline textboxes in a modal
+* #384: Fixes a double encoding issue which rendered Page names incorrectly (thanks @ili101!)
+* #392: Fixes `New-PodeWebTextbox` with `-NoForm` to we can create wider textboxes (thanks @ili101!)
+* #413: Fixes `Update-PodeWebTextbox` to work with Date types
+* #423: Fixes line charts back to being curved lines and filled areas
+
+### Packaging
+* #378: Bumps highlightjs to 11.7.0
+* #383: Bumps material design icons to 7.1.96
+* #388: Bumps jquery to 3.6.3
+* #414: Bumps chart.js to 4.2.1
+* #418: Bumps Pode in Dockerfiles to 2.8.0
+* #419: Bumps mkdocs and material theme
+* #420: Bumps monaco to 0.35.0
+
+### Documentation
+* #397: Fixes a typo in the Class and Styles docs (thanks @fatherofinvention!)
+* #402: Fixes a typo in the Accordion docs (thanks @fatherofinvention!)
+```
+
 ## v0.8.2
 
 ```plain
