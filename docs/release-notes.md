@@ -17,7 +17,7 @@
 * #414: Bumps chart.js to 4.2.1
 * #418: Bumps Pode in Dockerfiles to 2.8.0
 * #419: Bumps mkdocs and material theme
-* #420: Bumps monaco to 0.35.0
+* #420: Bumps monaco to 0.36.0
 
 ### Documentation
 * #397: Fixes a typo in the Class and Styles docs (thanks @fatherofinvention!)
