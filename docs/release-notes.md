@@ -9,6 +9,7 @@
 * #392: Fixes `New-PodeWebTextbox` with `-NoForm` to we can create wider textboxes (thanks @ili101!)
 * #413: Fixes `Update-PodeWebTextbox` to work with Date types
 * #423: Fixes line charts back to being curved lines and filled areas
+* #430: Temporary fix for showing the back button pages when there is no query string
 
 ### Packaging
 * #378: Bumps highlightjs to 11.7.0
