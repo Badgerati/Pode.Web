@@ -1577,7 +1577,7 @@ function bindFormSubmits() {
         // show the spinner
         showSpinner(form);
         $('.alert').remove();
-    
+
         // remove validation errors
         removeValidationErrors(form);
     });
@@ -1599,7 +1599,7 @@ function bindFormResets() {
 
 function bindModalSubmits() {
     $("div.modal-content form.pode-form").off('keypress').on('keypress', function(e) {
-        if (!isEnterKey(e)) {
+        if (!isEnterKey(e) || testTagName(e.target, 'textarea')) {
             return;
         }
 
@@ -2863,7 +2863,7 @@ function updateButton(action) {
             setTitle(btn, action.DisplayName);
         }
         else {
-            btn.find('span.pode-text').text(action.DisplayName);
+            btn.find('span.pode-text').text(decodeHTML(action.DisplayName));
         }
     }
 
@@ -3019,7 +3019,7 @@ function actionValidation(action, sender) {
     }
 
     var validationId = `div#${$(input).attr('id')}_validation`;
-    $(validationId).text(action.Message);
+    $(validationId).text(decodeHTML(action.Message));
 
     setValidationError(input);
 }
@@ -3658,6 +3658,8 @@ function createTheChart(canvas, action, sender) {
                 yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.2)');
                 yAxises[key].borderColor = palette[index % palette.length];
                 yAxises[key].borderWidth = 3;
+                yAxises[key].fill = true;
+                yAxises[key].tension = 0.4;
                 axesOpts.x = getChartAxesColours(theme, canvas, 'x');
                 axesOpts.y = getChartAxesColours(theme, canvas, 'y');
                 break;

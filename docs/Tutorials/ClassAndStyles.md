@@ -22,7 +22,7 @@ Then you could create some `/public/my-styles.css` file with the following, to s
 
 and import it via: `Import-PodeWebStylesheet -Url '/my-styles.css'`.
 
-or, you can create some JavaScript file at `/public/my-scritps.js` with an event to write to console on keyup. jQuery works here, as Pode.Web uses jQuery. Also, we have to reference the class then the input control, as the class is at the paraent level of the textbox element; this allows for more fine grained control of a component as a whole - such as a textbox's labels, divs, spans, etc.
+or, you can create some JavaScript file at `/public/my-scripts.js` with an event to write to console on keyup. jQuery works here, as Pode.Web uses jQuery. Also, we have to reference the class then the input control, as the class is at the paraent level of the textbox element; this allows for more fine grained control of a component as a whole - such as a textbox's labels, divs, spans, etc.
 
 ```js
 $('.my-custom-textbox input').off('keyup').on('keyup', (e) => {

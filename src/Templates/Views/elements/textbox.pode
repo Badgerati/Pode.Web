@@ -1,10 +1,7 @@
 $(
     $controlDivClass = 'form-group row'
-    if ($data.DynamicLabel) {
+    if ($data.NoForm -or $data.DynamicLabel) {
         $controlDivClass = [string]::Empty
-    }
-    if ($data.NoForm) {
-        $controlDivClass = 'no-form'
     }
 
     "<div class='$($controlDivClass) pode-form-textbox $($data.CssClasses)'>"
@@ -13,7 +10,7 @@ $(
     $(if (!$data.NoForm -and !$data.DynamicLabel) {
         "<label for='$($data.ID)' class='col-sm-2 col-form-label'>$($data.DisplayName)</label>"
     })
-    <div class="$(if (!$data.DynamicLabel) { 'col-sm-10' })">
+    <div class="$(if (!$data.NoForm -and !$data.DynamicLabel) { 'col-sm-10' })">
         $(
             $element = [string]::Empty
 

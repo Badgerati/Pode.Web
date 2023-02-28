@@ -2,7 +2,7 @@
 
 Pode.Web has a Docker image that you can use to host your server, for instructions on pulling these images you can [look here](../../Getting-Started/Installation).
 
-The images use Pode v2.7.2 on either an Ubuntu Focal (default), Alpine, or ARM32 image.
+The images use Pode v2.8.0 on either an Ubuntu Focal (default), Alpine, or ARM32 image.
 
 ## Images
 
@@ -11,7 +11,7 @@ The images use Pode v2.7.2 on either an Ubuntu Focal (default), Alpine, or ARM32
 
 ### Default
 
-The default Pode.Web image is an Ubuntu Focal image with Pode v2.7.2 and Pode.Web installed. An example of using this image in your Dockerfile could be as follows:
+The default Pode.Web image is an Ubuntu Focal image with Pode v2.8.0 and Pode.Web installed. An example of using this image in your Dockerfile could be as follows:
 
 ```dockerfile
 # pull down the pode image
