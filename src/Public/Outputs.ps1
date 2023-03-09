@@ -530,7 +530,7 @@ function Out-PodeWebTextbox
 
     end {
         if (!$AsJson) {
-            $items = ($items | Out-String)
+            $items = ($items | Out-String -NoNewline)
         }
 
         if ($Size -le 0) {
@@ -590,7 +590,7 @@ function Update-PodeWebTextbox
 
     end {
         if (!$AsJson) {
-            $items = ($items | Out-String)
+            $items = ($items | Out-String -NoNewline)
         }
         
         return @{

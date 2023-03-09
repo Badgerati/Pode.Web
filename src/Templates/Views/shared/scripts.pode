@@ -4,7 +4,7 @@
 <script src="$($data.AppPath)/pode.web/libs/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="$($data.AppPath)/pode.web/libs/bs-stepper/bs-stepper.min.js"></script>
 <script src="$($data.AppPath)/pode.web/libs/moment/moment.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/chartjs/chart.min.js"></script>
+<script src="$($data.AppPath)/pode.web/libs/chartjs/chart.umd.js"></script>
 <script src="$($data.AppPath)/pode.web/libs/highlightjs/highlight.min.js"></script>
 <script src="$($data.AppPath)/pode.web/libs/monaco/loader.js" role='monaco'></script>
 

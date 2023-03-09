@@ -9,9 +9,9 @@ The icon element will render a [Material Design Icon](https://materialdesignicon
 ```powershell
 New-PodeWebCard -Content @(
     New-PodeWebText -Value 'Here is an icon: '
-    New-PodeWebIcon -Name 'alert-triange' -Colour 'yellow'
+    New-PodeWebIcon -Name 'alert' -Colour 'yellow'
     New-PodeWebText -Value ', and look another one!: '
-    New-PodeWebIcon -Name 'smile' -Colour '#00CC00'
+    New-PodeWebIcon -Name 'emoticon-happy' -Colour '#00CC00'
 )
 ```
 

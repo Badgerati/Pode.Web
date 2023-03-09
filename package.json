@@ -5,15 +5,15 @@
   "author": "Matthew Kelly <badgerati42@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "jquery": "3.6.1",
+    "jquery": "3.6.3",
     "jquery-ui-dist": "1.13.2",
     "popper.js": "1.16.1",
     "bootstrap": "4.6.1",
     "bs-stepper": "1.7.0",
-    "@mdi/font": "7.0.96",
-    "chart.js": "3.9.1",
-    "@highlightjs/cdn-assets": "11.6.0",
-    "monaco-editor": "0.34.1",
+    "@mdi/font": "7.1.96",
+    "chart.js": "4.2.1",
+    "@highlightjs/cdn-assets": "11.7.0",
+    "monaco-editor": "0.36.0",
     "moment": "2.29.4"
   }
 }

@@ -477,6 +477,9 @@ function Add-PodeWebPage
 
         if (!$global:PageData.NoBackArrow) {
             $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
+            if ($global:PageData.ShowBack -and ($WebEvent.Query.Count -eq 1) -and ($WebEvent.Query.ContainsKey(''))) {
+                $global:PageData.ShowBack = $false
+            }
         }
         else {
             $global:PageData.ShowBack = $false
