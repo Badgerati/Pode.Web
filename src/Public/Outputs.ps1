@@ -769,7 +769,7 @@ function Set-PodeWebSelect
         [string]
         $Id,
 
-        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [string]
         $Value
     )
