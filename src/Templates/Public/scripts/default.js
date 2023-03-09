@@ -2769,6 +2769,8 @@ function updateSelect(action) {
     if (!select) {
         return;
     }
+
+    select.empty();
    
     switch (action.ReadOnlyState) {
         case 'Enabled':
