@@ -567,7 +567,10 @@ function New-PodeWebSelect
         $NoForm,
 
         [switch]
-        $Required
+        $Required,
+
+        [switch]
+        $ReadOnly
     )
 
     if (!$Multiple.IsPresent -and $SelectedValue.Length -ge 2) {
@@ -599,6 +602,7 @@ function New-PodeWebSelect
         NoAuthentication = $NoAuthentication.IsPresent
         NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
+        ReadOnly = $ReadOnly.IsPresent
     }
 
     $routePath = "/components/select/$($Id)"

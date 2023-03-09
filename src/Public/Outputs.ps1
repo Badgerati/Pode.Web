@@ -769,7 +769,7 @@ function Set-PodeWebSelect
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
         [string]
         $Value
     )
@@ -805,7 +805,12 @@ function Update-PodeWebSelect
 
         [Parameter()]
         [string[]]
-        $SelectedValue
+        $SelectedValue,
+        
+        [Parameter()]
+        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
+        [string]
+        $ReadOnlyState = 'Unchanged'
     )
 
     begin {
@@ -825,6 +830,7 @@ function Update-PodeWebSelect
             Options = $items
             DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $items -EqualCount)
             SelectedValue = @(Protect-PodeWebValues -Value $SelectedValue -Encode)
+            ReadOnlyState = $ReadOnlyState
         }
     }
 }

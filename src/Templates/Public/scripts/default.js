@@ -2769,8 +2769,16 @@ function updateSelect(action) {
     if (!select) {
         return;
     }
+   
+    switch (action.ReadOnlyState) {
+        case 'Enabled':
+            select.attr('disabled', 'disabled');
+            break;
 
-    select.empty();
+        case 'Disabled':
+            select.removeAttr('disabled');
+            break;
+    }
 
     action.Options = convertToArray(action.Options);
     if (action.Options.Length <= 0) {
@@ -3060,13 +3068,15 @@ function updateTextbox(action) {
     if (action.AsJson) {
         action.Value = JSON.stringify(action.Value, null, 4);
     }
-    
+   
     switch (action.ReadOnlyState) {
         case 'Enabled':
-            txt.attr('readonly', 1);
+            txt.attr('disabled', 'disabled');
+            break;
 
         case 'Disabled':
-            txt.attr('readonly', 0);
+            txt.removeAttr('disabled');
+            break;
     }
 
     txt.val(action.Value);

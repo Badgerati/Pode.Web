@@ -23,6 +23,7 @@
                 pode-dynamic='$($data.IsDynamic)'
                 $($multiple)
                 $(if ($data.Required) { 'required' })
+                $(if ($data.ReadOnly) { 'disabled' })
                 $(ConvertTo-PodeWebEvents -Events $data.Events)
             >"
 
