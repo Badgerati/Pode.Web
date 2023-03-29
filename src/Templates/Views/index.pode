@@ -228,7 +228,7 @@
                         Use-PodeWebPartialView -Path "layouts/breadcrumb" -Data $data.Breadcrumb
                     })
 
-                    $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Layouts })
+                    <content id="pode-content"></content>
                 </main>
             </div>
         </div>

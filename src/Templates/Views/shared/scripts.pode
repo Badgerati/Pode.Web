@@ -9,6 +9,7 @@
 <script src="$($data.AppPath)/pode.web/libs/monaco/loader.js" role='monaco'></script>
 
 <script src="$($data.AppPath)/pode.web/scripts/default.js"></script>
+<script src="$($data.AppPath)/pode.web/scripts/templates.js"></script>
 
 $(
     $scripts = @(Get-PodeWebState -Name 'custom-js')

@@ -300,7 +300,7 @@ function Set-PodeWebHomePage
             Page = $global:PageData
             Theme = $theme
             Navigation = $navigation
-            Layouts = $comps
+            # Layouts = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
                 Logout = (Get-PodeWebState -Name 'auth-props').Logout
@@ -311,6 +311,25 @@ function Set-PodeWebHomePage
             }
         }
 
+        $global:PageData = $null
+    }
+
+    Remove-PodeWebRoute -Method Get -Path "$($routePath)/content" -EndpointName $endpointNames
+
+    Add-PodeRoute -Method Post -Path "$($routePath)/content" -Authentication $auth -ArgumentList @{ Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
+        param($Data)
+        $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
+
+        # we either render the home page, or move to the first page if home page is blank
+        $comps = $global:PageData.Layouts
+        if (($null -eq $comps) -or ($comps.Length -eq 0)) {
+            $page = Get-PodeWebFirstPublicPage
+            if ($null -ne $page) {
+                Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
+            }
+        }
+
+        Write-PodeJsonResponse -Value $comps
         $global:PageData = $null
     }
 
@@ -519,19 +538,20 @@ function Add-PodeWebPage
             }
 
             $breadcrumb = $null
-            $filteredLayouts = @()
+            # $filteredLayouts = @()
 
             foreach ($item in $layouts) {
                 if ($item.ObjectType -ieq 'breadcrumb') {
                     if ($null -ne $breadcrumb) {
-                        throw "Cannot set two brecrumb trails on one page"
+                        throw "Cannot set two breadcrumb trails on one page"
                     }
 
                     $breadcrumb = $item
+                    break
                 }
-                else {
-                    $filteredLayouts += $item
-                }
+                # else {
+                #     $filteredLayouts += $item
+                # }
             }
 
             Write-PodeWebViewResponse -Path 'index' -Data @{
@@ -541,9 +561,52 @@ function Add-PodeWebPage
                 Theme = $theme
                 Navigation = $navigation
                 Breadcrumb = $breadcrumb
-                Layouts = $filteredLayouts
+                # Layouts = $filteredLayouts
                 Auth = $authMeta
             }
+        }
+
+        $global:PageData = $null
+    }
+
+    Add-PodeRoute -Method Post -Path "$($routePath)/content" -Authentication $auth -ArgumentList @{ Data = $ArgumentList; Path = $routePath } -EndpointName $EndpointName -ScriptBlock {
+        param($Data)
+        $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
+
+        # get auth details of a user
+        $authData = Get-PodeWebAuthData
+        $username = Get-PodeWebAuthUsername -AuthData $authData
+        $groups = Get-PodeWebAuthGroups -AuthData $authData
+
+        $authMeta = @{
+            Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
+            Authenticated = $authData.IsAuthenticated
+            Username = $username
+            Groups = $groups
+        }
+
+        # check access - 403 if denied
+        if (!(Test-PodeWebPageAccess -PageAccess $global:PageData.Access -Auth $authMeta)) {
+            Set-PodeResponseStatus -Code 403
+        }
+        else {
+            # if we have a scriptblock, invoke that to get dynamic components
+            $layouts = $null
+            if ($null -ne $global:PageData.ScriptBlock) {
+                $layouts = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.ScriptBlock -Arguments $Data.Data -Splat -Return
+            }
+
+            if (($null -eq $layouts) -or ($layouts.Length -eq 0)) {
+                $layouts = $global:PageData.Layouts
+            }
+
+            $filteredLayouts = @(foreach ($item in $layouts) {
+                if ($item.ObjectType -ine 'breadcrumb') {
+                    $item
+                }
+            })
+
+            Write-PodeJsonResponse -Value $filteredLayouts
         }
 
         $global:PageData = $null

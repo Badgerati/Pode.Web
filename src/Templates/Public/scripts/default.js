@@ -26,51 +26,53 @@ $(() => {
         return;
     }
 
-    mapElementThemes();
+    sendAjaxReq(`${document.URL.trimEnd('/')}/content`, null, $('content#pode-content'), true, (res, sender) => {
+        mapElementThemes();
 
-    loadBreadcrumb();
-    loadTables();
-    loadCharts();
-    loadAutoCompletes();
-    loadTiles();
-    loadSelects();
+        loadBreadcrumb();
+        // loadTables();
+        loadCharts();
+        loadAutoCompletes();
+        loadTiles();
+        loadSelects();
 
-    setupSteppers();
-    setupAccordion();
+        setupSteppers();
+        setupAccordion();
 
-    bindSidebarFilter();
-    bindSidebarToggle();
-    toggleSidebar();
-    bindNavLinks();
-    bindPageLinks();
-    bindPageHelp();
+        bindSidebarFilter();
+        bindSidebarToggle();
+        toggleSidebar();
+        bindNavLinks();
+        bindPageLinks();
+        bindPageHelp();
 
-    bindFormSubmits();
-    bindButtons();
-    bindCodeCopy();
-    bindCodeEditors();
-    bindFileStreams();
+        bindFormSubmits();
+        bindButtons();
+        bindCodeCopy();
+        bindCodeEditors();
+        bindFileStreams();
 
-    bindTableFilters();
-    bindTableExports();
-    bindTableRefresh();
-    bindTableButtons();
+        // bindTableFilters();
+        bindTableExports();
+        bindTableRefresh();
+        bindTableButtons();
 
-    bindChartRefresh();
-    bindRangeValue();
-    bindProgressValue();
-    bindModalSubmits();
-    bindFormResets();
+        bindChartRefresh();
+        bindRangeValue();
+        bindProgressValue();
+        bindModalSubmits();
+        bindFormResets();
 
-    bindTileRefresh();
-    bindTileClick();
+        bindTileRefresh();
+        bindTileClick();
 
-    bindPageGroupCollapse();
-    bindCardCollapse();
+        bindPageGroupCollapse();
+        bindCardCollapse();
 
-    bindTabCycling();
-    bindAccordionCycling();
-    bindTimers();
+        bindTabCycling();
+        // bindAccordionCycling();
+        bindTimers();
+    });
 });
 
 function bindFileStreams() {
@@ -519,7 +521,7 @@ function isDynamic(element) {
         return false;
     }
 
-    return ($(element).attr('pode-dynamic') == 'True');
+    return ($(element).attr('pode-dynamic') == 'true');
 }
 
 function hasValidationErrors(element) {
@@ -799,14 +801,14 @@ function bindTabCycling() {
     });
 }
 
-function bindAccordionCycling() {
-    $('div.accordion[pode-cycle="True"]').each((i, e) => {
-        setInterval(() => {
-            var itemId = $(e).find('div.card div.bellow-body.show').attr('pode-next');
-            moveAccordion(itemId);
-        }, $(e).attr('pode-interval'));
-    });
-}
+// function bindAccordionCycling() {
+//     $('div.accordion[pode-cycle="true"]').each((i, e) => {
+//         setInterval(() => {
+//             var itemId = $(e).find('div.card div.bellow-body.show').attr('pode-next');
+//             moveAccordion(itemId);
+//         }, $(e).attr('pode-interval'));
+//     });
+// }
 
 function bindTimers() {
     $('span.pode-timer').each((i, e) => {
@@ -842,82 +844,82 @@ function toggleSidebar() {
     }
 }
 
-function bindTablePagination() {
-    $('nav[role="pagination"] input.page-size').off('keyup').on('keyup', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var size = $(this);
+// function bindTablePagination() {
+//     $('nav[role="pagination"] input.page-size').off('keyup').on('keyup', function(e) {
+//         e.preventDefault();
+//         e.stopPropagation();
+//         var size = $(this);
 
-        // nav
-        var pageNav = size.closest('nav');
+//         // nav
+//         var pageNav = size.closest('nav');
 
-        // on enter, reload table
-        if (isEnterKey(e)) {
-            unfocus(size);
+//         // on enter, reload table
+//         if (isEnterKey(e)) {
+//             unfocus(size);
 
-            loadTable(pageNav.attr('for'), {
-                page: {
-                    index: 1,
-                    size: parseInt((pageNav.attr('pode-page-size') ?? 20))
-                },
-                reload: true
-            });
-        }
+//             loadTable(pageNav.attr('for'), {
+//                 page: {
+//                     index: 1,
+//                     size: parseInt((pageNav.attr('pode-page-size') ?? 20))
+//                 },
+//                 reload: true
+//             });
+//         }
 
-        // otherwise, set the size
-        else {
-            pageNav.attr('pode-page-size', size.val());
-        }
-    });
+//         // otherwise, set the size
+//         else {
+//             pageNav.attr('pode-page-size', size.val());
+//         }
+//     });
 
-    $('nav[role="pagination"] .pagination a.page-link').off('click').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var link = $(this);
+//     $('nav[role="pagination"] .pagination a.page-link').off('click').on('click', function(e) {
+//         e.preventDefault();
+//         e.stopPropagation();
+//         var link = $(this);
 
-        // if active/disabled, do nothing
-        if (link.hasClass('active') || link.hasClass('disabled')) {
-            return;
-        }
+//         // if active/disabled, do nothing
+//         if (link.hasClass('active') || link.hasClass('disabled')) {
+//             return;
+//         }
 
-        // get page size
-        var pageNav = link.closest('nav');
-        var pageSize = pageNav.attr('pode-page-size') ?? 20;
+//         // get page size
+//         var pageNav = link.closest('nav');
+//         var pageSize = pageNav.attr('pode-page-size') ?? 20;
 
-        // next or previous? - get current +/-
-        var pageIndex = 1;
+//         // next or previous? - get current +/-
+//         var pageIndex = 1;
 
-        if (link.hasClass('page-arrows')) {
-            var current = link.closest('ul').find('a.page-link.active').text();
+//         if (link.hasClass('page-arrows')) {
+//             var current = link.closest('ul').find('a.page-link.active').text();
 
-            if (link.hasClass('page-previous')) {
-                current--;
-            }
-            else if (link.hasClass('page-next')) {
-                current++;
-            }
-            else if (link.hasClass('page-first')) {
-                current = 1;
-            }
-            else if (link.hasClass('page-last')) {
-                current = link.attr('pode-max');
-            }
+//             if (link.hasClass('page-previous')) {
+//                 current--;
+//             }
+//             else if (link.hasClass('page-next')) {
+//                 current++;
+//             }
+//             else if (link.hasClass('page-first')) {
+//                 current = 1;
+//             }
+//             else if (link.hasClass('page-last')) {
+//                 current = link.attr('pode-max');
+//             }
 
-            pageIndex = current;
-        }
-        else {
-            pageIndex = link.text();
-        }
+//             pageIndex = current;
+//         }
+//         else {
+//             pageIndex = link.text();
+//         }
 
-        loadTable(pageNav.attr('for'), {
-            page: {
-                index: parseInt(pageIndex),
-                size: parseInt(pageSize)
-            },
-            reload: true
-        });
-    });
-}
+//         loadTable(pageNav.attr('for'), {
+//             page: {
+//                 index: parseInt(pageIndex),
+//                 size: parseInt(pageSize)
+//             },
+//             reload: true
+//         });
+//     });
+// }
 
 function getTablePaging(table) {
     if (!isTablePaginated(table)) {
@@ -945,7 +947,7 @@ function isTablePaginated(table) {
         return false;
     }
 
-    return (table.attr('pode-paginate') == 'True');
+    return (table.attr('pode-paginate') == 'true');
 }
 
 function getTableSorting(table) {
@@ -970,63 +972,63 @@ function isTableSorted(table) {
         return;
     }
 
-    return (table.attr('pode-sort') == 'True');
+    return (table.attr('pode-sort') == 'true');
 }
 
-function bindTableSort(tableId) {
-    $(`${tableId}[pode-sort='True'] thead th`).off('click').on('click', function() {
-        var header = $(this);
-        var table = header.parents('table').eq(0);
+// function bindTableSort(tableId) {
+//     $(`${tableId}[pode-sort='true'] thead th`).off('click').on('click', function() {
+//         var header = $(this);
+//         var table = header.parents('table').eq(0);
 
-        var direction = header.attr('sort-direction') ?? 'none';
-        switch (direction.toLowerCase()) {
-            case 'none': {
-                direction = 'asc';
-                break;
-            }
+//         var direction = header.attr('sort-direction') ?? 'none';
+//         switch (direction.toLowerCase()) {
+//             case 'none': {
+//                 direction = 'asc';
+//                 break;
+//             }
 
-            case 'asc': {
-                direction = 'desc';
-                break;
-            }
+//             case 'asc': {
+//                 direction = 'desc';
+//                 break;
+//             }
 
-            case 'desc': {
-                direction = 'asc';
-                break;
-            }
-        }
+//             case 'desc': {
+//                 direction = 'asc';
+//                 break;
+//             }
+//         }
 
-        // save sort direction for current header, and set other headers to none
-        table.find('th').attr('sort-direction', 'none');
-        header.attr('sort-direction', direction);
+//         // save sort direction for current header, and set other headers to none
+//         table.find('th').attr('sort-direction', 'none');
+//         header.attr('sort-direction', direction);
 
-        // simple or dynamic?
-        var simple = table.attr('pode-sort-simple') == 'True';
-        if (simple) {
-            sortTable(table, header, direction);
-        }
-        else {
-            loadTable(table.attr('id'), {
-                sort: {
-                    column: header.text(),
-                    direction: direction
-                }
-            });
-        }
-    });
-}
+//         // simple or dynamic?
+//         var simple = table.attr('pode-sort-simple') == 'True';
+//         if (simple) {
+//             sortTable(table, header, direction);
+//         }
+//         else {
+//             loadTable(table.attr('id'), {
+//                 sort: {
+//                     column: header.text(),
+//                     direction: direction
+//                 }
+//             });
+//         }
+//     });
+// }
 
-function sortTable(table, header, direction) {
-    var rows = table.find('tr:gt(0)').toArray().sort(comparer(header.index()));
+// function sortTable(table, header, direction) {
+//     var rows = table.find('tr:gt(0)').toArray().sort(comparer(header.index()));
 
-    if (direction == 'desc') {
-        rows = rows.reverse();
-    }
+//     if (direction == 'desc') {
+//         rows = rows.reverse();
+//     }
 
-    rows.forEach((row) => {
-        table.append(row);
-    });
-}
+//     rows.forEach((row) => {
+//         table.append(row);
+//     });
+// }
 
 function comparer(index) {
     return function(a, b) {
@@ -1140,15 +1142,15 @@ function bindProgressValue() {
     });
 }
 
-function loadTables() {
-    $(`table[pode-dynamic='True']`).each((i, e) => {
-        loadTable($(e).attr('id'));
-    });
+// function loadTables() {
+//     $(`table[pode-dynamic='True']`).each((i, e) => {
+//         loadTable($(e).attr('id'));
+//     });
 
-    $(`table[pode-dynamic='False']`).each((i, e) => {
-        hideLoadingSpinner($(e).attr('id'));
-    });
-}
+//     $(`table[pode-dynamic='False']`).each((i, e) => {
+//         hideLoadingSpinner($(e).attr('id'));
+//     });
+// }
 
 function loadTable(tableId, opts) {
     if (!tableId) {
@@ -1371,47 +1373,52 @@ function invokeActions(actions, sender) {
     actions = convertToArray(actions);
 
     actions.forEach((action) => {
-        var _type = action.ObjectType;
-        if (_type) {
-            _type = _type.toLowerCase();
-        }
+        var _type = (action.ObjectType ?? '').toLowerCase();
+        var _subType = (action.SubObjectType ?? '').toLowerCase()
+        var _operation = (action.Operation ?? 'new').toLowerCase();
+
+        console.log(`[${_operation}] ${_type} {${_subType}}`);
 
         switch (_type) {
-            case 'table':
-                actionTable(action, sender);
-                break;
+            // case 'table':
+            //     actionTable(action, sender);
+            //     break;
 
-            case 'tablerow':
-                actionTableRow(action, sender);
-                break;
+            // case 'tablerow':
+            //     actionTableRow(action, sender);
+            //     break;
 
-            case 'tablecolumn':
-                actionTableColumn(action);
-                break;
+            // case 'tablecolumn':
+            //     actionTableColumn(action);
+            //     break;
 
             case 'chart':
                 actionChart(action, sender);
                 break;
 
-            case 'textbox':
-                actionTextbox(action, sender);
-                break;
+            // case 'textbox':
+            //     actionTextbox(action, sender);
+            //     break;
 
-            case 'toast':
-                actionToast(action);
-                break;
+            // case 'toast':
+            //     actionToast(action);
+            //     break;
 
             case 'validation':
                 actionValidation(action, sender);
                 break;
 
-            case 'form':
-                actionForm(action);
-                break;
+            // case 'form':
+            //     PodeElementFactory.invokeClass(_type, _operation, action, sender);
+            //     break;
 
-            case 'text':
-                actionText(action);
-                break;
+            // case 'container':
+            //     PodeElementFactory.invokeClass(_type, _operation, action, sender);
+            //     break;
+
+            // case 'text':
+            //     PodeElementFactory.invokeClass(_type, _operation, action, sender);
+            //     break;
 
             case 'select':
                 actionSelect(action);
@@ -1433,9 +1440,9 @@ function invokeActions(actions, sender) {
                 actionHref(action);
                 break;
 
-            case 'badge':
-                actionBadge(action);
-                break;
+            // case 'badge':
+            //     PodeElementFactory.invokeClass(_type, _operation, action, sender);
+            //     break;
 
             case 'progress':
                 actionProgress(action);
@@ -1445,9 +1452,9 @@ function invokeActions(actions, sender) {
                 actionTab(action);
                 break;
 
-            case 'accordion':
-                actionAccordion(action);
-                break;
+            // case 'accordion':
+            //     actionAccordion(action);
+            //     break;
 
             case 'page':
                 actionPage(action);
@@ -1469,9 +1476,9 @@ function invokeActions(actions, sender) {
                 actionTheme(action);
                 break;
 
-            case 'component':
-                actionComponent(action);
-                break;
+            // case 'component':
+            //     actionComponent(action);
+            //     break;
 
             case 'component-style':
                 actionComponentStyle(action);
@@ -1485,13 +1492,13 @@ function invokeActions(actions, sender) {
                 actionFileStream(action);
                 break;
 
-            case 'audio':
-                actionAudio(action);
-                break;
+            // case 'audio':
+            //     actionAudio(action);
+            //     break;
 
-            case 'video':
-                actionVideo(action);
-                break;
+            // case 'video':
+            //     actionVideo(action);
+            //     break;
 
             case 'code-editor':
                 actionCodeEditor(action);
@@ -1501,11 +1508,14 @@ function invokeActions(actions, sender) {
                 actionIFrame(action);
                 break;
 
-            case 'button':
-                actionButton(action);
-                break;
+            // case 'button':
+                // PodeElementFactory.invokeClass(_type, _operation, action, sender);
+                // break;
 
             default:
+                PodeElementFactory.invokeClass(_type, _operation, action, sender, {
+                    subType: _subType
+                });
                 break;
         }
     });
@@ -1783,39 +1793,39 @@ function delay(callback, ms) {
     };
 }
 
-function bindTableFilters() {
-    $("input.pode-table-filter").off('keyup').on('keyup', delay(function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+// function bindTableFilters() {
+//     $("input.pode-table-filter").off('keyup').on('keyup', delay(function(e) {
+//         e.preventDefault();
+//         e.stopPropagation();
 
-        var input = $(e.target);
-        var simple = input.attr('pode-simple') == 'True';
+//         var input = $(e.target);
+//         var simple = input.attr('pode-simple') == 'True';
 
-        if (simple) {
-            filterTable(input);
-        }
-        else {
-            loadTable(input.attr('for'));
-        }
-    }, 500));
-}
+//         if (simple) {
+//             filterTable(input);
+//         }
+//         else {
+//             loadTable(input.attr('for'));
+//         }
+//     }, 500));
+// }
 
-function filterTable(filter) {
-    if (!filter) {
-        return;
-    }
+// function filterTable(filter) {
+//     if (!filter) {
+//         return;
+//     }
 
-    var simple = filter.attr('pode-simple') == 'True';
-    if (!simple) {
-        return;
-    }
+//     var simple = filter.attr('pode-simple') == 'True';
+//     if (!simple) {
+//         return;
+//     }
 
-    var tableId = filter.attr('for');
-    var value = filter.val();
+//     var tableId = filter.attr('for');
+//     var value = filter.val();
 
-    hide($(`table#${tableId} tbody tr:not(:icontains('${value}'))`));
-    show($(`table#${tableId} tbody tr:icontains('${value}')`));
-}
+//     hide($(`table#${tableId} tbody tr:not(:icontains('${value}'))`));
+//     show($(`table#${tableId} tbody tr:icontains('${value}')`));
+// }
 
 function bindSidebarFilter() {
     $("input.pode-nav-filter").off('keyup').on('keyup', function(e) {
@@ -1924,106 +1934,106 @@ function bindChartRefresh() {
     });
 }
 
-function actionTableRow(action, sender) {
-    switch (action.Operation.toLowerCase()) {
-        case 'update':
-            updateTableRow(action);
-            break;
-    }
-}
+// function actionTableRow(action, sender) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'update':
+//             updateTableRow(action);
+//             break;
+//     }
+// }
 
-function updateTableRow(action) {
-    // ensure the table exists
-    var table = getElementByNameOrId(action, 'table');
-    if (!table || table.length == 0) {
-        return;
-    }
+// function updateTableRow(action) {
+//     // ensure the table exists
+//     var table = getElementByNameOrId(action, 'table');
+//     if (!table || table.length == 0) {
+//         return;
+//     }
 
-    var tableId = `table#${getId(table)}`;
+//     var tableId = `table#${getId(table)}`;
 
-    // get the table row
-    var row = null;
-    switch (action.Row.Type) {
-        case 'id_and_datavalue':
-        case 'name_and_datavalue':
-            row = table.find(`tbody tr[pode-data-value="${action.Row.DataValue}"]`);
-            break;
+//     // get the table row
+//     var row = null;
+//     switch (action.Row.Type) {
+//         case 'id_and_datavalue':
+//         case 'name_and_datavalue':
+//             row = table.find(`tbody tr[pode-data-value="${action.Row.DataValue}"]`);
+//             break;
 
-        case 'id_and_index':
-        case 'name_and_index':
-            row = table.find('tbody tr').eq(action.Row.Index);
-            break;
-    }
+//         case 'id_and_index':
+//         case 'name_and_index':
+//             row = table.find('tbody tr').eq(action.Row.Index);
+//             break;
+//     }
 
-    // do nothing if no row
-    if (!row || row.length == 0) {
-        return;
-    }
+//     // do nothing if no row
+//     if (!row || row.length == 0) {
+//         return;
+//     }
 
-    // update the row's data
-    if (action.Data) {
-        var keys = Object.keys(action.Data);
+//     // update the row's data
+//     if (action.Data) {
+//         var keys = Object.keys(action.Data);
 
-        keys.forEach((key) => {
-            var _html = '';
-            var _value = action.Data[key];
+//         keys.forEach((key) => {
+//             var _html = '';
+//             var _value = action.Data[key];
 
-            if (Array.isArray(_value) || _value.ObjectType) {
-                _html += buildElements(_value);
-            }
-            else {
-                _html += _value;
-            }
+//             if (Array.isArray(_value) || _value.ObjectType) {
+//                 _html += buildElements(_value);
+//             }
+//             else {
+//                 _html += _value;
+//             }
 
-            row.find(`td[pode-column="${key}"]`).html(_html);
-        });
-    }
+//             row.find(`td[pode-column="${key}"]`).html(_html);
+//         });
+//     }
 
-    // update the row's background colour
-    setObjectStyle(row[0], 'background-color', action.BackgroundColour);
+//     // update the row's background colour
+//     setObjectStyle(row[0], 'background-color', action.BackgroundColour);
 
-    // update the row's forecolour
-    setObjectStyle(row[0], 'color', action.Colour);
+//     // update the row's forecolour
+//     setObjectStyle(row[0], 'color', action.Colour);
 
-    // binds sort/buttons/etc
-    $('[data-toggle="tooltip"]').tooltip();
-    bindButtons();
+//     // binds sort/buttons/etc
+//     $('[data-toggle="tooltip"]').tooltip();
+//     bindButtons();
 
-    // setup clickable rows
-    bindTableClickableRows(tableId);
-}
+//     // setup clickable rows
+//     bindTableClickableRows(tableId);
+// }
 
-function actionTableColumn(action) {
-    switch (action.Operation.toLowerCase()) {
-        case 'hide':
-            hideTableColumn(action);
-            break;
+// function actionTableColumn(action) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'hide':
+//             hideTableColumn(action);
+//             break;
 
-        case 'show':
-            showTableColumn(action);
-            break;
-    }
-}
+//         case 'show':
+//             showTableColumn(action);
+//             break;
+//     }
+// }
 
-function hideTableColumn(action) {
-    var table = getElementByNameOrId(action, 'table');
-    if (!table) {
-        return;
-    }
+// function hideTableColumn(action) {
+//     var table = getElementByNameOrId(action, 'table');
+//     if (!table) {
+//         return;
+//     }
 
-    addClass(table.find(`thead th[name="${action.Key}"]`), 'd-none');
-    addClass(table.find(`tbody td[pode-column="${action.Key}"]`), 'd-none');
-}
+//     addClass(table.find(`thead th[name="${action.Key}"]`), 'd-none');
+//     addClass(table.find(`tbody td[pode-column="${action.Key}"]`), 'd-none');
+// }
 
-function showTableColumn(action) {
-    var table = getElementByNameOrId(action, 'table');
-    if (!table) {
-        return;
-    }
+// function showTableColumn(action) {
+//     var table = getElementByNameOrId(action, 'table');
+//     if (!table) {
+//         return;
+//     }
 
-    removeClass(table.find(`thead th[name="${action.Key}"]`), 'd-none', true);
-    removeClass(table.find(`tbody td[pode-column="${action.Key}"]`), 'd-none', true);
-}
+//     removeClass(table.find(`thead th[name="${action.Key}"]`), 'd-none', true);
+//     removeClass(table.find(`tbody td[pode-column="${action.Key}"]`), 'd-none', true);
+// }
 
 function getQueryStringValue(name) {
     if (!window.location.search) {
@@ -2121,236 +2131,236 @@ function hideLoadingSpinner(elementId) {
 }
 
 
-function updateTable(action, sender) {
-    // convert data to array
-    action.Data = convertToArray(action.Data);
+// function updateTable(action, sender) {
+//     // convert data to array
+//     action.Data = convertToArray(action.Data);
 
-    // table meta
-    var table = getElementByNameOrId(action, 'table');
-    var tableId = getId(table);
-    var fullTableId = `table#${tableId}`;
+//     // table meta
+//     var table = getElementByNameOrId(action, 'table');
+//     var tableId = getId(table);
+//     var fullTableId = `table#${tableId}`;
 
-    var tableHead = $(`${fullTableId} thead`);
-    var tableBody = $(`${fullTableId} tbody`);
-    var isPaginated = isTablePaginated(table);
+//     var tableHead = $(`${fullTableId} thead`);
+//     var tableBody = $(`${fullTableId} tbody`);
+//     var isPaginated = isTablePaginated(table);
 
-    // get custom column meta - for widths etc
-    var columns = {};
-    if (action.Columns) {
-        columns = action.Columns;
-    }
+//     // get custom column meta - for widths etc
+//     var columns = {};
+//     if (action.Columns) {
+//         columns = action.Columns;
+//     }
 
-    // render initial columns?
-    var _value = '';
-    var _direction = 'none';
-    var _columnHidden = false;
+//     // render initial columns?
+//     var _value = '';
+//     var _direction = 'none';
+//     var _columnHidden = false;
 
-    var columnKeys = Object.keys(columns);
+//     var columnKeys = Object.keys(columns);
 
-    if (tableHead.find('th').length == 0 && columnKeys.length > 0) {
-        _value = '<tr>';
+//     if (tableHead.find('th').length == 0 && columnKeys.length > 0) {
+//         _value = '<tr>';
 
-        columnKeys.forEach((key) => {
-            _value += buildTableHeader(columns[key], _direction);
-        });
+//         columnKeys.forEach((key) => {
+//             _value += buildTableHeader(columns[key], _direction);
+//         });
 
-        _value += '</tr>';
-        tableHead.append(_value);
-    }
+//         _value += '</tr>';
+//         tableHead.append(_value);
+//     }
 
-    // clear the table if no data
-    if (action.Data.length <= 0) {
-        // empty table
-        tableBody.empty();
+//     // clear the table if no data
+//     if (action.Data.length <= 0) {
+//         // empty table
+//         tableBody.empty();
 
-        // empty paging
-        if (isPaginated) {
-            table.closest('div[role="table"]').find('nav ul').empty();
-        }
+//         // empty paging
+//         if (isPaginated) {
+//             table.closest('div[role="table"]').find('nav ul').empty();
+//         }
 
-        // hide spinner
-        hideLoadingSpinner(tableId);
-        return;
-    }
+//         // hide spinner
+//         hideLoadingSpinner(tableId);
+//         return;
+//     }
 
-    // get data keys for table columns
-    var keys = Object.keys(action.Data[0]);
+//     // get data keys for table columns
+//     var keys = Object.keys(action.Data[0]);
 
-    // get senderId if present, and set on table as 'for'
-    var senderId = getId(sender);
-    if (senderId && getTagName(sender) == 'form') {
-        table.attr('for', senderId);
-    }
+//     // get senderId if present, and set on table as 'for'
+//     var senderId = getId(sender);
+//     if (senderId && getTagName(sender) == 'form') {
+//         table.attr('for', senderId);
+//     }
 
-    // is there a data column?
-    var dataColumn = table.attr('pode-data-column');
+//     // is there a data column?
+//     var dataColumn = table.attr('pode-data-column');
 
-    // table headers
-    _value = '<tr>';
-    var _oldHeader = null;
-    var _header = null;
+//     // table headers
+//     _value = '<tr>';
+//     var _oldHeader = null;
+//     var _header = null;
 
-    keys.forEach((key) => {
-        // table header sort direction
-        _oldHeader = tableHead.find(`th[name='${key}']`);
-        if (_oldHeader.length > 0) {
-            _direction = _oldHeader.attr('sort-direction');
-            _columnHidden = _oldHeader.hasClass('d-none');
-        }
-        else {
-            _direction = 'none';
-            _columnHidden = false;
-        }
+//     keys.forEach((key) => {
+//         // table header sort direction
+//         _oldHeader = tableHead.find(`th[name='${key}']`);
+//         if (_oldHeader.length > 0) {
+//             _direction = _oldHeader.attr('sort-direction');
+//             _columnHidden = _oldHeader.hasClass('d-none');
+//         }
+//         else {
+//             _direction = 'none';
+//             _columnHidden = false;
+//         }
 
-        // add the table header
-        if (key in columns) {
-            _value += buildTableHeader(columns[key], _direction, _columnHidden);
-        }
-        else {
-            if (_oldHeader.length > 0) {
-                _value += _oldHeader[0].outerHTML;
-            }
-            else {
-                _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
-            }
-        }
-    });
-    _value += '</tr>';
+//         // add the table header
+//         if (key in columns) {
+//             _value += buildTableHeader(columns[key], _direction, _columnHidden);
+//         }
+//         else {
+//             if (_oldHeader.length > 0) {
+//                 _value += _oldHeader[0].outerHTML;
+//             }
+//             else {
+//                 _value += `<th sort-direction='${_direction}' name='${key}'>${key}</th>`;
+//             }
+//         }
+//     });
+//     _value += '</tr>';
 
-    tableHead.empty();
-    tableHead.append(_value);
+//     tableHead.empty();
+//     tableHead.append(_value);
 
-    // table body
-    tableBody.empty();
+//     // table body
+//     tableBody.empty();
 
-    action.Data.forEach((item) => {
-        _value = `<tr ${item[dataColumn] != null ? `pode-data-value="${item[dataColumn]}"` : ''}>`;
+//     action.Data.forEach((item) => {
+//         _value = `<tr ${item[dataColumn] != null ? `pode-data-value="${item[dataColumn]}"` : ''}>`;
 
-        keys.forEach((key) => {
-            _header = tableHead.find(`th[name='${key}']`);
-            if (_header.length > 0) {
-                _value += `<td pode-column='${key}' style='`;
+//         keys.forEach((key) => {
+//             _header = tableHead.find(`th[name='${key}']`);
+//             if (_header.length > 0) {
+//                 _value += `<td pode-column='${key}' style='`;
 
-                if (_header.css('text-align')) {
-                    _value += `text-align:${_header.css('text-align')};`;
-                }
+//                 if (_header.css('text-align')) {
+//                     _value += `text-align:${_header.css('text-align')};`;
+//                 }
 
-                _value += "'";
+//                 _value += "'";
 
-                if (_header.hasClass('d-none')) {
-                    _value += ` class='d-none'`;
-                }
+//                 if (_header.hasClass('d-none')) {
+//                     _value += ` class='d-none'`;
+//                 }
 
-                _value += ">";
-            }
-            else {
-                _value += `<td pode-column='${key}'>`;
-            }
+//                 _value += ">";
+//             }
+//             else {
+//                 _value += `<td pode-column='${key}'>`;
+//             }
 
-            if (Array.isArray(item[key]) || (item[key] && item[key].ObjectType)) {
-                _value += buildElements(item[key]);
-            }
-            else if (item[key] != null) {
-                _value += item[key];
-            }
-            else if (!item[key] && _header.length > 0) {
-                _value += _header.attr('default-value');
-            }
+//             if (Array.isArray(item[key]) || (item[key] && item[key].ObjectType)) {
+//                 _value += buildElements(item[key]);
+//             }
+//             else if (item[key] != null) {
+//                 _value += item[key];
+//             }
+//             else if (!item[key] && _header.length > 0) {
+//                 _value += _header.attr('default-value');
+//             }
 
-            _value += `</td>`;
-        });
-        _value += '</tr>';
-        tableBody.append(_value);
-    });
+//             _value += `</td>`;
+//         });
+//         _value += '</tr>';
+//         tableBody.append(_value);
+//     });
 
-    // hide spinner
-    hideLoadingSpinner(tableId);
+//     // hide spinner
+//     hideLoadingSpinner(tableId);
 
-    // is the table paginated?
-    if (isPaginated) {
-        buildTablePaging(table, action.Paging.Index, action.Paging.Max, action.Paging.Size);
-    }
+//     // is the table paginated?
+//     if (isPaginated) {
+//         buildTablePaging(table, action.Paging.Index, action.Paging.Max, action.Paging.Size);
+//     }
 
-    // binds sort/buttons/etc
-    $('[data-toggle="tooltip"]').tooltip();
-    bindTableSort(fullTableId);
-    bindButtons();
-    bindTablePagination();
+//     // binds sort/buttons/etc
+//     $('[data-toggle="tooltip"]').tooltip();
+//     bindTableSort(fullTableId);
+//     bindButtons();
+//     bindTablePagination();
 
-    // setup table filter
-    filterTable(table.closest('div.card-body').find('input.pode-table-filter'));
+//     // setup table filter
+//     filterTable(table.closest('div.card-body').find('input.pode-table-filter'));
 
-    // setup clickable rows
-    bindTableClickableRows(fullTableId);
-}
+//     // setup clickable rows
+//     bindTableClickableRows(fullTableId);
+// }
 
-function buildTablePaging(table, currentIndex, totalPages, size) {
-    var paging = table.closest('div[role="table"]').find('nav ul');
-    var parent = paging.parent();
+// function buildTablePaging(table, currentIndex, totalPages, size) {
+//     var paging = table.closest('div[role="table"]').find('nav ul');
+//     var parent = paging.parent();
 
-    parent.find('input.page-size').remove();
-    paging.empty();
+//     parent.find('input.page-size').remove();
+//     paging.empty();
 
-    // current page
-    parent.attr('pode-current-page', currentIndex);
+//     // current page
+//     parent.attr('pode-current-page', currentIndex);
 
-    // page size
-    parent.prepend(`<input type="number" id="${parent.attr('for')}_size" class="form-control page-size" value="${size}" min="1">`);
+//     // page size
+//     parent.prepend(`<input type="number" id="${parent.attr('for')}_size" class="form-control page-size" value="${size}" min="1">`);
 
-    // if there is only 1 total page, don't even bother showing pagination
-    if (totalPages <= 1) {
-        return;
-    }
+//     // if there is only 1 total page, don't even bother showing pagination
+//     if (totalPages <= 1) {
+//         return;
+//     }
 
-    // first
-    paging.append(`
-        <li class="page-item">
-            <a class="page-link page-arrows page-first" href="#" aria-label="First" title="First (1)" data-toggle="tooltip">
-                <span aria-hidden="true">&lt;&lt;</span>
-            </a>
-        </li>`);
+//     // first
+//     paging.append(`
+//         <li class="page-item">
+//             <a class="page-link page-arrows page-first" href="#" aria-label="First" title="First (1)" data-toggle="tooltip">
+//                 <span aria-hidden="true">&lt;&lt;</span>
+//             </a>
+//         </li>`);
 
-    // previous
-    paging.append(`
-        <li class="page-item">
-            <a class="page-link page-arrows page-previous" href="#" aria-label="Previous" title="Previous" data-toggle="tooltip">
-                <span aria-hidden="true">&lt;</span>
-            </a>
-        </li>`);
+//     // previous
+//     paging.append(`
+//         <li class="page-item">
+//             <a class="page-link page-arrows page-previous" href="#" aria-label="Previous" title="Previous" data-toggle="tooltip">
+//                 <span aria-hidden="true">&lt;</span>
+//             </a>
+//         </li>`);
 
-    var pageActive = '';
+//     var pageActive = '';
 
-    // pages
-    var gap = (currentIndex == 1 || currentIndex == totalPages ? 2 : 1);
+//     // pages
+//     var gap = (currentIndex == 1 || currentIndex == totalPages ? 2 : 1);
 
-    for (var i = (currentIndex - gap); i <= (currentIndex + gap); i++) {
-        if (i < 1 || i > totalPages) {
-            continue;
-        }
+//     for (var i = (currentIndex - gap); i <= (currentIndex + gap); i++) {
+//         if (i < 1 || i > totalPages) {
+//             continue;
+//         }
 
-        pageActive = (i == currentIndex ? 'active' : '');
-        paging.append(`
-            <li class="page-item">
-                <a class="page-link ${pageActive}" href="#">${i}</a>
-            </li>`);
-    }
+//         pageActive = (i == currentIndex ? 'active' : '');
+//         paging.append(`
+//             <li class="page-item">
+//                 <a class="page-link ${pageActive}" href="#">${i}</a>
+//             </li>`);
+//     }
 
-    // next
-    paging.append(`
-        <li class="page-item">
-            <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${totalPages}" title="Next" data-toggle="tooltip">
-                <span aria-hidden="true">&gt;</span>
-            </a>
-        </li>`);
+//     // next
+//     paging.append(`
+//         <li class="page-item">
+//             <a class="page-link page-arrows page-next" href="#" aria-label="Next" pode-max="${totalPages}" title="Next" data-toggle="tooltip">
+//                 <span aria-hidden="true">&gt;</span>
+//             </a>
+//         </li>`);
 
-    // last
-    paging.append(`
-        <li class="page-item">
-            <a class="page-link page-arrows page-last" href="#" aria-label="Last" pode-max="${totalPages}" title="Last (${totalPages})" data-toggle="tooltip">
-                <span aria-hidden="true">&gt;&gt;</span>
-            </a>
-        </li>`);
-}
+//     // last
+//     paging.append(`
+//         <li class="page-item">
+//             <a class="page-link page-arrows page-last" href="#" aria-label="Last" pode-max="${totalPages}" title="Last (${totalPages})" data-toggle="tooltip">
+//                 <span aria-hidden="true">&gt;&gt;</span>
+//             </a>
+//         </li>`);
+// }
 
 function buildTableHeader(column, direction, hidden) {
     var value = `<th sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
@@ -2424,17 +2434,17 @@ function testTagName(element, tagName) {
     return (getTagName(element) == tagName.toLowerCase());
 }
 
-function actionForm(action) {
-    switch (action.Operation.toLowerCase()) {
-        case 'reset':
-            resetForm(getElementByNameOrId(action, 'form'));
-            break;
+// function actionForm(action) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'reset':
+//             resetForm(getElementByNameOrId(action, 'form'));
+//             break;
 
-        case 'submit':
-            submitForm(getElementByNameOrId(action, 'form'));
-            break;
-    }
-}
+//         case 'submit':
+//             submitForm(getElementByNameOrId(action, 'form'));
+//             break;
+//     }
+// }
 
 function resetForm(form, isInner = false) {
     if (!form) {
@@ -2542,23 +2552,23 @@ function hideModal(action, sender) {
     modal.modal('hide');
 }
 
-function actionText(action) {
-    if (!action) {
-        return;
-    }
+// function actionText(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    var text = $(`#${action.ID}`);
-    if (!text) {
-        return;
-    }
+//     var text = $(`#${action.ID}`);
+//     if (!text) {
+//         return;
+//     }
 
-    if (!text.hasClass('pode-text')) {
-        var subText = text.find('.pode-text');
-        text = subText.length == 0 ? text : subText;
-    }
+//     if (!text.hasClass('pode-text')) {
+//         var subText = text.find('.pode-text');
+//         text = subText.length == 0 ? text : subText;
+//     }
 
-    text.text(decodeHTML(action.Value));
-}
+//     text.text(decodeHTML(action.Value));
+// }
 
 function actionTile(action, sender) {
     if (!action) {
@@ -2668,18 +2678,18 @@ function setObjectStyle(obj, property, value) {
     }
 }
 
-function actionComponent(action) {
-    if (!action) {
-        return;
-    }
+// function actionComponent(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    switch (action.Operation.toLowerCase()) {
-        case 'show':
-        case 'hide':
-            toggleComponent(action, action.Operation.toLowerCase());
-            break;
-    }
-}
+//     switch (action.Operation.toLowerCase()) {
+//         case 'show':
+//         case 'hide':
+//             toggleComponent(action, action.Operation.toLowerCase());
+//             break;
+//     }
+// }
 
 function toggleComponent(action, toggle) {
     var obj = getElementByNameOrId(action);
@@ -2819,22 +2829,22 @@ function encodeHTML(value) {
     return $('<div/>').text(value).html();
 }
 
-function actionButton(action) {
-    switch (action.Operation.toLowerCase()) {
-        case 'update':
-            updateButton(action);
-            break;
+// function actionButton(action) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'update':
+//             updateButton(action);
+//             break;
 
-        case 'invoke':
-            invokeButton(action);
-            break;
+//         case 'invoke':
+//             invokeButton(action);
+//             break;
 
-        case 'enable':
-        case 'disable':
-            toggleButtonState(action, action.Operation.toLowerCase());
-            break;
-    }
-}
+//         case 'enable':
+//         case 'disable':
+//             toggleButtonState(action, action.Operation.toLowerCase());
+//             break;
+//     }
+// }
 
 function getButtonElement(action) {
     var btn = getElementByNameOrId(action, 'button');
@@ -3024,86 +3034,86 @@ function actionValidation(action, sender) {
     setValidationError(input);
 }
 
-function actionTextbox(action, sender) {
-    switch (action.Operation.toLowerCase()) {
-        case 'update':
-            updateTextbox(action);
-            break;
+// function actionTextbox(action, sender) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'update':
+//             updateTextbox(action);
+//             break;
 
-        case 'output':
-            writeTextbox(action, sender);
-            break;
+//         case 'output':
+//             writeTextbox(action, sender);
+//             break;
 
-        case 'clear':
-            clearTextbox(action);
-            break;
-    }
-}
+//         case 'clear':
+//             clearTextbox(action);
+//             break;
+//     }
+// }
 
-function clearTextbox(action) {
-    var txt = action.Multiline
-        ? getElementByNameOrId(action, 'textarea')
-        : getElementByNameOrId(action, 'input');
+// function clearTextbox(action) {
+//     var txt = action.Multiline
+//         ? getElementByNameOrId(action, 'textarea')
+//         : getElementByNameOrId(action, 'input');
 
-    txt.val('');
-}
+//     txt.val('');
+// }
 
-function updateTextbox(action) {
-    if (!action.Value) {
-        return;
-    }
+// function updateTextbox(action) {
+//     if (!action.Value) {
+//         return;
+//     }
 
-    var txt = action.Multiline
-        ? getElementByNameOrId(action, 'textarea')
-        : getElementByNameOrId(action, 'input');
+//     var txt = action.Multiline
+//         ? getElementByNameOrId(action, 'textarea')
+//         : getElementByNameOrId(action, 'input');
 
-    if (action.AsJson) {
-        action.Value = JSON.stringify(action.Value, null, 4);
-    }
+//     if (action.AsJson) {
+//         action.Value = JSON.stringify(action.Value, null, 4);
+//     }
 
-    txt.val(action.Value);
-}
+//     txt.val(action.Value);
+// }
 
-function writeTextbox(action, sender) {
-    var senderId = getId(sender);
-    var txtId = `txt_${senderId}`;
+// function writeTextbox(action, sender) {
+//     var senderId = getId(sender);
+//     var txtId = `txt_${senderId}`;
 
-    // create textbox
-    var element = null;
-    var txt = null;
+//     // create textbox
+//     var element = null;
+//     var txt = null;
 
-    // default attrs
-    var readOnly = '';
-    if (action.ReadOnly) {
-        readOnly ='readonly';
-    }
+//     // default attrs
+//     var readOnly = '';
+//     if (action.ReadOnly) {
+//         readOnly ='readonly';
+//     }
 
-    // build the element
-    if (action.Multiline) {
-        txt = $(`textarea#${txtId}`);
-        if (txt.length == 0) {
-            element = `<textarea class='form-control' id='${txtId}' rows='${action.Size}' ${readOnly}></textarea>`;
-        }
-    }
-    else {
-        txt = $(`input#${txtId}`);
-        if (txt.length == 0) {
-            element = `<input type='text' class='form-control' id='${txtId}' ${readOnly}>`;
-        }
-    }
+//     // build the element
+//     if (action.Multiline) {
+//         txt = $(`textarea#${txtId}`);
+//         if (txt.length == 0) {
+//             element = `<textarea class='form-control' id='${txtId}' rows='${action.Size}' ${readOnly}></textarea>`;
+//         }
+//     }
+//     else {
+//         txt = $(`input#${txtId}`);
+//         if (txt.length == 0) {
+//             element = `<input type='text' class='form-control' id='${txtId}' ${readOnly}>`;
+//         }
+//     }
 
-    if (element) {
-        if (action.Preformat) {
-            element = `<pre>${element}</pre>`;
-        }
+//     if (element) {
+//         if (action.Preformat) {
+//             element = `<pre>${element}</pre>`;
+//         }
 
-        sender.after(element);
-    }
+//         sender.after(element);
+//     }
 
-    // update
-    action.ID = txtId;
-    updateTextbox(action);
-}
+//     // update
+//     action.ID = txtId;
+//     updateTextbox(action);
+// }
 
 function exportTableAsCSV(tableId) {
     var csv = [];
@@ -3150,139 +3160,139 @@ function downloadCSV(csv, filename) {
     $(downloadLink).remove();
 }
 
-function actionAudio(action) {
-    switch(action.Operation.toLowerCase()) {
-        case 'start':
-        case 'stop':
-            toggleMedia(action, action.Operation.toLowerCase(), 'audio');
-            break;
+// function actionAudio(action) {
+//     switch(action.Operation.toLowerCase()) {
+//         case 'start':
+//         case 'stop':
+//             toggleMedia(action, action.Operation.toLowerCase(), 'audio');
+//             break;
 
-        case 'reset':
-            resetMedia(action, 'audio');
-            break;
+//         case 'reset':
+//             resetMedia(action, 'audio');
+//             break;
 
-        case 'update':
-            updateAudio(action);
-            break;
-    }
-}
+//         case 'update':
+//             updateAudio(action);
+//             break;
+//     }
+// }
 
-function toggleMedia(action, toggle, tag) {
-    var media = getElementByNameOrId(action, tag);
-    if (!media) {
-        return;
-    }
+// function toggleMedia(action, toggle, tag) {
+//     var media = getElementByNameOrId(action, tag);
+//     if (!media) {
+//         return;
+//     }
 
-    // play
-    if (toggle == 'start') {
-        media[0].play();
-    }
+//     // play
+//     if (toggle == 'start') {
+//         media[0].play();
+//     }
 
-    // pause
-    else {
-        media[0].pause();
-    }
-}
+//     // pause
+//     else {
+//         media[0].pause();
+//     }
+// }
 
-function resetMedia(action, tag) {
-    var media = getElementByNameOrId(action, tag);
-    if (!media) {
-        return;
-    }
+// function resetMedia(action, tag) {
+//     var media = getElementByNameOrId(action, tag);
+//     if (!media) {
+//         return;
+//     }
 
-    reloadMedia(media);
-}
+//     reloadMedia(media);
+// }
 
-function reloadMedia(media) {
-    if (!media) {
-        return;
-    }
+// function reloadMedia(media) {
+//     if (!media) {
+//         return;
+//     }
 
-    media[0].load();
-}
+//     media[0].load();
+// }
 
-function updateAudio(action) {
-    var audio = getElementByNameOrId(action, 'audio');
-    if (!audio) {
-        return;
-    }
+// function updateAudio(action) {
+//     var audio = getElementByNameOrId(action, 'audio');
+//     if (!audio) {
+//         return;
+//     }
 
-    // update and reload if we did something
-    if (updateMediaSourceTracks(audio, action.Sources, action.Tracks)) {
-        reloadMedia(audio);
-    }
-}
+//     // update and reload if we did something
+//     if (updateMediaSourceTracks(audio, action.Sources, action.Tracks)) {
+//         reloadMedia(audio);
+//     }
+// }
 
-function updateMediaSourceTracks(media, sources, tracks) {
-    if (!media) {
-        return false;
-    }
+// function updateMediaSourceTracks(media, sources, tracks) {
+//     if (!media) {
+//         return false;
+//     }
 
-    // do nothing if no sources/tracks
-    if (!sources && !tracks) {
-        return false;
-    }
+//     // do nothing if no sources/tracks
+//     if (!sources && !tracks) {
+//         return false;
+//     }
 
-    // clear sources/tracks - both for new sources, only tracks for just tracks
-    if (sources) {
-        media.find('source, track').remove();
-    }
-    else {
-        media.find('track').remove();
-    }
+//     // clear sources/tracks - both for new sources, only tracks for just tracks
+//     if (sources) {
+//         media.find('source, track').remove();
+//     }
+//     else {
+//         media.find('track').remove();
+//     }
 
-    // add sources
-    convertToArray(sources).forEach((src) => {
-        media.append(`<source src='${src.Url}' type='${src.Type}'>`);
-    });
+//     // add sources
+//     convertToArray(sources).forEach((src) => {
+//         media.append(`<source src='${src.Url}' type='${src.Type}'>`);
+//     });
 
-    // add tracks
-    convertToArray(tracks).forEach((track) => {
-        media.append(`<track src='${track.Url}' kind='${track.Type}' srclang='${track.Language}' label='${track.Title}' ${track.Default ? 'default' : ''}>`);
-    });
+//     // add tracks
+//     convertToArray(tracks).forEach((track) => {
+//         media.append(`<track src='${track.Url}' kind='${track.Type}' srclang='${track.Language}' label='${track.Title}' ${track.Default ? 'default' : ''}>`);
+//     });
 
-    return true;
-}
+//     return true;
+// }
 
-function actionVideo(action) {
-    switch(action.Operation.toLowerCase()) {
-        case 'start':
-        case 'stop':
-            toggleMedia(action, action.Operation.toLowerCase(), 'video');
-            break;
+// function actionVideo(action) {
+//     switch(action.Operation.toLowerCase()) {
+//         case 'start':
+//         case 'stop':
+//             toggleMedia(action, action.Operation.toLowerCase(), 'video');
+//             break;
 
-        case 'reset':
-            resetMedia(action, 'video');
-            break;
+//         case 'reset':
+//             resetMedia(action, 'video');
+//             break;
 
-        case 'update':
-            updateVideo(action);
-            break;
-    }
-}
+//         case 'update':
+//             updateVideo(action);
+//             break;
+//     }
+// }
 
-function updateVideo(action) {
-    var video = getElementByNameOrId(action, 'video');
-    if (!video) {
-        return;
-    }
+// function updateVideo(action) {
+//     var video = getElementByNameOrId(action, 'video');
+//     if (!video) {
+//         return;
+//     }
 
-    var _updated = false;
+//     var _updated = false;
 
-    // update source/tracks
-    _updated = updateMediaSourceTracks(video, action.Sources, action.Tracks);
+//     // update source/tracks
+//     _updated = updateMediaSourceTracks(video, action.Sources, action.Tracks);
 
-    // update thumbnail
-    if (action.Thumbnail) {
-        video.attr('thumbnail', action.Thumbnail);
-        _updated = true;
-    }
+//     // update thumbnail
+//     if (action.Thumbnail) {
+//         video.attr('thumbnail', action.Thumbnail);
+//         _updated = true;
+//     }
 
-    // reload
-    if (_updated) {
-        reloadMedia(video);
-    }
-}
+//     // reload
+//     if (_updated) {
+//         reloadMedia(video);
+//     }
+// }
 
 function actionFileStream(action) {
     switch (action.Operation.toLowerCase()) {
@@ -3866,80 +3876,23 @@ function getTimeString() {
 }
 
 function buildButton(element) {
-    var icon = '';
-    if (element.Icon) {
-        icon = `<span class='mdi mdi-${element.Icon.toLowerCase()} mdi-size-20 mRight02'></span>`;
-    }
-
-    var disabled = '';
-    if (element.Disabled) {
-        disabled = 'disabled';
-    }
-
-    if (element.IconOnly) {
-        return `<button type='button' class='btn btn-icon-only pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' title='${element.DisplayName}' data-toggle='tooltip' pode-object='${element.ObjectType}' ${disabled}>${icon}</button>`;
-    }
-
-    return `<button type='button' class='btn btn-${element.ColourType} ${element.SizeType} pode-button' id='${element.ID}' pode-data-value='${element.DataValue}' pode-object='${element.ObjectType}' ${disabled}>
-        <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
-        ${icon}${element.DisplayName}
-    </button>`;
+    return PodeElementFactory.invokeClass('button', 'new', element);
 }
 
 function buildIcon(element) {
-    var colour = '';
-    if (element.Colour) {
-        colour = `style="color:${element.Colour};"`
-    }
-
-    var title = '';
-    if (element.Title) {
-        title = `title='${element.Title}' data-toggle='tooltip'`;
-    }
-
-    var spin = '';
-    if (element.Spin) {
-        spin = 'mdi-spin'
-    }
-
-    var flip = '';
-    if (element.Flip) {
-        flip = `mdi-flip-${element.Flip[0]}`.toLowerCase();
-    }
-
-    var rotate = '';
-    if (element.Rotate > 0) {
-        rotate = `mdi-rotate-${element.Rotate}`;
-    }
-
-    return `<span id='${element.ID}' class='mdi mdi-${element.Name.toLowerCase()} ${spin} ${flip} ${rotate} mdi-size-20' pode-object='${element.ObjectType}' ${colour} ${title} ${buildEvents(element.Events)}></span>`;
+    return PodeElementFactory.invokeClass('icon', 'new', element);
 }
 
 function buildBadge(element) {
-    return `<span id='${element.ID}' class='badge badge-${element.ColourType}' pode-object='${element.ObjectType}' ${buildEvents(element.Events)}>${element.Value}</span>`;
+    return PodeElementFactory.invokeClass('badge', 'new', element);
 }
 
 function buildSpinner(element) {
-    var colour = '';
-    if (element.Colour) {
-        colour = `style="color:${element.Colour};"`
-    }
-
-    var title = '';
-    if (element.Title) {
-        title = `title='${element.Title}' data-toggle='tooltip'`;
-    }
-
-    return `<span id='${element.ID}' class="spinner-border spinner-border-sm" role="status" pode-object='${element.ObjectType}' ${colour} ${title}></span>`;
+    return PodeElementFactory.invokeClass('spinner', 'new', element);
 }
 
 function buildLink(element) {
-    var target = '_self';
-    if (element.NewTab) {
-        target = '_blank';
-    }
-
-    return `<a href='${element.Source}' id='${element.ID}' target='${target}' pode-object='${element.ObjectType}' ${buildEvents(element.Events)}>${element.Value}</a>`;
+    return PodeElementFactory.invokeClass('link', 'new', element);
 }
 
 function actionNotification(action) {
@@ -3985,27 +3938,9 @@ function actionHref(action) {
     window.open(action.Url, target);
 }
 
-function actionBadge(action) {
-    if (!action) {
-        return;
-    }
-
-    var badge = $(`span#${action.ID}`);
-    if (!badge) {
-        return;
-    }
-
-    // change text
-    if (action.Value) {
-        badge.text(decodeHTML(action.Value));
-    }
-
-    // change colour
-    if (action.Colour) {
-        removeClass(badge, 'badge-\\w+');
-        addClass(badge, `badge-${action.ColourType}`);
-    }
-}
+// function actionBadge(action) {
+//     return PodeElementFactory.invokeClass('Badge', 'update', action);
+// }
 
 function actionProgress(action) {
     if (!action) {
@@ -4155,18 +4090,18 @@ function moveTab(tabId) {
     $(`a.nav-link#${tabId}`).trigger('click');
 }
 
-function actionAccordion(action) {
-    if (!action) {
-        return;
-    }
+// function actionAccordion(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    var item = getElementByNameOrId(action, 'div.accordion div.card');
-    moveAccordion(getId(item));
-}
+//     var item = getElementByNameOrId(action, 'div.accordion div.card');
+//     moveAccordion(getId(item));
+// }
 
-function moveAccordion(itemId) {
-    $(`div.accordion div.bellow#${itemId} div.bellow-header button`).trigger('click');
-}
+// function moveAccordion(itemId) {
+//     $(`div.accordion div.bellow#${itemId} div.bellow-header button`).trigger('click');
+// }
 
 function actionPage(action) {
     if (!action) {
@@ -4299,4 +4234,10 @@ function buildEvents(events) {
     });
 
     return strEvents;
+}
+
+function generateUuid() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
 }

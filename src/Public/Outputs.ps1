@@ -232,7 +232,8 @@ function Hide-PodeWebTableColumn
 
     return @{
         Operation = 'Hide'
-        ObjectType = 'TableColumn'
+        ObjectType = 'Table'
+        SubObjectType = 'Column'
         ID = $Id
         Name = $Name
         Key = $Key
@@ -258,7 +259,8 @@ function Show-PodeWebTableColumn
 
     return @{
         Operation = 'Show'
-        ObjectType = 'TableColumn'
+        ObjectType = 'Table'
+        SubObjectType = 'Column'
         ID = $Id
         Name = $Name
         Key = $Key
@@ -303,7 +305,8 @@ function Update-PodeWebTableRow
 
     return @{
         Operation = 'Update'
-        ObjectType = 'TableRow'
+        ObjectType = 'Table'
+        SubObjectType = 'Row'
         ID = $Id
         Name = $Name
         Row = @{
@@ -1168,7 +1171,7 @@ function Move-PodeWebAccordion
 
     return @{
         Operation = 'Move'
-        ObjectType = 'Accordion'
+        ObjectType = 'Bellow'
         ID = $Id
         Name = $Name
     }

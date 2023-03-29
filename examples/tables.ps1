@@ -33,6 +33,8 @@ Start-PodeServer -Threads 2 {
         New-PodeWebTable `
             -Name 'Processes' `
             -Paginate `
+            -Filter `
+            -SimpleFilter `
             -Compact `
             -ScriptBlock {
                 $processes = Get-Process | Select-Object -Property Name, ID, WorkingSet, CPU
@@ -42,7 +44,7 @@ Start-PodeServer -Threads 2 {
                 $pageSize = [int]$WebEvent.Data.PageSize
                 $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
 
-                Start-Sleep -Seconds 5
+                Start-Sleep -Seconds 2
 
                 $processes | Update-PodeWebTable -Name $ElementData.Name -PageIndex $pageIndex -TotalItemCount $totalCount
             } `

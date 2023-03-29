@@ -52,8 +52,8 @@ function New-PodeWebTextbox
         [string]
         $AppendIcon,
 
-        [Parameter()]
-        [string]
+        [Parameter(ValueFromPipeline=$true)]
+        [object[]]
         $Value,
 
         [Parameter(ParameterSetName='Single')]
@@ -71,6 +71,10 @@ function New-PodeWebTextbox
         [Parameter()]
         [string[]]
         $EndpointName,
+
+        [ValidateRange(0, [int]::MaxValue)]
+        [int]
+        $MaxLength = 524288,
 
         [Parameter(ParameterSetName='Multi')]
         [switch]
@@ -99,82 +103,100 @@ function New-PodeWebTextbox
         [switch]
         $DynamicLabel,
 
-        [ValidateRange(0, [int]::MaxValue)]
-        [int]
-        $MaxLength = 524288
+        [switch]
+        $AsJson,
+
+        [switch]
+        $AsOutput
     )
 
-    $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
-
-    # constrain number of lines shown
-    if ($Size -le 0) {
-        $Size = 4
+    begin {
+        $items = @()
     }
 
-    # build element
-    $element = @{
-        ComponentType = 'Element'
-        ObjectType = 'Textbox'
-        Parent = $ElementData
-        Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = $Id
-        Type = $Type
-        Multiline = $Multiline.IsPresent
-        Placeholder = $Placeholder
-        Size = $Size
-        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
-        Preformat = $Preformat.IsPresent
-        HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
-        ReadOnly = $ReadOnly.IsPresent
-        IsAutoComplete = ($null -ne $AutoComplete)
-        Value = [System.Net.WebUtility]::HtmlEncode($Value)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
-        Prepend = @{
-            Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
-            Text = $PrependText
-            Icon = $PrependIcon
-        }
-        Append = @{
-            Enabled = (![string]::IsNullOrWhiteSpace($AppendText) -or ![string]::IsNullOrWhiteSpace($AppendIcon))
-            Text = $AppendText
-            Icon = $AppendIcon
-        }
-        NoAuthentication = $NoAuthentication.IsPresent
-        NoForm = $NoForm.IsPresent
-        Required = $Required.IsPresent
-        AutoFocus = $AutoFocus.IsPresent
-        DynamicLabel = $DynamicLabel.IsPresent
-        MaxLength = $MaxLength
+    process {
+        $items += $Value
     }
 
-    # create autocomplete route
-    $routePath = "/components/textbox/$($Id)/autocomplete"
-    if (($null -ne $AutoComplete) -and !(Test-PodeWebRoute -Path $routePath)) {
-        $auth = $null
-        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
-            $auth = (Get-PodeWebState -Name 'auth')
+    end {
+        if (!$AsJson -and ($items.Length -gt 0)) {
+            $items = ($items | Out-String -NoNewline)
         }
 
-        if (Test-PodeIsEmpty $EndpointName) {
-            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name
+
+        # constrain number of lines shown
+        if ($Size -le 0) {
+            $Size = 4
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
-            $global:ElementData = $using:element
+        # build element
+        $element = @{
+            ComponentType = 'Element'
+            ObjectType = 'Textbox'
+            Parent = $ElementData
+            Name = $Name
+            DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+            ID = $Id
+            Type = $Type
+            Multiline = $Multiline.IsPresent
+            Placeholder = $Placeholder
+            Size = $Size
+            Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
+            Preformat = $Preformat.IsPresent
+            HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
+            ReadOnly = $ReadOnly.IsPresent
+            IsAutoComplete = ($null -ne $AutoComplete)
+            Value = $items
+            CssClasses = ($CssClass -join ' ')
+            CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+            Prepend = @{
+                Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
+                Text = $PrependText
+                Icon = $PrependIcon
+            }
+            Append = @{
+                Enabled = (![string]::IsNullOrWhiteSpace($AppendText) -or ![string]::IsNullOrWhiteSpace($AppendIcon))
+                Text = $AppendText
+                Icon = $AppendIcon
+            }
+            NoAuthentication = $NoAuthentication.IsPresent
+            NoForm = $NoForm.IsPresent
+            Required = $Required.IsPresent
+            AutoFocus = $AutoFocus.IsPresent
+            DynamicLabel = $DynamicLabel.IsPresent
+            MaxLength = $MaxLength
+            AsJson = $AsJson.IsPresent
+            AsOutput = $AsOutput.IsPresent #TODO: could we generalise this for everything somehow?
+        }
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:AutoComplete -Return
-            if ($null -eq $result) {
-                $result = @()
+        # create autocomplete route
+        $routePath = "/components/textbox/$($Id)/autocomplete"
+        if (($null -ne $AutoComplete) -and !(Test-PodeWebRoute -Path $routePath)) {
+            $auth = $null
+            if (!$NoAuthentication -and !$PageData.NoAuthentication) {
+                $auth = (Get-PodeWebState -Name 'auth')
             }
 
-            Write-PodeJsonResponse -Value @{ Values = $result }
-            $global:ElementData = $null
-        }
-    }
+            if (Test-PodeIsEmpty $EndpointName) {
+                $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+            }
 
-    return $element
+            Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
+                $global:ElementData = $using:element
+
+                $result = Invoke-PodeScriptBlock -ScriptBlock $using:AutoComplete -Return
+                if ($null -eq $result) {
+                    $result = @()
+                }
+
+                Write-PodeJsonResponse -Value @{ Values = $result }
+                $global:ElementData = $null
+            }
+        }
+
+        return $element
+    }
 }
 
 function New-PodeWebFileUpload
@@ -273,7 +295,7 @@ function New-PodeWebParagraph
         Parent = $ElementData
         ID = $Id
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
-        Elements = $Elements
+        Content = $Elements
         Alignment = $Alignment.ToLowerInvariant()
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
