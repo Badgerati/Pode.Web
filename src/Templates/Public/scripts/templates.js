@@ -1,18 +1,10 @@
 /*
-QUESTIONS
-- How to override with custom templates
-    how to create MyCustomButton and have pode.web reference that?
-    use factory? https://stackoverflow.com/questions/49042459/how-to-instantiate-a-class-from-a-string-in-javascript
-
-*/
-
-/*
 TODO:
 Swap "id" and "pode-id"?
 - Since you can set duplicate IDs in Pode, or in Tables for example
 
 - function for "mdi mdi-{name}" ?
-  - or, make everything call PodeIcon?
+  - or, make everything call PodeIcon? - would be better for more component re-use pattern
 
 - all Home page types will need a /content url
 
@@ -291,6 +283,36 @@ class PodeElement {
         };
     }
 
+    serialize(element) {
+        element = element ?? this.element;
+
+        var data = null;
+        var opts = {
+            mimeType: 'multipart/form-data',
+            contentType: false,
+            processData: false
+        };
+
+        if (this.element.find('input[type=file]').length > 0) {
+            data = newFormData(this.element.find('input, textarea, select'));
+        }
+        else {
+            opts = null;
+
+            if (this.checkParentType('form')) {
+                data = this.element.serialize();
+            }
+            else {
+                data = this.element.find('input, textarea, select').serialize();
+            }
+        }
+
+        return {
+            data: data,
+            opts: opts
+        };
+    }
+
     events(evts) {
         if (!evts) {
             return '';
@@ -481,6 +503,74 @@ class PodeElement {
     load(data, sender, opts) {}
 }
 
+class PodeRefreshableElement extends PodeElement {
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.refresh = {
+            enabled: !(data.NoRefresh ?? false)
+        };
+
+        this.autoRefresh = {
+            enabled: data.AutoRefresh ?? false,
+            interval: data.RefreshInterval ?? 0
+        };
+    }
+
+    buildRefreshButton(asSpan) {
+        if (this.autoRefresh.enabled || !this.refresh.enabled) {
+            return '';
+        }
+
+        // span?
+        if (asSpan) {
+            return `<span
+                class='mdi mdi-refresh pode-${this.getType()}-refresh pode-refresh-btn'
+                for='${this.id}'
+                title='Refresh'
+                data-toggle='tooltip'>
+            </span>`;
+        }
+
+        // button
+        return `<button
+            type='button'
+            class='btn btn-no-text btn-outline-secondary pode-${this.getType()}-refresh pode-refresh-btn'
+            for='${this.id}'
+            title='Refresh'
+            data-toggle='tooltip'>
+                <span class='mdi mdi-refresh mdi-size-20'></span>
+        </button>`;
+    }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        var obj = this;
+
+        // refresh click
+        this.element.find(`.pode-${this.getType()}-refresh`).off('click').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            obj.tooltip(false, $(e.target));
+            obj.load();
+        });
+
+        // auto-refresh timer
+        if (this.autoRefresh.enabled) {
+            var timeout = this.autoRefresh.interval;
+            if (timeout == 60000) {
+                timeout = (60 - (new Date()).getSeconds()) * 1000;
+            }
+
+            setTimeout(() => {
+                this.load();
+                setInterval(() => {
+                    this.load();
+                }, this.autoRefresh.interval);
+            }, timeout);
+        }
+    }
+}
+
 class PodeFormElement extends PodeElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
@@ -648,7 +738,7 @@ class PodeText extends PodeElement {
                 break;
         }
 
-        if (!data.Pronunciation) {
+        if (data.Pronunciation) {
             html = `<ruby>${html} <rt>${data.Pronunciation}</rt></ruby>`
         }
 
@@ -907,7 +997,7 @@ class PodeButton extends PodeElement {
             var inputs = {};
             var form = obj.element.closest('form');
             if (form) {
-                inputs = serializeInputs(form);
+                inputs = obj.serialize(form);
             }
 
             // get a data value
@@ -999,12 +1089,15 @@ PodeElementFactory.setClass(PodeContainer);
 class PodeForm extends PodeElement {
     static type = 'form';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.showReset = data.ShowReset ?? false;
+        this.action = data.Action ?? '';
+        this.method = data.Method ?? 'POST';
     }
 
     new(data, sender, opts) {
-        var resetBtn = !data.ShowReset ? '' : `<button
+        var resetBtn = !this.showReset ? '' : `<button
             class='btn btn-inbuilt-sec-theme form-reset'
             for='${this.id}'
             type='button'>
@@ -1016,8 +1109,8 @@ class PodeForm extends PodeElement {
             name="${this.name}"
             class="pode-form ${data.CssClasses}"
             style="${data.CssStyles}"
-            method="${data.Method}"
-            action="${data.Action}"
+            method="${this.method}"
+            action="${this.action}"
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
                 <div id="${this.id}_content"></div>
@@ -1035,6 +1128,29 @@ class PodeForm extends PodeElement {
         }
 
         return html;
+    }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        var obj = this;
+
+        // submit form
+        this.element.off('submit').on('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var result = obj.serialize();
+            sendAjaxReq(obj.action, result.data, obj.element, true, null, result.opts);
+        });
+
+        // reset form
+        if (this.showReset) {
+            this.element.find('.form-reset').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                obj.reset();
+                unfocus($(this));
+            });
+        }
     }
 
     submit(data, sender, opts) {
@@ -1117,6 +1233,20 @@ class PodeCard extends PodeElement {
                 <div id="${this.id}_content" class="card-body"></div>
         </div>`;
     }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+
+        this.element.find('.pode-card-collapse').off('click').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var btn = $(this);
+            toggleIcon(btn, 'eye-outline', 'eye-off-outline', 'Hide', 'Show');
+            btn.closest('.card').find('.card-body').slideToggle();
+            unfocus(btn);
+        });
+    }
 }
 PodeElementFactory.setClass(PodeCard);
 
@@ -1148,8 +1278,7 @@ class PodeAlert extends PodeElement {
 }
 PodeElementFactory.setClass(PodeAlert);
 
-//TODO:
-class PodeTable extends PodeElement {
+class PodeTable extends PodeRefreshableElement {
     static type = 'table';
     static tag = 'div';
 
@@ -1158,6 +1287,10 @@ class PodeTable extends PodeElement {
         this.dataColumn = data.DataColumn;
         this.clickableRows = data.Click ?? false;
         this.clickIsDynamic = data.ClickIsDynamic ?? false;
+
+        this.export = {
+            enabled: data.Export ?? false
+        };
 
         this.sort = {
             enabled: data.Sort.Enabled ?? false,
@@ -1175,11 +1308,6 @@ class PodeTable extends PodeElement {
             count: 1,
             size: 20
         };
-
-        this.autoRefresh = {
-            enabled: data.AutoRefresh ?? false,
-            interval: data.RefreshInterval ?? 0
-        };
     }
 
     new(data, sender, opts) {
@@ -1195,11 +1323,7 @@ class PodeTable extends PodeElement {
             </ul>
         </nav>`;
 
-        var refreshBtn = data.AutoRefresh || data.NoRefresh ? '' : `<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-refresh pode-refresh-btn' for='${this.id}' title='Refresh' data-toggle='tooltip'>
-            <span class='mdi mdi-refresh mdi-size-20'></span>
-        </button>`;
-
-        var exportBtn = !data.Export ? '' : `<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-export' for='${this.id}' title='Export' data-toggle='tooltip'>
+        var exportBtn = !this.export.enabled ? '' : `<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-export' for='${this.id}' title='Export' data-toggle='tooltip'>
             <span class='mdi mdi-download mdi-size-20'></span>
         </button>`;
 
@@ -1234,7 +1358,7 @@ class PodeTable extends PodeElement {
                 </div>
                 <div role='controls'>
                     <div class="btn-group mr-2">
-                    ${refreshBtn}
+                    ${this.buildRefreshButton(false)}
                     ${exportBtn}
                     ${customBtns}
                     </div>
@@ -1445,6 +1569,16 @@ class PodeTable extends PodeElement {
         super.bind(data, sender, opts);
         var obj = this;
 
+        // export
+        if (this.export.enabled) {
+            this.element.find('.pode-table-export').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                obj.tooltip(false, $(this));
+                obj.download();
+            });
+        }
+
         // sort
         if (this.sort.enabled) {
             this.element.find('table thead th').off('click').on('click', function(e) {
@@ -1606,6 +1740,54 @@ class PodeTable extends PodeElement {
                 });
             });
         }
+
+        // custom buttons
+        this.element.find('.pode-table-button').off('click').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            obj.tooltip(false, $(this));
+            var url = `${obj.url}/button/${$(this).attr('name')}`;
+            sendAjaxReq(url, obj.export(), obj.element, true, null, { contentType: 'text/csv' });
+        });
+    }
+
+    export() {
+        var rows = this.element.find(`table tr:visible`);
+        if (!rows || rows.length == 0) {
+            return;
+        }
+
+        var csv = [];
+        rows.each((i, row) => {
+            var data = [];
+            var cols = $(row).find('td, th');
+
+            cols.each((i, col) => {
+                data.push(col.innerText);
+            });
+
+            csv.push(data.join(","));
+        });
+
+        return csv.join("\n");
+    }
+
+    download() {
+        // the csv file
+        var csvFile = new Blob([this.export()], { type: "text/csv" });
+
+        // build a hidden download link
+        var downloadLink = document.createElement('a');
+        downloadLink.download = `${this.name.replace(' ', '_')}.csv`;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = 'none';
+
+        // add the link, and click it
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+
+        // remove the link
+        $(downloadLink).remove();
     }
 
     update(data, sender, opts) {
@@ -1868,11 +2050,14 @@ class PodeAccordion extends PodeElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.cycling = data.Cycle.Enabled ?? false;
+        // this.cycling = data.Cycle.Enabled ?? false;
         this.contentProperty = 'Bellows'
         this.mode = data.Mode.toLowerCase()
-        this.interval = {
-            duration: data.Cycle.Interval ?? 0,
+
+
+        this.cycling = {
+            enabled: data.Cycle.Enabled ?? false,
+            interval: data.Cycle.Interval ?? 0,
             action: null
         };
     }
@@ -1883,10 +2068,7 @@ class PodeAccordion extends PodeElement {
             class="accordion ${data.CssClasses}"
             style="${data.CssStyles}"
             pode-object="${this.getType()}"
-            pode-id='${this.uuid}'
-            pode-cycle="${this.cycling}"
-            pode-interval="${this.interval.duration}"
-            pode-mode="${this.mode}">
+            pode-id='${this.uuid}'>
                 <div id='${this.id}_content'></div>
         </div>`;
     }
@@ -1894,25 +2076,35 @@ class PodeAccordion extends PodeElement {
     bind(data, sender, opts) {
         super.bind(data, sender, opts);
 
-        if (!this.cycling) {
-            return;
-        }
+        // collapse buttons
+        this.element.find('.bellow .collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
+            var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
+            toggleIcon(icon, 'chevron-down', 'chevron-up');
+        });
+    
+        this.element.find('.bellow .collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
+            var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
+            toggleIcon(icon, 'chevron-up', 'chevron-down');
+        });
 
-        if (this.interval.func) {
-            clearInterval(this.interval.func)
-        }
-
-        setInterval(() => {
-            var bellow = this.filterChildren((c) => {
-                if (c.active) {
-                    return c;
-                }
-            }, true);
-
-            if (bellow) {
-                bellow.next.invoke();
+        // cycling bellows
+        if (this.cycling) {
+            if (this.cycling.action) {
+                clearInterval(this.cycling.action)
             }
-        }, this.interval.duration);
+
+            this.cycling.action = setInterval(() => {
+                var bellow = this.filterChildren((c) => {
+                    if (c.active) {
+                        return c;
+                    }
+                }, true);
+
+                if (bellow) {
+                    bellow.next.invoke();
+                }
+            }, this.cycling.interval);
+        }
     }
 
     move(data, sender, opts) {
@@ -2292,16 +2484,6 @@ class PodeVideo extends PodeMediaElement {
 }
 PodeElementFactory.setClass(PodeVideo);
 
-
-
-
-
-
-
-
-
-
-
 class PodeCodeBlock extends PodeElement {
     static type = 'codeblock';
 
@@ -2310,21 +2492,53 @@ class PodeCodeBlock extends PodeElement {
     }
 
     new(data, sender, opts) {
+        return `<pre
+            id="${this.id}"
+            class='code-block ${data.Scrollable ? 'pre-scrollable' : ''} ${data.CssClasses}'
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'>
+                <button type='button' class='btn btn-icon-only pode-code-copy' title='Copy to clipboard' data-toggle='tooltip'>
+                    <span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight02'></span>
+                </button>
+
+                <code class="pode-text ${data.Language}">
+                    ${data.Value}
+                </code>
+        </pre>`;
+    }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        var obj = this;
+        
+        this.element.find('.pode-code-copy').off('click').on('click', function(e) {
+            var value = obj.element.find('code').text().trim();
+            navigator.clipboard.writeText(value);
+        });
     }
 }
 PodeElementFactory.setClass(PodeCodeBlock);
 
-class PodeImage extends PodeElement {
-    static type = 'image';
+class PodeCode extends PodeElement {
+    static type = 'code';
 
     constructor(...args) {
         super(...args);
     }
 
     new(data, sender, opts) {
+        return `<code
+            id="${this.id}"
+            class="pode-text ${data.CssClasses}"
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'>
+                ${data.Value}
+        </code>`;
     }
 }
-PodeElementFactory.setClass(PodeImage);
+PodeElementFactory.setClass(PodeCode);
 
 class PodeQuote extends PodeElement {
     static type = 'quote';
@@ -2334,9 +2548,292 @@ class PodeQuote extends PodeElement {
     }
 
     new(data, sender, opts) {
+        var footer = data.Source ? `<footer class='blockquote-footer'><cite>${data.Source}</cite></footer>` : '';
+
+        return `<blockquote
+            id='${this.id}'
+            class='blockquote text-${data.Alignment} ${data.CssClasses}'
+            style='${data.CssStyles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+                <p class='pode-text mb-0'>${data.Value}</p>
+                ${footer}
+        </blockquote>`;
     }
 }
 PodeElementFactory.setClass(PodeQuote);
+
+class PodeIFrame extends PodeElement {
+    static type = 'iframe';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        return `<iframe
+            src="${data.Url}"
+            title="${data.Title}"
+            id="${this.id}"
+            class="${data.CssClasses}"
+            style="${data.CssStyles}"
+            name="${this.name}"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'>
+        </iframe>`;
+    }
+
+    update(data, sender, opts) {
+        if (data.Url) {
+            this.element.attr('src', data.Url);
+        }
+
+        if (data.Title) {
+            this.element.attr('title', data.Title);
+        }
+    }
+}
+PodeElementFactory.setClass(PodeIFrame);
+
+class PodeLine extends PodeElement {
+    static type = 'line';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        return `<hr
+            id="${this.id}"
+            class="my-4 ${data.CssClasses}"
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'>`;
+    }
+}
+PodeElementFactory.setClass(PodeLine);
+
+class PodeRaw extends PodeElement {
+    static type = 'raw';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        return `<span
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+            ${data.Value}
+        </span>`;
+    }
+}
+PodeElementFactory.setClass(PodeRaw);
+
+class PodeTimer extends PodeElement {
+    static type = 'timer';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.interval = data.Interval ?? 0;
+    }
+
+    new(data, sender, opts) {
+        return `<span
+            id="${this.id}"
+            class="hide pode-timer ${data.CssClasses}"
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'>
+        </span>`;
+    }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        this.invoke();
+
+        setInterval(() => {
+            this.invoke();
+        }, this.interval);
+    }
+
+    invoke(data, sender, opts) {
+        sendAjaxReq(this.url, null, null, true);
+    }
+}
+PodeElementFactory.setClass(PodeTimer);
+
+class PodeImage extends PodeElement {
+    static type = 'image';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        var fluid = data.Height === 'auto' || data.Width === 'auto' ? 'img-fluid' : '';
+        var title = data.Title ? `title='${data.Title}' data-toggle='tooltip' data-placement='bottom'` : '';
+
+        var location = ({
+            left: 'float-left',
+            right: 'float-right',
+            center: 'mx-auto d-block'
+        })[data.Alignment];
+
+        return `<img
+            src='${data.Source}'
+            id='${this.id}'
+            class='${fluid} rounded ${location} ${data.CssClasses}'
+            style='height:${data.Height};width:${data.Width};${data.CssStyles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            ${title}
+            ${this.events(data.Events)}>`;
+    }
+}
+PodeElementFactory.setClass(PodeImage);
+
+class PodeComment extends PodeElement {
+    static type = 'comment';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        var timestamp = data.TimeStamp ? `<small class='mb-0'>${(new Date(data.TimeStamp)).toLocaleString()}</small>` : '';
+
+        return `<div
+            id="${this.id}"
+            class="media ${data.CssClasses}"
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'>
+                <img src="${data.Icon}" class="align-self-start mr-3" alt="${data.Username} icon">
+                <div class="media-body">
+                    <div class="media-head">
+                        <h5 class="mt-0">
+                            ${data.Username}
+                            ${timestamp}
+                        </h5>
+                    </div>
+                    <p>${data.Message}</p>
+                </div>
+        </div>`;
+    }
+}
+PodeElementFactory.setClass(PodeComment);
+
+class PodeHero extends PodeElement {
+    static type = 'hero';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        var content = data.Content ? `<hr class='my-4'><div id="${this.id}_content"></div>` : '';
+
+        return `<div
+            id="${this.id}"
+            class="jumbotron ${data.CssClasses}"
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'>
+                <h1 class="display-4">${data.Title}</h1>
+                <p class="lead">${data.Message}</p>
+                ${content}
+        </div>`;
+    }
+}
+PodeElementFactory.setClass(PodeHero);
+
+class PodeTile extends PodeRefreshableElement {
+    static type = 'tile';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.clickable = data.Click ?? false;
+    }
+
+    new(data, sender, opts) {
+        var icon = data.Icon ? `<span class='mdi mdi-${data.Icon.toLowerCase()}'></span>` : '';
+        var contentId = this.dynamic ? '' : `id="${this.id}_content"`;
+
+        return `<div
+            id="${this.id}"
+            class="container pode-tile alert-${data.ColourType} rounded ${data.CssClasses}"
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'
+            name="${this.name}">
+                <h6 class="pode-tile-header">
+                    ${icon}
+                    ${data.DisplayName}
+                    ${this.buildRefreshButton(true)}
+                </h6>
+                <hr/>
+                <div ${contentId} class="pode-tile-body pode-text"></div>
+        </div>`;
+    }
+
+    load(data, sender, opts) {
+        // call url for dynamic tiles
+        if (this.dynamic) {
+            sendAjaxReq(this.url, null, this.element, true);
+        }
+
+        // if not dynamic, and fully created, click refresh buttons of sub-elements
+        else if (this.created) {
+            this.element.find('.pode-tile-body .pode-refresh-btn').each((i, e) => {
+                $(e).trigger('click');
+            });
+        }
+
+        // hide sub-element refresh buttons
+        this.element.find('.pode-tile-body .pode-refresh-btn').each((i, e) => {
+            $(e).hide();
+        });
+    }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        var obj = this;
+
+        // is the tile clickable?
+        if (this.clickable) {
+            this.element.off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sendAjaxReq(obj.url, null, obj.element, true);
+            });
+        }
+    }
+
+    update(data, sender, opts) {
+        if (data.Value) {
+            this.element.find('.pode-text').text(decodeHTML(data.Value));
+        }
+
+        if (data.Colour) {
+            replaceClass(this.element, 'alert-\\w+', `alert-${data.ColourType}`);
+        }
+    }
+}
+PodeElementFactory.setClass(PodeTile);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class PodeNotification extends PodeElement {
     static type = 'notification';
@@ -2349,18 +2846,6 @@ class PodeNotification extends PodeElement {
     }
 }
 PodeElementFactory.setClass(PodeNotification);
-
-class PodeComment extends PodeElement {
-    static type = 'comment';
-
-    constructor(...args) {
-        super(...args);
-    }
-
-    new(data, sender, opts) {
-    }
-}
-PodeElementFactory.setClass(PodeComment);
 
 class PodeCodeEditor extends PodeElement {
     static type = 'codeeditor';
@@ -2409,18 +2894,6 @@ class PodeChart extends PodeElement {
     }
 }
 PodeElementFactory.setClass(PodeChart);
-
-class PodeHero extends PodeElement {
-    static type = 'hero';
-
-    constructor(...args) {
-        super(...args);
-    }
-
-    new(data, sender, opts) {
-    }
-}
-PodeElementFactory.setClass(PodeHero);
 
 class PodeCarousel extends PodeElement {
     static type = 'carousel';
@@ -2493,3 +2966,5 @@ class PodeCheckbox extends PodeElement {
     }
 }
 PodeElementFactory.setClass(PodeCheckbox);
+
+// plus the ones missed
