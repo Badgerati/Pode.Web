@@ -574,13 +574,14 @@ function Update-PodeWebTextbox
         $AsJson,
 
         [Parameter()]
-        [switch]
-        $Multiline,
+        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
+        [string]
+        $ReadOnlyState = 'Unchanged',
 
         [Parameter()]
         [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
         [string]
-        $ReadOnlyState = 'Unchanged'
+        $DisabledState = 'Unchanged'
     )
 
     begin {
@@ -603,8 +604,8 @@ function Update-PodeWebTextbox
             ID = $Id
             Name = $Name
             AsJson = $AsJson.IsPresent
-            Multiline = $Multiline.IsPresent
             ReadOnlyState = $ReadOnlyState
+            DisabledState = $DisabledState
         }
     }
 }
@@ -813,7 +814,7 @@ function Update-PodeWebSelect
         [Parameter()]
         [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
         [string]
-        $ReadOnlyState = 'Unchanged'
+        $DisabledState = 'Unchanged'
     )
 
     begin {
@@ -833,7 +834,7 @@ function Update-PodeWebSelect
             Options = $items
             DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $items -EqualCount)
             SelectedValue = @(Protect-PodeWebValues -Value $SelectedValue -Encode)
-            ReadOnlyState = $ReadOnlyState
+            DisabledState = $DisabledState
         }
     }
 }

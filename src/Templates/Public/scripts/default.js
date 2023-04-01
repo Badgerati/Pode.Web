@@ -11,9 +11,9 @@ var MAX_INT32 = ((2**31) - 1);
 (function() {
     $('[data-toggle="tooltip"]').tooltip();
 })();
-(function() {
-    hljs.highlightAll();
-})();
+// (function() {
+//     hljs.highlightAll();
+// })();
 
 var pageLoaded = false;
 $(() => {
@@ -32,7 +32,7 @@ $(() => {
         loadBreadcrumb();
         // loadTables();
         loadCharts();
-        loadAutoCompletes();
+        // loadAutoCompletes();
         // loadTiles();
         loadSelects();
 
@@ -69,7 +69,7 @@ $(() => {
         bindPageGroupCollapse();
         // bindCardCollapse();
 
-        bindTabCycling();
+        // bindTabCycling();
         // bindAccordionCycling();
         // bindTimers();
     });
@@ -792,14 +792,14 @@ function bindCodeEditors() {
 //     });
 // }
 
-function bindTabCycling() {
-    $('ul.nav-tabs[pode-cycle="True"]').each((i, e) => {
-        setInterval(() => {
-            var tabId = $(e).find('li.nav-item a.nav-link.active').attr('pode-next');
-            moveTab(tabId);
-        }, $(e).attr('pode-interval'));
-    });
-}
+// function bindTabCycling() {
+//     $('ul.nav-tabs[pode-cycle="True"]').each((i, e) => {
+//         setInterval(() => {
+//             var tabId = $(e).find('li.nav-item a.nav-link.active').attr('pode-next');
+//             moveTab(tabId);
+//         }, $(e).attr('pode-interval'));
+//     });
+// }
 
 // function bindAccordionCycling() {
 //     $('div.accordion[pode-cycle="true"]').each((i, e) => {
@@ -1152,95 +1152,95 @@ function bindProgressValue() {
 //     });
 // }
 
-function loadTable(tableId, opts) {
-    if (!tableId) {
-        return;
-    }
+// function loadTable(tableId, opts) {
+//     if (!tableId) {
+//         return;
+//     }
 
-    // options
-    opts = opts ?? {};
+//     // options
+//     opts = opts ?? {};
 
-    // ensure the table is dynamic, or has the 'for' attr set
-    var table = $(`table#${tableId}`);
-    if (!isDynamic(table) && !table.attr('for')) {
-        hideLoadingSpinner(tableId);
-        return;
-    }
+//     // ensure the table is dynamic, or has the 'for' attr set
+//     var table = $(`table#${tableId}`);
+//     if (!isDynamic(table) && !table.attr('for')) {
+//         hideLoadingSpinner(tableId);
+//         return;
+//     }
 
-    // define any table paging
-    var data = '';
-    if (opts && opts.page) {
-        var pageIndex = (opts.page.index ?? 1);
-        var pageSize = (opts.page.size ?? 20);
-        data = `PageIndex=${pageIndex}&PageSize=${pageSize}`;
-    }
-    else if (isTablePaginated(table)) {
-        var paging = getTablePaging(table);
-        if (paging) {
-            data = `PageIndex=${paging.index}&PageSize=${paging.size}`;
-        }
-    }
+//     // define any table paging
+//     var data = '';
+//     if (opts && opts.page) {
+//         var pageIndex = (opts.page.index ?? 1);
+//         var pageSize = (opts.page.size ?? 20);
+//         data = `PageIndex=${pageIndex}&PageSize=${pageSize}`;
+//     }
+//     else if (isTablePaginated(table)) {
+//         var paging = getTablePaging(table);
+//         if (paging) {
+//             data = `PageIndex=${paging.index}&PageSize=${paging.size}`;
+//         }
+//     }
 
-    // define any filter value
-    var filter = $(`input#filter_${tableId}`);
-    if (filter.length > 0) {
-        if (data) {
-            data += '&';
-        }
+//     // define any filter value
+//     var filter = $(`input#filter_${tableId}`);
+//     if (filter.length > 0) {
+//         if (data) {
+//             data += '&';
+//         }
 
-        data += `Filter=${filter.val()}`;
-    }
+//         data += `Filter=${filter.val()}`;
+//     }
 
-    // define any sorting
-    if (opts && opts.sort) {
-        if (data) {
-            data += '&';
-        }
+//     // define any sorting
+//     if (opts && opts.sort) {
+//         if (data) {
+//             data += '&';
+//         }
 
-        data += `SortColumn=${opts.sort.column}&SortDirection=${opts.sort.direction}`;
-    }
-    else if (isTableSorted(table)) {
-        var sorting = getTableSorting(table);
-        if (sorting) {
-            if (data) {
-                data += '&';
-            }
+//         data += `SortColumn=${opts.sort.column}&SortDirection=${opts.sort.direction}`;
+//     }
+//     else if (isTableSorted(table)) {
+//         var sorting = getTableSorting(table);
+//         if (sorting) {
+//             if (data) {
+//                 data += '&';
+//             }
 
-            data += `SortColumn=${sorting.column}&SortDirection=${sorting.direction}`;
-        }
-    }
+//             data += `SortColumn=${sorting.column}&SortDirection=${sorting.direction}`;
+//         }
+//     }
 
-    // things get funky here if we have a table with a 'for' attr
-    // if so, we need to serialize the form, and then send the request to the form instead
-    var url = getComponentUrl(table);
+//     // things get funky here if we have a table with a 'for' attr
+//     // if so, we need to serialize the form, and then send the request to the form instead
+//     var url = getComponentUrl(table);
 
-    if (table.attr('for')) {
-        var form = $(`#${table.attr('for')}`);
-        if (data) {
-            data += '&';
-        }
+//     if (table.attr('for')) {
+//         var form = $(`#${table.attr('for')}`);
+//         if (data) {
+//             data += '&';
+//         }
 
-        data += form.serialize();
-        url = form.attr('action');
-    }
+//         data += form.serialize();
+//         url = form.attr('action');
+//     }
 
-    // if we're reloading, hide all data and show spinner
-    if (opts.reload) {
-        table.find('tbody').empty();
-        showLoadingSpinner(tableId);
-    }
+//     // if we're reloading, hide all data and show spinner
+//     if (opts.reload) {
+//         table.find('tbody').empty();
+//         showLoadingSpinner(tableId);
+//     }
 
-    // invoke and load table content
-    sendAjaxReq(url, data, table, true);
-}
+//     // invoke and load table content
+//     sendAjaxReq(url, data, table, true);
+// }
 
-function loadAutoCompletes() {
-    $(`input[pode-autocomplete='True']`).each((i, e) => {
-        sendAjaxReq(`${getComponentUrl($(e))}/autocomplete`, null, null, false, (res) => {
-            $(e).autocomplete({ source: res.Values });
-        });
-    });
-}
+// function loadAutoCompletes() {
+//     $(`input[pode-autocomplete='True']`).each((i, e) => {
+//         sendAjaxReq(`${getComponentUrl($(e))}/autocomplete`, null, null, false, (res) => {
+//             $(e).autocomplete({ source: res.Values });
+//         });
+//     });
+// }
 
 // function loadTiles() {
 //     $(`div.pode-tile[pode-dynamic="True"]`).each((i, e) => {
@@ -1377,7 +1377,7 @@ function invokeActions(actions, sender) {
         var _subType = (action.SubObjectType ?? '').toLowerCase()
         var _operation = (action.Operation ?? 'new').toLowerCase();
 
-        console.log(`[${_operation}] ${_type} {${_subType}}`);
+        // console.log(`[${_operation}] ${_type} {${_subType}}`);
 
         switch (_type) {
             // case 'table':
@@ -1448,9 +1448,9 @@ function invokeActions(actions, sender) {
                 actionProgress(action);
                 break;
 
-            case 'tab':
-                actionTab(action);
-                break;
+            // case 'tab':
+            //     actionTab(action);
+            //     break;
 
             // case 'accordion':
             //     actionAccordion(action);
@@ -2043,84 +2043,84 @@ function getQueryStringValue(name) {
     return (new URLSearchParams(window.location.search)).get(name);
 }
 
-function bindTableClickableRows(tableId) {
-    $(`${tableId}.pode-table-click tbody tr`).off('click').on('click', function() {
-        var rowId = $(this).attr('pode-data-value');
-        var table = $(tableId);
+// function bindTableClickableRows(tableId) {
+//     $(`${tableId}.pode-table-click tbody tr`).off('click').on('click', function() {
+//         var rowId = $(this).attr('pode-data-value');
+//         var table = $(tableId);
 
-        // check if we have a base path
-        var base = getQueryStringValue('base');
-        var value = getQueryStringValue('value');
+//         // check if we have a base path
+//         var base = getQueryStringValue('base');
+//         var value = getQueryStringValue('value');
 
-        if (base) {
-            base = `${base}/${value}`;
-        }
-        else {
-            base = value;
-        }
+//         if (base) {
+//             base = `${base}/${value}`;
+//         }
+//         else {
+//             base = value;
+//         }
 
-        // build the data to send
-        var data = `value=${rowId}`;
-        if (base) {
-            data = `base=${base}&${data}`;
-        }
+//         // build the data to send
+//         var data = `value=${rowId}`;
+//         if (base) {
+//             data = `base=${base}&${data}`;
+//         }
 
-        if (table.attr('pode-click-dynamic') == 'True') {
-            var url = `${getComponentUrl(table)}/click`;
-            sendAjaxReq(url, data, null, true);
-        }
-        else {
-            window.location = `${window.location.origin}${window.location.pathname}?${data}`;
-        }
-    });
-}
+//         if (table.attr('pode-click-dynamic') == 'True') {
+//             var url = `${getComponentUrl(table)}/click`;
+//             sendAjaxReq(url, data, null, true);
+//         }
+//         else {
+//             window.location = `${window.location.origin}${window.location.pathname}?${data}`;
+//         }
+//     });
+// }
 
-function actionTable(action, sender) {
-    switch (action.Operation.toLowerCase()) {
-        case 'update':
-            updateTable(action, sender);
-            break;
+// function actionTable(action, sender) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'update':
+//             updateTable(action, sender);
+//             break;
 
-        case 'output':
-            writeTable(action, sender);
-            break;
+//         case 'output':
+//             writeTable(action, sender);
+//             break;
 
-        case 'sync':
-            syncTable(action);
-            break;
+//         case 'sync':
+//             syncTable(action);
+//             break;
 
-        case 'clear':
-            clearTable(action);
-            break;
-    }
-}
+//         case 'clear':
+//             clearTable(action);
+//             break;
+//     }
+// }
 
-function clearTable(action) {
-    if (!action.ID && !action.Name) {
-        return;
-    }
+// function clearTable(action) {
+//     if (!action.ID && !action.Name) {
+//         return;
+//     }
 
-    // get table
-    var table = getElementByNameOrId(action, 'table');
-    var tableId = `table#${getId(table)}`;
+//     // get table
+//     var table = getElementByNameOrId(action, 'table');
+//     var tableId = `table#${getId(table)}`;
 
-    // empty table
-    $(`${tableId} tbody`).empty();
+//     // empty table
+//     $(`${tableId} tbody`).empty();
 
-    // empty paging
-    if (isTablePaginated(table)) {
-        table.closest('div[role="table"]').find('nav ul').empty();
-    }
-}
+//     // empty paging
+//     if (isTablePaginated(table)) {
+//         table.closest('div[role="table"]').find('nav ul').empty();
+//     }
+// }
 
-function syncTable(action) {
-    var table = getElementByNameOrId(action, 'table', null, '[pode-dynamic="True"]');
-    if (!table) {
-        return;
-    }
+// function syncTable(action) {
+//     var table = getElementByNameOrId(action, 'table', null, '[pode-dynamic="True"]');
+//     if (!table) {
+//         return;
+//     }
 
-    loadTable(getId(table));
-}
+//     loadTable(getId(table));
+// }
 
 function showLoadingSpinner(elementId) {
     $(`span#${elementId}_spinner`).show();
@@ -4097,18 +4097,18 @@ function disable(element) {
     }
 }
 
-function actionTab(action) {
-    if (!action) {
-        return;
-    }
+// function actionTab(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    var tab = getElementByNameOrId(action, 'a.nav-link');
-    moveTab(getId(tab));
-}
+//     var tab = getElementByNameOrId(action, 'a.nav-link');
+//     moveTab(getId(tab));
+// }
 
-function moveTab(tabId) {
-    $(`a.nav-link#${tabId}`).trigger('click');
-}
+// function moveTab(tabId) {
+//     $(`a.nav-link#${tabId}`).trigger('click');
+// }
 
 // function actionAccordion(action) {
 //     if (!action) {

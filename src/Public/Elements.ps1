@@ -86,6 +86,9 @@ function New-PodeWebTextbox
         [switch]
         $ReadOnly,
 
+        [switch]
+        $Disabled,
+
         [Parameter(ParameterSetName='Single')]
         [Alias('NoAuth')]
         [switch]
@@ -146,6 +149,7 @@ function New-PodeWebTextbox
             Preformat = $Preformat.IsPresent
             HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
             ReadOnly = $ReadOnly.IsPresent
+            Disabled = $Disabled.IsPresent
             IsAutoComplete = ($null -ne $AutoComplete)
             Value = $items
             CssClasses = ($CssClass -join ' ')
@@ -592,7 +596,7 @@ function New-PodeWebSelect
         $Required,
 
         [switch]
-        $ReadOnly
+        $Disabled
     )
 
     if (!$Multiple.IsPresent -and $SelectedValue.Length -ge 2) {
@@ -624,7 +628,7 @@ function New-PodeWebSelect
         NoAuthentication = $NoAuthentication.IsPresent
         NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
-        ReadOnly = $ReadOnly.IsPresent
+        Disabled = $Disabled.IsPresent
     }
 
     $routePath = "/components/select/$($Id)"

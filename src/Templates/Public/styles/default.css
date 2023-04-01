@@ -334,8 +334,8 @@ pre code {
     color: #333;
     position: absolute;
     display: flex;
-    top: 3.6rem;
-    right: 0.5em;
+    top: 4rem;
+    right: 0em;
 }
 
 .btn-icon-only,
@@ -643,6 +643,10 @@ div.no-form {
 
 .no-form.pode-form-checkbox {
     width: inherit;
+}
+
+.pode-form-button {
+    margin: 0.5em;
 }
 
 /* Fallback for Edge
