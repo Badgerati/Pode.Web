@@ -15,6 +15,8 @@ Swap "id" and "pode-id"?
 
 - Split this files into separate files
   - Use a tool to combine and minimise on build - load this minimised file in html
+
+- A general "Out-PodeWebComponent" - to set "IsOutput" for ANY "New-" element
 */
 
 class PodeElementFactory {
