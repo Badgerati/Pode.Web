@@ -645,7 +645,8 @@ div.no-form {
     width: inherit;
 }
 
-.pode-form-button {
+.pode-form-button .pode-button:not(.btn-icon-only),
+.pode-form-button .pode-link-button:not(.btn-icon-only) {
     margin: 0.5em;
 }
 

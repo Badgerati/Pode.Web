@@ -32,7 +32,7 @@
         $tab = $data.Tabs[$i]
 
         "<div class='tab-pane fade show $(if ($i -eq 0) { "active" })' id='$($tab.ID)_content' role='tabpanel' aria-labelledby='$($tab.ID)'>"
-            Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $tab.Layouts }
+            Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $tab.Content }
         "</div>"
     })
 </div>

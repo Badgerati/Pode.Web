@@ -17,6 +17,10 @@ Swap "id" and "pode-id"?
   - Use a tool to combine and minimise on build - load this minimised file in html
 
 - A general "Out-PodeWebComponent" - to set "IsOutput" for ANY "New-" element
+
+- Tiles need a spinner
+
+- Clickable rows appears to be broken when calling "/content"
 */
 
 class PodeElementFactory {
@@ -26,7 +30,7 @@ class PodeElementFactory {
     constructor() {}
 
     static setClass(clazz) {
-        this.classMap.set(clazz.name.substring(4).toLowerCase(), clazz);
+        this.classMap.set(clazz.type.toLowerCase(), clazz);
     }
 
     static getClass(name) {
@@ -113,7 +117,7 @@ class PodeElementFactory {
 
 // base elements and layouts
 class PodeElement {
-    static type = '';
+    static type = 'element';
     static tag = '';
 
     constructor(data, sender, opts) {
@@ -121,6 +125,7 @@ class PodeElement {
         this.name = data.Name ?? '';
         this.uuid = generateUuid();
         this.created = false;
+        this.loading = false;
         this.ephemeral = false;
         this.dynamic = data.IsDynamic ?? false;
         this.autoRender = true;
@@ -184,10 +189,10 @@ class PodeElement {
                     this.bind(data, sender, opts);
                     this.created = true;
                 }
-
                 break;
 
             case 'update':
+                this.spinner(true);
                 this.update(data, sender, opts);
                 break;
 
@@ -196,10 +201,12 @@ class PodeElement {
                 break;
 
             case 'submit':
+                this.spinner(true);
                 this.submit(data, sender, opts);
                 break;
 
             case 'invoke':
+                this.spinner(true);
                 this.invoke(data, sender, opts);
                 break;
 
@@ -236,6 +243,7 @@ class PodeElement {
                 break;
 
             case 'sync':
+                this.spinner(true);
                 this.sync(data, sender, opts);
                 break;
 
@@ -246,6 +254,7 @@ class PodeElement {
             PodeElementFactory.removeObject(this.uuid);
         }
 
+        this.spinner(false);
         opts.html = null;
         return html;
     }
@@ -357,6 +366,10 @@ class PodeElement {
     }
 
     spinner(show) {
+        if (!show && this.loading) {
+            return;
+        }
+
         var spin = $(`span#${this.id}_spinner`);
         if (!spin) {
             return;
@@ -533,7 +546,9 @@ class PodeElement {
         this.element.find('[data-toggle="tooltip"]').tooltip();
     }
 
-    load(data, sender, opts) {}
+    load(data, sender, opts) {
+        this.spinner(true);
+    }
 }
 
 class PodeTextualElement extends PodeElement {
@@ -619,7 +634,7 @@ class PodeCyclingChildElement extends PodeElement {
 class PodeRefreshableElement extends PodeTextualElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.refresh = {
+        this.refreshable = {
             enabled: !(data.NoRefresh ?? false)
         };
 
@@ -630,7 +645,7 @@ class PodeRefreshableElement extends PodeTextualElement {
     }
 
     buildRefreshButton(asSpan) {
-        if (this.autoRefresh.enabled || !this.refresh.enabled) {
+        if (this.autoRefresh.enabled || !this.refreshable.enabled) {
             return '';
         }
 
@@ -676,6 +691,7 @@ class PodeRefreshableElement extends PodeTextualElement {
 
             setTimeout(() => {
                 this.load();
+
                 setInterval(() => {
                     this.load();
                 }, this.autoRefresh.interval);
@@ -1482,7 +1498,7 @@ class PodeTable extends PodeRefreshableElement {
         var customBtns = '';
         convertToArray(data.Buttons).forEach((btn) => {
             customBtns += `<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-button' for='${this.id}' title='${btn.Name}' data-toggle='tooltip' name='${btn.Name}'>
-                <span class='mdi mdi-${btn.Icon.toLowerCase()} mdi-size-20 ${$btn.WithText ? "mRight02" : ''}'></span>
+                <span class='mdi mdi-${btn.Icon.toLowerCase()} mdi-size-20 ${btn.WithText ? "mRight02" : ''}'></span>
                 ${btn.WithText ? btn.DisplayName : ''}
             </button>`;
         });
@@ -1645,10 +1661,11 @@ class PodeTable extends PodeRefreshableElement {
             return;
         }
 
+        super.load(data, sender, opts);
+
         // show spinner
         opts = opts ?? {};
         this.element.find('table tbody').empty();
-        this.spinner(true);
 
         // define any table paging
         var query = '';
@@ -1707,14 +1724,9 @@ class PodeTable extends PodeRefreshableElement {
             url = form.attr('action');
         }
 
-        // if we're reloading, hide all query and show spinner
-        // if (opts.reload) {
-        //     table.find('tbody').empty();
-        //     showLoadingSpinner(tableId);
-        // }
-
         // invoke and load table content
-        sendAjaxReq(url, query, this.element, true);
+        sendAjaxReq(url, query, this.element, true, () => { this.loading = false; }, { successCallbackBefore: true });
+        this.loading = true;
     }
 
     bind(data, sender, opts) {
@@ -1977,7 +1989,6 @@ class PodeTable extends PodeRefreshableElement {
         }
 
         var rowIndex = row.index();
-        console.log(data);
 
         // update the row's data
         if (data.Data) {
@@ -2045,9 +2056,6 @@ class PodeTable extends PodeRefreshableElement {
         // clear the table if no data
         if (data.Data.length <= 0) {
             this.clear(data, sender, opts);
-
-            // hide spinner
-            this.spinner(false);
             return;
         }
 
@@ -2136,10 +2144,6 @@ class PodeTable extends PodeRefreshableElement {
                 e.refresh(null, true).bind(data, sender, opts);
             });
         });
-
-        // hide spinner
-        this.spinner(false);
-        // hideLoadingSpinner(tableId);
 
         // is the table paginated?
         if (this.paging.enabled) {
@@ -2410,7 +2414,6 @@ class PodeTextbox extends PodeFormElement {
                 style='${width} ${data.CssStyles}'
                 placeholder='${data.Placeholder}'
                 ${describedBy}
-                ${readOnly}
                 ${required}
                 ${autofocus}
                 ${value}
@@ -2447,6 +2450,7 @@ class PodeTextbox extends PodeFormElement {
     }
 
     load(data, sender, opts) {
+        super.load(data, sender, opts);
         this.update(data, sender, opts);
         var obj = this;
 
@@ -2623,6 +2627,7 @@ class PodeCodeBlock extends PodeTextualElement {
     }
 
     load(data, sender, opts) {
+        super.load(data, sender, opts);
         hljs.highlightElement(this.element.find('code')[0]);
     }
 
@@ -2897,6 +2902,8 @@ class PodeTile extends PodeRefreshableElement {
     }
 
     load(data, sender, opts) {
+        super.load(data, sender, opts);
+
         // call url for dynamic tiles
         if (this.dynamic) {
             sendAjaxReq(this.url, null, this.element, true);
@@ -3081,7 +3088,7 @@ class PodeTab extends PodeCyclingChildElement {
     }
 
     invoke(data, sender, opts) {
-        this.parent.find(`.nav-link#${this.id}`).trigger('click');
+        this.parent.element.find(`.nav-link#${this.id}`).trigger('click');
         super.invoke(data, sender, opts);
     }
 }
@@ -3118,6 +3125,7 @@ class PodeCarousel extends PodeCyclingElement {
     }
 
     load(data, sender, opts) {
+        super.load(data, sender, opts);
         this.element.carousel();
     }
 
@@ -3176,7 +3184,543 @@ class PodeSlide extends PodeCyclingChildElement {
 }
 PodeElementFactory.setClass(PodeSlide);
 
+class PodeCodeEditor extends PodeElement {
+    static type = 'code-editor';
 
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.readonly = data.ReadOnly ?? false;
+        this.language = (data.Language ?? 'plaintext').toLowerCase();
+        this.uploadable = data.Uploadable ?? false;
+        this.theme = (data.Theme ?? '').toLowerCase();
+        this.value = data.Value ?? '';
+        this.editor = null;
+    }
+
+    new(data, sender, opts) {
+        var upload = !this.uploadable ? '' : `<button
+            class='btn btn-inbuilt-theme pode-upload mBottom1'
+            type='button'
+            title='Upload'
+            data-toggle='tooltip'
+            for='${this.id}'>
+                <span class='mdi mdi-upload mRight02'></span>
+        </button>`;
+
+        return `<div
+            id="${this.id}"
+            name="${this.name}"
+            class="pode-code-editor ${data.CssClasses}"
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id="${this.uuid}"
+            ${this.events(data.Events)}>
+                ${upload}
+                <div class="code-editor" for="${this.id}"></div>
+        </div>`;
+    }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        var obj = this;
+
+        var src = $('script[role="monaco"]').attr('src');
+        require.config({ paths: { 'vs': src.substring(0, src.lastIndexOf('/')) }});
+
+        // create the editors
+        require(["vs/editor/editor.main"], function() {
+            if (!obj.theme) {
+                switch(getPodeTheme()) {
+                    case 'dark':
+                        obj.theme = 'vs-dark';
+                        break;
+
+                    case 'terminal':
+                        obj.theme = 'hc-black';
+                        break;
+
+                    default:
+                        obj.theme = 'vs';
+                        break;
+                }
+            }
+
+            obj.editor = monaco.editor.create(obj.element.find('.code-editor')[0], {
+                value: obj.value,
+                language: obj.language,
+                theme: obj.theme,
+                readOnly: obj.readonly
+            });
+
+            obj.value = '';
+        });
+
+        // bind upload buttons
+        if (this.uploadable) {
+            this.element.find('.pode-upload').off('click').on('click', function(e) {
+                var data = JSON.stringify({
+                    language: obj.language,
+                    value: obj.editor.getValue()
+                });
+
+                sendAjaxReq(`${obj.url}/upload`, data, null, true, null, {
+                    contentType: 'application/json; charset=UTF-8'
+                });
+            });
+        }
+    }
+
+    update(data, sender, opts) {
+        // set value
+        if (data.Value) {
+            this.editor.setValue(data.Value);
+        }
+
+        // update language
+        if (data.Language) {
+            this.language = data.Language.toLowerCase();
+            monaco.editor.setModelLanguage(this.editor.getModel(), this.language);
+        }
+    }
+
+    clear(data, sender, opts) {
+        this.editor.setValue('');
+    }
+}
+PodeElementFactory.setClass(PodeCodeEditor);
+
+class PodeChart extends PodeRefreshableElement {
+    static type = 'chart';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.chartType = (data.ChartType ?? 'line').toLowerCase();
+        this.appendData = data.Append ?? false;
+        this.maxItems = data.MaxItems ?? 0;
+        this.timeLabels = data.TimeLabels ?? false;
+        this.min = {
+            x: data.Min ? (data.Min.X ?? 0) : 0,
+            y: data.Min ? (data.Min.Y ?? 0) : 0
+        };
+        this.max = {
+            x: data.Max ? (data.Max.X ?? 0) : 0,
+            y: data.Max ? (data.Max.Y ?? 0) : 0
+        };
+        this.showLegend = !(data.NoLegend ?? false);
+        this.colours = data.Colours ? convertToArray(data.Colours) : [];
+        this.chart = null;
+    }
+
+    new(data, sender, opts) {
+        var message = data.Message ? `<p class='card-text'>${data.Message}</p>` : '';
+        var height = data.Height !== 'auto' ? `height:${data.Height};` : '';
+
+        return `${message}<div
+            id="${this.id}"
+            name="${this.name}"
+            class="${data.CssClasses}"
+            style="${data.CssStyles}"
+            role='chart'
+            pode-object="${this.getType()}"
+            pode-id="${this.uuid}">
+                <div role='controls'>
+                    <div class="btn-group mr-2">
+                        ${this.buildRefreshButton(false)}
+                    </div>
+                </div>
+                <canvas class="my-4 w-100" style="${height}"></canvas>
+                <div class="text-center">
+                    <span id="${this.id}_spinner" class="spinner-grow text-inbuilt-sec-theme canvas-spinner" role="status"></span>
+                </div>
+        </div>`;
+    }
+
+    load(data, sender, opts) {
+        if (!this.dynamic) {
+            return;
+        }
+
+        super.load(data, sender, opts);
+
+        // is this the chart's first load?
+        var data = !this.created || !this.appendData ? 'FirstLoad=1' : '';
+
+        // things get funky here if we have a chart with a 'for' attr
+        // if so, we need to serialize the form, and then send the request to the form instead
+        var url = this.url;
+
+        if (this.element.attr('for')) {
+            var form = $(`#${this.element.attr('for')}`);
+            if (data) {
+                data += '&';
+            }
+
+            data += form.serialize();
+            url = form.attr('action');
+        }
+
+        // invoke and load chart content
+        sendAjaxReq(url, data, this.element, true, () => { this.loading = false }, { successCallbackBefore: true });
+        this.loading = true;
+    }
+
+    update(data, sender, opts) {
+        data.Data = convertToArray(data.Data);
+        if (data.Data.length === 0) {
+            return;
+        }
+
+        // create chart canvas
+        if (!this.chart) {
+            this.createCanvas(data, sender, opts);
+        }
+
+        // update chart
+        else {
+            // append or update?
+            if (this.appendData) {
+                this.appendCanvas(data, sender, opts);
+            }
+            else {
+                this.updateCanvas(data, sender, opts);
+            }
+        }
+    }
+
+    appendCanvas(data, sender, opts) {
+        // labels (x-axis)
+        this.updateXAxis(data.Data);
+        this.chart.data.labels = truncateArray(this.chart.data.labels, this.maxItems);
+
+        // data (y-axis)
+        this.updateYAxis(data.Data);
+        this.chart.data.datasets.forEach((dataset) => {
+            dataset.data = truncateArray(dataset.data, this.maxItems);
+        });
+
+        // re-render
+        this.rebuild();
+    }
+
+    updateCanvas(data, sender, opts) {
+        this.chart.data.labels = [];
+        this.chart.data.datasets.forEach((a) => a.data = []);
+
+        // labels (x-axis)
+        this.updateXAxis(data.Data);
+
+        // data (y-axis)
+        this.updateYAxis(data.Data);
+
+        // re-render
+        this.rebuild();
+    }
+
+    updateXAxis(data) {
+        data.forEach((item) => {
+            this.chart.data.labels.push(this.timeLabels ? getTimeString() : item.Key);
+        });
+    }
+
+    updateYAxis(data) {
+        data.forEach((item) => {
+            item.Values.forEach((set, index) => {
+                this.chart.data.datasets[index].data.push(set.Value);
+            });
+        });
+    }
+
+    createCanvas(data, sender, opts) {
+        // remove the chart if exists
+        if (this.chart) {
+            this.chart.destroy();
+        }
+
+        // get the chart's canvas and type
+        var ctx = this.element.find('canvas')[0].getContext('2d');
+        var theme = getPodeTheme();
+
+        // get senderId if present, and set on canvas as 'for'
+        var senderId = getId(sender);
+        if (senderId && getTagName(sender) == 'form') {
+            this.element.attr('for', senderId);
+        }
+
+        // colours for lines/bars/segments
+        var palette = getChartColourPalette(theme, this.colours);
+
+        // x-axis labels
+        var xAxis = [];
+        data.Data.forEach((item) => {
+            xAxis = xAxis.concat(this.timeLabels ? getTimeString() : item.Key);
+        });
+
+        // y-axis labels - need to support datasets
+        var yAxises = {};
+        data.Data[0].Values.forEach((item) => {
+            yAxises[item.Key] = {
+                data: [],
+                label: item.Key
+            };
+        });
+
+        data.Data.forEach((item) => {
+            item.Values.forEach((set) => {
+                yAxises[set.Key].data = yAxises[set.Key].data.concat(set.Value);
+            });
+        });
+
+        // axis themes
+        var axesOpts = {
+            x: {},
+            y: {}
+        };
+
+        // dataset details
+        Object.keys(yAxises).forEach((key, index) => {
+            switch (this.chartType) {
+                case 'line':
+                    yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.2)');
+                    yAxises[key].borderColor = palette[index % palette.length];
+                    yAxises[key].borderWidth = 3;
+                    yAxises[key].fill = true;
+                    yAxises[key].tension = 0.4;
+                    axesOpts.x = getChartAxesColours(theme, this.element, this.min.x, this.max.x);
+                    axesOpts.y = getChartAxesColours(theme, this.element, this.min.y, this.max.y);
+                    break;
+
+                case 'doughnut':
+                case 'pie':
+                    yAxises[key].backgroundColor = function(context) {
+                        return palette[context.dataIndex % palette.length];
+                    };
+                    yAxises[key].borderColor = getChartPieBorderColour(theme);
+                    break;
+
+                case 'bar':
+                    yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.6)');
+                    yAxises[key].borderColor = palette[index % palette.length];
+                    yAxises[key].borderWidth = 1;
+                    axesOpts.x = getChartAxesColours(theme, this.element, this.min.x, this.max.x);
+                    axesOpts.y = getChartAxesColours(theme, this.element, this.min.y, this.max.y);
+                    break;
+            }
+        });
+
+        // display the legend?
+        var showLegend = (Object.keys(yAxises)[0].toLowerCase() != 'default');
+        if ((this.element.closest('div.pode-tile').length > 0) || !this.showLegend) {
+            showLegend = false;
+        }
+
+        // make the chart
+        this.chart = new Chart(ctx, {
+            type: this.chartType,
+
+            data: {
+                labels: xAxis,
+                datasets: Object.values(yAxises)
+            },
+
+            options: {
+                plugins: {
+                    legend: {
+                        display: showLegend,
+                        labels: {
+                            color: $('body').css('color')
+                        }
+                    }
+                },
+
+                scales: {
+                    x: axesOpts.x,
+                    y: axesOpts.y
+                }
+            }
+        });
+    }
+
+    rebuild() {
+        this.chart.update();
+    }
+
+    clear(data, sender, opts) {
+        // clear labels (x-axis)
+        this.chart.data.labels = [];
+
+        // clear data (y-axis)
+        this.chart.data.datasets.forEach((dataset) => {
+            dataset.data = [];
+        });
+
+        // re-render
+        this.rebuild();
+    }
+}
+PodeElementFactory.setClass(PodeChart);
+
+class PodeModal extends PodeElement {
+    static type = 'modal';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.submit = {
+            show: data.ShowSubmit ?? false,
+            url: data.Action ?? ''
+        }
+        this.asForm = data.AsForm ?? false;
+    }
+
+    new(data, sender, opts) {
+        var icon = data.Icon ? `<span class='mdi mdi-${data.Icon.toLowerCase()}'></span>` : '';
+        var submit = !this.submit.show ? '' : `<button
+            type='button'
+            class='btn btn-inbuilt-theme pode-modal-submit'>
+                ${data.SubmitText}
+        </button>`;
+
+        var formStart = this.asForm ? `<form class='pode-form' method='${data.Method}' action='${data.Action}'>` : '';
+        var formEnd = this.asForm ? `</form>` : '';
+
+        return `<div
+            id="${this.id}"
+            class="modal fade ${data.CssClasses}"
+            style="${data.CssStyles}"
+            pode-object="${this.getType()}"
+            pode-id="${this.uuid}"
+            name="${this.name}"
+            tabindex="-1"
+            aria-labelledby="${this.id}_lbl"
+            aria-hidden="true"
+            pode-data-value="">
+                <div class="modal-dialog modal-dialog-scrollable pode-modal-${data.Size.toLowerCase()}">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="${this.id}_lbl">
+                                ${icon}
+                                ${data.DisplayName}
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            ${formStart}
+                            <div pode-content-for='${this.id}'></div>
+                            ${formEnd}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">${data.CloseText}</button>
+                            ${submit}
+                        </div>
+                    </div>
+                </div>
+        </div>`;
+    }
+
+    bind(data, sender, opts) {
+        var obj = this;
+
+        if (this.submit.show) {
+            this.element.find("div.modal-content form.pode-form").off('keypress').on('keypress', function(e) {
+                if (!isEnterKey(e) || testTagName(e.target, 'textarea')) {
+                    return;
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                var btn = obj.element.find('div.modal-footer button.pode-modal-submit')
+                if (btn) {
+                    btn.trigger('click');
+                }
+            });
+
+            this.element.find("div.modal-footer button.pode-modal-submit").off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // get url
+                var url = obj.submit.url;
+                if (!obj.submit.url) {
+                    return;
+                }
+
+                // find a form
+                var inputs = {};
+                var form = null;
+                var method = 'post';
+
+                if (obj.asForm) {
+                    form = obj.element.find('div.modal-body form');
+
+                    var action = form.attr('action');
+                    if (action) {
+                        url = action;
+                    }
+
+                    var _method = form.attr('method');
+                    if (_method) {
+                        method = _method;
+                    }
+
+                    inputs = serializeInputs(form);
+                    removeValidationErrors(form);
+                }
+
+                // get a data value
+                var dataValue = getDataValue($(this));
+
+                // build data
+                if (dataValue) {
+                    inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
+                }
+
+                // add method
+                if (!inputs.opts) {
+                    inputs.opts = {};
+                }
+
+                inputs.opts.method = method;
+
+                // invoke url
+                sendAjaxReq(url, inputs.data, (form ?? obj.element), true, null, inputs.opts);
+            });
+        }
+    }
+
+    show(data, sender, opts) {
+        if (data.DataValue) {
+            this.element.attr('pode-data-value', data.DataValue);
+        }
+
+        resetForm(this.element);
+        removeValidationErrors(this.element);
+
+        invokeActions(data.Actions);
+        this.element.modal('show');
+    }
+
+    hide(data, sender, opts) {
+        resetForm(this.element);
+        removeValidationErrors(this.element);
+        this.element.modal('hide');
+    }
+
+    static find(data, sender, filter, opts) {
+        var modal = super.find(data, sender, filter, opts);
+        if (modal) {
+            return modal;
+        }
+
+        if (sender) {
+            return sender.closest('.modal');
+        }
+
+        return null;
+    }
+}
+PodeElementFactory.setClass(PodeModal);
 
 
 
@@ -3199,42 +3743,6 @@ class PodeNotification extends PodeElement {
     }
 }
 PodeElementFactory.setClass(PodeNotification);
-
-class PodeCodeEditor extends PodeElement {
-    static type = 'codeeditor';
-
-    constructor(...args) {
-        super(...args);
-    }
-
-    new(data, sender, opts) {
-    }
-}
-PodeElementFactory.setClass(PodeCodeEditor);
-
-class PodeChart extends PodeElement {
-    static type = 'chart';
-
-    constructor(...args) {
-        super(...args);
-    }
-
-    new(data, sender, opts) {
-    }
-}
-PodeElementFactory.setClass(PodeChart);
-
-class PodeModal extends PodeElement {
-    static type = 'modal';
-
-    constructor(...args) {
-        super(...args);
-    }
-
-    new(data, sender, opts) {
-    }
-}
-PodeElementFactory.setClass(PodeModal);
 
 class PodeCheckbox extends PodeElement {
     static type = 'checkbox';

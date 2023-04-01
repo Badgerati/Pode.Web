@@ -2052,7 +2052,7 @@ function New-PodeWebChart
         }
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
-        Colours = ($Colours -join ',')
+        Colours = $Colours
     }
 
     $routePath = "/components/chart/$($Id)"

@@ -184,7 +184,7 @@ function New-PodeWebTab
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
-        Layouts = $Layouts
+        Content = $Layouts
         Icon = $Icon
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)

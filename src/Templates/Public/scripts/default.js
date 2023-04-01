@@ -26,12 +26,12 @@ $(() => {
         return;
     }
 
-    sendAjaxReq(`${document.URL.trimEnd('/')}/content`, null, $('content#pode-content'), true, (res, sender) => {
+    sendAjaxReq(`${getUrl('content')}`, null, $('content#pode-content'), true, (res, sender) => {
         mapElementThemes();
 
         loadBreadcrumb();
         // loadTables();
-        loadCharts();
+        // loadCharts();
         // loadAutoCompletes();
         // loadTiles();
         loadSelects();
@@ -49,7 +49,7 @@ $(() => {
         bindFormSubmits();
         // bindButtons();
         // bindCodeCopy();
-        bindCodeEditors();
+        // bindCodeEditors();
         bindFileStreams();
 
         // bindTableFilters();
@@ -57,10 +57,10 @@ $(() => {
         // bindTableRefresh();
         // bindTableButtons();
 
-        bindChartRefresh();
+        // bindChartRefresh();
         bindRangeValue();
         bindProgressValue();
-        bindModalSubmits();
+        // bindModalSubmits();
         // bindFormResets();
 
         // bindTileRefresh();
@@ -74,6 +74,20 @@ $(() => {
         // bindTimers();
     });
 });
+
+function getUrl(subpath, data) {
+    subpath = subpath ?? '';
+    if (subpath && !subpath.startsWith('/')) {
+        subpath = `/${subpath}`;
+    }
+
+    data = data ?? window.location.search;
+    if (data && !data.startsWith('?')) {
+        data = `?${data}`;
+    }
+
+    return `${window.location.origin}${window.location.pathname}${subpath}${data}`;
+}
 
 function bindFileStreams() {
     $('div.file-stream pre textarea').each((i, e) => {
@@ -578,9 +592,10 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
 
     // set default opts
     opts = (opts ?? {});
-    opts.contentType = (opts.contentType == null ? 'application/x-www-form-urlencoded; charset=UTF-8' : opts.contentType);
-    opts.processData = (opts.processData == null ? true : opts.processData);
-    opts.method = (opts.method == null ? 'post' : opts.method);
+    opts.contentType = opts.contentType ?? 'application/x-www-form-urlencoded; charset=UTF-8';
+    opts.processData = opts.processData ?? true;
+    opts.method = opts.method ?? 'post';
+    opts.successCallbackBefore = opts.successCallbackBefore ?? false;
 
     // make the call
     $.ajax({
@@ -602,10 +617,15 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
                 unfocus(sender);
             }
 
-            // attempt to get a filename, for downloading
-            var filename = getAjaxFileName(xhr);
+            // call success callback before actions
+            if (successCallback && opts.successCallbackBefore) {
+                res.text().then((v) => {
+                    successCallback(JSON.parse(v), sender);
+                });
+            }
 
             // do we have a file to download?
+            var filename = getAjaxFileName(xhr);
             if (filename) {
                 downloadBlob(filename, res, xhr);
             }
@@ -617,7 +637,8 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
                 });
             }
 
-            if (successCallback) {
+            // call success callback after actions
+            if (successCallback && !opts.successCallbackBefore) {
                 res.text().then((v) => {
                     successCallback(JSON.parse(v), sender);
                 });
@@ -718,66 +739,66 @@ function unfocus(sender) {
     sender.blur();
 }
 
-var _editors = {};
+// var _editors = {};
 
-function bindCodeEditors() {
-    if ($('.pode-code-editor').length == 0) {
-        return;
-    }
+// function bindCodeEditors() {
+//     if ($('.pode-code-editor').length == 0) {
+//         return;
+//     }
 
-    var src = $('script[role="monaco"]').attr('src');
-    require.config({ paths: { 'vs': src.substring(0, src.lastIndexOf('/')) }});
+//     var src = $('script[role="monaco"]').attr('src');
+//     require.config({ paths: { 'vs': src.substring(0, src.lastIndexOf('/')) }});
 
-    // create the editors
-    require(["vs/editor/editor.main"], function() {
-        $('.pode-code-editor .code-editor').each((i, e) => {
-            var theme = $(e).attr('pode-theme');
-            if (!theme) {
-                var bodyTheme = getPodeTheme();
+//     // create the editors
+//     require(["vs/editor/editor.main"], function() {
+//         $('.pode-code-editor .code-editor').each((i, e) => {
+//             var theme = $(e).attr('pode-theme');
+//             if (!theme) {
+//                 var bodyTheme = getPodeTheme();
 
-                switch (bodyTheme) {
-                    case 'dark':
-                        theme = 'vs-dark';
-                        break;
+//                 switch (bodyTheme) {
+//                     case 'dark':
+//                         theme = 'vs-dark';
+//                         break;
 
-                    case 'terminal':
-                        theme = 'hc-black';
-                        break;
+//                     case 'terminal':
+//                         theme = 'hc-black';
+//                         break;
 
-                    default:
-                        theme = 'vs';
-                        break;
-                }
-            }
+//                     default:
+//                         theme = 'vs';
+//                         break;
+//                 }
+//             }
 
-            var editor = monaco.editor.create(e, {
-                value: $(e).attr('pode-value'),
-                language: $(e).attr('pode-language'),
-                theme: theme,
-                readOnly: ($(e).attr('pode-read-only') == 'True')
-            });
+//             var editor = monaco.editor.create(e, {
+//                 value: $(e).attr('pode-value'),
+//                 language: $(e).attr('pode-language'),
+//                 theme: theme,
+//                 readOnly: ($(e).attr('pode-read-only') == 'True')
+//             });
 
-            $(e).attr('pode-value', '');
-            _editors[$(e).attr('for')] = editor;
-        });
-    });
+//             $(e).attr('pode-value', '');
+//             _editors[$(e).attr('for')] = editor;
+//         });
+//     });
 
-    // bind upload buttons
-    $('.pode-code-editor .pode-upload').off('click').on('click', function(e) {
-        var button = getButton(e);
-        var editorId = button.attr('for');
+//     // bind upload buttons
+//     $('.pode-code-editor .pode-upload').off('click').on('click', function(e) {
+//         var button = getButton(e);
+//         var editorId = button.attr('for');
 
-        var url = `${getComponentUrl(editorId)}/upload`;
-        var data = JSON.stringify({
-            language: $(`#${editorId} .code-editor`).attr('pode-language'),
-            value: _editors[editorId].getValue()
-        });
+//         var url = `${getComponentUrl(editorId)}/upload`;
+//         var data = JSON.stringify({
+//             language: $(`#${editorId} .code-editor`).attr('pode-language'),
+//             value: _editors[editorId].getValue()
+//         });
 
-        sendAjaxReq(url, data, null, true, null, {
-            contentType: 'application/json; charset=UTF-8'
-        });
-    });
-}
+//         sendAjaxReq(url, data, null, true, null, {
+//             contentType: 'application/json; charset=UTF-8'
+//         });
+//     });
+// }
 
 // function bindCardCollapse() {
 //     $('button.pode-card-collapse').off('click').on('click', function(e) {
@@ -1325,45 +1346,45 @@ function loadSelect(selectId) {
 //     });
 // }
 
-function loadCharts() {
-    $(`canvas[pode-dynamic='True']`).each((i, e) => {
-        loadChart($(e).attr('id'));
-    });
+// function loadCharts() {
+//     $(`canvas[pode-dynamic='True']`).each((i, e) => {
+//         loadChart($(e).attr('id'));
+//     });
 
-    $(`canvas[pode-dynamic='False']`).each((i, e) => {
-        hideLoadingSpinner($(e).attr('id'));
-    });
-}
+//     $(`canvas[pode-dynamic='False']`).each((i, e) => {
+//         hideLoadingSpinner($(e).attr('id'));
+//     });
+// }
 
-function loadChart(chartId) {
-    if (!chartId) {
-        return;
-    }
+// function loadChart(chartId) {
+//     if (!chartId) {
+//         return;
+//     }
 
-    var chart = $(`canvas#${chartId}`);
+//     var chart = $(`canvas#${chartId}`);
 
-    // is this the chart's first load?
-    var data = '';
-    if (!_charts[chartId] || !_charts[chartId].append) {
-        data = 'FirstLoad=1';
-    }
+//     // is this the chart's first load?
+//     var data = '';
+//     if (!_charts[chartId] || !_charts[chartId].append) {
+//         data = 'FirstLoad=1';
+//     }
 
-    // things get funky here if we have a chart with a 'for' attr
-    // if so, we need to serialize the form, and then send the request to the form instead
-    var url = getComponentUrl(chart);
+//     // things get funky here if we have a chart with a 'for' attr
+//     // if so, we need to serialize the form, and then send the request to the form instead
+//     var url = getComponentUrl(chart);
 
-    if (chart.attr('for')) {
-        var form = $(`#${chart.attr('for')}`);
-        if (data) {
-            data += '&';
-        }
+//     if (chart.attr('for')) {
+//         var form = $(`#${chart.attr('for')}`);
+//         if (data) {
+//             data += '&';
+//         }
 
-        data += form.serialize();
-        url = form.attr('action');
-    }
+//         data += form.serialize();
+//         url = form.attr('action');
+//     }
 
-    sendAjaxReq(url, data, chart, true);
-}
+//     sendAjaxReq(url, data, chart, true);
+// }
 
 function invokeActions(actions, sender) {
     if (!actions) {
@@ -1392,9 +1413,9 @@ function invokeActions(actions, sender) {
             //     actionTableColumn(action);
             //     break;
 
-            case 'chart':
-                actionChart(action, sender);
-                break;
+            // case 'chart':
+            //     actionChart(action, sender);
+            //     break;
 
             // case 'textbox':
             //     actionTextbox(action, sender);
@@ -1428,9 +1449,9 @@ function invokeActions(actions, sender) {
                 actionCheckbox(action);
                 break;
 
-            case 'modal':
-                actionModal(action, sender);
-                break;
+            // case 'modal':
+            //     actionModal(action, sender);
+            //     break;
 
             case 'notification':
                 actionNotification(action);
@@ -1500,9 +1521,9 @@ function invokeActions(actions, sender) {
             //     actionVideo(action);
             //     break;
 
-            case 'code-editor':
-                actionCodeEditor(action);
-                break;
+            // case 'code-editor':
+            //     actionCodeEditor(action);
+            //     break;
 
             // case 'iframe':
             //     actionIFrame(action);
@@ -1607,81 +1628,81 @@ function bindFormSubmits() {
 //     });
 // }
 
-function bindModalSubmits() {
-    $("div.modal-content form.pode-form").off('keypress').on('keypress', function(e) {
-        if (!isEnterKey(e) || testTagName(e.target, 'textarea')) {
-            return;
-        }
+// function bindModalSubmits() {
+//     $("div.modal-content form.pode-form").off('keypress').on('keypress', function(e) {
+//         if (!isEnterKey(e) || testTagName(e.target, 'textarea')) {
+//             return;
+//         }
 
-        e.preventDefault();
-        e.stopPropagation();
+//         e.preventDefault();
+//         e.stopPropagation();
 
-        var btn = $(this).closest('div.modal-content').find('div.modal-footer button.pode-modal-submit')
-        if (btn) {
-            btn.trigger('click');
-        }
-    });
+//         var btn = $(this).closest('div.modal-content').find('div.modal-footer button.pode-modal-submit')
+//         if (btn) {
+//             btn.trigger('click');
+//         }
+//     });
 
-    $("div.modal-footer button.pode-modal-submit").off('click').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+//     $("div.modal-footer button.pode-modal-submit").off('click').on('click', function(e) {
+//         e.preventDefault();
+//         e.stopPropagation();
 
-        // get the button
-        var button = getButton(e);
+//         // get the button
+//         var button = getButton(e);
 
-        // get url
-        var url = button.attr('pode-url');
-        if (!url) {
-            return;
-        }
+//         // get url
+//         var url = button.attr('pode-url');
+//         if (!url) {
+//             return;
+//         }
 
-        // get the modal
-        var modal = button.closest('div.modal');
-        if (!modal) {
-            return;
-        }
+//         // get the modal
+//         var modal = button.closest('div.modal');
+//         if (!modal) {
+//             return;
+//         }
 
-        // find a form
-        var inputs = {};
-        var form = null;
-        var method = 'post';
+//         // find a form
+//         var inputs = {};
+//         var form = null;
+//         var method = 'post';
 
-        if (button.attr('pode-modal-form') == 'True') {
-            form = modal.find('div.modal-body form');
+//         if (button.attr('pode-modal-form') == 'True') {
+//             form = modal.find('div.modal-body form');
 
-            var action = form.attr('action');
-            if (action) {
-                url = action;
-            }
+//             var action = form.attr('action');
+//             if (action) {
+//                 url = action;
+//             }
 
-            var _method = form.attr('method');
-            if (_method) {
-                method = _method;
-            }
+//             var _method = form.attr('method');
+//             if (_method) {
+//                 method = _method;
+//             }
 
-            inputs = serializeInputs(form);
-            removeValidationErrors(form);
-        }
+//             inputs = serializeInputs(form);
+//             removeValidationErrors(form);
+//         }
 
-        // get a data value
-        var dataValue = getDataValue(button);
+//         // get a data value
+//         var dataValue = getDataValue(button);
 
-        // build data
-        if (dataValue) {
-            inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
-        }
+//         // build data
+//         if (dataValue) {
+//             inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
+//         }
 
-        // add method
-        if (!inputs.opts) {
-            inputs.opts = {};
-        }
+//         // add method
+//         if (!inputs.opts) {
+//             inputs.opts = {};
+//         }
 
-        inputs.opts.method = method;
+//         inputs.opts.method = method;
 
-        // invoke url
-        sendAjaxReq(url, inputs.data, (form ?? button), true, null, inputs.opts);
-    });
-}
+//         // invoke url
+//         sendAjaxReq(url, inputs.data, (form ?? button), true, null, inputs.opts);
+//     });
+// }
 
 function getDataValue(element) {
     var dataValue = element.attr('pode-data-value');
@@ -1907,32 +1928,32 @@ function bindSidebarFilter() {
 //     });
 // }
 
-function bindChartRefresh() {
-    $("button.pode-chart-refresh").off('click').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+// function bindChartRefresh() {
+//     $("button.pode-chart-refresh").off('click').on('click', function(e) {
+//         e.preventDefault();
+//         e.stopPropagation();
 
-        var button = getButton(e);
-        button.tooltip('hide');
-        loadChart(button.attr('for'));
-    });
+//         var button = getButton(e);
+//         button.tooltip('hide');
+//         loadChart(button.attr('for'));
+//     });
 
-    $("canvas[pode-auto-refresh='True']").each((index, item) => {
-        var interval = $(item).attr('pode-refresh-interval');
+//     $("canvas[pode-auto-refresh='True']").each((index, item) => {
+//         var interval = $(item).attr('pode-refresh-interval');
 
-        var timeout = interval;
-        if (interval == 60000) {
-            timeout = (60 - (new Date()).getSeconds()) * 1000;
-        }
+//         var timeout = interval;
+//         if (interval == 60000) {
+//             timeout = (60 - (new Date()).getSeconds()) * 1000;
+//         }
 
-        setTimeout(() => {
-            loadChart($(item).attr('id'));
-            setInterval(() => {
-                loadChart($(item).attr('id'));
-            }, interval);
-        }, timeout);
-    });
-}
+//         setTimeout(() => {
+//             loadChart($(item).attr('id'));
+//             setInterval(() => {
+//                 loadChart($(item).attr('id'));
+//             }, interval);
+//         }, timeout);
+//     });
+// }
 
 // function actionTableRow(action, sender) {
 //     switch (action.Operation.toLowerCase()) {
@@ -2507,50 +2528,50 @@ function getElementByNameOrId(action, tag, sender, filter) {
     return null;
 }
 
-function actionModal(action, sender) {
-    switch (action.Operation.toLowerCase()) {
-        case 'hide':
-            hideModal(action, sender);
-            break;
+// function actionModal(action, sender) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'hide':
+//             hideModal(action, sender);
+//             break;
 
-        case 'show':
-            showModal(action);
-            break;
-    }
-}
+//         case 'show':
+//             showModal(action);
+//             break;
+//     }
+// }
 
-function showModal(action) {
-    var modal = getElementByNameOrId(action, 'div.modal');
-    if (!modal) {
-        return;
-    }
+// function showModal(action) {
+//     var modal = getElementByNameOrId(action, 'div.modal');
+//     if (!modal) {
+//         return;
+//     }
 
-    if (action.DataValue) {
-        modal.attr('pode-data-value', action.DataValue);
-    }
+//     if (action.DataValue) {
+//         modal.attr('pode-data-value', action.DataValue);
+//     }
 
-    resetForm(modal);
-    removeValidationErrors(modal);
+//     resetForm(modal);
+//     removeValidationErrors(modal);
 
-    invokeActions(action.Actions);
-    modal.modal('show');
-}
+//     invokeActions(action.Actions);
+//     modal.modal('show');
+// }
 
-function hideModal(action, sender) {
-    var modal = getElementByNameOrId(action, 'div.modal');
-    if (!modal) {
-        modal = sender.closest('div.modal');
-    }
+// function hideModal(action, sender) {
+//     var modal = getElementByNameOrId(action, 'div.modal');
+//     if (!modal) {
+//         modal = sender.closest('div.modal');
+//     }
 
-    if (!modal) {
-        return;
-    }
+//     if (!modal) {
+//         return;
+//     }
 
-    resetForm(modal);
-    removeValidationErrors(modal);
+//     resetForm(modal);
+//     removeValidationErrors(modal);
 
-    modal.modal('hide');
-}
+//     modal.modal('hide');
+// }
 
 // function actionText(action) {
 //     if (!action) {
@@ -3365,53 +3386,53 @@ function actionFileStream(action) {
 //     }
 // }
 
-function actionCodeEditor(action) {
-    switch(action.Operation.toLowerCase()) {
-        case 'update':
-            updateCodeEditor(action);
-            break;
+// function actionCodeEditor(action) {
+//     switch(action.Operation.toLowerCase()) {
+//         case 'update':
+//             updateCodeEditor(action);
+//             break;
 
-        case 'clear':
-            clearCodeEditor(action);
-            break;
-    }
-}
+//         case 'clear':
+//             clearCodeEditor(action);
+//             break;
+//     }
+// }
 
-function updateCodeEditor(action) {
-    var editor = getElementByNameOrId(action, 'div');
-    if (!editor) {
-        return;
-    }
+// function updateCodeEditor(action) {
+//     var editor = getElementByNameOrId(action, 'div');
+//     if (!editor) {
+//         return;
+//     }
 
-    editor = _editors[editor.attr('id')];
-    if (!editor) {
-        return;
-    }
+//     editor = _editors[editor.attr('id')];
+//     if (!editor) {
+//         return;
+//     }
 
-    // set value
-    if (action.Value) {
-        editor.setValue(action.Value);
-    }
+//     // set value
+//     if (action.Value) {
+//         editor.setValue(action.Value);
+//     }
 
-    // set language
-    if (action.Language) {
-        monaco.editor.setModelLanguage(editor.getModel(), action.Language);
-    }
-}
+//     // set language
+//     if (action.Language) {
+//         monaco.editor.setModelLanguage(editor.getModel(), action.Language);
+//     }
+// }
 
-function clearCodeEditor(action) {
-    var editor = getElementByNameOrId(action, 'div');
-    if (!editor) {
-        return;
-    }
+// function clearCodeEditor(action) {
+//     var editor = getElementByNameOrId(action, 'div');
+//     if (!editor) {
+//         return;
+//     }
 
-    editor = _editors[editor.attr('id')];
-    if (!editor) {
-        return;
-    }
+//     editor = _editors[editor.attr('id')];
+//     if (!editor) {
+//         return;
+//     }
 
-    editor.setValue('');
-}
+//     editor.setValue('');
+// }
 
 function updateFileStream(action) {
     var filestream = getElementByNameOrId(action, 'textarea');
@@ -3466,153 +3487,153 @@ function clearFileStream(action) {
     filestream.scrollTop = filestream.scrollHeight;
 }
 
-function actionChart(action, sender) {
-    switch (action.Operation.toLowerCase()) {
-        case 'update':
-            updateChart(action, sender);
-            break;
+// function actionChart(action, sender) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'update':
+//             updateChart(action, sender);
+//             break;
 
-        case 'output':
-            writeChart(action, sender);
-            break;
+//         case 'output':
+//             writeChart(action, sender);
+//             break;
 
-        case 'sync':
-            syncChart(action);
-            break;
+//         case 'sync':
+//             syncChart(action);
+//             break;
 
-        case 'clear':
-            clearChart(action);
-            break;
-    }
-}
+//         case 'clear':
+//             clearChart(action);
+//             break;
+//     }
+// }
 
-function clearChart(action) {
-    if (!action.ID && !action.Name) {
-        return;
-    }
+// function clearChart(action) {
+//     if (!action.ID && !action.Name) {
+//         return;
+//     }
 
-    var chart = getElementByNameOrId(action, 'canvas');
-    var id = getId(chart);
+//     var chart = getElementByNameOrId(action, 'canvas');
+//     var id = getId(chart);
 
-    var _chart = _charts[id];
+//     var _chart = _charts[id];
 
-    // clear labels (x-axis)
-    _chart.canvas.data.labels = [];
+//     // clear labels (x-axis)
+//     _chart.canvas.data.labels = [];
 
-    // clear data (y-axis)
-    _chart.canvas.data.datasets.forEach((dataset) => {
-        dataset.data = [];
-    });
+//     // clear data (y-axis)
+//     _chart.canvas.data.datasets.forEach((dataset) => {
+//         dataset.data = [];
+//     });
 
-    // re-render
-    _chart.canvas.update();
-}
+//     // re-render
+//     _chart.canvas.update();
+// }
 
-function syncChart(action) {
-    var chart = getElementByNameOrId(action, 'canvas', null, '[pode-dynamic="True"]');
-    if (!chart) {
-        return;
-    }
+// function syncChart(action) {
+//     var chart = getElementByNameOrId(action, 'canvas', null, '[pode-dynamic="True"]');
+//     if (!chart) {
+//         return;
+//     }
 
-    loadChart(getId(chart));
-}
+//     loadChart(getId(chart));
+// }
 
 var _charts = {};
 
-function updateChart(action, sender) {
-    if (!action.Data) {
-        return;
-    }
+// function updateChart(action, sender) {
+//     if (!action.Data) {
+//         return;
+//     }
 
-    var canvas = getElementByNameOrId(action, 'canvas');
-    action.ID = getId(canvas);
+//     var canvas = getElementByNameOrId(action, 'canvas');
+//     action.ID = getId(canvas);
 
-    action.Data = convertToArray(action.Data);
-    if (action.Data.length <= 0) {
-        hideLoadingSpinner(action.ID);
-        return;
-    }
+//     action.Data = convertToArray(action.Data);
+//     if (action.Data.length <= 0) {
+//         hideLoadingSpinner(action.ID);
+//         return;
+//     }
 
-    var _append = (canvas.attr('pode-append') == 'True');
-    var _chart = _charts[action.ID];
+//     var _append = (canvas.attr('pode-append') == 'True');
+//     var _chart = _charts[action.ID];
 
-    // append new data
-    if (_append && _chart) {
-        appendToChart(canvas, action);
-    }
+//     // append new data
+//     if (_append && _chart) {
+//         appendToChart(canvas, action);
+//     }
 
-    // update the chart with new data
-    else if (_chart) {
-        updateTheChart(canvas, action);
-    }
+//     // update the chart with new data
+//     else if (_chart) {
+//         updateTheChart(canvas, action);
+//     }
 
-    // build the chart
-    else {
-        createTheChart(canvas, action, sender);
-    }
+//     // build the chart
+//     else {
+//         createTheChart(canvas, action, sender);
+//     }
 
-    hideLoadingSpinner(action.ID);
-}
+//     hideLoadingSpinner(action.ID);
+// }
 
-function appendToChart(canvas, action) {
-    var _chart = _charts[action.ID];
-    var _max = canvas.attr('pode-max');
-    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
+// function appendToChart(canvas, action) {
+//     var _chart = _charts[action.ID];
+//     var _max = canvas.attr('pode-max');
+//     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
-    // labels (x-axis)
-    action.Data.forEach((item) => {
-        if (_timeLabels) {
-            _chart.canvas.data.labels.push(getTimeString());
-        }
-        else {
-            _chart.canvas.data.labels.push(item.Key);
-        }
-    });
+//     // labels (x-axis)
+//     action.Data.forEach((item) => {
+//         if (_timeLabels) {
+//             _chart.canvas.data.labels.push(getTimeString());
+//         }
+//         else {
+//             _chart.canvas.data.labels.push(item.Key);
+//         }
+//     });
 
-    _chart.canvas.data.labels = truncateArray(_chart.canvas.data.labels, _max);
+//     _chart.canvas.data.labels = truncateArray(_chart.canvas.data.labels, _max);
 
-    // data (y-axis)
-    action.Data.forEach((item) => {
-        item.Values.forEach((set, index) => {
-            _chart.canvas.data.datasets[index].data.push(set.Value);
-        });
-    });
+//     // data (y-axis)
+//     action.Data.forEach((item) => {
+//         item.Values.forEach((set, index) => {
+//             _chart.canvas.data.datasets[index].data.push(set.Value);
+//         });
+//     });
 
-    _chart.canvas.data.datasets.forEach((dataset) => {
-        dataset.data = truncateArray(dataset.data, _max);
-    });
+//     _chart.canvas.data.datasets.forEach((dataset) => {
+//         dataset.data = truncateArray(dataset.data, _max);
+//     });
 
-    // re-render
-    _chart.canvas.update();
-}
+//     // re-render
+//     _chart.canvas.update();
+// }
 
-function updateTheChart(canvas, action) {
-    var _chart = _charts[action.ID];
-    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
+// function updateTheChart(canvas, action) {
+//     var _chart = _charts[action.ID];
+//     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
-    _chart.canvas.data.labels = [];
-    _chart.canvas.data.datasets.forEach((a) => a.data = []);
+//     _chart.canvas.data.labels = [];
+//     _chart.canvas.data.datasets.forEach((a) => a.data = []);
 
-    // labels (x-axis)
-    action.Data.forEach((item) => {
-        if (_timeLabels) {
-            _chart.canvas.data.labels.push(getTimeString());
-        }
-        else {
-            _chart.canvas.data.labels.push(item.Key);
-        }
-    });
+//     // labels (x-axis)
+//     action.Data.forEach((item) => {
+//         if (_timeLabels) {
+//             _chart.canvas.data.labels.push(getTimeString());
+//         }
+//         else {
+//             _chart.canvas.data.labels.push(item.Key);
+//         }
+//     });
 
-    // data (y-axis)
-    action.Data.forEach((item) => {
-        item.Values.forEach((set, index) => {
-            _chart.canvas.data.datasets[index].data.push(set.Value);
-        });
-    });
+//     // data (y-axis)
+//     action.Data.forEach((item) => {
+//         item.Values.forEach((set, index) => {
+//             _chart.canvas.data.datasets[index].data.push(set.Value);
+//         });
+//     });
 
-    // re-render
-    _chart.canvas.update();
-}
+//     // re-render
+//     _chart.canvas.update();
+// }
 
 function truncateArray(array, maxItems) {
     if (maxItems <= 0) {
@@ -3626,132 +3647,132 @@ function truncateArray(array, maxItems) {
     return array.slice(array.length - maxItems, array.length);
 }
 
-function createTheChart(canvas, action, sender) {
-    // remove chart
-    var _chart = _charts[action.ID];
-    if (_chart) {
-        _chart.canvas.destroy();
-    }
+// function createTheChart(canvas, action, sender) {
+//     // remove chart
+//     var _chart = _charts[action.ID];
+//     if (_chart) {
+//         _chart.canvas.destroy();
+//     }
 
-    // get the chart's canvas and type
-    var ctx = document.getElementById(action.ID).getContext('2d');
-    var chartType = (canvas.attr('pode-chart-type') || action.ChartType);
-    var theme = getPodeTheme();
-    var _append = (canvas.attr('pode-append') == 'True');
-    var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
+//     // get the chart's canvas and type
+//     var ctx = document.getElementById(action.ID).getContext('2d');
+//     var chartType = (canvas.attr('pode-chart-type') || action.ChartType);
+//     var theme = getPodeTheme();
+//     var _append = (canvas.attr('pode-append') == 'True');
+//     var _timeLabels = (canvas.attr('pode-time-labels') == 'True');
 
-    // get senderId if present, and set on canvas as 'for'
-    var senderId = getId(sender);
-    if (senderId && getTagName(sender) == 'form') {
-        canvas.attr('for', senderId);
-    }
+//     // get senderId if present, and set on canvas as 'for'
+//     var senderId = getId(sender);
+//     if (senderId && getTagName(sender) == 'form') {
+//         canvas.attr('for', senderId);
+//     }
 
-    // colours for lines/bars/segments
-    var palette = getChartColourPalette(theme, canvas);
+//     // colours for lines/bars/segments
+//     var palette = getChartColourPalette(theme, canvas);
 
-    // x-axis labels
-    var xAxis = [];
-    action.Data.forEach((item) => {
-        if (_timeLabels) {
-            xAxis = xAxis.concat(getTimeString());
-        }
-        else {
-            xAxis = xAxis.concat(item.Key);
-        }
-    });
+//     // x-axis labels
+//     var xAxis = [];
+//     action.Data.forEach((item) => {
+//         if (_timeLabels) {
+//             xAxis = xAxis.concat(getTimeString());
+//         }
+//         else {
+//             xAxis = xAxis.concat(item.Key);
+//         }
+//     });
 
-    // y-axis labels - need to support datasets
-    var yAxises = {};
-    action.Data[0].Values.forEach((item) => {
-        yAxises[item.Key] = {
-            data: [],
-            label: item.Key
-        };
-    });
+//     // y-axis labels - need to support datasets
+//     var yAxises = {};
+//     action.Data[0].Values.forEach((item) => {
+//         yAxises[item.Key] = {
+//             data: [],
+//             label: item.Key
+//         };
+//     });
 
-    action.Data.forEach((item) => {
-        item.Values.forEach((set) => {
-            yAxises[set.Key].data = yAxises[set.Key].data.concat(set.Value);
-        });
-    });
+//     action.Data.forEach((item) => {
+//         item.Values.forEach((set) => {
+//             yAxises[set.Key].data = yAxises[set.Key].data.concat(set.Value);
+//         });
+//     });
 
-    // axis themes
-    var axesOpts = {
-        x: {},
-        y: {}
-    };
+//     // axis themes
+//     var axesOpts = {
+//         x: {},
+//         y: {}
+//     };
 
-    // dataset details
-    Object.keys(yAxises).forEach((key, index) => {
-        switch (chartType.toLowerCase()) {
-            case 'line':
-                yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.2)');
-                yAxises[key].borderColor = palette[index % palette.length];
-                yAxises[key].borderWidth = 3;
-                yAxises[key].fill = true;
-                yAxises[key].tension = 0.4;
-                axesOpts.x = getChartAxesColours(theme, canvas, 'x');
-                axesOpts.y = getChartAxesColours(theme, canvas, 'y');
-                break;
+//     // dataset details
+//     Object.keys(yAxises).forEach((key, index) => {
+//         switch (chartType.toLowerCase()) {
+//             case 'line':
+//                 yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.2)');
+//                 yAxises[key].borderColor = palette[index % palette.length];
+//                 yAxises[key].borderWidth = 3;
+//                 yAxises[key].fill = true;
+//                 yAxises[key].tension = 0.4;
+//                 axesOpts.x = getChartAxesColours(theme, canvas, 'x');
+//                 axesOpts.y = getChartAxesColours(theme, canvas, 'y');
+//                 break;
 
-            case 'doughnut':
-            case 'pie':
-                yAxises[key].backgroundColor = function(context) {
-                    return palette[context.dataIndex % palette.length];
-                };
-                yAxises[key].borderColor = getChartPieBorderColour(theme);
-                break;
+//             case 'doughnut':
+//             case 'pie':
+//                 yAxises[key].backgroundColor = function(context) {
+//                     return palette[context.dataIndex % palette.length];
+//                 };
+//                 yAxises[key].borderColor = getChartPieBorderColour(theme);
+//                 break;
 
-            case 'bar':
-                yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.6)');
-                yAxises[key].borderColor = palette[index % palette.length];
-                yAxises[key].borderWidth = 1;
-                axesOpts.x = getChartAxesColours(theme, canvas, 'x');
-                axesOpts.y = getChartAxesColours(theme, canvas, 'y');
-                break;
-        }
-    });
+//             case 'bar':
+//                 yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.6)');
+//                 yAxises[key].borderColor = palette[index % palette.length];
+//                 yAxises[key].borderWidth = 1;
+//                 axesOpts.x = getChartAxesColours(theme, canvas, 'x');
+//                 axesOpts.y = getChartAxesColours(theme, canvas, 'y');
+//                 break;
+//         }
+//     });
 
-    // display the legend?
-    var showLegend = (Object.keys(yAxises)[0].toLowerCase() != 'default');
-    if ((canvas.closest('div.pode-tile').length > 0) || (canvas.attr('pode-legend') == 'False')) {
-        showLegend = false;
-    }
+//     // display the legend?
+//     var showLegend = (Object.keys(yAxises)[0].toLowerCase() != 'default');
+//     if ((canvas.closest('div.pode-tile').length > 0) || (canvas.attr('pode-legend') == 'False')) {
+//         showLegend = false;
+//     }
 
-    // make the chart
-    var chart = new Chart(ctx, {
-        type: chartType.toLowerCase(),
+//     // make the chart
+//     var chart = new Chart(ctx, {
+//         type: chartType.toLowerCase(),
 
-        data: {
-            labels: xAxis,
-            datasets: Object.values(yAxises)
-        },
+//         data: {
+//             labels: xAxis,
+//             datasets: Object.values(yAxises)
+//         },
 
-        options: {
-            plugins: {
-                legend: {
-                    display: showLegend,
-                    labels: {
-                        color: $('body').css('color')
-                    }
-                }
-            },
+//         options: {
+//             plugins: {
+//                 legend: {
+//                     display: showLegend,
+//                     labels: {
+//                         color: $('body').css('color')
+//                     }
+//                 }
+//             },
 
-            scales: {
-                x: axesOpts.x,
-                y: axesOpts.y
-            }
-        }
-    });
+//             scales: {
+//                 x: axesOpts.x,
+//                 y: axesOpts.y
+//             }
+//         }
+//     });
 
-    // save chart for later appending, or resetting
-    _charts[action.ID] = {
-        canvas: chart,
-        append: _append
-    };
-}
+//     // save chart for later appending, or resetting
+//     _charts[action.ID] = {
+//         canvas: chart,
+//         append: _append
+//     };
+// }
 
-function getChartAxesColours(theme, canvas, axis) {
+function getChartAxesColours(theme, canvas, min, max) {
     var opts = {};
 
     // just hide ticks/legend for small tile charts
@@ -3799,12 +3820,10 @@ function getChartAxesColours(theme, canvas, axis) {
     }
 
     // add min/max
-    var min = parseInt(canvas.attr(`pode-min-${axis}`));
     if (min > MIN_INT32) {
         opts['min'] = min;
     }
 
-    var max = parseInt(canvas.attr(`pode-max-${axis}`));
     if (max < MAX_INT32) {
         opts['max'] = max;
     }
@@ -3826,12 +3845,11 @@ function getChartPieBorderColour(theme) {
     }
 }
 
-function getChartColourPalette(theme, canvas) {
+function getChartColourPalette(theme, colours) {
     // do the canvas have a defined set of colours?
-    var colours = canvas.attr('pode-colours');
-    if (colours) {
+    if (colours && colours.length > 0) {
         var converted = [];
-        colours.split(',').forEach((c) => { converted.push(hexToRgb(c.trim())); });
+        colours.forEach((c) => { converted.push(hexToRgb(c.trim())); });
         return converted;
     }
 
@@ -3876,20 +3894,20 @@ function hexToRgb(hex) {
     return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, 1.0)`;
 }
 
-function writeChart(action, sender) {
-    var senderId = getId(sender);
-    var chartId = `chart_${senderId}`;
+// function writeChart(action, sender) {
+//     var senderId = getId(sender);
+//     var chartId = `chart_${senderId}`;
 
-    // create canvas
-    var canvas = $(`canvas#${chartId}`);
-    if (canvas.length == 0) {
-        sender.after(`<div><canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${action.ChartType}" style="height:400px;"></canvas></div>`);
-    }
+//     // create canvas
+//     var canvas = $(`canvas#${chartId}`);
+//     if (canvas.length == 0) {
+//         sender.after(`<div><canvas class="my-4 w-100" id="${chartId}" pode-chart-type="${action.ChartType}" style="height:400px;"></canvas></div>`);
+//     }
 
-    // update
-    action.ID = chartId;
-    updateChart(action, sender);
-}
+//     // update
+//     action.ID = chartId;
+//     updateChart(action, sender);
+// }
 
 function getTimeString() {
     return (new Date()).toLocaleTimeString().split(':').slice(0,2).join(':');
