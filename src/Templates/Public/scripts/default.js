@@ -2781,6 +2781,16 @@ function updateSelect(action) {
     }
 
     select.empty();
+   
+    switch (action.ReadOnlyState) {
+        case 'Enabled':
+            select.attr('disabled', 'disabled');
+            break;
+
+        case 'Disabled':
+            select.removeAttr('disabled');
+            break;
+    }
 
     action.Options = convertToArray(action.Options);
     if (action.Options.Length <= 0) {
@@ -3069,6 +3079,16 @@ function actionValidation(action, sender) {
 
 //     if (action.AsJson) {
 //         action.Value = JSON.stringify(action.Value, null, 4);
+//     }
+
+//     switch (action.ReadOnlyState) {
+//         case 'Enabled':
+//             txt.attr('disabled', 'disabled');
+//             break;
+
+//         case 'Disabled':
+//             txt.removeAttr('disabled');
+//             break;
 //     }
 
 //     txt.val(action.Value);

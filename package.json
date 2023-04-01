@@ -5,7 +5,7 @@
   "author": "Matthew Kelly <badgerati42@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "jquery": "3.6.3",
+    "jquery": "3.6.4",
     "jquery-ui-dist": "1.13.2",
     "popper.js": "1.16.1",
     "bootstrap": "4.6.1",
@@ -13,7 +13,7 @@
     "@mdi/font": "7.1.96",
     "chart.js": "4.2.1",
     "@highlightjs/cdn-assets": "11.7.0",
-    "monaco-editor": "0.36.0",
+    "monaco-editor": "0.36.1",
     "moment": "2.29.4"
   }
 }
