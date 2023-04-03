@@ -242,7 +242,7 @@ function New-PodeWebFileUpload
 
     return @{
         ComponentType = 'Element'
-        ObjectType = 'FileUpload'
+        ObjectType = 'File-Upload'
         Parent = $ElementData
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
@@ -618,7 +618,6 @@ function New-PodeWebSelect
         ID = $Id
         Options = @($Options)
         DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
-        ScriptBlock = $ScriptBlock
         IsDynamic = ($null -ne $ScriptBlock)
         SelectedValue = $SelectedValue
         Multiple = $Multiple.IsPresent
@@ -1050,7 +1049,7 @@ function New-PodeWebListItem
 
     return @{
         ComponentType = 'Element'
-        ObjectType = 'ListItem'
+        ObjectType = 'List-Item'
         ID = (Get-PodeWebElementId -Tag ListItem -RandomToken)
         Content = $Content
         NoEvents = $true
@@ -3087,7 +3086,7 @@ function New-PodeWebFileStream
 
     $element = @{
         ComponentType = 'Element'
-        ObjectType = 'FileStream'
+        ObjectType = 'File-Stream'
         Parent = $ElementData
         Name = $Name
         ID = $Id

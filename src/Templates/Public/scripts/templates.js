@@ -123,6 +123,8 @@ class PodeElement {
     static tag = '';
 
     constructor(data, sender, opts) {
+        opts.child = opts.child ?? {};
+
         this.id = PodeElement.makeId(data, opts);
         this.name = data.Name ?? '';
         this.uuid = generateUuid();
@@ -139,9 +141,9 @@ class PodeElement {
         this.element = null;
         this.icon = null;
         this.child = {
-            isFirst: opts.child ? (opts.child.isFirst ?? false) : false,
-            isLast: opts.child ? (opts.child.isLast ?? false) : false,
-            index: opts.child ? (opts.child.index ?? 0) : 0 
+            isFirst: opts.child.isFirst ?? false,
+            isLast: opts.child.isLast ?? false,
+            index: opts.child.index ?? 0
         }
         this.css = {
             classes: data.CssClasses ?? '',
@@ -179,7 +181,8 @@ class PodeElement {
         var result = this.build('icon', {
             ID: `${this.id}_icon`,
             Name: name,
-            CssClasses: padRight ? 'mRight02' : '',
+            CssClasses: padRight ? 'mRight02' : ''
+        }, {
             parent: null
         });
 
@@ -263,7 +266,11 @@ class PodeElement {
                 this.sync(data, sender, opts);
                 break;
 
-            // add, remove, set, restart
+            case 'set':
+                this.set(data, sender, opts);
+                break;
+
+            // add, remove, restart
         }
 
         if (this.ephemeral) {
@@ -309,7 +316,7 @@ class PodeElement {
 
     build(name, data, opts) {
         opts = opts ?? {};
-        opts.parent = opts.parent === undefined ? this : null;
+        opts.parent = opts.parent === undefined ? this : opts.parent;
         opts.autoRender = false;
 
         //TODO: this should deal with child index - like render
@@ -550,6 +557,10 @@ class PodeElement {
         this.element.prop('readonly', enabled);
     }
 
+    setRequired(enabled) {
+        this.element.prop('required', enabled);
+    }
+
     reset(data, sender, opts) {
         this.element[0].reset();
     }
@@ -604,6 +615,10 @@ class PodeElement {
 
     stop(data, sender, opts) {
         throw `${this.getType()} "stop" method not implemented`
+    }
+
+    set(data, sender, opts) {
+        throw `${this.getType()} "set" method not implemented`
     }
 
     bind(data, sender, opts) {
@@ -771,11 +786,20 @@ class PodeRefreshableElement extends PodeTextualElement {
 class PodeFormElement extends PodeElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        opts.help = opts.help ?? {};
+
         this.readonly = data.ReadOnly ?? false;
         this.disabled = data.Disabled ?? false;
         this.required = data.Required ?? false;
         this.autofocus = data.AutoFocus ?? false;
         this.dynamicLabel = data.DynamicLabel ?? false;
+        this.validation = opts.validation ?? true;
+        this.label = opts.label ?? true;
+        this.help = {
+            enabled: opts.help.enabled ?? (data.HelpText != null),
+            text: opts.help.text ?? data.HelpText,
+            id: opts.help.id ?? this.id
+        };
         this.inForm = this.checkParentType('form');
     }
 
@@ -786,21 +810,27 @@ class PodeFormElement extends PodeElement {
                 var html = this.new(data, sender, opts);
 
                 // help text
-                if (data.HelpText) {
-                    html += `<small id='${this.id}_help' class='form-text text-muted'>${data.HelpText}</small>`;
+                if (this.help.enabled && this.help.text) {
+                    html += `<small id='${this.help.id}_help' class='form-text text-muted'>${this.help.text}</small>`;
                 }
 
                 // validation
-                html += `<div id="${this.id}_validation" class="invalid-feedback"></div>`;
+                if (this.validation) {
+                    html += `<div id="${this.id}_validation" class="invalid-feedback"></div>`;
+                }
 
                 // are we in a form?
-                html = `<div class='${this.inForm && !this.dynamicLabel ? 'col-sm-10' : ''}'>${html}</div>`;
-
                 if (this.inForm && !this.dynamicLabel) {
+                    html = `<div class='col-sm-10'>${html}</div>`;
+                }
+
+                if (this.label && this.inForm && !this.dynamicLabel) {
                     html = `<label for='${this.id}' class='col-sm-2 col-form-label'>${data.DisplayName}</label>${html}`;
                 }
 
-                html = `<div class='pode-form-${this.getType()} ${!this.inForm || this.dynamicLabel ? 'd-inline-block' : 'form-group row'} ${this.css.classes}'>${html}</div>`;
+                if (!(this.parent instanceof PodeFormElement)) {
+                    html = `<div class='pode-form-${this.getType()} ${!this.inForm || this.dynamicLabel ? 'd-inline-block' : 'form-group row'} ${this.css.classes}'>${html}</div>`;
+                }
 
                 // overload html from super
                 opts.html = html;
@@ -809,7 +839,7 @@ class PodeFormElement extends PodeElement {
 
         var html = super.apply(action, data, sender, opts);
 
-        // if "new", apply disabled/readonly properties
+        // if "new", apply post properties
         if (action === 'new') {
             if (this.disabled) {
                 this.disable(data, sender, opts);
@@ -817,6 +847,14 @@ class PodeFormElement extends PodeElement {
 
             if (this.readonly) {
                 this.setReadonly(true);
+            }
+
+            if (this.required) {
+                this.setRequired(true);
+            }
+
+            if (this.help.enabled) {
+                this.element.attr('aria-describedby', `${this.help.id}_help`);
             }
         }
 
@@ -844,16 +882,69 @@ class PodeFormElement extends PodeElement {
             switch (data.ReadOnlyState.toLowerCase()) {
                 case 'enabled':
                     this.readonly = true;
-                    this.element.prop('readonly', true);
+                    this.setReadonly(true);
                     break;
 
                 case 'disabled':
                     this.readonly = false;
-                    this.element.prop('readonly', false);
+                    this.setReadonly(false);
+                    break;
+            }
+        }
+
+        // required state
+        if (data.RequiredState) {
+            switch (data.RequiredState.toLowerCase()) {
+                case 'enabled':
+                    this.required = true;
+                    this.setRequired(true);
+                    break;
+
+                case 'disabled':
+                    this.readonly = false;
+                    this.setRequired(false);
                     break;
             }
         }
     }
+}
+
+class PodeFormMultiElement extends PodeFormElement {
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.formElements = [];
+    }
+
+    addFormElement(element) {
+        this.formElements.push(element);
+    }
+
+    new(data, sender, opts) {
+        var colSize = Math.floor(12 / this.formElements.length);
+
+        var html = '';
+        this.formElements.forEach((e) => {
+            html += `<div class='form-group col-md-${colSize}'>${e}</div>`;
+        });
+        this.formElements = [];
+
+        return `<div
+            id='${this.id}'
+            name='${this.name}'
+            class='form-row ${this.css.classes}'
+            style='${this.css.styles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            ${this.events(data.Events)}>
+                ${html}
+        </div>`;
+    }
+
+    //TODO: fix .build(...) children setting
+    disable(data, sender, opts) {}
+    enable(data, sender, opts) {}
+    setReadonly(enabled) {}
+    setRequired(enabled) {}
 }
 
 class PodeMediaElement extends PodeElement {
@@ -1122,6 +1213,8 @@ class PodeButton extends PodeFormElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.iconOnly =  data.IconOnly;
+        this.validation = false;
+        this.label = false;
     }
 
     new(data, sender, opts) {
@@ -2395,6 +2488,7 @@ class PodeHeader extends PodeTextualElement {
         super(...args);
     }
 
+    //TODO: add icon support
     new(data, sender, opts) {
         var subHeader = data.Secondary ? `<small class='text-muted'>${data.Secondary}</small>` : '';
 
@@ -2423,10 +2517,11 @@ class PodeTextbox extends PodeFormElement {
     }
 
     new(data, sender, opts) {
+        data.Prepend = data.Prepend ?? {};
+        data.Append = data.Append ?? {};
+
         var html = '';
 
-        var describedBy = data.HelpText ? `aria-describedby='${this.id}_help'` : '';
-        var required = this.required ? 'required' : '';
         var autofocus = this.autofocus ? 'autofocus' : '';
         var maxLength = data.MaxLength ? `maxlength='${data.MaxLength}'` : '';
         var width = `width: ${data.Width};`;
@@ -2448,8 +2543,6 @@ class PodeTextbox extends PodeFormElement {
                 placeholder='${data.Placeholder}'
                 rows='${data.Size}'
                 style='${width} ${this.css.styles}'
-                ${describedBy}
-                ${required}
                 ${autofocus}
                 ${events}
                 ${maxLength}>
@@ -2470,7 +2563,7 @@ class PodeTextbox extends PodeFormElement {
             }
 
             data.Type = data.Type.toLowerCase();
-            var inputType = data.Type === 'datatime' ? 'datetime-local' : data.Type;
+            var inputType = data.Type === 'datetime' ? 'datetime-local' : data.Type;
 
             html += `<input
                 type='${inputType}'
@@ -2480,14 +2573,11 @@ class PodeTextbox extends PodeFormElement {
                 pode-object='${this.getType()}'
                 pode-id='${this.uuid}'
                 style='${width} ${this.css.styles}'
-                placeholder='${data.Placeholder}'
-                ${describedBy}
-                ${required}
+                placeholder='${data.Placeholder ?? ''}'
                 ${autofocus}
                 ${value}
                 ${events}
-                ${maxLength}
-            >`;
+                ${maxLength}>`;
 
             if (data.Append.Enabled) {
                 html += data.Append.Text
@@ -2554,7 +2644,7 @@ class PodeTextbox extends PodeFormElement {
 PodeElementFactory.setClass(PodeTextbox);
 
 class PodeFileUpload extends PodeFormElement {
-    static type = 'fileupload';
+    static type = 'file-upload';
 
     constructor(...args) {
         super(...args);
@@ -2570,7 +2660,6 @@ class PodeFileUpload extends PodeFormElement {
             pode-id='${this.uuid}'
             style="${this.css.styles}"
             accept="${data.Accept}"
-            ${this.required ? 'required' : ''}
         >`;
     }
 }
@@ -3791,6 +3880,527 @@ class PodeModal extends PodeElement {
 }
 PodeElementFactory.setClass(PodeModal);
 
+class PodeList extends PodeElement {
+    static type = 'list';
+
+    constructor(...args) {
+        super(...args);
+        this.contentProperty = 'Items';
+    }
+
+    new(data, sender, opts) {
+        var listTag = data.Numbered ? 'ol' : 'ul';
+
+        data.Values = convertToArray(data.Values);
+        data.Items = convertToArray(data.Items);
+
+        var content = '';
+        if (data.Items.length > 0) {
+            content = `<span pode-content-for='${this.id}'></span>`
+        }
+        else {
+            data.Values.forEach((v) => {
+                content += `<li>${v}</li>`;
+            });
+        }
+
+        return `<${listTag}
+            id='${this.id}'
+            class='${this.css.classes}'
+            style='${this.css.styles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+                ${content}
+        </${listTag}>`;
+    }
+}
+PodeElementFactory.setClass(PodeList);
+
+class PodeListItem extends PodeElement {
+    static type = 'list-item';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        return `<li
+            id='${this.id}'
+            class='${this.css.classes}'
+            style='${this.css.styles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+                <span pode-content-for='${this.id}'></span>
+        </li>`;
+    }
+}
+PodeElementFactory.setClass(PodeList);
+
+class PodeHidden extends PodeFormElement {
+    static type = 'hidden';
+
+    constructor(...args) {
+        super(...args);
+        this.validation = false;
+        this.label = false;
+    }
+
+    new(data, sender, opts) {
+        return `<input
+            type="hidden"
+            id="${this.id}"
+            class="form-control ${this.css.classes}"
+            style="${this.css.styles}"
+            name="${this.name}"
+            value="${data.Value}"
+            pode-object="${this.getType()}"
+            pode-id="${this.uuid}">`;
+    }
+}
+PodeElementFactory.setClass(PodeHidden);
+
+class PodeSelect extends PodeFormElement {
+    static type = 'select';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.multiSelect = data.Multiple ?? false;
+    }
+
+    new(data, sender, opts) {
+        var multiple = this.multiSelect ? `multiple size='${data.Size ?? 1}'` : '';
+
+        var selectedValue = convertToArray(data.SelectedValue);
+        if (!this.multiSelect && selectedValue.length >= 2) {
+            selectedValue = [selectedValue[0]];
+        }
+
+        var options = '';
+        data.DisplayOptions = convertToArray(data.DisplayOptions);
+        convertToArray(data.Options).forEach((opt, index) => {
+            if (!opt) {
+                return;
+            }
+
+            options += `<option
+                value='${opt}'
+                ${selectedValue.includes(opt) ? 'selected' : '' }>
+                    ${data.DisplayOptions[index]}
+            </option>`;
+        });
+
+        return `<select
+            id='${this.id}'
+            class='custom-select ${this.css.classes}'
+            style='${this.css.styles}'
+            name='${this.name}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            ${multiple}
+            ${this.events(data.Events)}>
+                ${options}
+        </select`;
+    }
+
+    //TODO: add "New-PodeWebSelectOption", and make "PodeSelectOption" class
+    //          --  "-Options" is now an array of that func, and we can remove "-DisplayOptions"!
+    //          -- need to fix "clear(...)" if we do this
+
+    load(data, sender, opts) {
+        if (this.dynamic) {
+            sendAjaxReq(this.url, null, this.element, true);
+        }
+    }
+
+    set(data, sender, opts) {
+        if (!data.Value) {
+            return;
+        }
+
+        this.element.val(decodeHTML(data.Value));
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update options
+        data.Options = convertToArray(data.Options);
+        if (data.Options.length > 0) {
+            this.clear();
+
+            data.DisplayOptions = convertToArray(data.DisplayOptions);
+            data.SelectedValue = convertToArray(data.SelectedValue);
+
+            data.Options.forEach((opt, index) => {
+                this.element.append(`<option
+                    value="${opt}"
+                    ${data.SelectedValue.includes(opt) ? 'selected' : '' }>
+                        ${data.DisplayOptions[index]}
+                </option>`);
+            });
+        }
+    }
+
+    clear(data, sender, opts) {
+        this.element.empty();
+    }
+}
+PodeElementFactory.setClass(PodeSelect);
+
+class PodeRange extends PodeFormElement {
+    static type = 'range';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.showValue = data.ShowValue ?? false;
+    }
+
+    new(data, sender, opts) {
+        var rangeValue = !this.showValue ? '' : `<input
+            id='${this.id}_value'
+            type='number'
+            class='form-control pode-range-value'
+            for='${this.id}'
+            value='${data.Value}'
+            min='${data.Min}'
+            max='${data.Max}'>
+        <label class=''>/${data.Max}</label>`;
+
+        return `<span class='range-wrapper ${this.css.classes}' style='${this.css.styles}' for='${this.id}'>
+            <input
+                type='range'
+                id='${this.id}'
+                name='${this.name}'
+                class='form-control-range ${this.showValue ? 'pode-range-value' : ''}'
+                pode-object='${this.getType()}'
+                pode-id='${this.uuid}'
+                value='${data.Value}'
+                min='${data.Min}'
+                max='${data.Max}'
+                ${this.events(data.Events)}>
+            ${rangeValue}
+        </span>`;
+    }
+
+    bind(data, sender, opts) {
+        var obj = this;
+
+        if (this.showValue) {
+            var valElement = this.getNumberInput();
+
+            this.element.off('change').on('change', function(e) {
+                valElement.val(obj.element.val());
+            });
+
+            valElement.off('change').on('change', function(e) {
+                obj.element.val(valElement.val());
+            });
+        }
+    }
+
+    disable(data, sender, opts) {
+        super.disable(data, sender, opts);
+        disable(this.getNumberInput());
+    }
+
+    enable(data, sender, opts) {
+        super.enable(data, sender, opts);
+        enable(this.getNumberInput());
+    }
+
+    getNumberInput() {
+        return !this.showValue ? null : this.element.closest('.range-wrapper').find(`input[type="number"][for="${this.id}"]`);
+    }
+}
+PodeElementFactory.setClass(PodeRange);
+
+class PodeProgress extends PodeElement {
+    static type = 'progress';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.showValue = data.ShowValue ?? false;
+        this.animated = data.Animated ?? false;
+        this.striped = data.Striped ?? false;
+    }
+
+    new(data, sender, opts) {
+        var showValue = this.showValue ? 'pode-progress-value' : '';
+        var striped = this.striped ? 'progress-bar-striped' : '';
+        var animated = this.animated ? 'progress-bar-animated' : '';
+
+        var html = `<div
+            class='progress'>
+                <div
+                    id='${this.id}'
+                    name='${this.name}'
+                    class='progress-bar bg-${data.ColourType ?? 'primary'} ${showValue} ${striped} ${animated} ${this.css.classes}'
+                    role='progressbar'
+                    style='width: ${data.Percentage ?? 0}%;${this.css.styles}'
+                    aria-valuenow='${data.Value ?? 0}'
+                    aria-valuemin='${data.Min ?? 0}'
+                    aria-valuemax='${data.Max ?? 100}'
+                    pode-object='${this.getType()}'
+                    pode-id='${this.uuid}'
+                    ${this.events(data.Events)}>
+                </div>
+        </div>`;
+
+        if (data.DisplayName) {
+            html = `<div class='form-group row'>
+                <label for='${this.id}' class='col-sm-2 col-form-label'>${data.DisplayName}</label>
+                <div class='col-sm-10 my-auto'>${html}</div>
+            </div>`;
+        }
+
+        return html;
+    }
+
+    load(data, sender, opts) {
+        if (this.showValue) {
+            this.element.text(`${this.element.attr('aria-valuenow')} / ${this.element.attr('aria-valuemax')}`);
+        }
+    }
+
+    bind(data, sender, opts) {
+        var obj = this;
+
+        if (this.showValue) {
+            this.element.off('change').on('change', function(e) {
+                obj.element.text(`${obj.element.attr('aria-valuenow')} / ${obj.element.attr('aria-valuemax')}`);
+            });
+        }
+    }
+
+    update(data, sender, opts) {
+        // value
+        if (data.Value) {
+            this.element.attr('aria-valuenow', data.Value);
+
+            var max = this.element.attr('aria-valuemax');
+            var percentage = (data.Value / max) * 100.0;
+
+            this.element.css('width', `${percentage}%`);
+        }
+
+        // colour
+        if (data.Colour) {
+            replaceClass(this.element, 'bg-\\w+', `bg-${data.ColourType}`);
+        }
+    }
+}
+PodeElementFactory.setClass(PodeProgress);
+
+class PodeCheckbox extends PodeFormElement {
+    static type = 'checkbox';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        var inline = data.Inline ? 'form-check-inline' : '';
+        var checked = data.Checked ? 'checked' : '';
+
+        var isSwitch = data.AsSwitch ?? false;
+        var divClass = isSwitch ? 'custom-control custom-switch' : 'form-check';
+        var inputClass = isSwitch ? 'custom-control-input' : 'form-check-input';
+        var labelClass = isSwitch ? 'custom-control-label' : 'form-check-label';
+
+        data.Options = convertToArray(data.Options);
+        data.DisplayOptions = convertToArray(data.DisplayOptions);
+
+        var options = '';
+        data.Options.forEach((opt, index) => {
+            if (!opt) {
+                return;
+            }
+
+            options += `<div class='${divClass} ${inline} ${this.css.classes}' style='${this.css.styles}'>
+                <input
+                    type='checkbox'
+                    id='${this.id}_option${index}'
+                    class='${inputClass}'
+                    value='${opt}'
+                    name='${this.name}'
+                    pode-option-id='${index}'
+                    ${checked}>
+                <label class='${labelClass}' for='${this.id}_option${index}'>
+                    ${opt !== 'true' ? data.DisplayOptions[index] : ''}
+                </label>
+            </div>`;
+        });
+
+        return `<div>${options}</div>`;
+    }
+
+    //TODO: same as the comment for "select" - CheckboxOption ?
+    //          -- that would make this "Checkbox" not a "FormElement" but the "CheckOption" would be
+    //          -- this is needed to control individual checkboxes, and fix disabled/required/etc support
+    //          -- as well as update() support...
+}
+PodeElementFactory.setClass(PodeCheckbox);
+
+class PodeDateTime extends PodeFormMultiElement {
+    static type = 'datetime';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        if (searchArray(data.Type, 'date', true)) {
+            this.addFormElement(this.build('textbox', {
+                ID: `${this.id}_date`,
+                Name: `${this.id}_date`,
+                Type: 'date',
+                ReadOnly: this.readonly,
+                Required: this.required,
+                DynamicLabel: true,
+                DisplayName: data.Placeholders.Date
+            }, {
+                help: { enabled: true, id: this.id }
+            }).html);
+        }
+
+        if (searchArray(data.Type, 'time', true)) {
+            this.addFormElement(this.build('textbox', {
+                ID: `${this.id}_time`,
+                Name: `${this.id}_time`,
+                Type: 'time',
+                ReadOnly: this.readonly,
+                Required: this.required,
+                DynamicLabel: true,
+                DisplayName: data.Placeholders.Time
+            }, {
+                help: { enabled: true, id: this.id }
+            }).html);
+        }
+
+        return super.new(data, sender, opts);
+    }
+}
+PodeElementFactory.setClass(PodeDateTime);
+
+class PodeCredential extends PodeFormMultiElement {
+    static type = 'credential';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        if (searchArray(data.Type, 'username', true)) {
+            this.addFormElement(this.build('textbox', {
+                ID: `${this.id}_username`,
+                Name: `${this.id}_username`,
+                Type: 'text',
+                ReadOnly: this.readonly,
+                Required: this.required,
+                DynamicLabel: true,
+                DisplayName: data.Placeholders.Username
+            }, {
+                help: { enabled: true, id: this.id }
+            }).html);
+        }
+
+        if (searchArray(data.Type, 'password', true)) {
+            this.addFormElement(this.build('textbox', {
+                ID: `${this.id}_password`,
+                Name: `${this.id}_password`,
+                Type: 'password',
+                ReadOnly: this.readonly,
+                Required: this.required,
+                DynamicLabel: true,
+                DisplayName: data.Placeholders.Password
+            }, {
+                help: { enabled: true, id: this.id }
+            }).html);
+        }
+
+        return super.new(data, sender, opts);
+    }
+}
+PodeElementFactory.setClass(PodeCredential);
+
+class PodeMinMax extends PodeFormMultiElement {
+    static type = 'minmax';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        if (searchArray(data.Type, 'min', true)) {
+            this.addFormElement(this.build('textbox', {
+                ID: `${this.id}_min`,
+                Name: `${this.id}_min`,
+                Type: 'number',
+                ReadOnly: this.readonly,
+                Required: this.required,
+                DynamicLabel: true,
+                DisplayName: data.Placeholders.Min,
+                Value: data.Values.Min,
+                Prepend: data.Prepend,
+                Append: data.Append
+            }, {
+                help: { enabled: true, id: this.id }
+            }).html);
+        }
+
+        if (searchArray(data.Type, 'max', true)) {
+            this.addFormElement(this.build('textbox', {
+                ID: `${this.id}_max`,
+                Name: `${this.id}_max`,
+                Type: 'number',
+                ReadOnly: this.readonly,
+                Required: this.required,
+                DynamicLabel: true,
+                DisplayName: data.Placeholders.Max,
+                Value: data.Values.Max,
+                Prepend: data.Prepend,
+                Append: data.Append
+            }, {
+                help: { enabled: true, id: this.id }
+            }).html);
+        }
+
+        return super.new(data, sender, opts);
+    }
+}
+PodeElementFactory.setClass(PodeMinMax);
+
+
+
+
+
+
+
+
+
+
+
+
+class PodeRadio extends PodeFormElement {
+    static type = 'radio';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+    }
+}
+PodeElementFactory.setClass(PodeRadio);
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3813,8 +4423,8 @@ class PodeNotification extends PodeElement {
 }
 PodeElementFactory.setClass(PodeNotification);
 
-class PodeCheckbox extends PodeElement {
-    static type = 'checkbox';
+class PodeFileStream extends PodeElement {
+    static type = 'file-stream';
 
     constructor(...args) {
         super(...args);
@@ -3823,6 +4433,78 @@ class PodeCheckbox extends PodeElement {
     new(data, sender, opts) {
     }
 }
-PodeElementFactory.setClass(PodeCheckbox);
+PodeElementFactory.setClass(PodeFileStream);
 
-// plus the ones missed
+class PodeSteps extends PodeElement {
+    static type = 'steps';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+    }
+}
+PodeElementFactory.setClass(PodeSteps);
+
+class PodeStep extends PodeElement {
+    static type = 'step';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+    }
+}
+PodeElementFactory.setClass(PodeStep);
+
+class PodeBreadcrumb extends PodeElement {
+    static type = 'breadcrumb';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+    }
+}
+PodeElementFactory.setClass(PodeBreadcrumb);
+
+
+// plus the nav ones?
+class PodeNavDivider extends PodeElement {
+    static type = 'nav-divider';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+    }
+}
+PodeElementFactory.setClass(PodeNavDivider);
+
+class PodeNavDropdown extends PodeElement {
+    static type = 'nav-dropdown';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+    }
+}
+PodeElementFactory.setClass(PodeNavDropdown);
+
+class PodeNavLink extends PodeElement {
+    static type = 'nav-link';
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+    }
+}
+PodeElementFactory.setClass(PodeNavLink);

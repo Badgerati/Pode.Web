@@ -34,7 +34,7 @@ $(() => {
         // loadCharts();
         // loadAutoCompletes();
         // loadTiles();
-        loadSelects();
+        // loadSelects();
 
         setupSteppers();
         // setupAccordion();
@@ -58,8 +58,8 @@ $(() => {
         // bindTableButtons();
 
         // bindChartRefresh();
-        bindRangeValue();
-        bindProgressValue();
+        // bindRangeValue();
+        // bindProgressValue();
         // bindModalSubmits();
         // bindFormResets();
 
@@ -1137,31 +1137,31 @@ function setTitle(element, title) {
     }
 }
 
-function bindRangeValue() {
-    $('input[type="range"].pode-range-value').each((index, item) => {
-        var target = $(item);
-        var value = $(`input#${target.attr('id')}_value`);
+// function bindRangeValue() {
+//     $('input[type="range"].pode-range-value').each((index, item) => {
+//         var target = $(item);
+//         var value = $(`input#${target.attr('id')}_value`);
 
-        target.on('change', (e) => {
-            value.val(target.val());
-        });
+//         target.on('change', (e) => {
+//             value.val(target.val());
+//         });
 
-        value.on('change', (e) => {
-            target.val(value.val());
-        });
-    });
-}
+//         value.on('change', (e) => {
+//             target.val(value.val());
+//         });
+//     });
+// }
 
-function bindProgressValue() {
-    $('div.progress div.pode-progress-value').each((index, item) => {
-        var target = $(item);
+// function bindProgressValue() {
+//     $('div.progress div.pode-progress-value').each((index, item) => {
+//         var target = $(item);
 
-        target.text(`${target.attr('aria-valuenow')} / ${target.attr('aria-valuemax')}`);
-        target.on('change', (e) => {
-            target.text(`${target.attr('aria-valuenow')} / ${target.attr('aria-valuemax')}`);
-        });
-    });
-}
+//         target.text(`${target.attr('aria-valuenow')} / ${target.attr('aria-valuemax')}`);
+//         target.on('change', (e) => {
+//             target.text(`${target.attr('aria-valuenow')} / ${target.attr('aria-valuemax')}`);
+//         });
+//     });
+// }
 
 // function loadTables() {
 //     $(`table[pode-dynamic='True']`).each((i, e) => {
@@ -1285,22 +1285,22 @@ function bindProgressValue() {
 //     }
 // }
 
-function loadSelects() {
-    $(`select[pode-dynamic="True"]`).each((i, e) => {
-        loadSelect($(e).attr('id'));
-    });
-}
+// function loadSelects() {
+//     $(`select[pode-dynamic="True"]`).each((i, e) => {
+//         loadSelect($(e).attr('id'));
+//     });
+// }
 
-function loadSelect(selectId) {
-    if (!selectId) {
-        return;
-    }
+// function loadSelect(selectId) {
+//     if (!selectId) {
+//         return;
+//     }
 
-    var select = $(`select[pode-dynamic="True"]#${selectId}`);
-    if (select.length > 0) {
-        sendAjaxReq(getComponentUrl(select), null, select, true);
-    }
-}
+//     var select = $(`select[pode-dynamic="True"]#${selectId}`);
+//     if (select.length > 0) {
+//         sendAjaxReq(getComponentUrl(select), null, select, true);
+//     }
+// }
 
 // function bindTileRefresh() {
 //     $("div.pode-tile .pode-tile-body .pode-refresh-btn").each((i, e) => {
@@ -1441,13 +1441,13 @@ function invokeActions(actions, sender) {
             //     PodeElementFactory.invokeClass(_type, _operation, action, sender);
             //     break;
 
-            case 'select':
-                actionSelect(action);
-                break;
+            // case 'select':
+            //     actionSelect(action);
+            //     break;
 
-            case 'checkbox':
-                actionCheckbox(action);
-                break;
+            // case 'checkbox':
+            //     actionCheckbox(action);
+            //     break;
 
             // case 'modal':
             //     actionModal(action, sender);
@@ -1465,9 +1465,9 @@ function invokeActions(actions, sender) {
             //     PodeElementFactory.invokeClass(_type, _operation, action, sender);
             //     break;
 
-            case 'progress':
-                actionProgress(action);
-                break;
+            // case 'progress':
+            //     actionProgress(action);
+            //     break;
 
             // case 'tab':
             //     actionTab(action);
@@ -1542,49 +1542,49 @@ function invokeActions(actions, sender) {
     });
 }
 
-function buildElements(elements) {
-    var html = '';
+// function buildElements(elements) {
+//     var html = '';
 
-    if (!elements) {
-        return html;
-    }
+//     if (!elements) {
+//         return html;
+//     }
 
-    elements = convertToArray(elements);
+//     elements = convertToArray(elements);
 
-    elements.forEach((ele) => {
-        var _type = ele.ObjectType;
-        if (_type) {
-            _type = _type.toLowerCase();
-        }
+//     elements.forEach((ele) => {
+//         var _type = ele.ObjectType;
+//         if (_type) {
+//             _type = _type.toLowerCase();
+//         }
 
-        switch (_type) {
-            case 'button':
-                html += buildButton(ele);
-                break;
+//         switch (_type) {
+//             case 'button':
+//                 html += buildButton(ele);
+//                 break;
 
-            case 'icon':
-                html += buildIcon(ele);
-                break;
+//             case 'icon':
+//                 html += buildIcon(ele);
+//                 break;
 
-            case 'badge':
-                html += buildBadge(ele);
-                break;
+//             case 'badge':
+//                 html += buildBadge(ele);
+//                 break;
 
-            case 'spinner':
-                html += buildSpinner(ele);
-                break;
+//             case 'spinner':
+//                 html += buildSpinner(ele);
+//                 break;
 
-            case 'link':
-                html += buildLink(ele);
-                break;
+//             case 'link':
+//                 html += buildLink(ele);
+//                 break;
 
-            default:
-                break;
-        }
-    });
+//             default:
+//                 break;
+//         }
+//     });
 
-    return html;
-}
+//     return html;
+// }
 
 function bindFormSubmits() {
     // general forms
@@ -2754,99 +2754,99 @@ function resetTheme() {
     setPodeTheme('', true);
 }
 
-function actionSelect(action) {
-    if (!action) {
-        return;
-    }
+// function actionSelect(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    switch (action.Operation.toLowerCase()) {
-        case 'set':
-            setSelect(action);
-            break;
+//     switch (action.Operation.toLowerCase()) {
+//         case 'set':
+//             setSelect(action);
+//             break;
 
-        case 'update':
-            updateSelect(action);
-            break;
+//         case 'update':
+//             updateSelect(action);
+//             break;
 
-        case 'clear':
-            clearSelect(action);
-            break;
+//         case 'clear':
+//             clearSelect(action);
+//             break;
 
-        case 'sync':
-            syncSelect(action);
-            break;
-    }
-}
+//         case 'sync':
+//             syncSelect(action);
+//             break;
+//     }
+// }
 
-function setSelect(action) {
-    var select = getElementByNameOrId(action, 'select');
-    if (!select) {
-        return;
-    }
+// function setSelect(action) {
+//     var select = getElementByNameOrId(action, 'select');
+//     if (!select) {
+//         return;
+//     }
 
-    setSelectValue(select, action.Value);
-}
+//     setSelectValue(select, action.Value);
+// }
 
-function setSelectValue(select, value) {
-    if (!select || !value) {
-        return
-    }
+// function setSelectValue(select, value) {
+//     if (!select || !value) {
+//         return
+//     }
 
-    select.val(decodeHTML(value));
-}
+//     select.val(decodeHTML(value));
+// }
 
-function updateSelect(action) {
-    var select = getElementByNameOrId(action, 'select');
-    if (!select) {
-        return;
-    }
+// function updateSelect(action) {
+//     var select = getElementByNameOrId(action, 'select');
+//     if (!select) {
+//         return;
+//     }
 
-    select.empty();
+//     select.empty();
    
-    switch (action.ReadOnlyState) {
-        case 'Enabled':
-            select.attr('disabled', 'disabled');
-            break;
+//     switch (action.ReadOnlyState) {
+//         case 'Enabled':
+//             select.attr('disabled', 'disabled');
+//             break;
 
-        case 'Disabled':
-            select.removeAttr('disabled');
-            break;
-    }
+//         case 'Disabled':
+//             select.removeAttr('disabled');
+//             break;
+//     }
 
-    action.Options = convertToArray(action.Options);
-    if (action.Options.Length <= 0) {
-        return;
-    }
+//     action.Options = convertToArray(action.Options);
+//     if (action.Options.Length <= 0) {
+//         return;
+//     }
 
-    action.DisplayOptions = convertToArray(action.DisplayOptions);
-    action.SelectedValue = convertToArray(action.SelectedValue);
+//     action.DisplayOptions = convertToArray(action.DisplayOptions);
+//     action.SelectedValue = convertToArray(action.SelectedValue);
 
-    action.Options.forEach((opt, idx) => {
-        var optSelected = '';
-        if (action.SelectedValue.includes(opt) == true) {
-            optSelected = ' selected';
-        }
-        select.append(`<option value="${opt}"${optSelected}>${action.DisplayOptions[idx]}</option>`);
-    })
-}
+//     action.Options.forEach((opt, idx) => {
+//         var optSelected = '';
+//         if (action.SelectedValue.includes(opt) == true) {
+//             optSelected = ' selected';
+//         }
+//         select.append(`<option value="${opt}"${optSelected}>${action.DisplayOptions[idx]}</option>`);
+//     })
+// }
 
-function clearSelect(action) {
-    var select = getElementByNameOrId(action, 'select');
-    if (!select) {
-        return;
-    }
+// function clearSelect(action) {
+//     var select = getElementByNameOrId(action, 'select');
+//     if (!select) {
+//         return;
+//     }
 
-    select.empty();
-}
+//     select.empty();
+// }
 
-function syncSelect(action) {
-    var select = getElementByNameOrId(action, 'select', null, '[pode-dynamic="True"]');
-    if (!select) {
-        return;
-    }
+// function syncSelect(action) {
+//     var select = getElementByNameOrId(action, 'select', null, '[pode-dynamic="True"]');
+//     if (!select) {
+//         return;
+//     }
 
-    loadSelect(getId(select));
-}
+//     loadSelect(getId(select));
+// }
 
 function decodeHTML(value) {
     var textArea = document.createElement('textarea');
@@ -3647,6 +3647,26 @@ function truncateArray(array, maxItems) {
     return array.slice(array.length - maxItems, array.length);
 }
 
+function convertToArray(element) {
+    if (element == null) {
+        return [];
+    }
+
+    if (!Array.isArray(element)) {
+        element = [element];
+    }
+
+    return element;
+}
+
+function searchArray(array, element, caseInsensitive) {;
+    return convertToArray(array).find((item) => {
+        return caseInsensitive
+            ? item.toLowerCase() === element.toLowerCase()
+            : item === element;
+    }) !== undefined;
+}
+
 // function createTheChart(canvas, action, sender) {
 //     // remove chart
 //     var _chart = _charts[action.ID];
@@ -3980,32 +4000,32 @@ function actionHref(action) {
 //     return PodeElementFactory.invokeClass('Badge', 'update', action);
 // }
 
-function actionProgress(action) {
-    if (!action) {
-        return;
-    }
+// function actionProgress(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    var progress = getElementByNameOrId(action, 'div');
-    if (!progress) {
-        return;
-    }
+//     var progress = getElementByNameOrId(action, 'div');
+//     if (!progress) {
+//         return;
+//     }
 
-    // change value
-    if (action.Value >= 0) {
-        progress.attr('aria-valuenow', action.Value);
+//     // change value
+//     if (action.Value >= 0) {
+//         progress.attr('aria-valuenow', action.Value);
 
-        var max = progress.attr('aria-valuemax');
-        var percentage = (action.Value / max) * 100.0;
+//         var max = progress.attr('aria-valuemax');
+//         var percentage = (action.Value / max) * 100.0;
 
-        progress.css('width', `${percentage}%`);
-    }
+//         progress.css('width', `${percentage}%`);
+//     }
 
-    // change colour
-    if (action.Colour) {
-        removeClass(progress, 'bg-\\w+');
-        addClass(progress, `bg-${action.ColourType}`);
-    }
-}
+//     // change colour
+//     if (action.Colour) {
+//         removeClass(progress, 'bg-\\w+');
+//         addClass(progress, `bg-${action.ColourType}`);
+//     }
+// }
 
 function getClass(element, _class) {
     if (!element) {
@@ -4210,18 +4230,6 @@ function actionBreadcrumb(action) {
             breadcrumb.append(`<li class='breadcrumb-item'><a href='${i.Url}'>${i.Name}</a></li>`);
         }
     });
-}
-
-function convertToArray(element) {
-    if (element == null) {
-        return [];
-    }
-
-    if (!Array.isArray(element)) {
-        element = [element];
-    }
-
-    return element;
 }
 
 function invokeEvent(type, sender) {

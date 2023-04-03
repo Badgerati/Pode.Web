@@ -27,7 +27,8 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
         New-PodeWebDateTime -Name 'DateTime' -NoLabels
-        New-PodeWebCredential -Name 'Credentials' -NoLabels
+        New-PodeWebCredential -Name 'Credentials' -NoLabels #TODO: NoLabels now redudant
+        New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent'
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
         New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations')
@@ -54,6 +55,8 @@ Start-PodeServer {
         Register-PodeWebEvent -Type MouseOut -ScriptBlock {
             Show-PodeWebToast -Message 'The element has no mouse!'
         }
+
+        New-PodeWebProgress -Name 'Loading' -Value 23 -Colour Green -Striped -Animated
     )
 
     $container = New-PodeWebContainer -Content @(
