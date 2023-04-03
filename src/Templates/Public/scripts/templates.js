@@ -3,13 +3,7 @@ TODO:
 Swap "id" and "pode-id"?
 - Since you can set duplicate IDs in Pode, or in Tables for example
 
-- function for "mdi mdi-{name}" ?
-  - or, make everything call PodeIcon? - would be better for more component re-use pattern
-
 - all Home page types will need a /content url
-
-- could we append a layout to the DOM first, and pass that as a 'sender' to elements?
-  - saves building a massive html string to append if it works
 
 - Home page only has -Layouts, really needs a -ScriptBlock as well!
 
@@ -134,22 +128,25 @@ class PodeElement {
         this.dynamic = data.IsDynamic ?? false;
         this.autoRender = opts.autoRender ?? true;
         this.contentProperty = null;
-        this.children = [];
         this.previous = null;
         this.next = null;
         this.isOutput = data.AsOutput ?? false;
         this.element = null;
         this.icon = null;
+        this.url = `/components/${this.getType()}/${data.ID}`;
+
+        this.parent = null;
+        this.children = [];
         this.child = {
-            isFirst: opts.child.isFirst ?? false,
-            isLast: opts.child.isLast ?? false,
-            index: opts.child.index ?? 0
-        }
+            isFirst: false,
+            isLast: false,
+            index: 0
+        };
+
         this.css = {
             classes: data.CssClasses ?? '',
             styles: data.CssStyles ?? ''
         };
-        this.url = `/components/${this.getType()}/${data.ID}`;
 
         this.setParent(opts.parent, data, sender, opts);
         PodeElementFactory.setObject(this.uuid, this);
@@ -169,8 +166,30 @@ class PodeElement {
             return;
         }
 
+        // set element child index and first/last
+        element.child = {
+            index: this.children.length,
+            isFirst: this.children.length === 0,
+            isLast: true
+        };
+
+        // set the previous child to not the last child, and set next/previous properties
+        if (this.children.length > 0) {
+            // set previous to not last
+            var prev = this.children[this.children.length - 1];
+            prev.child.isLast = false;
+
+            // prev/next link
+            prev.next = element;
+            element.previous = prev;
+
+            // prev/next wrapper link for first/last children
+            element.next = this.children[0];
+            this.children[0].previous = element;
+        }
+
+        // add child
         this.children.push(element);
-        //TODO: deal with child indexes, previous/next here?
     }
 
     setIcon(name, padRight) {
@@ -182,11 +201,9 @@ class PodeElement {
             ID: `${this.id}_icon`,
             Name: name,
             CssClasses: padRight ? 'mRight02' : ''
-        }, {
-            parent: null
         });
 
-        this.icon = result.element;
+        this.icon = result.elements[0];
         return result.html;
     }
 
@@ -207,7 +224,7 @@ class PodeElement {
         switch (action) {
             case 'new':
                 var html = opts.html ? opts.html : this.new(data, sender, opts);
-                this.finalise(html, data, sender, opts, false);
+                this.finalise(html, data, sender, false, opts);
                 break;
 
             case 'update':
@@ -287,6 +304,7 @@ class PodeElement {
             return;
         }
 
+        data = data ?? {};
         if (html && sender) {
             this.isOutput ? sender.after(html) : sender.append(html);
         }
@@ -314,20 +332,18 @@ class PodeElement {
         }
     }
 
-    build(name, data, opts) {
+    build(name, data, opts, parent) {
+        if (!name || !data) {
+            return null;
+        }
+
         opts = opts ?? {};
-        opts.parent = opts.parent === undefined ? this : opts.parent;
         opts.autoRender = false;
 
-        //TODO: this should deal with child index - like render
+        data.ObjectType = name;
+        parent = parent === undefined ? this : opts.parent;
 
-        var result = PodeElementFactory.invokeClass(name, 'new', data, null, opts);
-
-        //TODO: set previous/next child - like render
-        // -- same for above: deal with all this index / previous / next in "addChild"?
-
-        // return element/html
-        return result;
+        return this.render(data, null, parent, opts);
     }
 
     renderContentArea(data, opts) {
@@ -357,12 +373,6 @@ class PodeElement {
         var html = '';
 
         content.forEach((item, index) => {
-            opts.child = {
-                isFirst: index == 0,
-                isLast: index == content.length - 1,
-                index: index
-            }
-
             if (sender && sender.length > 1) {
                 sender = this.filter(sender, (item) => {
                     if (item.attr('pode-min-index') <= index && item.attr('pode-max-index') >= index) {
@@ -372,17 +382,7 @@ class PodeElement {
             }
 
             var result = PodeElementFactory.invokeClass(item.ObjectType, 'new', item, sender, opts);
-
-            // store, and set next/previous
             created.push(result.element);
-            if (index > 0) {
-                result.element.previous = created[index - 1];
-                created[index - 1].next = result.element;
-            }
-            if (index == content.length - 1) {
-                result.element.next = created[0];
-                created[0].previous = result.element;
-            }
 
             // do we have any html?
             if (result.html) {
@@ -554,11 +554,21 @@ class PodeElement {
     }
 
     setReadonly(enabled) {
+        if (!this.element) {
+            return;
+        }
+
         this.element.prop('readonly', enabled);
+        this.children.forEach((child) => { child.setReadonly(enabled); });
     }
 
     setRequired(enabled) {
+        if (!this.element) {
+            return;
+        }
+
         this.element.prop('required', enabled);
+        this.children.forEach((child) => { child.setRequired(enabled); });
     }
 
     reset(data, sender, opts) {
@@ -574,11 +584,21 @@ class PodeElement {
     }
 
     enable(data, sender, opts) {
+        if (!this.element) {
+            return;
+        }
+
         enable(this.element);
+        this.children.forEach((child) => { child.enable(data, sender, opts); });
     }
 
     disable(data, sender, opts) {
+        if (!this.element) {
+            return;
+        }
+
         disable(this.element);
+        this.children.forEach((child) => { child.disable(data, sender, opts); });
     }
 
     show(data, sender, opts) {
@@ -837,28 +857,25 @@ class PodeFormElement extends PodeElement {
                 break;
         }
 
-        var html = super.apply(action, data, sender, opts);
+        return super.apply(action, data, sender, opts);
+    }
 
-        // if "new", apply post properties
-        if (action === 'new') {
-            if (this.disabled) {
-                this.disable(data, sender, opts);
-            }
-
-            if (this.readonly) {
-                this.setReadonly(true);
-            }
-
-            if (this.required) {
-                this.setRequired(true);
-            }
-
-            if (this.help.enabled) {
-                this.element.attr('aria-describedby', `${this.help.id}_help`);
-            }
+    load(data, sender, opts) {
+        if (this.disabled) {
+            this.disable(data, sender, opts);
         }
 
-        return html;
+        if (this.readonly) {
+            this.setReadonly(true);
+        }
+
+        if (this.required) {
+            this.setRequired(true);
+        }
+
+        if (this.help.enabled) {
+            this.element.attr('aria-describedby', `${this.help.id}_help`);
+        }
     }
 
     update(data, sender, opts) {
@@ -916,7 +933,11 @@ class PodeFormMultiElement extends PodeFormElement {
     }
 
     addFormElement(element) {
-        this.formElements.push(element);
+        if (!element) {
+            return;
+        }
+
+        this.formElements.push(element.html ?? element);
     }
 
     new(data, sender, opts) {
@@ -939,12 +960,6 @@ class PodeFormMultiElement extends PodeFormElement {
                 ${html}
         </div>`;
     }
-
-    //TODO: fix .build(...) children setting
-    disable(data, sender, opts) {}
-    enable(data, sender, opts) {}
-    setReadonly(enabled) {}
-    setRequired(enabled) {}
 }
 
 class PodeMediaElement extends PodeElement {
@@ -2180,7 +2195,7 @@ class PodeTable extends PodeRefreshableElement {
 
         // update the row's background colour
         setObjectStyle(row[0], 'background-color', data.BackgroundColour);
-    
+
         // update the row's forecolour
         setObjectStyle(row[0], 'color', data.Colour);
 
@@ -2524,7 +2539,8 @@ class PodeTextbox extends PodeFormElement {
 
         var autofocus = this.autofocus ? 'autofocus' : '';
         var maxLength = data.MaxLength ? `maxlength='${data.MaxLength}'` : '';
-        var width = `width: ${data.Width};`;
+        var width = data.Width ? `width: ${data.Width};` : '';
+        var placeholder = data.Placeholder ? `placeholder='${data.Placeholder}'` : '';
         var events = this.events(data.Events);
 
         var value = '';
@@ -2540,9 +2556,9 @@ class PodeTextbox extends PodeFormElement {
                 name='${this.name}'
                 pode-object='${this.getType()}'
                 pode-id='${this.uuid}'
-                placeholder='${data.Placeholder}'
                 rows='${data.Size}'
                 style='${width} ${this.css.styles}'
+                ${placeholder}
                 ${autofocus}
                 ${events}
                 ${maxLength}>
@@ -4007,6 +4023,7 @@ class PodeSelect extends PodeFormElement {
     //          -- need to fix "clear(...)" if we do this
 
     load(data, sender, opts) {
+        super.load(data, sender, opts);
         if (this.dynamic) {
             sendAjaxReq(this.url, null, this.element, true);
         }
@@ -4260,7 +4277,7 @@ class PodeDateTime extends PodeFormMultiElement {
                 DisplayName: data.Placeholders.Date
             }, {
                 help: { enabled: true, id: this.id }
-            }).html);
+            }));
         }
 
         if (searchArray(data.Type, 'time', true)) {
@@ -4274,7 +4291,7 @@ class PodeDateTime extends PodeFormMultiElement {
                 DisplayName: data.Placeholders.Time
             }, {
                 help: { enabled: true, id: this.id }
-            }).html);
+            }));
         }
 
         return super.new(data, sender, opts);
@@ -4301,7 +4318,7 @@ class PodeCredential extends PodeFormMultiElement {
                 DisplayName: data.Placeholders.Username
             }, {
                 help: { enabled: true, id: this.id }
-            }).html);
+            }));
         }
 
         if (searchArray(data.Type, 'password', true)) {
@@ -4315,7 +4332,7 @@ class PodeCredential extends PodeFormMultiElement {
                 DisplayName: data.Placeholders.Password
             }, {
                 help: { enabled: true, id: this.id }
-            }).html);
+            }));
         }
 
         return super.new(data, sender, opts);
@@ -4345,7 +4362,7 @@ class PodeMinMax extends PodeFormMultiElement {
                 Append: data.Append
             }, {
                 help: { enabled: true, id: this.id }
-            }).html);
+            }));
         }
 
         if (searchArray(data.Type, 'max', true)) {
@@ -4362,7 +4379,7 @@ class PodeMinMax extends PodeFormMultiElement {
                 Append: data.Append
             }, {
                 help: { enabled: true, id: this.id }
-            }).html);
+            }));
         }
 
         return super.new(data, sender, opts);

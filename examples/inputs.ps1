@@ -28,7 +28,7 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Time' -Type Time
         New-PodeWebDateTime -Name 'DateTime' -NoLabels
         New-PodeWebCredential -Name 'Credentials' -NoLabels #TODO: NoLabels now redudant
-        New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent'
+        New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent' -ReadOnly
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
         New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations')
