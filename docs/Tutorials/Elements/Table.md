@@ -73,7 +73,7 @@ New-PodeWebContainer -Content @(
                         Sync-PodeWebTable -Id $ElementData.Parent.ID
                     }
                     New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
-                        Start-Service -Name $WebEvent.Data.Value -Force | Out-Null
+                        Start-Service -Name $WebEvent.Data.Value | Out-Null
                         Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
                         Sync-PodeWebTable -Id $ElementData.Parent.ID
                     }
