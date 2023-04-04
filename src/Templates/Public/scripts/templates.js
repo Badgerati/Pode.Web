@@ -814,7 +814,12 @@ class PodeFormElement extends PodeElement {
         this.autofocus = data.AutoFocus ?? false;
         this.dynamicLabel = data.DynamicLabel ?? false;
         this.validation = opts.validation ?? true;
-        this.label = opts.label ?? true;
+        this.width = data.Width ?? '';
+        this.label = {
+            enabled: opts.label ?? true,
+            asLegend: false
+        };
+        this.asFieldset = false;
         this.help = {
             enabled: opts.help.enabled ?? (data.HelpText != null),
             text: opts.help.text ?? data.HelpText,
@@ -844,12 +849,31 @@ class PodeFormElement extends PodeElement {
                     html = `<div class='col-sm-10'>${html}</div>`;
                 }
 
-                if (this.label && this.inForm && !this.dynamicLabel) {
-                    html = `<label for='${this.id}' class='col-sm-2 col-form-label'>${data.DisplayName}</label>${html}`;
+                if (this.label.enabled && this.inForm && !this.dynamicLabel) {
+                    var lblTag = this.label.asLegend ? 'legend' : 'label';
+
+                    html = `<${lblTag}
+                        for='${this.id}'
+                        class='col-sm-2 col-form-label ${this.label.asLegend ? 'float-sm-left pt-0' : '' }'>
+                            ${data.DisplayName}
+                    </${lblTag}>
+                    ${html}`;
                 }
 
                 if (!(this.parent instanceof PodeFormElement)) {
-                    html = `<div class='pode-form-${this.getType()} ${!this.inForm || this.dynamicLabel ? 'd-inline-block' : 'form-group row'} ${this.css.classes}'>${html}</div>`;
+                    var formGroup = !this.inForm || this.dynamicLabel ? 'd-inline-block' : `form-group row`;
+                    var divTag = this.asFieldset ? 'fieldset' : 'div';
+                    var idProps = this.asFieldset ? `id='${this.id}' pode-object='${this.getType()}' pode-id='${this.uuid}'` : '';
+                    var events = this.asFieldset ? this.events(data.Events) : '';
+                    var width = this.inForm || !this.width ? '' : `width:${this.width}`;
+
+                    html = `<${divTag}
+                        class='pode-form-${this.getType()} ${formGroup} ${this.css.classes}'
+                        style='${width}'
+                        ${idProps}
+                        ${events}>
+                            ${html}
+                    </${divTag}>`;
                 }
 
                 // overload html from super
@@ -1229,7 +1253,7 @@ class PodeButton extends PodeFormElement {
         super(data, sender, opts);
         this.iconOnly =  data.IconOnly;
         this.validation = false;
-        this.label = false;
+        this.label.enabled = false;
     }
 
     new(data, sender, opts) {
@@ -2539,7 +2563,7 @@ class PodeTextbox extends PodeFormElement {
 
         var autofocus = this.autofocus ? 'autofocus' : '';
         var maxLength = data.MaxLength ? `maxlength='${data.MaxLength}'` : '';
-        var width = data.Width ? `width: ${data.Width};` : '';
+        var width = `width:${this.width};`;
         var placeholder = data.Placeholder ? `placeholder='${data.Placeholder}'` : '';
         var events = this.events(data.Events);
 
@@ -2667,16 +2691,25 @@ class PodeFileUpload extends PodeFormElement {
     }
 
     new(data, sender, opts) {
-        return `<input
-            type='file'
-            class="form-control-file"
-            id="$${this.id}"
-            name="${this.name}"
-            pode-object="${this.getType()}"
-            pode-id='${this.uuid}'
-            style="${this.css.styles}"
-            accept="${data.Accept}"
-        >`;
+        return `<div class='custom-file'>
+            <input
+                type='file'
+                class="custom-file-input"
+                id="$${this.id}"
+                name="${this.name}"
+                pode-object="${this.getType()}"
+                pode-id='${this.uuid}'
+                style="${this.css.styles}"
+                accept="${data.Accept}">
+            <label class='custom-file-label' for='${this.id}'>Choose file</label>
+        </div>`;
+    }
+
+    bind(data, sender, opts) {
+        this.element.off('change').on('change', function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings('.custom-file-label').addClass('selected').html(fileName);
+        });
     }
 }
 PodeElementFactory.setClass(PodeFileUpload);
@@ -3958,7 +3991,7 @@ class PodeHidden extends PodeFormElement {
     constructor(...args) {
         super(...args);
         this.validation = false;
-        this.label = false;
+        this.label.enabled = false;
     }
 
     new(data, sender, opts) {
@@ -4213,16 +4246,15 @@ class PodeCheckbox extends PodeFormElement {
 
     constructor(...args) {
         super(...args);
+        this.asFieldset = true;
     }
 
     new(data, sender, opts) {
-        var inline = data.Inline ? 'form-check-inline' : '';
+        var inline = data.Inline ? 'custom-control-inline' : ''
         var checked = data.Checked ? 'checked' : '';
 
         var isSwitch = data.AsSwitch ?? false;
-        var divClass = isSwitch ? 'custom-control custom-switch' : 'form-check';
-        var inputClass = isSwitch ? 'custom-control-input' : 'form-check-input';
-        var labelClass = isSwitch ? 'custom-control-label' : 'form-check-label';
+        var divClass = isSwitch ? 'custom-switch' : 'custom-checkbox';
 
         data.Options = convertToArray(data.Options);
         data.DisplayOptions = convertToArray(data.DisplayOptions);
@@ -4233,16 +4265,106 @@ class PodeCheckbox extends PodeFormElement {
                 return;
             }
 
-            options += `<div class='${divClass} ${inline} ${this.css.classes}' style='${this.css.styles}'>
+            options += `<div class='custom-control ${divClass} ${inline} ${this.css.classes}' style='${this.css.styles}'>
                 <input
                     type='checkbox'
                     id='${this.id}_option${index}'
-                    class='${inputClass}'
+                    class='custom-control-input'
                     value='${opt}'
                     name='${this.name}'
                     pode-option-id='${index}'
                     ${checked}>
-                <label class='${labelClass}' for='${this.id}_option${index}'>
+                <label class='custom-control-label' for='${this.id}_option${index}'>
+                    ${opt !== 'true' ? data.DisplayOptions[index] : ''}
+                </label>
+            </div>`;
+        });
+
+        return `<div'>${options}</div>`;
+    }
+
+    update(data, sender, opts) {
+        // get checkbox
+        var checkbox = this.getCheckbox(data.OptionId);
+        if (!checkbox) {
+            return;
+        }
+
+        // check TODO: Checked should have an "Unchanged" state
+        checkbox.attr('checked', data.Checked);
+
+        // enable/disable TODO: this isn't "DisabledState"
+        switch ((data.State ?? '').toLowerCase()) {
+            case 'enabled':
+                this.enable(data, sender, opts);
+                break;
+
+            case 'disabled':
+                this.disable(data, sender, opts);
+                break;
+        }
+    }
+
+    enable(data, sender, opts) {
+        var checkbox = this.getCheckbox(data.OptionId);
+        if (!checkbox) {
+            return;
+        }
+
+        enable(checkbox);
+    }
+
+    disable(data, sender, opts) {
+        var checkbox = this.getCheckbox(data.OptionId);
+        if (!checkbox) {
+            return;
+        }
+
+        disable(checkbox);
+    }
+
+    getCheckbox(index) {
+        return this.element.find(`input#${this.id}_option${index}`);
+    }
+
+    //TODO: same as the comment for "select" - CheckboxOption ?
+    //          -- that would make this "Checkbox" not a "FormElement" but the "CheckOption" would be
+    //          -- this is needed to control individual checkboxes, and fix disabled/required/etc support
+    //          -- as well as update() support...
+}
+PodeElementFactory.setClass(PodeCheckbox);
+
+class PodeRadio extends PodeFormElement {
+    static type = 'radio';
+
+    constructor(...args) {
+        super(...args);
+        this.label.asLegend = true;
+        this.asFieldset = true;
+    }
+
+    new(data, sender, opts) {
+        var inline = data.Inline ? 'custom-control-inline' : '';
+
+        data.Options = convertToArray(data.Options);
+        data.DisplayOptions = convertToArray(data.DisplayOptions);
+
+        var options = '';
+        data.Options.forEach((opt, index) => {
+            if (!opt) {
+                return;
+            }
+
+            options += `<div class='custom-control custom-radio ${inline} ${this.css.classes}' style='${this.css.styles}'>
+                <input
+                    type='radio'
+                    id='${this.id}_option${index}'
+                    class='custom-control-input'
+                    value='${opt}'
+                    name='${this.name}'
+                    pode-option-id='${index}'
+                    ${index === 0 ? 'checked' : ''}>
+                <label class='custom-control-label' for='${this.id}_option${index}'>
                     ${opt !== 'true' ? data.DisplayOptions[index] : ''}
                 </label>
             </div>`;
@@ -4255,8 +4377,10 @@ class PodeCheckbox extends PodeFormElement {
     //          -- that would make this "Checkbox" not a "FormElement" but the "CheckOption" would be
     //          -- this is needed to control individual checkboxes, and fix disabled/required/etc support
     //          -- as well as update() support...
+
+    //TODO: radio missing update/enable/etc.
 }
-PodeElementFactory.setClass(PodeCheckbox);
+PodeElementFactory.setClass(PodeRadio);
 
 class PodeDateTime extends PodeFormMultiElement {
     static type = 'datetime';
@@ -4397,18 +4521,6 @@ PodeElementFactory.setClass(PodeMinMax);
 
 
 
-
-class PodeRadio extends PodeFormElement {
-    static type = 'radio';
-
-    constructor(...args) {
-        super(...args);
-    }
-
-    new(data, sender, opts) {
-    }
-}
-PodeElementFactory.setClass(PodeRadio);
 
 
 

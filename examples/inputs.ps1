@@ -11,7 +11,7 @@ Start-PodeServer {
 
     # set the home page controls (just a simple paragraph)
     $form = New-PodeWebForm -Name 'Test' -ShowReset -AsCard -ScriptBlock {
-        $WebEvent.Data | Out-PodeWebTextbox -Multiline -Preformat -AsJson
+        $WebEvent.Data | New-PodeWebTextbox -Name 'TestOutput' -Multiline -Preformat -AsJson -AsOutput
     } -Content @(
         New-PodeWebTextbox -Name 'Name' -AppendIcon Account -AutoComplete {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
@@ -29,7 +29,8 @@ Start-PodeServer {
         New-PodeWebDateTime -Name 'DateTime' -NoLabels
         New-PodeWebCredential -Name 'Credentials' -NoLabels #TODO: NoLabels now redudant
         New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent' -ReadOnly
-        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
+        New-PodeWebCheckbox -Name 'Switches' -Options @('Terms', 'Privacy') -AsSwitch
+        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -Inline
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
         New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations')
         New-PodeWebSelect -Name 'Role2' -Options @('User', 'Admin', 'Operations') -Multiple

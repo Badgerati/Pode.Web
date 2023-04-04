@@ -2969,58 +2969,58 @@ function toggleButtonState(action, toggle) {
     }
 }
 
-function actionCheckbox(action) {
-    switch (action.Operation.toLowerCase()) {
-        case 'update':
-            updateCheckbox(action);
-            break;
+// function actionCheckbox(action) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'update':
+//             updateCheckbox(action);
+//             break;
 
-        case 'enable':
-        case 'disable':
-            toggleCheckboxState(action, action.Operation.toLowerCase());
-            break;
-    }
-}
+//         case 'enable':
+//         case 'disable':
+//             toggleCheckboxState(action, action.Operation.toLowerCase());
+//             break;
+//     }
+// }
 
-function updateCheckbox(action) {
-    if (action.ID) {
-        action.ID = `${action.ID}_option${action.OptionId}`;
-    }
+// function updateCheckbox(action) {
+//     if (action.ID) {
+//         action.ID = `${action.ID}_option${action.OptionId}`;
+//     }
 
-    var checkbox = getElementByNameOrId(action, 'input', null, `[pode-option-id="${action.OptionId}"]`);
-    if (!checkbox) {
-        return;
-    }
+//     var checkbox = getElementByNameOrId(action, 'input', null, `[pode-option-id="${action.OptionId}"]`);
+//     if (!checkbox) {
+//         return;
+//     }
 
-    // check/uncheck
-    checkbox.attr('checked', action.Checked);
+//     // check/uncheck
+//     checkbox.attr('checked', action.Checked);
 
-    // enable/disable
-    if (action.State == 'enabled') {
-        enable(checkbox);
-    }
-    else if (action.State == 'disabled') {
-        disable(checkbox);
-    }
-}
+//     // enable/disable
+//     if (action.State == 'enabled') {
+//         enable(checkbox);
+//     }
+//     else if (action.State == 'disabled') {
+//         disable(checkbox);
+//     }
+// }
 
-function toggleCheckboxState(action, toggle) {
-    if (action.ID) {
-        action.ID = `${action.ID}_option${action.OptionId}`;
-    }
+// function toggleCheckboxState(action, toggle) {
+//     if (action.ID) {
+//         action.ID = `${action.ID}_option${action.OptionId}`;
+//     }
 
-    var checkbox = getElementByNameOrId(action, 'input', null, `[pode-option-id="${action.OptionId}"]`);
-    if (!checkbox) {
-        return;
-    }
+//     var checkbox = getElementByNameOrId(action, 'input', null, `[pode-option-id="${action.OptionId}"]`);
+//     if (!checkbox) {
+//         return;
+//     }
 
-    if (toggle == 'enable') {
-        enable(checkbox);
-    }
-    else {
-        disable(checkbox);
-    }
-}
+//     if (toggle == 'enable') {
+//         enable(checkbox);
+//     }
+//     else {
+//         disable(checkbox);
+//     }
+// }
 
 function actionToast(action) {
     var toastArea = $('div#toast-area');

@@ -190,7 +190,7 @@ a:hover {
     color: #33ff00 !important
 }
 
-input, textarea, select, .progress {
+input, textarea, select, .progress, .custom-file-label {
     background-color: #111 !important;
     border-color: #33ff00 !important;
     color: #33ff00 !important;
@@ -212,10 +212,15 @@ pre code {
 }
 
 .input-group-prepend .input-group-text,
-.input-group-append .input-group-text {
+.input-group-append .input-group-text, .custom-file-label::after {
     background-color: #111 !important;
     border-color: #33ff00 !important;
     color: #33ff00 !important
+}
+
+.custom-file-input:hover + .custom-file-label::after {
+    background-color: #33ff00 !important;
+    color: #111 !important
 }
 
 #pode-page-title {
