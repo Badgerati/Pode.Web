@@ -1548,7 +1548,7 @@ function Start-PodeWebFileStream
 
     return @{
         Operation = 'Start'
-        ObjectType = 'FileStream'
+        ObjectType = 'File-Stream'
         ID = $Id
         Name = $Name
     }
@@ -1569,7 +1569,7 @@ function Stop-PodeWebFileStream
 
     return @{
         Operation = 'Stop'
-        ObjectType = 'FileStream'
+        ObjectType = 'File-Stream'
         ID = $Id
         Name = $Name
     }
@@ -1590,7 +1590,7 @@ function Restart-PodeWebFileStream
 
     return @{
         Operation = 'Restart'
-        ObjectType = 'FileStream'
+        ObjectType = 'File-Stream'
         ID = $Id
         Name = $Name
     }
@@ -1611,7 +1611,7 @@ function Clear-PodeWebFileStream
 
     return @{
         Operation = 'Clear'
-        ObjectType = 'FileStream'
+        ObjectType = 'File-Stream'
         ID = $Id
         Name = $Name
     }
@@ -1636,7 +1636,7 @@ function Update-PodeWebFileStream
 
     return @{
         Operation = 'Update'
-        ObjectType = 'FileStream'
+        ObjectType = 'File-Stream'
         ID = $Id
         Name = $Name
         Url = (Add-PodeWebAppPath -Url $Url)

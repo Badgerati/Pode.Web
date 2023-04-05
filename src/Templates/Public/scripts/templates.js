@@ -17,6 +17,8 @@ Swap "id" and "pode-id"?
 - Clickable rows appears to be broken when calling "/content"
 
 - no "Update-PodeWebIcon" ...
+
+- add "-Attributes" hashtable to element New- funcs - to be able to add custom attrs to elements
 */
 
 class PodeElementFactory {
@@ -278,6 +280,10 @@ class PodeElement {
                 this.stop(data, sender, opts);
                 break;
 
+            case 'restart':
+                this.restart(data, sender, opts);
+                break;
+
             case 'sync':
                 this.spinner(true);
                 this.sync(data, sender, opts);
@@ -287,7 +293,7 @@ class PodeElement {
                 this.set(data, sender, opts);
                 break;
 
-            // add, remove, restart
+            //TODO: add, remove
         }
 
         if (this.ephemeral) {
@@ -635,6 +641,10 @@ class PodeElement {
 
     stop(data, sender, opts) {
         throw `${this.getType()} "stop" method not implemented`
+    }
+
+    restart(data, sender, opts) {
+        throw `${this.getType()} "restart" method not implemented`
     }
 
     set(data, sender, opts) {
@@ -1196,12 +1206,19 @@ class PodeIcon extends PodeElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.name = this.name.toLowerCase();
+        this.setName(this.name);
         this.title = data.Title ?? '';
     }
 
-    getIconName() {
-        return `mdi-${this.name}`;
+    getName() {
+        return this.name.startsWith('mdi-') ? this.name : `mdi-${this.name}`;
+    }
+
+    setName(name) {
+        if (name) {
+            name = name.toLowerCase();
+            this.name = name.startsWith('mdi-') ? name : `mdi-${name}`;
+        }
     }
 
     new(data, sender, opts) {
@@ -1215,7 +1232,7 @@ class PodeIcon extends PodeElement {
 
         return `<span
             id='${this.id}'
-            class='mdi ${this.getIconName()} ${size} ${spin} ${flip} ${rotate} ${this.css.classes}'
+            class='mdi ${this.getName()} ${size} ${spin} ${flip} ${rotate} ${this.css.classes}'
             style='${colour} ${this.css.styles}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
@@ -1231,8 +1248,12 @@ class PodeIcon extends PodeElement {
 
         // replace
         name = name.toLowerCase();
-        replaceClass(this.element, this.getIconName(), (name.startsWith('mdi-') ? name : `mdi-${name}`));
-        this.name = name;
+        name = name.startsWith('mdi-') ? name : `mdi-${name}`;
+
+        if (this.getName() !== name) {
+            replaceClass(this.element, this.getName(), name);
+            this.setName(name);
+        }
 
         // replace title
         if (title) {
@@ -1243,12 +1264,14 @@ class PodeIcon extends PodeElement {
 
     //TODO: toggle function to help with toggling between two icon?
     //          - plus a '-ToggleIcon' and title on New-PodeWebIcon ?
+    //          - possible even a '-HoverIcon'
 }
 PodeElementFactory.setClass(PodeIcon);
 
 class PodeButton extends PodeFormElement {
     static type = 'button';
 
+    //TODO: New-PodeWebButtonGroup needed -- horizontal and vertical support
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.iconOnly =  data.IconOnly;
@@ -1570,6 +1593,7 @@ class PodeCard extends PodeElement {
         super(...args);
     }
 
+    //TODO: allow for "data.Buttons" -- which adds custom buttons to the card header
     new(data, sender, opts) {
         var header = '';
         if ((!data.NoTitle && this.name) || !data.NoHide) {
@@ -2585,9 +2609,7 @@ class PodeTextbox extends PodeFormElement {
                 ${placeholder}
                 ${autofocus}
                 ${events}
-                ${maxLength}>
-                    ${value}
-            </textarea>`;
+                ${maxLength}>${value}</textarea>`;
         }
 
         // single line textbox
@@ -4511,10 +4533,193 @@ class PodeMinMax extends PodeFormMultiElement {
 }
 PodeElementFactory.setClass(PodeMinMax);
 
+class PodeFileStream extends PodeElement {
+    static type = 'file-stream';
 
+    //TODO: could we build this entire element with pure Card, Button, and Textarea New- func calls?
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.file = {
+            url: data.Url,
+            length: 0,
+            streaming: true,
+            interval: data.Interval ?? 60000
+        };
+    }
 
+    new(data, sender, opts) {
+        var header = '';
+        if (!data.NoHeader) {
+            var icon = this.setIcon(data.Icon);
 
+            header = `<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
+                <h5>
+                    ${icon}
+                    ${this.file.url}
+                </h5>
+                <div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
+                    <div class='icon-group mr-2'>
+                        <span class='mdi mdi-alert-circle-outline stream-error' style='display:none;'></span>
+                        <span id='${this.id}_spinner' class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                    </div>
+                    <div class='btn-group mr-2 mLeft05'>
+                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-download' for='${this.id}'>
+                            <span class='mdi mdi-download mdi-size-20' title='Download' data-toggle='tooltip'></span>
+                        </button>
+                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-clear' for='${this.id}'>
+                            <span class='mdi mdi-eraser mdi-size-20' title='Clear' data-toggle='tooltip'></span>
+                        </button>
+                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-pause' for='${this.id}'>
+                            <span class='mdi mdi-pause mdi-size-20' title='Pause' data-toggle='tooltip'></span>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }
 
+        return `<div
+            id='${this.id}'
+            name='${this.name}'
+            class="card file-stream ${this.css.classes}"
+            style='${this.css.styles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+                ${header}
+                <div>
+                    <pre>
+                        <textarea
+                            class="form-control"
+                            rows="$($data.Height)"
+                            readonly
+                            ${this.events(data.Events)}></textarea>
+                    </pre>
+                </div>
+        </div>`;
+    }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        var obj = this;
+
+        // timer for reading file
+        setInterval(function() {
+            if (!obj.file.streaming) {
+                return;
+            }
+
+            obj.spinner(true);
+
+            $.ajax({
+                url: obj.file.url,
+                method: 'get',
+                dataType: 'text',
+                headers: { "Range": `bytes=${obj.file.length}-` },
+                success: function(data, status, xhr) {
+                    if (obj.element.hasClass('stream-error')) {
+                        removeClass(obj.element, 'stream-error', true);
+                        show(obj.element.find('div.card-header div div.btn-group'));
+                    }
+
+                    obj.spinner(false);
+
+                    var header = xhr.getResponseHeader('Content-Range');
+                    if (header) {
+                        var rangeLength = header.split('/')[1];
+                        var txt = obj.element.find('pre textarea');
+
+                        // if new content, append
+                        if (rangeLength > parseInt(obj.file.length)) {
+                            txt.append(data);
+                            obj.file.length = rangeLength;
+                            txt.scrollTop = txt.scrollHeight;
+                        }
+
+                        // if length is now less, clear the textarea
+                        else if (rangeLength < parseInt(obj.file.length)) {
+                            obj.clear();
+                        }
+                    }
+                },
+                error: function(err) {
+                    obj.spinner(false);
+
+                    if (err.status == 416) {
+                        return;
+                    }
+
+                    obj.file.streaming = false;
+                    addClass(obj.element, 'stream-error');
+                    hide(obj.element.find('div.card-header div div.btn-group'));
+                }
+            });
+        }, this.file.interval);
+
+        // download file
+        this.element.find('.pode-stream-download').off('click').on('click', function(e) {
+            obj.download();
+            unfocus($(this));
+        });
+
+        // pause/resume file streaming
+        this.element.find('.pode-stream-pause').off('click').on('click', function(e) {
+            obj.file.streaming = !obj.file.streaming;
+            toggleIcon($(this), 'pause', 'play', 'Pause', 'Play');
+            unfocus($(this));
+        });
+
+        // clear textarea
+        this.element.find('.pode-stream-clear').off('click').on('click', function(e) {
+            obj.clear();
+            unfocus($(this));
+        });
+    }
+
+    download() {
+        var parts = this.file.url.split('/');
+        downloadFile(this.file.url, parts[parts.length - 1]);
+    }
+
+    update(data, sender, opts) {
+        if (data.Url && this.file.url !== data.Url) {
+            this.stop(data, sender, opts);
+            this.clear(data, sender, opts);
+            this.file.url = data.Url;
+            this.start(data, sender, opts);
+        }
+    }
+
+    start(data, sender, opts) {
+        this.file.streaming = true;
+
+        var btn = this.element.find('.pode-stream-pause span');
+        if (btn.hasClass('mdi-play')) {
+            toggleIcon(btn, 'pause', 'play', 'Pause', 'Play');
+        }
+    }
+
+    stop(data, sender, opts) {
+        this.file.streaming = false;
+
+        var btn = this.element.find('.pode-stream-pause span');
+        if (btn.hasClass('mdi-pause')) {
+            toggleIcon(btn, 'pause', 'play', 'Pause', 'Play');
+        }
+    }
+
+    restart(data, sender, opts) {
+        this.stop(data, sender, opts);
+        this.clear(data, sender, opts);
+        this.start(data, sender, opts);
+    }
+
+    clear(data, sender, opts) {
+        var txt = this.element.find('pre textarea');
+        txt.text('');
+        txt.scrollTop = txt.scrollHeight;
+        this.file.length = 0;
+    }
+}
+PodeElementFactory.setClass(PodeFileStream);
 
 
 
@@ -4551,18 +4756,6 @@ class PodeNotification extends PodeElement {
     }
 }
 PodeElementFactory.setClass(PodeNotification);
-
-class PodeFileStream extends PodeElement {
-    static type = 'file-stream';
-
-    constructor(...args) {
-        super(...args);
-    }
-
-    new(data, sender, opts) {
-    }
-}
-PodeElementFactory.setClass(PodeFileStream);
 
 class PodeSteps extends PodeElement {
     static type = 'steps';

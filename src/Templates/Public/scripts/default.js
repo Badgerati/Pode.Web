@@ -50,7 +50,7 @@ $(() => {
         // bindButtons();
         // bindCodeCopy();
         // bindCodeEditors();
-        bindFileStreams();
+        // bindFileStreams();
 
         // bindTableFilters();
         // bindTableExports();
@@ -89,95 +89,95 @@ function getUrl(subpath, data) {
     return `${window.location.origin}${window.location.pathname}${subpath}${data}`;
 }
 
-function bindFileStreams() {
-    $('div.file-stream pre textarea').each((i, e) => {
-        var handle = setInterval(function() {
-            var paused = $(e).attr('pode-streaming') == '0';
-            if (paused) {
-                return;
-            }
+// function bindFileStreams() {
+//     $('div.file-stream pre textarea').each((i, e) => {
+//         var handle = setInterval(function() {
+//             var paused = $(e).attr('pode-streaming') == '0';
+//             if (paused) {
+//                 return;
+//             }
 
-            showSpinner($(e).closest('div.file-stream'));
-            var fileUrl = $(e).attr('pode-file');
-            var length = $(e).attr('pode-length');
+//             showSpinner($(e).closest('div.file-stream'));
+//             var fileUrl = $(e).attr('pode-file');
+//             var length = $(e).attr('pode-length');
 
-            $.ajax({
-                url: fileUrl,
-                method: 'get',
-                dataType: 'text',
-                headers: { "Range": `bytes=${length}-` },
-                success: function(data, status, xhr) {
-                    if ($(e).closest('div.file-stream').hasClass('stream-error')) {
-                        removeClass($(e).closest('div.file-stream'), 'stream-error', true);
-                        show($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
-                    }
+//             $.ajax({
+//                 url: fileUrl,
+//                 method: 'get',
+//                 dataType: 'text',
+//                 headers: { "Range": `bytes=${length}-` },
+//                 success: function(data, status, xhr) {
+//                     if ($(e).closest('div.file-stream').hasClass('stream-error')) {
+//                         removeClass($(e).closest('div.file-stream'), 'stream-error', true);
+//                         show($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
+//                     }
 
-                    hideSpinner($(e).closest('div.file-stream'));
+//                     hideSpinner($(e).closest('div.file-stream'));
 
-                    var header = xhr.getResponseHeader('Content-Range');
-                    if (header) {
-                        var rangeLength = header.split('/')[1];
+//                     var header = xhr.getResponseHeader('Content-Range');
+//                     if (header) {
+//                         var rangeLength = header.split('/')[1];
 
-                        // if new content, append
-                        if (rangeLength > parseInt(length)) {
-                            $(e).append(data);
-                            $(e).attr('pode-length', rangeLength);
-                            e.scrollTop = e.scrollHeight;
-                        }
+//                         // if new content, append
+//                         if (rangeLength > parseInt(length)) {
+//                             $(e).append(data);
+//                             $(e).attr('pode-length', rangeLength);
+//                             e.scrollTop = e.scrollHeight;
+//                         }
 
-                        // if length is now less, clear the textarea
-                        else if (rangeLength < parseInt(length)) {
-                            $(e).text('');
-                            $(e).attr('pode-length', 0);
-                            e.scrollTop = e.scrollHeight;
-                        }
-                    }
-                },
-                error: function(err) {
-                    hideSpinner($(e).closest('div.file-stream'));
+//                         // if length is now less, clear the textarea
+//                         else if (rangeLength < parseInt(length)) {
+//                             $(e).text('');
+//                             $(e).attr('pode-length', 0);
+//                             e.scrollTop = e.scrollHeight;
+//                         }
+//                     }
+//                 },
+//                 error: function(err) {
+//                     hideSpinner($(e).closest('div.file-stream'));
 
-                    if (err.status == 416) {
-                        return;
-                    }
+//                     if (err.status == 416) {
+//                         return;
+//                     }
 
-                    $(e).attr('pode-streaming', '0');
-                    addClass($(e).closest('div.file-stream'), 'stream-error');
-                    hide($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
-                }
-            });
-        }, $(e).attr('pode-interval'));
-    });
+//                     $(e).attr('pode-streaming', '0');
+//                     addClass($(e).closest('div.file-stream'), 'stream-error');
+//                     hide($(e).closest('div.file-stream').find('div.card-header div div.btn-group'));
+//                 }
+//             });
+//         }, $(e).attr('pode-interval'));
+//     });
 
-    $('div.file-stream button.pode-stream-download').off('click').on('click', function(e) {
-        var button = getButton(e);
-        var id = button.attr('for');
-        var fileUrl = $(`textarea#${id}`).attr('pode-file');
-        var parts = fileUrl.split('/');
-        downloadFile(fileUrl, parts[parts.length - 1]);
-        unfocus(button);
-    });
+//     $('div.file-stream button.pode-stream-download').off('click').on('click', function(e) {
+//         var button = getButton(e);
+//         var id = button.attr('for');
+//         var fileUrl = $(`textarea#${id}`).attr('pode-file');
+//         var parts = fileUrl.split('/');
+//         downloadFile(fileUrl, parts[parts.length - 1]);
+//         unfocus(button);
+//     });
 
-    $('div.file-stream button.pode-stream-pause').off('click').on('click', function(e) {
-        var button = getButton(e);
-        var id = button.attr('for');
-        var textarea = $(`textarea#${id}`);
+//     $('div.file-stream button.pode-stream-pause').off('click').on('click', function(e) {
+//         var button = getButton(e);
+//         var id = button.attr('for');
+//         var textarea = $(`textarea#${id}`);
 
-        toggleAttr(textarea, 'pode-streaming', '0', '1');
-        toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
-        unfocus(button);
-    });
+//         toggleAttr(textarea, 'pode-streaming', '0', '1');
+//         toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
+//         unfocus(button);
+//     });
 
-    $('div.file-stream button.pode-stream-clear').off('click').on('click', function(e) {
-        var button = getButton(e);
-        var id = button.attr('for');
-        var textarea = $(`textarea#${id}`);
+//     $('div.file-stream button.pode-stream-clear').off('click').on('click', function(e) {
+//         var button = getButton(e);
+//         var id = button.attr('for');
+//         var textarea = $(`textarea#${id}`);
 
-        $(textarea).text('');
-        $(textarea).attr('pode-length', 0);
-        textarea.scrollTop = textarea.scrollHeight;
-        unfocus(button);
-    });
-}
+//         $(textarea).text('');
+//         $(textarea).attr('pode-length', 0);
+//         textarea.scrollTop = textarea.scrollHeight;
+//         unfocus(button);
+//     });
+// }
 
 // function setupAccordion() {
 //     $('div.accordion div.bellow div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
@@ -1509,9 +1509,9 @@ function invokeActions(actions, sender) {
                 actionComponentClass(action);
                 break;
 
-            case 'filestream':
-                actionFileStream(action);
-                break;
+            // case 'filestream':
+            //     actionFileStream(action);
+            //     break;
 
             // case 'audio':
             //     actionAudio(action);
@@ -3335,31 +3335,31 @@ function actionValidation(action, sender) {
 //     }
 // }
 
-function actionFileStream(action) {
-    switch (action.Operation.toLowerCase()) {
-        case 'update':
-            updateFileStream(action);
-            break;
+// function actionFileStream(action) {
+//     switch (action.Operation.toLowerCase()) {
+//         case 'update':
+//             updateFileStream(action);
+//             break;
 
-        case 'stop':
-            stopFileStream(action);
-            break;
+//         case 'stop':
+//             stopFileStream(action);
+//             break;
 
-        case 'start':
-            startFileStream(action);
-            break;
+//         case 'start':
+//             startFileStream(action);
+//             break;
 
-        case 'restart':
-            stopFileStream(action);
-            clearFileStream(action);
-            startFileStream(action);
-            break;
+//         case 'restart':
+//             stopFileStream(action);
+//             clearFileStream(action);
+//             startFileStream(action);
+//             break;
 
-        case 'clear':
-            clearFileStream(action);
-            break;
-    }
-}
+//         case 'clear':
+//             clearFileStream(action);
+//             break;
+//     }
+// }
 
 // function actionIFrame(action) {
 //     switch(action.Operation.toLowerCase()) {
@@ -3434,58 +3434,58 @@ function actionFileStream(action) {
 //     editor.setValue('');
 // }
 
-function updateFileStream(action) {
-    var filestream = getElementByNameOrId(action, 'textarea');
-    if (!filestream) {
-        return;
-    }
+// function updateFileStream(action) {
+//     var filestream = getElementByNameOrId(action, 'textarea');
+//     if (!filestream) {
+//         return;
+//     }
 
-    if (action.Url && filestream.attr('pode-file') != action.Url) {
-        stopFileStream(action);
-        clearFileStream(action);
-        filestream.attr('pode-file', action.Url);
-        startFileStream(action);
-    }
-}
+//     if (action.Url && filestream.attr('pode-file') != action.Url) {
+//         stopFileStream(action);
+//         clearFileStream(action);
+//         filestream.attr('pode-file', action.Url);
+//         startFileStream(action);
+//     }
+// }
 
-function stopFileStream(action) {
-    var filestream = getElementByNameOrId(action, 'textarea');
-    if (!filestream) {
-        return;
-    }
+// function stopFileStream(action) {
+//     var filestream = getElementByNameOrId(action, 'textarea');
+//     if (!filestream) {
+//         return;
+//     }
 
-    filestream.attr('pode-streaming', '0');
+//     filestream.attr('pode-streaming', '0');
 
-    var button = filestream.closest('div.file-stream').find('button.pode-stream-pause span');
-    if (!button.hasClass('mdi-play')) {
-        toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
-    }
-}
+//     var button = filestream.closest('div.file-stream').find('button.pode-stream-pause span');
+//     if (!button.hasClass('mdi-play')) {
+//         toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
+//     }
+// }
 
-function startFileStream(action) {
-    var filestream = getElementByNameOrId(action, 'textarea');
-    if (!filestream) {
-        return;
-    }
+// function startFileStream(action) {
+//     var filestream = getElementByNameOrId(action, 'textarea');
+//     if (!filestream) {
+//         return;
+//     }
 
-    filestream.attr('pode-streaming', '1');
+//     filestream.attr('pode-streaming', '1');
 
-    var button = filestream.closest('div.file-stream').find('button.pode-stream-pause span');
-    if (!button.hasClass('mdi-pause')) {
-        toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
-    }
-}
+//     var button = filestream.closest('div.file-stream').find('button.pode-stream-pause span');
+//     if (!button.hasClass('mdi-pause')) {
+//         toggleIcon(button, 'pause', 'play', 'Pause', 'Play');
+//     }
+// }
 
-function clearFileStream(action) {
-    var filestream = getElementByNameOrId(action, 'textarea');
-    if (!filestream) {
-        return;
-    }
+// function clearFileStream(action) {
+//     var filestream = getElementByNameOrId(action, 'textarea');
+//     if (!filestream) {
+//         return;
+//     }
 
-    filestream.text('');
-    filestream.attr('pode-length', 0);
-    filestream.scrollTop = filestream.scrollHeight;
-}
+//     filestream.text('');
+//     filestream.attr('pode-length', 0);
+//     filestream.scrollTop = filestream.scrollHeight;
+// }
 
 // function actionChart(action, sender) {
 //     switch (action.Operation.toLowerCase()) {
@@ -3538,7 +3538,7 @@ function clearFileStream(action) {
 //     loadChart(getId(chart));
 // }
 
-var _charts = {};
+// var _charts = {};
 
 // function updateChart(action, sender) {
 //     if (!action.Data) {
