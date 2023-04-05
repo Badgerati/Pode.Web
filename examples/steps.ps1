@@ -18,7 +18,7 @@ Start-PodeServer {
     Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
 
 
-    $acc = New-PodeWebAccordion -Cycle -Bellows @(
+    $acc = New-PodeWebAccordion -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Content @(
             # add a page to add some fake user
             New-PodeWebSteps -Name 'AddUser' -Steps @(

@@ -19,6 +19,10 @@ Swap "id" and "pode-id"?
 - no "Update-PodeWebIcon" ...
 
 - add "-Attributes" hashtable to element New- funcs - to be able to add custom attrs to elements
+
+- "reload()" function, to reload the HTML for an element
+    - this would recall new(), load(), then bind() - basically the same as creation
+    - everything would have to be stored as "this." in the constructor - no "data.", so we can dynamically reload
 */
 
 class PodeElementFactory {
@@ -130,8 +134,6 @@ class PodeElement {
         this.dynamic = data.IsDynamic ?? false;
         this.autoRender = opts.autoRender ?? true;
         this.contentProperty = null;
-        this.previous = null;
-        this.next = null;
         this.isOutput = data.AsOutput ?? false;
         this.element = null;
         this.icon = null;
@@ -142,7 +144,9 @@ class PodeElement {
         this.child = {
             isFirst: false,
             isLast: false,
-            index: 0
+            index: 0,
+            next: null,
+            previous: null
         };
 
         this.css = {
@@ -172,7 +176,7 @@ class PodeElement {
         element.child = {
             index: this.children.length,
             isFirst: this.children.length === 0,
-            isLast: true
+            isLast: opts.child && opts.child.isLast ? opts.child.isLast() : true
         };
 
         // set the previous child to not the last child, and set next/previous properties
@@ -182,12 +186,12 @@ class PodeElement {
             prev.child.isLast = false;
 
             // prev/next link
-            prev.next = element;
-            element.previous = prev;
+            prev.child.next = element;
+            element.child.previous = prev;
 
             // prev/next wrapper link for first/last children
-            element.next = this.children[0];
-            this.children[0].previous = element;
+            element.child.next = this.children[0];
+            this.children[0].child.previous = element;
         }
 
         // add child
@@ -203,7 +207,7 @@ class PodeElement {
             ID: `${this.id}_icon`,
             Name: name,
             CssClasses: padRight ? 'mRight02' : ''
-        });
+        }, null, null);
 
         this.icon = result.elements[0];
         return result.html;
@@ -386,6 +390,10 @@ class PodeElement {
                     }
                 }, true);
             }
+
+            opts.child = {
+                isLast: () => { return index == content.length - 1; }
+            };
 
             var result = PodeElementFactory.invokeClass(item.ObjectType, 'new', item, sender, opts);
             created.push(result.element);
@@ -702,14 +710,14 @@ class PodeCyclingElement extends PodeElement {
             }
 
             this.cycling.action = setInterval(() => {
-                var child = this.filter(this.children, (c) => {
+                var obj = this.filter(this.children, (c) => {
                     if (c.active) {
                         return c;
                     }
                 }, true);
 
-                if (child) {
-                    child.next.invoke();
+                if (obj) {
+                    obj.child.next.invoke();
                 }
             }, this.cycling.interval);
         }
@@ -1585,6 +1593,40 @@ class PodeToast extends PodeElement {
     }
 }
 PodeElementFactory.setClass(PodeToast);
+
+class PodeNotification extends PodeElement {
+    static type = 'notification';
+
+    constructor(...args) {
+        super(...args);
+        this.ephemeral = true;
+    }
+
+    show(data, sender, opts) {
+        if (!window.Notification) {
+            return;
+        }
+
+        var display = () => {
+            new Notification(data.Title, {
+                body: data.Body,
+                icon: data.Icon
+            });
+        };
+
+        if (Notification.permission === 'granted') {
+            display();
+        }
+        else if (Notification.permission !== 'denied') {
+            Notification.requestPermission().then(function(p) {
+                if (p === 'granted') {
+                    display();
+                }
+            });
+        }
+    }
+}
+PodeElementFactory.setClass(PodeNotification);
 
 class PodeCard extends PodeElement {
     static type = 'card';
@@ -3268,14 +3310,13 @@ class PodeTabs extends PodeCyclingElement {
             return;
         }
 
-        var icon = this.setIcon(data.Icon, true);
+        var icon = element.setIcon(data.Icon, true);
 
         var html = `<li class='nav-item' role='presentation'>
             <a
                 id='${element.id}'
                 name='${element.name}'
-                class='nav-link ${element.child.isFirst ? 'active' : ''} ${this.css.classes}'
-                style='${this.css.styles}'
+                class='nav-link ${element.child.isFirst ? 'active' : ''}'
                 data-toggle='tab'
                 href='#${element.id}_content'
                 role='tab'
@@ -3852,7 +3893,7 @@ class PodeModal extends PodeElement {
 
         if (this.submit.show) {
             this.element.find("div.modal-content form.pode-form").off('keypress').on('keypress', function(e) {
-                if (!isEnterKey(e) || testTagName(e.target, 'textarea')) {
+                if (!isEnterKey(e)) {
                     return;
                 }
 
@@ -4721,50 +4762,63 @@ class PodeFileStream extends PodeElement {
 }
 PodeElementFactory.setClass(PodeFileStream);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class PodeNotification extends PodeElement {
-    static type = 'notification';
-
-    constructor(...args) {
-        super(...args);
-    }
-
-    new(data, sender, opts) {
-    }
-}
-PodeElementFactory.setClass(PodeNotification);
-
 class PodeSteps extends PodeElement {
     static type = 'steps';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.contentProperty = 'Steps';
+        this.stepper = null;
     }
 
     new(data, sender, opts) {
+        return `<div
+            id="${this.id}"
+            class="bs-stepper linear ${this.css.classes}"
+            style="${this.css.styles}"
+            role="stepper"
+            pode-object="${this.getType()}"
+            pode-id="${this.uuid}">
+                <div class="bs-stepper-header" role="tablist"></div>
+                <div class="bs-stepper-content" pode-content-for='${this.id}'></div>
+        </div>`;
+    }
+
+    load(data, sender, opts) {
+        this.stepper = new Stepper(this.element[0], { linear: true });
+    }
+
+    previous() {
+        this.stepper.previous();
+    }
+
+    next() {
+        this.stepper.next();
+    }
+
+    submit() {
+        var result = this.serialize();
+        sendAjaxReq(this.url, result.data, this.element, true, null, result.opts);
+    }
+
+    addChild(element, data, sender, opts) {
+        super.addChild(element, data, sender, opts);
+
+        // add new step indicator
+        if (element.getType() !== 'step') {
+            return;
+        }
+
+        var html = `<div class='step ${element.child.isFirst ? 'active' : ''}' data-target='#${element.id}'>
+            <button type='button' class='step-trigger' role='tab' id='${element.id}-trigger' aria-controls='${element.id}' ${!element.child.isFirst ? 'disabled' : ''}>
+                <span class='bs-stepper-circle'>
+                    ${data.Icon ? element.setIcon(data.Icon) : element.child.index + 1}
+                </span>
+                <span class='bs-stepper-label'>${data.DisplayName}</span>
+            </button>
+        </div>`;
+
+        this.element.find('div[role="tablist"]').append(html);
     }
 }
 PodeElementFactory.setClass(PodeSteps);
@@ -4772,14 +4826,132 @@ PodeElementFactory.setClass(PodeSteps);
 class PodeStep extends PodeElement {
     static type = 'step';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+
+        if (!this.checkParentType('steps')) {
+            throw 'Step element can only be used in Steps'
+        }
     }
 
     new(data, sender, opts) {
+        //TODO: can be ".build()" these buttons? - which would also include the setIcon automatically
+        var prevBtn = this.child.isFirst ? '' : `<button class='btn btn-inbuilt-theme step-previous float-left' for='${this.id}'>
+            <span class='mdi mdi-chevron-left mRight02'></span>
+            Previous
+            <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+        </button>`;
+
+        var nextBtn = `<button class='btn btn-inbuilt-theme step-${this.child.isLast ? 'submit' : 'next'} float-right' for='${this.id}'>
+            <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+            ${this.child.isLast ? 'Submit' : 'Next'}
+            <span class='mdi ${this.child.isLast ? 'mdi-checkbox-marked-circle-outline' : 'mdi-chevron-right'} mLeft02'></span>
+        </button>`;
+
+        return `<div
+            id='${this.id}'
+            class='bs-stepper-pane content fade ${this.child.isFirst ? 'active' : ''} ${this.css.classes}'
+            style='${this.css.styles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            role='tabpanel'
+            aria-labelledby='${this.id}-trigger'
+            for='${this.parent.id}'>
+                <div pode-content-for='${this.id}'></div>
+                ${prevBtn}
+                ${nextBtn}
+        </div>`;
+    }
+
+    bind(data, sender, opts) {
+        var obj = this;
+
+        // auto submit on enter key
+        this.element.off('keypress').on('keypress', function(e) {
+            if (!isEnterKey(e)) {
+                return;
+            }
+
+            var nextBtn = obj.element.find('.step-next');
+            if (!nextBtn || nextBtn.length === 0) {
+                nextBtn = obj.element.find('.step-submit');
+            }
+
+            if (nextBtn && nextBtn.length > 0) {
+                nextBtn.trigger('click');
+            }
+        });
+
+        // previous button
+        this.element.find('.step-previous').off('click').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            obj.parent.previous();
+        });
+
+        // next button
+        this.element.find('.step-next').off('click').on('click', function(e) {
+            if (!obj.element.hasClass('active')) {
+                return;
+            }
+
+            if (obj.dynamic) {
+                var result = obj.serialize();
+                sendAjaxReq(obj.url, result.data, obj.element, true, (_, sender) => {
+                    if (!hasValidationErrors(sender)) {
+                        obj.parent.next();
+                    }
+                }, result.opts);
+            }
+            else {
+                obj.parent.next();
+            }
+        });
+
+        // submit button
+        this.element.find('.step-submit').off('click').on('click', function(e) {
+            if (!obj.element.hasClass('active')) {
+                return;
+            }
+
+            if (obj.dynamic) {
+                var result = obj.serialize();
+                sendAjaxReq(obj.url, result.data, obj.element, true, (_, sender) => {
+                    if (!hasValidationErrors(sender)) {
+                        obj.parent.submit();
+                    }
+                }, result.opts);
+            }
+            else {
+                obj.parent.submit();
+            }
+        });
     }
 }
 PodeElementFactory.setClass(PodeStep);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class PodeBreadcrumb extends PodeElement {
     static type = 'breadcrumb';

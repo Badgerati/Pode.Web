@@ -36,7 +36,7 @@ $(() => {
         // loadTiles();
         // loadSelects();
 
-        setupSteppers();
+        // setupSteppers();
         // setupAccordion();
 
         bindSidebarFilter();
@@ -414,121 +414,121 @@ function isEnterKey(event) {
         return false;
     }
 
-    return (event.which == 13 && event.keyCode == 13)
+    return (event.which == 13 && event.keyCode == 13 && !testTagName(event.target, 'textarea'));
 }
 
-var _steppers = {};
+// var _steppers = {};
 
-function setupSteppers() {
-    $('div.bs-stepper[role="stepper"]').each((i, e) => {
-        var stepper = $(e);
-        _steppers[stepper.attr('id')] = new Stepper(e, { linear: true });
+// function setupSteppers() {
+//     $('div.bs-stepper[role="stepper"]').each((i, e) => {
+//         var stepper = $(e);
+//         _steppers[stepper.attr('id')] = new Stepper(e, { linear: true });
 
-        // override form enter-key
-        stepper.find('form.pode-stepper-form').off('keypress').on('keypress', function(e) {
-            if (!isEnterKey(e)) {
-                return;
-            }
+//         // override form enter-key
+//         stepper.find('form.pode-stepper-form').off('keypress').on('keypress', function(e) {
+//             if (!isEnterKey(e)) {
+//                 return;
+//             }
 
-            var btn = stepper.find('.bs-stepper-content .bs-stepper-pane.active button.step-next');
-            if (!btn) {
-                btn = stepper.find('.bs-stepper-content .bs-stepper-pane.active button.step-submit');
-            }
+//             var btn = stepper.find('.bs-stepper-content .bs-stepper-pane.active button.step-next');
+//             if (!btn) {
+//                 btn = stepper.find('.bs-stepper-content .bs-stepper-pane.active button.step-submit');
+//             }
 
-            if (btn) {
-                btn.trigger('click');
-            }
-        });
+//             if (btn) {
+//                 btn.trigger('click');
+//             }
+//         });
 
-        // previous buttons
-        stepper.find('.bs-stepper-content button.step-previous').off('click').on('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+//         // previous buttons
+//         stepper.find('.bs-stepper-content button.step-previous').off('click').on('click', function(e) {
+//             e.preventDefault();
+//             e.stopPropagation();
 
-            // get the button and step
-            var btn = getButton(e);
-            var step = btn.closest(`div#${btn.attr('for')}`);
+//             // get the button and step
+//             var btn = getButton(e);
+//             var step = btn.closest(`div#${btn.attr('for')}`);
 
-            // not need for validation, just go back
-            _steppers[step.attr('for')].previous();
-        });
+//             // not need for validation, just go back
+//             _steppers[step.attr('for')].previous();
+//         });
 
-        // next buttons
-        stepper.find('.bs-stepper-content button.step-next').off('click').on('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+//         // next buttons
+//         stepper.find('.bs-stepper-content button.step-next').off('click').on('click', function(e) {
+//             e.preventDefault();
+//             e.stopPropagation();
 
-            // get the button and step
-            var btn = getButton(e);
-            var step = btn.closest(`div#${btn.attr('for')}`);
+//             // get the button and step
+//             var btn = getButton(e);
+//             var step = btn.closest(`div#${btn.attr('for')}`);
 
-            // skip if step not active
-            if (!step.hasClass('active')) {
-                return;
-            }
+//             // skip if step not active
+//             if (!step.hasClass('active')) {
+//                 return;
+//             }
 
-            // call ajax, or move along?
-            if (isDynamic(step)) {
-                // serialize any step-form data
-                var inputs = serializeInputs(step);
-                var url = getComponentUrl(step);
+//             // call ajax, or move along?
+//             if (isDynamic(step)) {
+//                 // serialize any step-form data
+//                 var inputs = serializeInputs(step);
+//                 var url = getComponentUrl(step);
 
-                // send ajax req, and call next on no validation errors
-                sendAjaxReq(url, inputs.data, step, true, (res, sender) => {
-                    if (!hasValidationErrors(sender)) {
-                        _steppers[sender.attr('for')].next();
-                    }
-                }, inputs.opts);
-            }
-            else {
-                _steppers[step.attr('for')].next();
-            }
-        });
+//                 // send ajax req, and call next on no validation errors
+//                 sendAjaxReq(url, inputs.data, step, true, (res, sender) => {
+//                     if (!hasValidationErrors(sender)) {
+//                         _steppers[sender.attr('for')].next();
+//                     }
+//                 }, inputs.opts);
+//             }
+//             else {
+//                 _steppers[step.attr('for')].next();
+//             }
+//         });
 
-        // submit buttons
-        stepper.find('.bs-stepper-content button.step-submit').off('click').on('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+//         // submit buttons
+//         stepper.find('.bs-stepper-content button.step-submit').off('click').on('click', function(e) {
+//             e.preventDefault();
+//             e.stopPropagation();
 
-            // get the button and step
-            var btn = getButton(e);
-            var step = btn.closest(`div#${btn.attr('for')}`);
+//             // get the button and step
+//             var btn = getButton(e);
+//             var step = btn.closest(`div#${btn.attr('for')}`);
 
-            // skip if step not active
-            if (!step.hasClass('active')) {
-                return;
-            }
+//             // skip if step not active
+//             if (!step.hasClass('active')) {
+//                 return;
+//             }
 
-            var inputs = null;
-            var url = null;
+//             var inputs = null;
+//             var url = null;
 
-            // call ajax, or move along?
-            if (isDynamic(step)) {
-                // serialize any step-form data
-                inputs = serializeInputs(step);
-                url = getComponentUrl(step);
+//             // call ajax, or move along?
+//             if (isDynamic(step)) {
+//                 // serialize any step-form data
+//                 inputs = serializeInputs(step);
+//                 url = getComponentUrl(step);
 
-                // send ajax req, if not validation errors, send ajax for all steps
-                sendAjaxReq(url, inputs.data, step, true, (res, sender) => {
-                    if (!hasValidationErrors(sender)) {
-                        var _steps = sender.attr('for');
-                        var _inputs = serializeInputs(sender.closest('form.pode-stepper-form'));
-                        var _url = getComponentUrl(_steps);
+//                 // send ajax req, if not validation errors, send ajax for all steps
+//                 sendAjaxReq(url, inputs.data, step, true, (res, sender) => {
+//                     if (!hasValidationErrors(sender)) {
+//                         var _steps = sender.attr('for');
+//                         var _inputs = serializeInputs(sender.closest('form.pode-stepper-form'));
+//                         var _url = getComponentUrl(_steps);
 
-                        sendAjaxReq(_url, _inputs.data, sender, true, null, _inputs.opts);
-                    }
-                }, inputs.opts);
-            }
-            else {
-                var steps = step.attr('for');
-                inputs = serializeInputs(step.closest('form.pode-stepper-form'));
-                url = getComponentUrl(steps);
+//                         sendAjaxReq(_url, _inputs.data, sender, true, null, _inputs.opts);
+//                     }
+//                 }, inputs.opts);
+//             }
+//             else {
+//                 var steps = step.attr('for');
+//                 inputs = serializeInputs(step.closest('form.pode-stepper-form'));
+//                 url = getComponentUrl(steps);
 
-                sendAjaxReq(url, inputs.data, step, true, null, inputs.opts);
-            }
-        });
-    });
-}
+//                 sendAjaxReq(url, inputs.data, step, true, null, inputs.opts);
+//             }
+//         });
+//     });
+// }
 
 function isDynamic(element) {
     if (!element) {
@@ -1453,9 +1453,9 @@ function invokeActions(actions, sender) {
             //     actionModal(action, sender);
             //     break;
 
-            case 'notification':
-                actionNotification(action);
-                break;
+            // case 'notification':
+            //     actionNotification(action);
+            //     break;
 
             case 'href':
                 actionHref(action);
@@ -3953,33 +3953,33 @@ function buildLink(element) {
     return PodeElementFactory.invokeClass('link', 'new', element);
 }
 
-function actionNotification(action) {
-    if (!window.Notification) {
-        return;
-    }
+// function actionNotification(action) {
+//     if (!window.Notification) {
+//         return;
+//     }
 
-    if (Notification.permission === 'granted') {
-        showNotification(action);
-    }
-    else if (Notification.permission !== 'denied') {
-        Notification.requestPermission().then(function(p) {
-            if (p === 'granted') {
-                showNotification(action);
-            }
-        });
-    }
-}
+//     if (Notification.permission === 'granted') {
+//         showNotification(action);
+//     }
+//     else if (Notification.permission !== 'denied') {
+//         Notification.requestPermission().then(function(p) {
+//             if (p === 'granted') {
+//                 showNotification(action);
+//             }
+//         });
+//     }
+// }
 
-function showNotification(action) {
-    if (!action) {
-        return;
-    }
+// function showNotification(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    var notif = new Notification(action.Title, {
-        body: action.Body,
-        icon: action.Icon
-    });
-}
+//     var notif = new Notification(action.Title, {
+//         body: action.Body,
+//         icon: action.Icon
+//     });
+// }
 
 function actionHref(action) {
     if (!action) {
