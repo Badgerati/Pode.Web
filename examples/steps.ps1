@@ -26,6 +26,7 @@ Start-PodeServer {
                     New-PodeWebTextbox -Name 'Email'
                     New-PodeWebFileUpload -Name 'SomeFile'
                 ) -ScriptBlock {
+                    Start-Sleep -Seconds 3
                     $WebEvent.Data | Out-Default
                 }
                 New-PodeWebStep -Name 'Password' -Icon 'lock' -Content @(

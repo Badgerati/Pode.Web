@@ -770,7 +770,7 @@ function New-PodeWebBreadcrumbItem
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'BreadcrumbItem'
+        ObjectType = 'Breadcrumb-Item'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         Url = (Add-PodeWebAppPath -Url $Url)

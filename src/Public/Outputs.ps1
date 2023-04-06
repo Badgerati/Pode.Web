@@ -691,7 +691,7 @@ function Out-PodeWebValidation
 
     return @{
         Operation = 'Output'
-        ObjectType = 'Validation'
+        ObjectType = 'Validation'  # ObjType=Element, SubType=Validation? TODO:
         Name = $Name
         ID = $Id
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
@@ -1431,7 +1431,8 @@ function Set-PodeWebComponentStyle
 
     return @{
         Operation = 'Set'
-        ObjectType = 'Component-Style'
+        ObjectType = 'Element'
+        SubObjectType = 'Style'
         ID = $Id
         Type = $Type
         Name = $Name
@@ -1463,7 +1464,8 @@ function Remove-PodeWebComponentStyle
 
     return @{
         Operation = 'Remove'
-        ObjectType = 'Component-Style'
+        ObjectType = 'Element'
+        SubObjectType = 'Style'
         ID = $Id
         Type = $Type
         Name = $Name
@@ -1494,7 +1496,8 @@ function Add-PodeWebComponentClass
 
     return @{
         Operation = 'Add'
-        ObjectType = 'Component-Class'
+        ObjectType = 'Element'
+        SubObjectType = 'Class'
         ID = $Id
         Type = $Type
         Name = $Name
@@ -1525,7 +1528,8 @@ function Remove-PodeWebComponentClass
 
     return @{
         Operation = 'Remove'
-        ObjectType = 'Component-Class'
+        ObjectType = 'Element'
+        SubObjectType = 'Class'
         ID = $Id
         Type = $Type
         Name = $Name

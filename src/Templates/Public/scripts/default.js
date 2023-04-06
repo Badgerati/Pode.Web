@@ -26,7 +26,7 @@ $(() => {
         return;
     }
 
-    sendAjaxReq(`${getUrl('content')}`, null, $('content#pode-content'), true, (res, sender) => {
+    sendAjaxReq(`${getUrl('content')}`, null, undefined, true, (res, sender) => {
         mapElementThemes();
 
         loadBreadcrumb();
@@ -192,13 +192,19 @@ function getUrl(subpath, data) {
 // }
 
 function loadBreadcrumb() {
-    // get breadcrumb
-    var breadcrumb = $('nav ol.breadcrumb');
-    if (!breadcrumb || isDynamic(breadcrumb)) {
+    var breadcrumb = PodeElementFactory.getBreadcrumb();
+    if (breadcrumb.isCustom) {
         return;
     }
 
-    breadcrumb.empty();
+
+    // get breadcrumb
+    // var breadcrumb = $('nav ol.breadcrumb');
+    // if (!breadcrumb || isDynamic(breadcrumb)) {
+    //     return;
+    // }
+
+    // breadcrumb.empty();
 
     // get base and current value query
     var base = getQueryStringValue('base');
@@ -209,36 +215,71 @@ function loadBreadcrumb() {
         return;
     }
 
-    // add page name
-    var title = getPageTitle();
-    breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}'>${title}</a></li>`);
+    // base page
+    breadcrumb.add({
+        Name: getPageTitle(),
+        Url: window.location.pathname
+    });
 
-    // add base values
+    // base values
     if (base) {
         var newBase = '';
         var data = null;
 
         base.split('/').forEach((i) => {
-            data = `value=${i}`;
-            if (newBase) {
-                data = `base=${newBase}&${data}`;
-            }
+            data = newBase ? `base=${newBase}&value=${i}` : `value=${i}`;
 
-            breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}?${data}'>${encodeHTML(i)}</a></li>`);
+            breadcrumb.add({
+                Name: i,
+                Url: `${window.location.pathname}?${data}`
+            });
 
-            if (newBase) {
-                newBase = `${newBase}/${i}`;
-            }
-            else {
-                newBase = i;
-            }
+            newBase = newBase ? `${newBase}/${i}` : i;
         });
     }
 
-    // add current value
+    // current value
     if (value) {
-        breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${encodeHTML(value)}</li>`);
+        breadcrumb.add({
+            Name: value,
+            Active: true
+        });
     }
+
+
+
+
+
+    // add page name
+    // var title = getPageTitle();
+    // breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}'>${title}</a></li>`);
+
+    // add base values
+    // if (base) {
+    //     var newBase = '';
+    //     var data = null;
+
+    //     base.split('/').forEach((i) => {
+    //         data = `value=${i}`;
+    //         if (newBase) {
+    //             data = `base=${newBase}&${data}`;
+    //         }
+
+    //         breadcrumb.append(`<li class='breadcrumb-item'><a href='${window.location.pathname}?${data}'>${encodeHTML(i)}</a></li>`);
+
+    //         if (newBase) {
+    //             newBase = `${newBase}/${i}`;
+    //         }
+    //         else {
+    //             newBase = i;
+    //         }
+    //     });
+    // }
+
+    // add current value
+    // if (value) {
+    //     breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${encodeHTML(value)}</li>`);
+    // }
 }
 
 function checkAutoTheme() {
@@ -1485,9 +1526,9 @@ function invokeActions(actions, sender) {
                 actionError(action, sender);
                 break;
 
-            case 'breadcrumb':
-                actionBreadcrumb(action);
-                break;
+            // case 'breadcrumb':
+            //     actionBreadcrumb(action);
+            //     break;
 
             // case 'tile':
             //     actionTile(action, sender);
@@ -1501,13 +1542,13 @@ function invokeActions(actions, sender) {
             //     actionComponent(action);
             //     break;
 
-            case 'component-style':
-                actionComponentStyle(action);
-                break;
+            // case 'component-style':
+            //     actionComponentStyle(action);
+            //     break;
 
-            case 'component-class':
-                actionComponentClass(action);
-                break;
+            // case 'component-class':
+            //     actionComponentClass(action);
+            //     break;
 
             // case 'filestream':
             //     actionFileStream(action);
@@ -1535,6 +1576,7 @@ function invokeActions(actions, sender) {
 
             default:
                 PodeElementFactory.invokeClass(_type, _operation, action, sender, {
+                    type: _type,
                     subType: _subType
                 });
                 break;
@@ -2634,70 +2676,70 @@ function getElementByNameOrId(action, tag, sender, filter) {
 //     loadTile(getId(tile));
 // }
 
-function actionComponentClass(action) {
-    if (!action) {
-        return;
-    }
+// function actionComponentClass(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    switch (action.Operation.toLowerCase()) {
-        case 'add':
-            addComponentClass(action);
-            break;
+//     switch (action.Operation.toLowerCase()) {
+//         case 'add':
+//             addComponentClass(action);
+//             break;
 
-        case 'remove':
-            removeComponentClass(action);
-            break;
-    }
-}
+//         case 'remove':
+//             removeComponentClass(action);
+//             break;
+//     }
+// }
 
-function addComponentClass(action) {
-    var obj = getElementByNameOrId(action);
-    if (!obj) {
-        return;
-    }
+// function addComponentClass(action) {
+//     var obj = getElementByNameOrId(action);
+//     if (!obj) {
+//         return;
+//     }
 
-    addClass(obj, action.Class);
-}
+//     addClass(obj, action.Class);
+// }
 
-function removeComponentClass(action) {
-    var obj = getElementByNameOrId(action);
-    if (!obj) {
-        return;
-    }
+// function removeComponentClass(action) {
+//     var obj = getElementByNameOrId(action);
+//     if (!obj) {
+//         return;
+//     }
 
-    removeClass(obj, action.Class, true);
-}
+//     removeClass(obj, action.Class, true);
+// }
 
-function actionComponentStyle(action) {
-    if (!action) {
-        return;
-    }
+// function actionComponentStyle(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    switch (action.Operation.toLowerCase()) {
-        case 'set':
-        case 'remove':
-            updateComponentStyle(action);
-            break;
-    }
-}
+//     switch (action.Operation.toLowerCase()) {
+//         case 'set':
+//         case 'remove':
+//             updateComponentStyle(action);
+//             break;
+//     }
+// }
 
-function updateComponentStyle(action) {
-    var obj = getElementByNameOrId(action);
-    if (!obj) {
-        return;
-    }
+// function updateComponentStyle(action) {
+//     var obj = getElementByNameOrId(action);
+//     if (!obj) {
+//         return;
+//     }
 
-    setObjectStyle(obj[0], action.Property, action.Value);
-}
+//     setObjectStyle(obj[0], action.Property, action.Value);
+// }
 
-function setObjectStyle(obj, property, value) {
-    if (value) {
-        obj.style.setProperty(property, value, 'important');
-    }
-    else {
-        obj.style.setProperty(property, null);
-    }
-}
+// function setObjectStyle(obj, property, value) {
+//     if (value) {
+//         obj.style.setProperty(property, value, 'important');
+//     }
+//     else {
+//         obj.style.setProperty(property, null);
+//     }
+// }
 
 // function actionComponent(action) {
 //     if (!action) {
@@ -4205,32 +4247,32 @@ function getPageTitle() {
     return $('#pode-page-title h1').text().trim();
 }
 
-function actionBreadcrumb(action) {
-    if (!action) {
-        return;
-    }
+// function actionBreadcrumb(action) {
+//     if (!action) {
+//         return;
+//     }
 
-    var breadcrumb = $('nav ol.breadcrumb');
-    if (!breadcrumb) {
-        return;
-    }
+//     var breadcrumb = $('nav ol.breadcrumb');
+//     if (!breadcrumb) {
+//         return;
+//     }
 
-    breadcrumb.empty();
+//     breadcrumb.empty();
 
-    action.Items = convertToArray(action.Items);
-    if (action.Items.length <= 0) {
-        return;
-    }
+//     action.Items = convertToArray(action.Items);
+//     if (action.Items.length <= 0) {
+//         return;
+//     }
 
-    action.Items.forEach((i) => {
-        if (i.Active) {
-            breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${i.Name}</li>`);
-        }
-        else {
-            breadcrumb.append(`<li class='breadcrumb-item'><a href='${i.Url}'>${i.Name}</a></li>`);
-        }
-    });
-}
+//     action.Items.forEach((i) => {
+//         if (i.Active) {
+//             breadcrumb.append(`<li class='breadcrumb-item active' aria-current='page'>${i.Name}</li>`);
+//         }
+//         else {
+//             breadcrumb.append(`<li class='breadcrumb-item'><a href='${i.Url}'>${i.Name}</a></li>`);
+//         }
+//     });
+// }
 
 function invokeEvent(type, sender) {
     sender = $(sender);

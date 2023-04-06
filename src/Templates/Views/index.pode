@@ -225,7 +225,10 @@
                     }
 
                     if (!$data.Page.NoBreadcrumb) {
-                        Use-PodeWebPartialView -Path "layouts/breadcrumb" -Data $data.Breadcrumb
+                        "<nav id='pode-breadcrumb' aria-label='breadcrumb'>
+                            <ol class='breadcrumb'>
+                            </ol>
+                        </nav>"
                     })
 
                     <content id="pode-content"></content>

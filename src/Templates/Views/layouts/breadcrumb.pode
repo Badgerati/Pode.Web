@@ -1,4 +1,4 @@
-<nav aria-label='breadcrumb'>
+<nav id='pode-breadcrumb' aria-label='breadcrumb'>
     <ol class='breadcrumb' pode-dynamic="$($null -ne $data)">
         $(foreach ($item in $data.Items) {
             if ($item.Active) {

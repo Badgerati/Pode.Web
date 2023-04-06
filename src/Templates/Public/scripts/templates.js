@@ -23,7 +23,18 @@ Swap "id" and "pode-id"?
 - "reload()" function, to reload the HTML for an element
     - this would recall new(), load(), then bind() - basically the same as creation
     - everything would have to be stored as "this." in the constructor - no "data.", so we can dynamically reload
+
+- "updateTheme()" function which is called when the theme is updated
+    - this should hopefully let us update the page's theme without reloading the page
+    - like charts for example
+
+- some buttons need disabling once clicked - to prevent double-clicks
+    - like forms, steppers, buttons, etc.
 */
+
+const PODE_CONTENT = $('content#pode-content');
+const PODE_BREADCRUMB = $('nav#pode-breadcrumb ol.breadcrumb');
+const PODE_NAVIGATION = $('div#pode-nav-items ul.navbar-nav');
 
 class PodeElementFactory {
     static classMap = new Map();
@@ -37,6 +48,25 @@ class PodeElementFactory {
 
     static getClass(name) {
         return this.classMap.get(name);
+    }
+
+    static getBreadcrumb() {
+        var id = PODE_BREADCRUMB.attr('for');
+        if (!id) {
+            var data = {
+                ObjectType: 'breadcrumb',
+                Items: []
+            };
+
+            var opts = {
+                isCustom: false
+            };
+
+            var result = PodeElementFactory.invokeClass('breadcrumb', 'new', data, undefined, opts)
+            id = result.element.uuid;
+        }
+
+        return this.getObject(id);
     }
 
     static invokeClass(name, action, data, sender, opts) {
@@ -223,8 +253,43 @@ class PodeElement {
         return this;
     }
 
+    applyGeneral(action, subType, data, sender, opts) {
+        switch (subType) {
+            case 'style':
+                switch (action) {
+                    case 'set':
+                        setStyle(data, sender, opts);
+                        break;
+
+                    case 'remove':
+                        removeStyle(data, sender, opts);
+                        break;
+                }
+                break;
+
+            case 'class':
+                switch (action) {
+                    case 'add':
+                        addClass(data, sender, opts);
+                        break;
+
+                    case 'remove':
+                        removeClass(data, sender, opts);
+                        break;
+                }
+                break;
+        }
+
+        return null;
+    }
+
     apply(action, data, sender, opts) {
         console.log(`[${action}] ${this.getType()} {${opts.subType ?? ''}}`);
+
+        // is this a base element action - applies to all
+        if (opts.subType && opts.type === 'element') {
+            return applyGeneral(action, opts.subType, data, sender, opts);
+        }
 
         // invoke action
         switch (action) {
@@ -297,7 +362,13 @@ class PodeElement {
                 this.set(data, sender, opts);
                 break;
 
-            //TODO: add, remove
+            case 'add':
+                this.add(data, sender, opts);
+                break;
+
+            case 'remove':
+                this.remove(data, sender, opts);
+                break;
         }
 
         if (this.ephemeral) {
@@ -560,7 +631,15 @@ class PodeElement {
     }
 
     getContentArea() {
-        return this.get().find(`[pode-content-for='${this.id}']`);
+        var element = this.get();
+        var id = this.id ?? this.uuid;
+
+        var area = element.find(`[pode-content-for='${id}']`);
+        if ((!area || area.length === 0) && element.attr('pode-content-for') === (id)) {
+            area = element;
+        }
+
+        return area;
     }
 
     html() {
@@ -627,6 +706,22 @@ class PodeElement {
         this.load(data, sender, opts);
     }
 
+    setStyle(data, sender, opts) {
+        this.element[0].style.setProperty(data.Property, data.Value, 'important');
+    }
+
+    removeStyle(data, sender, opts) {
+        this.element[0].style.setProperty(data.Property, null);
+    }
+
+    addClass(data, sender, opts) {
+        this.element.addClass(data.Class);
+    }
+
+    removeClass(data, sender, opts) {
+        this.element.removeClass(data.Class);
+    }
+
     new(data, sender, opts) {
         throw `${this.getType()} "new" method not implemented`
     }
@@ -659,6 +754,14 @@ class PodeElement {
         throw `${this.getType()} "set" method not implemented`
     }
 
+    add(data, sender, opts) {
+        throw `${this.getType()} "add" method not implemented`
+    }
+
+    remove(data, sender, opts) {
+        throw `${this.getType()} "remove" method not implemented`
+    }
+
     bind(data, sender, opts) {
         if (!this.element) {
             return;
@@ -672,7 +775,40 @@ class PodeElement {
     }
 }
 
-class PodeTextualElement extends PodeElement {
+class PodeContentElement extends PodeElement {
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+    }
+
+    apply(action, data, sender, opts) {
+        sender = sender === undefined ? PODE_CONTENT : sender;
+        super.apply(action, data, sender, opts);
+    }
+}
+
+class PodeBreadcrumbElement extends PodeElement {
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+    }
+
+    apply(action, data, sender, opts) {
+        sender = sender === undefined ? PODE_BREADCRUMB : sender;
+        super.apply(action, data, sender, opts);
+    }
+}
+
+class PodeNavElement extends PodeElement {
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+    }
+
+    apply(action, data, sender, opts) {
+        sender = sender === undefined ? PODE_NAVIGATION : sender;
+        super.apply(action, data, sender, opts);
+    }
+}
+
+class PodeTextualElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.textual = true;
@@ -690,7 +826,7 @@ class PodeTextualElement extends PodeElement {
     }
 }
 
-class PodeCyclingElement extends PodeElement {
+class PodeCyclingElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
 
@@ -736,7 +872,7 @@ class PodeCyclingElement extends PodeElement {
     }
 }
 
-class PodeCyclingChildElement extends PodeElement {
+class PodeCyclingChildElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.active = this.child.isFirst;
@@ -821,7 +957,7 @@ class PodeRefreshableElement extends PodeTextualElement {
     }
 }
 
-class PodeFormElement extends PodeElement {
+class PodeFormElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         opts.help = opts.help ?? {};
@@ -1004,7 +1140,7 @@ class PodeFormMultiElement extends PodeFormElement {
     }
 }
 
-class PodeMediaElement extends PodeElement {
+class PodeMediaElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
     }
@@ -1154,7 +1290,7 @@ class PodeText extends PodeTextualElement {
 }
 PodeElementFactory.setClass(PodeText);
 
-class PodeSpinner extends PodeElement {
+class PodeSpinner extends PodeContentElement {
     static type = 'spinner';
 
     constructor(...args) {
@@ -1209,7 +1345,7 @@ class PodeLink extends PodeTextualElement {
 }
 PodeElementFactory.setClass(PodeLink);
 
-class PodeIcon extends PodeElement {
+class PodeIcon extends PodeContentElement {
     static type = 'icon';
 
     constructor(data, sender, opts) {
@@ -1461,7 +1597,7 @@ class PodeButton extends PodeFormElement {
 }
 PodeElementFactory.setClass(PodeButton);
 
-class PodeContainer extends PodeElement {
+class PodeContainer extends PodeContentElement {
     static type = 'container';
 
     constructor(...args) {
@@ -1483,7 +1619,7 @@ class PodeContainer extends PodeElement {
 }
 PodeElementFactory.setClass(PodeContainer);
 
-class PodeForm extends PodeElement {
+class PodeForm extends PodeContentElement {
     static type = 'form';
 
     constructor(data, sender, opts) {
@@ -1628,7 +1764,7 @@ class PodeNotification extends PodeElement {
 }
 PodeElementFactory.setClass(PodeNotification);
 
-class PodeCard extends PodeElement {
+class PodeCard extends PodeContentElement {
     static type = 'card';
 
     constructor(...args) {
@@ -2957,7 +3093,7 @@ class PodeQuote extends PodeTextualElement {
 }
 PodeElementFactory.setClass(PodeQuote);
 
-class PodeIFrame extends PodeElement {
+class PodeIFrame extends PodeContentElement {
     static type = 'iframe';
 
     constructor(...args) {
@@ -2989,7 +3125,7 @@ class PodeIFrame extends PodeElement {
 }
 PodeElementFactory.setClass(PodeIFrame);
 
-class PodeLine extends PodeElement {
+class PodeLine extends PodeContentElement {
     static type = 'line';
 
     constructor(...args) {
@@ -3007,7 +3143,7 @@ class PodeLine extends PodeElement {
 }
 PodeElementFactory.setClass(PodeLine);
 
-class PodeRaw extends PodeElement {
+class PodeRaw extends PodeContentElement {
     static type = 'raw';
 
     constructor(...args) {
@@ -3024,7 +3160,7 @@ class PodeRaw extends PodeElement {
 }
 PodeElementFactory.setClass(PodeRaw);
 
-class PodeTimer extends PodeElement {
+class PodeTimer extends PodeContentElement {
     static type = 'timer';
 
     constructor(data, sender, opts) {
@@ -3057,7 +3193,7 @@ class PodeTimer extends PodeElement {
 }
 PodeElementFactory.setClass(PodeTimer);
 
-class PodeImage extends PodeElement {
+class PodeImage extends PodeContentElement {
     static type = 'image';
 
     constructor(...args) {
@@ -3087,7 +3223,7 @@ class PodeImage extends PodeElement {
 }
 PodeElementFactory.setClass(PodeImage);
 
-class PodeComment extends PodeElement {
+class PodeComment extends PodeContentElement {
     static type = 'comment';
 
     constructor(...args) {
@@ -3118,7 +3254,7 @@ class PodeComment extends PodeElement {
 }
 PodeElementFactory.setClass(PodeComment);
 
-class PodeHero extends PodeElement {
+class PodeHero extends PodeContentElement {
     static type = 'hero';
 
     constructor(...args) {
@@ -3216,7 +3352,7 @@ class PodeTile extends PodeRefreshableElement {
 }
 PodeElementFactory.setClass(PodeTile);
 
-class PodeGrid extends PodeElement {
+class PodeGrid extends PodeContentElement {
     static type = 'grid';
 
     constructor(data, sender, opts) {
@@ -3244,7 +3380,7 @@ class PodeGrid extends PodeElement {
 }
 PodeElementFactory.setClass(PodeGrid);
 
-class PodeCell extends PodeElement {
+class PodeCell extends PodeContentElement {
     static type = 'cell';
 
     constructor(data, sender, opts) {
@@ -3453,7 +3589,7 @@ class PodeSlide extends PodeCyclingChildElement {
 }
 PodeElementFactory.setClass(PodeSlide);
 
-class PodeCodeEditor extends PodeElement {
+class PodeCodeEditor extends PodeContentElement {
     static type = 'code-editor';
 
     constructor(data, sender, opts) {
@@ -3828,7 +3964,7 @@ class PodeChart extends PodeRefreshableElement {
 }
 PodeElementFactory.setClass(PodeChart);
 
-class PodeModal extends PodeElement {
+class PodeModal extends PodeContentElement {
     static type = 'modal';
 
     constructor(data, sender, opts) {
@@ -3992,7 +4128,7 @@ class PodeModal extends PodeElement {
 }
 PodeElementFactory.setClass(PodeModal);
 
-class PodeList extends PodeElement {
+class PodeList extends PodeContentElement {
     static type = 'list';
 
     constructor(...args) {
@@ -4028,7 +4164,7 @@ class PodeList extends PodeElement {
 }
 PodeElementFactory.setClass(PodeList);
 
-class PodeListItem extends PodeElement {
+class PodeListItem extends PodeContentElement {
     static type = 'list-item';
 
     constructor(...args) {
@@ -4227,7 +4363,7 @@ class PodeRange extends PodeFormElement {
 }
 PodeElementFactory.setClass(PodeRange);
 
-class PodeProgress extends PodeElement {
+class PodeProgress extends PodeContentElement {
     static type = 'progress';
 
     constructor(data, sender, opts) {
@@ -4574,7 +4710,7 @@ class PodeMinMax extends PodeFormMultiElement {
 }
 PodeElementFactory.setClass(PodeMinMax);
 
-class PodeFileStream extends PodeElement {
+class PodeFileStream extends PodeContentElement {
     static type = 'file-stream';
 
     //TODO: could we build this entire element with pure Card, Button, and Textarea New- func calls?
@@ -4596,7 +4732,7 @@ class PodeFileStream extends PodeElement {
             header = `<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
                 <h5>
                     ${icon}
-                    ${this.file.url}
+                    ${encodeHTML(this.file.url)}
                 </h5>
                 <div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
                     <div class='icon-group mr-2'>
@@ -4762,7 +4898,7 @@ class PodeFileStream extends PodeElement {
 }
 PodeElementFactory.setClass(PodeFileStream);
 
-class PodeSteps extends PodeElement {
+class PodeSteps extends PodeContentElement {
     static type = 'steps';
 
     constructor(data, sender, opts) {
@@ -4823,7 +4959,7 @@ class PodeSteps extends PodeElement {
 }
 PodeElementFactory.setClass(PodeSteps);
 
-class PodeStep extends PodeElement {
+class PodeStep extends PodeContentElement {
     static type = 'step';
 
     constructor(data, sender, opts) {
@@ -4930,44 +5066,100 @@ class PodeStep extends PodeElement {
 }
 PodeElementFactory.setClass(PodeStep);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class PodeBreadcrumb extends PodeElement {
+class PodeBreadcrumb extends PodeBreadcrumbElement {
     static type = 'breadcrumb';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.id = '__pode_breadcrumb__';
+        this.contentProperty = 'Items';
+        this.isCustom = opts.isCustom ?? true;
+        PODE_BREADCRUMB.attr('for', this.uuid);
     }
 
     new(data, sender, opts) {
+        PODE_BREADCRUMB.empty();
+
+        return `<div
+            id='${this.id}'
+            class='${this.css.classes}'
+            style='${this.css.styles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            pode-content-for='${this.id}'>
+        </div>`;
+    }
+
+    add(data, sender, opts) {
+        var data = {
+            ObjectType: 'breadcrumb-item',
+            Name: data.Name,
+            DisplayName: encodeHTML(data.DisplayName ?? data.Name),
+            Url: data.Url,
+            Active: data.Active ?? false
+        };
+
+        this.render(data, this.element, this, null);
     }
 }
 PodeElementFactory.setClass(PodeBreadcrumb);
 
+class PodeBreadcrumbItem extends PodeBreadcrumbElement {
+    static type = 'breadcrumb-item';
+
+    constructor(...args) {
+        super(...args);
+        this.ephemeral = true;
+    }
+
+    new(data, sender, opts) {
+        var html = `${data.DisplayName}`;
+
+        if (!data.Active) {
+            html = `<a href='${data.Url}'>${html}</a>`;
+        }
+
+        return `<li
+            class='breadcrumb-item d-inline-block ${data.Active ? 'active' : ''} ${this.css.classes}'
+            style='${this.css.styles}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            ${data.Active ? "aria-current='page'" : ''}>
+                ${html}
+        </li>`;
+    }
+}
+PodeElementFactory.setClass(PodeBreadcrumbItem);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // plus the nav ones?
-class PodeNavDivider extends PodeElement {
+class PodeNavDivider extends PodeNavElement {
     static type = 'nav-divider';
 
     constructor(...args) {
@@ -4979,7 +5171,7 @@ class PodeNavDivider extends PodeElement {
 }
 PodeElementFactory.setClass(PodeNavDivider);
 
-class PodeNavDropdown extends PodeElement {
+class PodeNavDropdown extends PodeNavElement {
     static type = 'nav-dropdown';
 
     constructor(...args) {
@@ -4991,7 +5183,7 @@ class PodeNavDropdown extends PodeElement {
 }
 PodeElementFactory.setClass(PodeNavDropdown);
 
-class PodeNavLink extends PodeElement {
+class PodeNavLink extends PodeNavElement {
     static type = 'nav-link';
 
     constructor(...args) {
