@@ -42,7 +42,7 @@ $(() => {
         bindSidebarFilter();
         bindSidebarToggle();
         toggleSidebar();
-        bindNavLinks();
+        // bindNavLinks();
         bindPageLinks();
         bindPageHelp();
 
@@ -1799,15 +1799,15 @@ function getButton(event) {
 //     });
 // }
 
-function bindNavLinks() {
-    $("a.pode-nav-link[pode-dynamic='True']").off('click').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+// function bindNavLinks() {
+//     $("a.pode-nav-link[pode-dynamic='True']").off('click').on('click', function(e) {
+//         e.preventDefault();
+//         e.stopPropagation();
 
-        var url = `/nav/link/${$(this).attr('id')}`;
-        sendAjaxReq(url, null, null, true);
-    });
-}
+//         var url = `/nav/link/${$(this).attr('id')}`;
+//         sendAjaxReq(url, null, null, true);
+//     });
+// }
 
 function bindPageLinks() {
     $(".nav-page-item a.nav-link[pode-dynamic='True']").off('click').on('click', function(e) {

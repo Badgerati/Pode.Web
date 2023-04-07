@@ -44,7 +44,6 @@
 
                 <div id='pode-nav-items'>
                     <ul class="navbar-nav mr-auto">
-                        $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Navigation })
                     </ul>
                 </div>
             </div>

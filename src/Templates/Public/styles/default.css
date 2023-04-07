@@ -195,7 +195,7 @@ span.link-divider {
     margin-top: 1px;
 }
 
-a.pode-nav-link[pode-dynamic='true'] {
+a.pode-nav-link {
     cursor: pointer;
 }
 
