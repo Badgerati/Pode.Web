@@ -261,11 +261,11 @@ class PodeElement {
             case 'style':
                 switch (action) {
                     case 'set':
-                        setStyle(data, sender, opts);
+                        this.setStyle(data, sender, opts);
                         break;
 
                     case 'remove':
-                        removeStyle(data, sender, opts);
+                        this.removeStyle(data, sender, opts);
                         break;
                 }
                 break;
@@ -273,11 +273,19 @@ class PodeElement {
             case 'class':
                 switch (action) {
                     case 'add':
-                        addClass(data, sender, opts);
+                        this.addClass(data, sender, opts);
                         break;
 
                     case 'remove':
-                        removeClass(data, sender, opts);
+                        this.removeClass(data, sender, opts);
+                        break;
+                }
+                break;
+
+            case 'validation':
+                switch (action) {
+                    case 'output':
+                        this.showValidation(data, sender, opts);
                         break;
                 }
                 break;
@@ -291,7 +299,7 @@ class PodeElement {
 
         // is this a base element action - applies to all
         if (opts.subType && opts.type === 'element') {
-            return applyGeneral(action, opts.subType, data, sender, opts);
+            return this.applyGeneral(action, opts.subType, data, sender, opts);
         }
 
         // invoke action
@@ -582,7 +590,7 @@ class PodeElement {
 
         // by Name
         if (data.Name) {
-            if (!this.tag && this.type) {
+            if (!this.tag && this.type && this.type !== 'element') {
                 this.tag = `[pode-object="${this.type}"]`;
             }
 
@@ -728,6 +736,11 @@ class PodeElement {
 
     removeClass(data, sender, opts) {
         this.element.removeClass(data.Class);
+    }
+
+    showValidation(data, sender, opts) {
+        $(document).find(`[pode-validation-for='${this.uuid}']`).text(decodeHTML(data.Message));
+        setValidationError(this.element);
     }
 
     new(data, sender, opts) {
@@ -1006,7 +1019,7 @@ class PodeFormElement extends PodeContentElement {
 
                 // validation
                 if (this.validation) {
-                    html += `<div id="${this.id}_validation" class="invalid-feedback"></div>`;
+                    html += `<div pode-validation-for="${this.uuid}" class="invalid-feedback validation"></div>`;
                 }
 
                 // are we in a form?

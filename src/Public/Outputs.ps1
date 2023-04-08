@@ -672,6 +672,8 @@ function Show-PodeWebToast
     }
 }
 
+#TODO: would "Show-PodeWebValidation" make more sense?
+#       - also make this more like "Set-PodeWebCompStyle" and "Type" needed
 function Out-PodeWebValidation
 {
     [CmdletBinding(DefaultParameterSetName='Name')]
@@ -691,7 +693,8 @@ function Out-PodeWebValidation
 
     return @{
         Operation = 'Output'
-        ObjectType = 'Validation'  # ObjType=Element, SubType=Validation? TODO:
+        ObjectType = 'Element'
+        SubObjectType = 'Validation'
         Name = $Name
         ID = $Id
         Message = [System.Net.WebUtility]::HtmlEncode($Message)

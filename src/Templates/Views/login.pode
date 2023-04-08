@@ -21,7 +21,7 @@
 
             <form action="$($data.AppPath)/login" method='POST'>
                 $(if (!$data.Auth.IsOAuth2 -or ($data.Auth.GrantType -ieq 'password')) {
-                    Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content }
+                    "<content id='pode-content'></content>"
 
                     if ($data.Flash['auth-error']) {
                         "<div class='alert alert-danger' role='alert'>

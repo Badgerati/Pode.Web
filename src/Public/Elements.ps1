@@ -123,7 +123,7 @@ function New-PodeWebTextbox
 
     end {
         if (!$AsJson -and ($items.Length -gt 0)) {
-            $items = ($items | Out-String -NoNewline)
+            $items = ($items | Out-String).Trim() # -NoNewline)
         }
 
         $Id = Get-PodeWebElementId -Tag Textbox -Id $Id -Name $Name

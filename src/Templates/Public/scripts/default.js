@@ -1466,9 +1466,9 @@ function invokeActions(actions, sender) {
             //     actionToast(action);
             //     break;
 
-            case 'validation':
-                actionValidation(action, sender);
-                break;
+            // case 'validation':
+            //     actionValidation(action, sender);
+            //     break;
 
             // case 'form':
             //     PodeElementFactory.invokeClass(_type, _operation, action, sender);
@@ -3095,17 +3095,17 @@ function actionToast(action) {
     $(`div#${toastId}`).toast('show');
 }
 
-function actionValidation(action, sender) {
-    var input = getElementByNameOrId(action, null, sender);
-    if (!input) {
-        return;
-    }
+// function actionValidation(action, sender) {
+//     var input = getElementByNameOrId(action, null, sender);
+//     if (!input) {
+//         return;
+//     }
 
-    var validationId = `div#${$(input).attr('id')}_validation`;
-    $(validationId).text(decodeHTML(action.Message));
+//     var validationId = `div#${$(input).attr('id')}_validation`;
+//     $(validationId).text(decodeHTML(action.Message));
 
-    setValidationError(input);
-}
+//     setValidationError(input);
+// }
 
 // function actionTextbox(action, sender) {
 //     switch (action.Operation.toLowerCase()) {

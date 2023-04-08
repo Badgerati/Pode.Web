@@ -130,7 +130,7 @@ function Set-PodeWebLoginPage
 
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Page = $global:PageData
-            Content = $global:PageData.Content
+            # Content = $global:PageData.Content
             Theme = Get-PodeWebTheme
             Logo = $using:Logo
             LogoUrl = $using:LogoUrl
@@ -153,6 +153,14 @@ function Set-PodeWebLoginPage
 
     # add the logout route
     Add-PodeRoute -Method Post -Path '/logout' -Authentication $Authentication -EndpointName $endpointNames -Logout
+
+    # login content
+    Add-PodeRoute -Method Post -Path '/login/content' -ArgumentList @{ Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
+        param($Data)
+        $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
+        Write-PodeJsonResponse -Value $global:PageData.Content
+        $global:PageData = $null
+    }
 
     # add an authenticated home route
     Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
