@@ -1,20 +1,20 @@
 /*
 TODO:
-Swap "id" and "pode-id"?
-- Since you can set duplicate IDs in Pode, or in Tables for example
-
 - all Home page types will need a /content url
 
 - Home page only has -Layouts, really needs a -ScriptBlock as well!
 
-- Split this files into separate files
+- Split these files into separate files
   - Use a tool to combine and minimise on build - load this minimised file in html
 
-- A general "Out-PodeWebComponent" - to set "IsOutput" for ANY "New-" element
+- A general "Out-PodeWebElement" - to set "IsOutput" for ANY "New-" element
+
+- Rename anything "Component" to "Element"
+
+- Any Layout/Element should just allow anything as "Content"
+    - unless it's a specific child - like Bellows for Accordions, etc.
 
 - Tiles need a spinner
-
-- Clickable rows appears to be broken when calling "/content"
 
 - no "Update-PodeWebIcon" ...
 
@@ -24,7 +24,7 @@ Swap "id" and "pode-id"?
     - this would recall new(), load(), then bind() - basically the same as creation
     - everything would have to be stored as "this." in the constructor - no "data.", so we can dynamically reload
 
-- "updateTheme()" function which is called when the theme is updated
+- "setTheme()" function which is called when the theme is updated
     - this should hopefully let us update the page's theme without reloading the page
     - like charts for example
 
@@ -34,8 +34,6 @@ Swap "id" and "pode-id"?
 - there is a lot of ".off().on()" for events - can we centralise this somehow?
 
 - automatically add ".css.classes" and ".css.styles" so we don't have to keep worrying about it
-
-- can remove "-NoForm" now
 
 - remove all "Out-" actions
 */
@@ -152,6 +150,10 @@ class PodeElementFactory {
 
     static getObject(id) {
         return this.objMap.get(id);
+    }
+
+    static triggerObject(id, evt) {
+        return this.getObject(id).trigger(evt);
     }
 }
 
@@ -524,7 +526,7 @@ class PodeElement {
             data = newFormData(this.element.find('input, textarea, select'));
         }
         else {
-            opts = null;
+            opts = {};
 
             if (this.checkParentType('form')) {
                 data = this.element.serialize();
@@ -536,7 +538,7 @@ class PodeElement {
 
         return {
             data: data,
-            opts: opts
+            opts: opts ?? {}
         };
     }
 
@@ -552,6 +554,12 @@ class PodeElement {
         });
 
         return strEvents;
+    }
+
+    trigger(evt) {
+        var inputs = this.serialize();
+        inputs.opts.keepFocus = true;
+        sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this.element, true, null, inputs.opts);
     }
 
     spinner(show) {
@@ -1295,7 +1303,7 @@ class PodeBadge extends PodeTextualElement {
 
         // change colour
         if (data.Colour) {
-            replaceClass(this.element, 'badge-\\w+', `badge-${data.ColourType}`);
+            this.replaceClass('badge-\\w+', `badge-${data.ColourType}`, null, {AsPattern: true});
         }
     }
 }
@@ -1480,7 +1488,7 @@ class PodeIcon extends PodeContentElement {
         name = name.startsWith('mdi-') ? name : `mdi-${name}`;
 
         if (this.getName() !== name) {
-            replaceClass(this.element, this.getName(), name);
+            this.replaceClass(this.getName(), name);
             this.setName(name);
         }
 
@@ -2551,7 +2559,7 @@ class PodeTable extends PodeRefreshableElement {
 
         // get senderId if present, and set on table as 'for'
         if (getTagName(sender) === 'form') {
-            this.element.attr('for', getId(sender));
+            this.element.attr('for', sender.attr('id'));
         }
 
         // table headers
@@ -3446,7 +3454,7 @@ class PodeTile extends PodeRefreshableElement {
         super.update(data, sender, opts);
 
         if (data.Colour) {
-            replaceClass(this.element, 'alert-\\w+', `alert-${data.ColourType}`);
+            this.replaceClass('alert-\\w+', `alert-${data.ColourType}`, null, {AsPattern: true});
         }
     }
 }
@@ -3965,9 +3973,8 @@ class PodeChart extends PodeRefreshableElement {
         var theme = getPodeTheme();
 
         // get senderId if present, and set on canvas as 'for'
-        var senderId = getId(sender);
-        if (senderId && getTagName(sender) == 'form') {
-            this.element.attr('for', senderId);
+        if (getTagName(sender) === 'form') {
+            this.element.attr('for', sender.attr('id'));
         }
 
         // colours for lines/bars/segments
@@ -4188,7 +4195,7 @@ class PodeModal extends PodeContentElement {
                         method = _method;
                     }
 
-                    inputs = serializeInputs(form);
+                    inputs = obj.serialize(form);
                     removeValidationErrors(form);
                 }
 
@@ -4554,7 +4561,7 @@ class PodeProgress extends PodeContentElement {
 
         // colour
         if (data.Colour) {
-            replaceClass(this.element, 'bg-\\w+', `bg-${data.ColourType}`);
+            this.replaceClass('bg-\\w+', `bg-${data.ColourType}`, null, {AsPattern: true});
         }
     }
 }

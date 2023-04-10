@@ -95,9 +95,6 @@ function New-PodeWebTextbox
         $NoAuthentication,
 
         [switch]
-        $NoForm,
-
-        [switch]
         $Required,
 
         [switch]
@@ -165,7 +162,6 @@ function New-PodeWebTextbox
                 Icon = $AppendIcon
             }
             NoAuthentication = $NoAuthentication.IsPresent
-            NoForm = $NoForm.IsPresent
             Required = $Required.IsPresent
             AutoFocus = $AutoFocus.IsPresent
             DynamicLabel = $DynamicLabel.IsPresent
@@ -232,9 +228,6 @@ function New-PodeWebFileUpload
         $CssStyle,
 
         [switch]
-        $NoForm,
-
-        [switch]
         $Required
     )
 
@@ -251,7 +244,6 @@ function New-PodeWebFileUpload
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
-        NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
     }
 }
@@ -441,9 +433,6 @@ function New-PodeWebCheckbox
         $Disabled,
 
         [switch]
-        $NoForm,
-
-        [switch]
         $Required
     )
 
@@ -468,7 +457,6 @@ function New-PodeWebCheckbox
         Disabled = $Disabled.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
-        NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
     }
 }
@@ -512,9 +500,6 @@ function New-PodeWebRadio
         $Disabled,
 
         [switch]
-        $NoForm,
-
-        [switch]
         $Required
     )
 
@@ -533,7 +518,6 @@ function New-PodeWebRadio
         Disabled = $Disabled.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
-        NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
     }
 }
@@ -590,9 +574,6 @@ function New-PodeWebSelect
         $Multiple,
 
         [switch]
-        $NoForm,
-
-        [switch]
         $Required,
 
         [switch]
@@ -625,7 +606,6 @@ function New-PodeWebSelect
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoAuthentication = $NoAuthentication.IsPresent
-        NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
         Disabled = $Disabled.IsPresent
     }
@@ -705,9 +685,6 @@ function New-PodeWebRange
         $ShowValue,
 
         [switch]
-        $NoForm,
-
-        [switch]
         $Required
     )
 
@@ -735,7 +712,6 @@ function New-PodeWebRange
         ShowValue = $ShowValue.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
-        NoForm = $NoForm.IsPresent
         Required = $Required.IsPresent
     }
 }
