@@ -9,11 +9,6 @@ TODO:
 
 - A general "Out-PodeWebElement" - to set "IsOutput" for ANY "New-" element
 
-- Rename anything "Component" to "Element"
-
-- Any Layout/Element should just allow anything as "Content"
-    - unless it's a specific child - like Bellows for Accordions, etc.
-
 - Tiles need a spinner
 
 - no "Update-PodeWebIcon" ...
@@ -130,6 +125,7 @@ class PodeElementFactory {
     }
 
     static findObject(name, action, data, sender, opts) {
+        name = name === 'element' && data.Type ? data.Type : name;
         var clazz = this.getClass(name) ?? PodeElement;
 
         var obj = clazz.findId(data, sender, null, opts);
@@ -292,7 +288,7 @@ class PodeElement {
 
             case 'validation':
                 switch (action) {
-                    case 'output':
+                    case 'show':
                         this.showValidation(data.Message, sender, {...data, ...opts});
                         break;
                 }

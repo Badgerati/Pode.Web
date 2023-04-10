@@ -711,15 +711,6 @@ function Test-PodeWebContent
         }
     }
 
-    # ensure the content elements are correct
-    if (!(Test-PodeWebArrayEmpty -Array $ObjectType)) {
-        foreach ($item in $Content) {
-            if ($item.ObjectType -inotin $ObjectType) {
-                return $false
-            }
-        }
-    }
-
     return $true
 }
 

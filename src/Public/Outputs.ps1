@@ -672,9 +672,7 @@ function Show-PodeWebToast
     }
 }
 
-#TODO: would "Show-PodeWebValidation" make more sense?
-#       - also make this more like "Set-PodeWebCompStyle" and "Type" needed
-function Out-PodeWebValidation
+function Show-PodeWebValidation
 {
     [CmdletBinding(DefaultParameterSetName='Name')]
     param(
@@ -692,7 +690,7 @@ function Out-PodeWebValidation
     )
 
     return @{
-        Operation = 'Output'
+        Operation = 'Show'
         ObjectType = 'Element'
         SubObjectType = 'Validation'
         Name = $Name
@@ -1451,7 +1449,7 @@ function Reset-PodeWebTheme
     }
 }
 
-function Show-PodeWebComponent
+function Show-PodeWebElement
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1470,14 +1468,14 @@ function Show-PodeWebComponent
 
     return @{
         Operation = 'Show'
-        ObjectType = 'Component'
+        ObjectType = 'Element'
         ID = $Id
         Type = $Type
         Name = $Name
     }
 }
 
-function Hide-PodeWebComponent
+function Hide-PodeWebElement
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1496,14 +1494,14 @@ function Hide-PodeWebComponent
 
     return @{
         Operation = 'Hide'
-        ObjectType = 'Component'
+        ObjectType = 'Element'
         ID = $Id
         Type = $Type
         Name = $Name
     }
 }
 
-function Set-PodeWebComponentStyle
+function Set-PodeWebElementStyle
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1540,7 +1538,7 @@ function Set-PodeWebComponentStyle
     }
 }
 
-function Remove-PodeWebComponentStyle
+function Remove-PodeWebElementStyle
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1572,7 +1570,7 @@ function Remove-PodeWebComponentStyle
     }
 }
 
-function Add-PodeWebComponentClass
+function Add-PodeWebElementClass
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
@@ -1604,7 +1602,7 @@ function Add-PodeWebComponentClass
     }
 }
 
-function Remove-PodeWebComponentClass
+function Remove-PodeWebElementClass
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(

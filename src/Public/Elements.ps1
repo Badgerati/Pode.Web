@@ -260,9 +260,9 @@ function New-PodeWebParagraph
         [string]
         $Value,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Elements')]
+        [Parameter(Mandatory=$true, ParameterSetName='Content')]
         [hashtable[]]
-        $Elements,
+        $Content,
 
         [Parameter()]
         [ValidateSet('Left', 'Right', 'Center')]
@@ -279,8 +279,8 @@ function New-PodeWebParagraph
     )
 
     # ensure elements are correct
-    if (!(Test-PodeWebContent -Content $Elements -ComponentType Element)) {
-        throw 'A Paragraph can only contain elements'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Paragraph can only contain layouts and/or elements'
     }
 
     $Id = Get-PodeWebElementId -Tag Para -Id $Id -RandomToken
@@ -291,7 +291,7 @@ function New-PodeWebParagraph
         Parent = $ElementData
         ID = $Id
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
-        Content = $Elements
+        Content = $Content
         Alignment = $Alignment.ToLowerInvariant()
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)

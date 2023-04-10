@@ -76,7 +76,7 @@ function New-PodeWebCell
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
-        throw 'A Grid Cell can only contain layouts and/or elements'
+        throw 'A Cell can only contain layouts and/or elements'
     }
 
     return @{
@@ -159,7 +159,7 @@ function New-PodeWebTab
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Layouts,
+        $Content,
 
         [Parameter()]
         [string]
@@ -174,8 +174,8 @@ function New-PodeWebTab
         $CssStyle
     )
 
-    if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout)) {
-        throw 'A Tab can only contain layouts'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Tab can only contain layouts and/or elements'
     }
 
     return @{
@@ -184,7 +184,7 @@ function New-PodeWebTab
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
-        Content = $Layouts
+        Content = $Content
         Icon = $Icon
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -817,7 +817,7 @@ function New-PodeWebAccordion
     )
 
     if (!(Test-PodeWebContent -Content $Bellows -ComponentType Layout -ObjectType Bellow)) {
-        throw 'Accordions can only contain Bellow layouts'
+        throw 'An Accordion can only contain Bellow layouts'
     }
 
     if ($CycleInterval -lt 10) {
