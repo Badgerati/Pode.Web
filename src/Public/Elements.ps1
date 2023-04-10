@@ -2610,7 +2610,7 @@ function New-PodeWebCodeEditor
         ID = $Id
         Language = $Language.ToLowerInvariant()
         Theme = $Theme
-        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        Value = $Value
         ReadOnly = $ReadOnly.IsPresent
         Uploadable = $uploadable
         CssClasses = ($CssClass -join ' ')

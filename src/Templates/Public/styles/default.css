@@ -848,6 +848,10 @@ th .mdi::before {
     vertical-align: sub;
 }
 
+.pode-code-editor .pode-upload .mdi::before {
+    margin-bottom: 0.3em;
+}
+
 .btn:not(.btn-icon-only, .btn-no-text, .btn-block) .mdi::before {
     position: relative;
     top: 4px;

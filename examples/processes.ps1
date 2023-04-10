@@ -3,7 +3,7 @@ Import-Module ..\src\Pode.Web.psm1 -Force
 
 Start-PodeServer {
     # endpoint
-    Add-PodeEndpoint -Port 5001 -Protocol Http
+    Add-PodeEndpoint -Port 8090 -Protocol Http
 
     # login/auth
     Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend

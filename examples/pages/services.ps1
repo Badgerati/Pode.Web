@@ -1,6 +1,9 @@
 Add-PodeWebPage -Name Services -Icon Activity -ScriptBlock {
     New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
-        Get-Service -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object DisplayName, Name, Status | Out-PodeWebTextbox -Multiline -Preformat -AsJson
+        Get-Service -Name $WebEvent.Data.Name -ErrorAction Ignore |
+            Select-Object DisplayName, Name, Status |
+            New-PodeWebTextbox -Name 'Search Output' -Multiline -Preformat -AsJson
+            # Out-PodeWebTextbox -Multiline -Preformat -AsJson
     } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )

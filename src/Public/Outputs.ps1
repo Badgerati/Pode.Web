@@ -1151,7 +1151,34 @@ function Move-PodeWebUrl
     }
 }
 
-function Move-PodeWebTab
+function Move-PodeWebTabs
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [ValidateSet('Next', 'Previous')]
+        [string]
+        $Direction = 'Next'
+    )
+
+    return @{
+        Operation = 'Move'
+        ObjectType = 'Tabs'
+        ID = $Id
+        Name = $Name
+        Direction = $Direction.ToLowerInvariant()
+    }
+}
+
+function Open-PodeWebTab
 {
     [CmdletBinding(DefaultParameterSetName='Name')]
     param(
@@ -1165,7 +1192,7 @@ function Move-PodeWebTab
     )
 
     return @{
-        Operation = 'Move'
+        Operation = 'Open'
         ObjectType = 'Tab'
         ID = $Id
         Name = $Name
@@ -1182,11 +1209,80 @@ function Move-PodeWebAccordion
 
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
-        $Id
+        $Id,
+
+        [Parameter()]
+        [ValidateSet('Next', 'Previous')]
+        [string]
+        $Direction = 'Next'
     )
 
     return @{
         Operation = 'Move'
+        ObjectType = 'Accordion'
+        ID = $Id
+        Name = $Name
+        Direction = $Direction.ToLowerInvariant()
+    }
+}
+
+function Close-PodeWebAccordion
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Close'
+        ObjectType = 'Accordion'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Open-PodeWebBellow
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Open'
+        ObjectType = 'Bellow'
+        ID = $Id
+        Name = $Name
+    }
+}
+
+function Close-PodeWebBellow
+{
+    [CmdletBinding(DefaultParameterSetName='Name')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation = 'Close'
         ObjectType = 'Bellow'
         ID = $Id
         Name = $Name

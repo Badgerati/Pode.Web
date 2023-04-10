@@ -1428,18 +1428,14 @@ function setTitle(element, title) {
 // }
 
 function invokeActions(actions, sender) {
-    if (!actions) {
-        return;
-    }
+    convertToArray(actions).forEach((action) => {
+        if (!action) {
+            return;
+        }
 
-    actions = convertToArray(actions);
-
-    actions.forEach((action) => {
         var _type = (action.ObjectType ?? '').toLowerCase();
         var _subType = (action.SubObjectType ?? '').toLowerCase()
         var _operation = (action.Operation ?? 'new').toLowerCase();
-
-        // console.log(`[${_operation}] ${_type} {${_subType}}`);
 
         switch (_type) {
             // case 'table':
@@ -2732,14 +2728,14 @@ function getElementByNameOrId(action, tag, sender, filter) {
 //     setObjectStyle(obj[0], action.Property, action.Value);
 // }
 
-// function setObjectStyle(obj, property, value) {
-//     if (value) {
-//         obj.style.setProperty(property, value, 'important');
-//     }
-//     else {
-//         obj.style.setProperty(property, null);
-//     }
-// }
+function setElementStyle(obj, property, value) {
+    if (value) {
+        obj.style.setProperty(property, value, 'important');
+    }
+    else {
+        obj.style.setProperty(property, null);
+    }
+}
 
 // function actionComponent(action) {
 //     if (!action) {
@@ -3690,15 +3686,15 @@ function truncateArray(array, maxItems) {
 }
 
 function convertToArray(element) {
-    if (element == null) {
+    if (!element) {
         return [];
     }
 
-    if (!Array.isArray(element)) {
-        element = [element];
+    if (element.length && element.toArray) {
+        return element;
     }
 
-    return element;
+    return Array.isArray(element) ? element : [element];
 }
 
 function searchArray(array, element, caseInsensitive) {;

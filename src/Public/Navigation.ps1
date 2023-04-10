@@ -173,8 +173,12 @@ function Get-PodeWebNavDefault
     )
 
     if (($null -eq $Items) -or ($items.Length -eq 0)) {
-        return (Get-PodeWebState -Name 'default-nav')
+        $Items = (Get-PodeWebState -Name 'default-nav')
     }
-    
+
+    if ($null -eq $Items) {
+        $Items = @()
+    }
+
     return $Items
 }

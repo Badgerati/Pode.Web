@@ -15,11 +15,11 @@ Start-PodeServer -Threads 2 {
         New-PodeWebText -Value 'Please select a value: '
         New-PodeWebSelect -Name 'Bellows' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
-                Move-PodeWebAccordion -Name $WebEvent.Data['Bellows']
+                Open-PodeWebBellow -Name $WebEvent.Data['Bellows']
             }
     )
 
-    $acc1 = New-PodeWebAccordion -Bellows @(
+    $acc1 = New-PodeWebAccordion -Name 'Accordion1' -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Icon 'information' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
         )
@@ -70,11 +70,11 @@ Start-PodeServer -Threads 2 {
         New-PodeWebText -Value 'Select options: '
         New-PodeWebRadio -Name 'Options' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
-                Move-PodeWebAccordion -Name $WebEvent.Data['Options']
+                Open-PodeWebBellow -Name $WebEvent.Data['Options']
             }
     )
 
-    $acc2 = New-PodeWebAccordion -Bellows @(
+    $acc2 = New-PodeWebAccordion -Name 'Accordion2' -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Icon 'information' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
         )
@@ -94,11 +94,16 @@ Start-PodeServer -Threads 2 {
         New-PodeWebText -Value 'Select options: '
         New-PodeWebCheckbox -Name 'Options' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
-                Move-PodeWebAccordion -Name $WebEvent.Data['Options']
+                if (!$WebEvent.Data['Options']) {
+                    Close-PodeWebAccordion -Name 'Accordion3'
+                }
+                else {
+                    Open-PodeWebBellow -Name ($WebEvent.Data['Options'] -split ',')[-1]
+                }
             }
     )
 
-    $acc3 = New-PodeWebAccordion -Bellows @(
+    $acc3 = New-PodeWebAccordion -Name 'Accordion3' -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Icon 'information' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
         )

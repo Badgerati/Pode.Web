@@ -32,6 +32,12 @@ Swap "id" and "pode-id"?
     - like forms, steppers, buttons, etc.
 
 - there is a lot of ".off().on()" for events - can we centralise this somehow?
+
+- automatically add ".css.classes" and ".css.styles" so we don't have to keep worrying about it
+
+- can remove "-NoForm" now
+
+- remove all "Out-" actions
 */
 
 const PODE_CONTENT = $('content#pode-content');
@@ -261,11 +267,11 @@ class PodeElement {
             case 'style':
                 switch (action) {
                     case 'set':
-                        this.setStyle(data, sender, opts);
+                        this.setStyle(data.Property, data.Value, sender, {...data, ...opts});
                         break;
 
                     case 'remove':
-                        this.removeStyle(data, sender, opts);
+                        this.removeStyle(data.Property, sender, {...data, ...opts});
                         break;
                 }
                 break;
@@ -273,11 +279,11 @@ class PodeElement {
             case 'class':
                 switch (action) {
                     case 'add':
-                        this.addClass(data, sender, opts);
+                        this.addClass(data.Class, sender, {...data, ...opts});
                         break;
 
                     case 'remove':
-                        this.removeClass(data, sender, opts);
+                        this.removeClass(data.Class, sender, {...data, ...opts});
                         break;
                 }
                 break;
@@ -285,7 +291,7 @@ class PodeElement {
             case 'validation':
                 switch (action) {
                     case 'output':
-                        this.showValidation(data, sender, opts);
+                        this.showValidation(data.Message, sender, {...data, ...opts});
                         break;
                 }
                 break;
@@ -380,6 +386,14 @@ class PodeElement {
             case 'remove':
                 this.remove(data, sender, opts);
                 break;
+
+            case 'open':
+                this.open(data, sender, opts);
+                break;
+
+            case 'close':
+                this.close(data, sender, opts);
+                break;
         }
 
         if (this.ephemeral) {
@@ -463,21 +477,25 @@ class PodeElement {
         content = convertToArray(content);
         var created = [];
         var html = '';
+        var senderToUse = null;
 
         content.forEach((item, index) => {
             if (sender && sender.length > 1) {
-                sender = this.filter(sender, (item) => {
+                senderToUse = this.filter(sender, (item) => {
                     if (item.attr('pode-min-index') <= index && item.attr('pode-max-index') >= index) {
                         return item;
                     }
                 }, true);
+            }
+            else {
+                senderToUse = sender;
             }
 
             opts.child = {
                 isLast: () => { return index == content.length - 1; }
             };
 
-            var result = PodeElementFactory.invokeClass(item.ObjectType, 'new', item, sender, opts);
+            var result = PodeElementFactory.invokeClass(item.ObjectType, 'new', item, senderToUse, opts);
             created.push(result.element);
 
             // do we have any html?
@@ -621,7 +639,25 @@ class PodeElement {
             return null;
         }
 
-        var result = elements.filter(func);
+        elements = convertToArray(elements);
+        var result = [];
+
+        if (elements.forEach) {
+            elements.forEach((item) => {
+                if (func(item)) {
+                    result.push(item);
+                }
+            });
+        }
+        else {
+            elements.each((_, item) => {
+                item = $(item);
+                if (func(item)) {
+                    result.push(item);
+                }
+            })
+        }
+
         return firstOnly ? result[0] : result;
     }
 
@@ -643,19 +679,6 @@ class PodeElement {
 
     getContentArea() {
         return $(document).find(`[pode-content-for='${this.uuid}']`);
-
-
-        // var element = this.get();
-        // var id = this.id ?? this.uuid;
-
-        // //TODO: this would be better as just "uuid" - then we can find the content anywhere on the page
-        // //      - for scenarios where they're not embedded - like nav-dropdown
-        // var area = element.find(`[pode-content-for='${id}']`);
-        // if ((!area || area.length === 0) && element.attr('pode-content-for') === (id)) {
-        //     area = element;
-        // }
-
-        // return area;
     }
 
     html() {
@@ -722,24 +745,29 @@ class PodeElement {
         this.load(data, sender, opts);
     }
 
-    setStyle(data, sender, opts) {
-        this.element[0].style.setProperty(data.Property, data.Value, 'important');
+    setStyle(property, value, sender, opts) {
+        setElementStyle(this.element[0], property, value);
     }
 
-    removeStyle(data, sender, opts) {
-        this.element[0].style.setProperty(data.Property, null);
+    removeStyle(property, sender, opts) {
+        setElementStyle(this.element[0], property);
     }
 
-    addClass(data, sender, opts) {
-        this.element.addClass(data.Class);
+    addClass(clazz, sender, opts) {
+        addClass(this.element, clazz);
     }
 
-    removeClass(data, sender, opts) {
-        this.element.removeClass(data.Class);
+    removeClass(clazz, sender, opts) {
+        removeClass(this.element, clazz, !(opts.AsPattern ?? false));
     }
 
-    showValidation(data, sender, opts) {
-        $(document).find(`[pode-validation-for='${this.uuid}']`).text(decodeHTML(data.Message));
+    replaceClass(oldClass, newClass, sender, opts) {
+        removeClass(this.element, oldClass, !(opts.AsPattern ?? false));
+        addClass(this.element, newClass);
+    }
+
+    showValidation(message, sender, opts) {
+        $(document).find(`[pode-validation-for='${this.uuid}']`).text(decodeHTML(message));
         setValidationError(this.element);
     }
 
@@ -781,6 +809,14 @@ class PodeElement {
 
     remove(data, sender, opts) {
         throw `${this.getType()} "remove" method not implemented`
+    }
+
+    open(data, sender, opts) {
+        throw `${this.getType()} "open" method not implemented`
+    }
+
+    close(data, sender, opts) {
+        throw `${this.getType()} "close" method not implemented`
     }
 
     bind(data, sender, opts) {
@@ -871,29 +907,38 @@ class PodeCyclingElement extends PodeContentElement {
             }
 
             this.cycling.action = setInterval(() => {
-                var obj = this.filter(this.children, (c) => {
-                    if (c.active) {
-                        return c;
-                    }
-                }, true);
-
-                if (obj) {
-                    obj.child.next.invoke();
-                }
+                this.move({Direction: 'next'}, this);
             }, this.cycling.interval);
         }
     }
 
     move(data, sender, opts) {
-        var child = this.filter(this.children, (c) => {
-            if (c.id == this.id || c.name == this.name) {
+        var obj = this.filter(this.children, (c) => {
+            if (c.active) {
                 return c;
             }
         }, true);
 
-        if (child) {
-            child.invoke();
+        if (obj) {
+            if (data.Direction === 'previous') {
+                obj.child.previous.open(data, sender, opts);
+            }
+            else {
+                obj.child.next.open(data, sender, opts);
+            }
         }
+    }
+
+    open(data, sender, opts) {
+        this.children.forEach((c) => {
+            c.open();
+        });
+    }
+
+    close(data, sender, opts) {
+        this.children.forEach((c) => {
+            c.close();
+        });
     }
 }
 
@@ -903,13 +948,18 @@ class PodeCyclingChildElement extends PodeContentElement {
         this.active = this.child.isFirst;
     }
 
-    invoke(data, sender, opts) {
-        this.parent.children.forEach((c) => { c.active = false });
+    open(data, sender, opts) {
+        this.parent.children.forEach((c) => {
+            if (c.uuid !== this.uuid) {
+                c.close();
+            }
+        });
+
         this.active = true;
     }
 
-    move(data, sender, opts) {
-        this.invoke(data, sender, opts);
+    close(data, sender, opts) {
+        this.active = false;
     }
 }
 
@@ -935,7 +985,7 @@ class PodeRefreshableElement extends PodeTextualElement {
         if (asSpan) {
             return `<span
                 class='mdi mdi-refresh pode-${this.getType()}-refresh pode-refresh-btn'
-                for='${this.id}'
+                for='${this.uuid}'
                 title='Refresh'
                 data-toggle='tooltip'>
             </span>`;
@@ -945,7 +995,7 @@ class PodeRefreshableElement extends PodeTextualElement {
         return `<button
             type='button'
             class='btn btn-no-text btn-outline-secondary pode-${this.getType()}-refresh pode-refresh-btn'
-            for='${this.id}'
+            for='${this.uuid}'
             title='Refresh'
             data-toggle='tooltip'>
                 <span class='mdi mdi-refresh mdi-size-20'></span>
@@ -960,7 +1010,8 @@ class PodeRefreshableElement extends PodeTextualElement {
         this.element.find(`.pode-${this.getType()}-refresh`).off('click').on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            obj.tooltip(false, $(e.target));
+            obj.tooltip(false, $(this));
+            unfocus($(this));
             obj.load();
         });
 
@@ -1003,7 +1054,19 @@ class PodeFormElement extends PodeContentElement {
             text: opts.help.text ?? data.HelpText,
             id: opts.help.id ?? this.id
         };
-        this.inForm = this.checkParentType('form');
+        this.inForm = this.isInForm();
+    }
+
+    isInForm() {
+        if (this.checkParentType('form') || this.checkParentType('step')) {
+            return true;
+        }
+
+        if (this.checkParentType('modal') && this.parent.asForm) {
+            return true;
+        }
+
+        return false;
     }
 
     apply(action, data, sender, opts) {
@@ -1585,7 +1648,7 @@ class PodeButton extends PodeFormElement {
             var colour = this.element.attr('pode-colour');
 
             var _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
-            removeClass(this.element, _class, true);
+            this.removeClass(_class);
 
             if (data.ColourState != 'unchanged') {
                 isOutline = (data.ColourState == 'outline');
@@ -1597,22 +1660,22 @@ class PodeButton extends PodeFormElement {
             }
 
             _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
-            addClass(this.element, _class);
+            this.addClass(_class);
         }
 
         // change size
         if (!this.iconOnly && (data.Size || data.SizeState != 'unchanged')) {
             if (data.SizeState != 'unchanged') {
                 if (data.SizeState == 'normal') {
-                    removeClass(this.element, 'btn-block', true);
+                    this.removeClass('btn-block');
                 }
                 else {
-                    addClass(this.element, 'btn-block');
+                    this.addClass('btn-block');
                 }
             }
 
             if (data.Size) {
-                replaceClass(this.element, 'btn-(sm|lg)', data.SizeType);
+                this.replaceClass('btn-(sm|lg)', data.SizeType, null, { AsPattern: true });
             }
         }
     }
@@ -1880,7 +1943,7 @@ class PodeTable extends PodeRefreshableElement {
         this.clickableRows = data.Click ?? false;
         this.clickIsDynamic = data.ClickIsDynamic ?? false;
 
-        this.export = {
+        this.exportable = {
             enabled: data.Export ?? false
         };
 
@@ -1915,7 +1978,7 @@ class PodeTable extends PodeRefreshableElement {
             </ul>
         </nav>`;
 
-        var exportBtn = !this.export.enabled ? '' : `<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-export' for='${this.id}' title='Export' data-toggle='tooltip'>
+        var exportBtn = !this.exportable.enabled ? '' : `<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-export' for='${this.id}' title='Export' data-toggle='tooltip'>
             <span class='mdi mdi-download mdi-size-20'></span>
         </button>`;
 
@@ -2158,7 +2221,7 @@ class PodeTable extends PodeRefreshableElement {
         var obj = this;
 
         // export
-        if (this.export.enabled) {
+        if (this.exportable.enabled) {
             this.element.find('.pode-table-export').off('click').on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2442,10 +2505,10 @@ class PodeTable extends PodeRefreshableElement {
         }
 
         // update the row's background colour
-        setObjectStyle(row[0], 'background-color', data.BackgroundColour);
+        setElementStyle(row[0], 'background-color', data.BackgroundColour);
 
         // update the row's forecolour
-        setObjectStyle(row[0], 'color', data.Colour);
+        setElementStyle(row[0], 'color', data.Colour);
 
         // binds sort/buttons/etc
         this.bind(data, sender, opts);
@@ -2641,25 +2704,11 @@ class PodeAccordion extends PodeCyclingElement {
             id="${this.id}"
             class="accordion ${this.css.classes}"
             style="${this.css.styles}"
+            name='${this.name}'
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
                 <div pode-content-for='${this.uuid}'></div>
         </div>`;
-    }
-
-    bind(data, sender, opts) {
-        super.bind(data, sender, opts);
-
-        // collapse buttons
-        this.element.find('.bellow .collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
-            var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
-            toggleIcon(icon, 'chevron-down', 'chevron-up');
-        });
-    
-        this.element.find('.bellow .collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
-            var icon = $(e.target).closest('div.card').find('span.arrow-toggle');
-            toggleIcon(icon, 'chevron-up', 'chevron-down');
-        });
     }
 }
 PodeElementFactory.setClass(PodeAccordion);
@@ -2715,9 +2764,38 @@ class PodeBellow extends PodeCyclingChildElement {
         </div>`;
     }
 
-    invoke(data, sender, opts) {
-        this.get().find('div.bellow-header button').trigger('click');
-        super.invoke(data, sender, opts);
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        var obj = this;
+
+        // collapse buttons
+        this.element.find('.bellow-body.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
+            var icon = obj.element.find('span.arrow-toggle');
+            toggleIcon(icon, 'chevron-down', 'chevron-up');
+            obj.active = false;
+        });
+
+        this.element.find('.bellow-body.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
+            var icon = obj.element.find('span.arrow-toggle');
+            toggleIcon(icon, 'chevron-up', 'chevron-down');
+            obj.active = true;
+        });
+    }
+
+    open(data, sender, opts) {
+        if (!this.active) {
+            this.get().find('div.bellow-header button').trigger('click');
+        }
+
+        super.open(data, sender, opts);
+    }
+
+    close(data, sender, opts) {
+        if (this.active) {
+            this.get().find('div.bellow-header button').trigger('click');
+        }
+
+        super.close(data, sender, opts);
     }
 }
 PodeElementFactory.setClass(PodeBellow);
@@ -2799,7 +2877,7 @@ class PodeTextbox extends PodeFormElement {
         // multiline textbox
         if (this.multiline) {
             html = `<textarea
-                class='form-control'
+                class='form-control ${this.css.classes}'
                 id='${this.id}'
                 name='${this.name}'
                 pode-object='${this.getType()}'
@@ -2829,7 +2907,7 @@ class PodeTextbox extends PodeFormElement {
 
             html += `<input
                 type='${inputType}'
-                class='form-control'
+                class='form-control ${this.css.classes}'
                 id='${this.id}'
                 name='${this.name}'
                 pode-object='${this.getType()}'
@@ -3340,14 +3418,9 @@ class PodeTile extends PodeRefreshableElement {
         // if not dynamic, and fully created, click refresh buttons of sub-elements
         else if (this.created) {
             this.element.find('.pode-tile-body .pode-refresh-btn').each((i, e) => {
-                $(e).trigger('click');
+                PodeElementFactory.getObject($(e).attr('for')).load();
             });
         }
-
-        // hide sub-element refresh buttons
-        this.element.find('.pode-tile-body .pode-refresh-btn').each((i, e) => {
-            $(e).hide();
-        });
     }
 
     bind(data, sender, opts) {
@@ -3359,9 +3432,14 @@ class PodeTile extends PodeRefreshableElement {
             this.element.off('click').on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sendAjaxReq(obj.url, null, obj.element, true);
+                sendAjaxReq(`${obj.url}/click`, null, obj.element, true);
             });
         }
+
+        // hide sub-element refresh buttons
+        this.element.find('.pode-tile-body .pode-refresh-btn').each((i, e) => {
+            $(e).hide();
+        });
     }
 
     update(data, sender, opts) {
@@ -3380,8 +3458,9 @@ class PodeGrid extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.contentProperty = 'Cells';
-        this.width = data.Width ?? 0;
-        this.rows = this.width == 0 ? 1 : Math.ceil(convertToArray(data.Cells).length);
+        this.cells = convertToArray(data.Cells).length;
+        this.width = data.Width === 0 ? this.cells : (data.Width ?? this.cells);
+        this.rows = Math.ceil(this.cells / this.width);
     }
 
     new(data, sender, opts) {
@@ -3477,6 +3556,7 @@ class PodeTabs extends PodeCyclingElement {
                 class='nav-link ${element.child.isFirst ? 'active' : ''}'
                 data-toggle='tab'
                 href='#${element.id}_content'
+                for='${element.uuid}'
                 role='tab'
                 aria-controls='${element.id}_content'
                 aria-selected='${element.child.isFirst}'>
@@ -3514,9 +3594,26 @@ class PodeTab extends PodeCyclingChildElement {
         </div>`;
     }
 
-    invoke(data, sender, opts) {
-        this.parent.element.find(`.nav-link#${this.id}`).trigger('click');
-        super.invoke(data, sender, opts);
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        var obj = this;
+
+        this.parent.element.find(`a.nav-link[data-toggle='tab'][for='${this.uuid}']`).off('hide.bs.tab').on('hide.bs.tab', function(e) {
+            obj.active = false;
+            unfocus($(e.target));
+        });
+
+        this.parent.element.find(`a.nav-link[data-toggle='tab'][for='${this.uuid}']`).off('show.bs.tab').on('show.bs.tab', function(e) {
+            obj.active = true;
+        });
+    }
+
+    open(data, sender, opts) {
+        if (!this.active) {
+            this.parent.element.find(`.nav-link#${this.id}`).trigger('click');
+        }
+
+        super.open(data, sender, opts);
     }
 }
 PodeElementFactory.setClass(PodeTab);
@@ -4007,8 +4104,9 @@ class PodeModal extends PodeContentElement {
                 ${data.SubmitText}
         </button>`;
 
-        var formStart = this.asForm ? `<form class='pode-form' method='${data.Method}' action='${data.Action}'>` : '';
-        var formEnd = this.asForm ? `</form>` : '';
+        var contentArea = this.asForm
+            ? `<form class='pode-form' method='${data.Method}' action='${data.Action}' pode-content-for='${this.uuid}'>`
+            : `<div pode-content-for='${this.uuid}'></div>`;
 
         return `<div
             id="${this.id}"
@@ -4033,9 +4131,7 @@ class PodeModal extends PodeContentElement {
                             </button>
                         </div>
                         <div class="modal-body">
-                            ${formStart}
-                            <div pode-content-for='${this.uuid}'></div>
-                            ${formEnd}
+                            ${contentArea}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">${data.CloseText}</button>
@@ -4817,7 +4913,7 @@ class PodeFileStream extends PodeContentElement {
                 headers: { "Range": `bytes=${obj.file.length}-` },
                 success: function(data, status, xhr) {
                     if (obj.element.hasClass('stream-error')) {
-                        removeClass(obj.element, 'stream-error', true);
+                        obj.removeClass('stream-error');
                         show(obj.element.find('div.card-header div div.btn-group'));
                     }
 
@@ -4849,7 +4945,7 @@ class PodeFileStream extends PodeContentElement {
                     }
 
                     obj.file.streaming = false;
-                    addClass(obj.element, 'stream-error');
+                    obj.addClass('stream-error');
                     hide(obj.element.find('div.card-header div div.btn-group'));
                 }
             });
@@ -4977,7 +5073,8 @@ class PodeSteps extends PodeContentElement {
                 </span>
                 <span class='bs-stepper-label'>${data.DisplayName}</span>
             </button>
-        </div>`;
+        </div>
+        ${!element.child.isLast ? "<div class='bs-stepper-line'></div>" : ''}`;
 
         this.element.find('div[role="tablist"]').append(html);
     }

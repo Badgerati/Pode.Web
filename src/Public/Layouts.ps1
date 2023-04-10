@@ -787,6 +787,10 @@ function New-PodeWebAccordion
         [string]
         $Id,
 
+        [Parameter()]
+        [string]
+        $Name,
+
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Bellows,
@@ -823,7 +827,8 @@ function New-PodeWebAccordion
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Accordion'
-        ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -NameAsToken)
+        ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -Name $Name)
+        Name = $Name
         Bellows = $Bellows
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -839,6 +844,10 @@ function New-PodeWebBellow
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
@@ -873,7 +882,7 @@ function New-PodeWebBellow
         ObjectType = 'Bellow'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = (Get-PodeWebElementId -Tag Bellow -Name $Name)
+        ID = (Get-PodeWebElementId -Tag Bellow -Id $Id -Name $Name)
         Content = $Content
         Icon = $Icon
         CssClasses = ($CssClass -join ' ')
