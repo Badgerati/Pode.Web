@@ -339,7 +339,10 @@ Start-PodeServer -StatusPageExceptions Show {
             return
         }
 
-        Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
+        Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
+            Select-Object Name, ID, WorkingSet, CPU |
+            New-PodeWebTextbox -Name 'Output' -Multiline -Preformat -ReadOnly |
+            Out-PodeWebElement
     } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )

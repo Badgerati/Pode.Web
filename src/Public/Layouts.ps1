@@ -39,7 +39,7 @@ function New-PodeWebGrid
         ObjectType = 'Grid'
         Cells = $Cells
         Width = $Width
-        ID = (Get-PodeWebElementId -Tag Grid -Id $Id -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Grid -Id $Id)
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
@@ -84,7 +84,7 @@ function New-PodeWebCell
         ObjectType = 'Cell'
         Content = $Content
         Width = (Protect-PodeWebRange -Value $Width -Min 1 -Max 12)
-        ID = (Get-PodeWebElementId -Tag Cell -Id $Id -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Cell -Id $Id)
         Alignment = $Alignment.ToLowerInvariant()
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -130,7 +130,7 @@ function New-PodeWebTabs
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Tabs'
-        ID = (Get-PodeWebElementId -Tag Tabs -Id $Id -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Tabs -Id $Id)
         Tabs = $Tabs
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -239,7 +239,7 @@ function New-PodeWebCard
         ObjectType = 'Card'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name -NameAsToken)
+        ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name)
         Content = $Content
         NoTitle = $NoTitle.IsPresent
         NoHide  = $NoHide.IsPresent
@@ -283,7 +283,7 @@ function New-PodeWebContainer
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Container'
-        ID = (Get-PodeWebElementId -Tag Container -Id $Id -NameAsToken)
+        ID = (Get-PodeWebElementId -Tag Container -Id $Id)
         Content = $Content
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -455,7 +455,7 @@ function New-PodeWebHero
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Hero'
-        ID = (Get-PodeWebElementId -Tag Hero -Id $Id -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Hero -Id $Id)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         Content = $Content
@@ -492,7 +492,7 @@ function New-PodeWebCarousel
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Carousel'
-        ID = (Get-PodeWebElementId -Tag Carousel -Id $Id -NameAsToken)
+        ID = (Get-PodeWebElementId -Tag Carousel -Id $Id)
         Slides = $Slides
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
@@ -532,7 +532,7 @@ function New-PodeWebSlide
         ComponentType = 'Layout'
         ObjectType = 'Slide'
         Content = $Content
-        ID = (Get-PodeWebElementId -Tag Slide -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Slide)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         CssClasses = ($CssClass -join ' ')

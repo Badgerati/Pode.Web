@@ -11,7 +11,9 @@ Start-PodeServer {
 
     # set the home page controls (just a simple paragraph)
     $form = New-PodeWebForm -Name 'Test' -ShowReset -AsCard -ScriptBlock {
-        $WebEvent.Data | New-PodeWebTextbox -Name 'TestOutput' -Multiline -Preformat -AsJson -AsOutput
+        $WebEvent.Data |
+            New-PodeWebTextbox -Name 'TestOutput' -Multiline -Preformat -AsJson |
+            Out-PodeWebElement
     } -Content @(
         New-PodeWebTextbox -Name 'Name' -AppendIcon Account -AutoComplete {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')

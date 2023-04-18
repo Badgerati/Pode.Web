@@ -2,21 +2,6 @@
 
 This page details the output actions available to Tables.
 
-## Out
-
-To create a new table, usually appended beneath the sending element, you can use [`Out-PodeWebTable`](../../../Functions/Outputs/Out-PodeWebTable):
-
-```powershell
-New-PodeWebContainer -NoBackground -Content @(
-    New-PodeWebButton -Name 'Show Processes' -ScriptBlock {
-        Get-Process |
-            Sort-Object -Property CPU -Descending |
-            Select-Object -First 15 -Property Name, ID, WorkingSet, CPU |
-            Out-PodeWebTable
-    }
-)
-```
-
 ## Update
 
 To update a table on the page, you can use [`Update-PodeWebTable`](../../../Functions/Outputs/Update-PodeWebTable):

@@ -1,47 +1,3 @@
-function Out-PodeWebTable
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        $Data,
-
-        [Parameter()]
-        [hashtable[]]
-        $Columns,
-
-        [Parameter()]
-        [switch]
-        $Sort
-    )
-
-    begin {
-        $items = @()
-    }
-
-    process {
-        $items += $Data
-    }
-
-    end {
-        # columns
-        $_columns = @{}
-        if (($null -ne $Columns) -and ($Columns.Length -gt 0)) {
-            foreach ($col in $Columns) {
-                $_columns[$col.Key] = $col
-            }
-        }
-
-        # table output
-        return @{
-            Operation = 'Output'
-            ObjectType = 'Table'
-            Data = $items
-            Sort = $Sort.IsPresent
-            Columns = $_columns
-        }
-    }
-}
-
 function Update-PodeWebTable
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
@@ -320,49 +276,6 @@ function Update-PodeWebTableRow
     }
 }
 
-function Out-PodeWebChart
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        $Data,
-
-        [Parameter()]
-        [ValidateSet('line', 'pie', 'doughnut', 'bar')]
-        [string]
-        $Type = 'line'
-    )
-
-    begin {
-        $items = @()
-    }
-
-    process {
-        if ($Data.Values -isnot [array]) {
-            if ($Data.Values -is [hashtable]) {
-                $Data.Values = @($Data.Values)
-            }
-            else {
-                $Data.Values = @(@{
-                    Key = 'Default'
-                    Value = $Data.Values
-                })
-            }
-        }
-
-        $items += $Data
-    }
-
-    end {
-        return @{
-            Operation = 'Output'
-            ObjectType = 'Chart'
-            Data = $items
-            ChartType = $Type
-        }
-    }
-}
-
 function Update-PodeWebChart
 {
     [CmdletBinding(DefaultParameterSetName='Name')]
@@ -490,66 +403,6 @@ function Clear-PodeWebChart
         ObjectType = 'Chart'
         ID = $Id
         Name = $Name
-    }
-}
-
-function Out-PodeWebTextbox
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        [Alias('Data')]
-        $Value,
-
-        [Parameter()]
-        [Alias('Height')]
-        [int]
-        $Size = 10,
-
-        [Parameter()]
-        [switch]
-        $AsJson,
-
-        [Parameter()]
-        [switch]
-        $Multiline,
-
-        [Parameter()]
-        [switch]
-        $Preformat,
-
-        [Parameter()]
-        [switch]
-        $ReadOnly
-    )
-
-    begin {
-        $items = @()
-    }
-
-    process {
-        $items += $Value
-    }
-
-    end {
-        if (!$AsJson) {
-            $items = ($items | Out-String -NoNewline)
-        }
-
-        if ($Size -le 0) {
-            $Size = 10
-        }
-
-        return @{
-            Operation = 'Output'
-            ObjectType = 'Textbox'
-            Value = $items
-            AsJson = $AsJson.IsPresent
-            Multiline = $Multiline.IsPresent
-            Size = $Size
-            Preformat = $Preformat.IsPresent
-            ReadOnly = $ReadOnly.IsPresent
-        }
     }
 }
 
@@ -2157,4 +2010,25 @@ function Invoke-PodeWebButton
         ID = $Id
         Name = $Name
     }
+}
+
+function Out-PodeWebElement
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
+        [Parameter()]
+        [ValidateSet('Append', 'After', 'Before')]
+        [string]
+        $AppendType = 'After'
+    )
+
+    $Element.Output = @{
+        AppendType = $AppendType
+    }
+
+    return $Element
 }

@@ -25,8 +25,9 @@ Start-PodeServer {
         $procs = @(Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
             Select-Object Name, ID, WorkingSet, CPU)
 
-        $procs | New-PodeWebTextbox -Name 'Search Output' -Multiline -Preformat -AsJson -AsOutput -Size ((6 * $procs.Length) + 2)
-            #Out-PodeWebTextbox -Multiline -Preformat -AsJson
+        $procs |
+            New-PodeWebTextbox -Name 'Output' -Multiline -Preformat -AsJson -Size ((6 * $procs.Length) + 2) |
+            Out-PodeWebElement
     } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )

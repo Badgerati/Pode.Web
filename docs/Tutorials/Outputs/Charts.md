@@ -2,22 +2,6 @@
 
 This page details the output actions available to Charts.
 
-## Out
-
-To create a new chart, usually appended beneath the sending element, you can use [`Out-PodeWebChart`](../../../Functions/Outputs/Out-PodeWebChart).  The `-Data` supplied can either raw or from [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData):
-
-```powershell
-New-PodeWebContainer -NoBackground -Content @(
-    New-PodeWebButton -Name 'Show Processes' -ScriptBlock {
-        Get-Process |
-            Sort-Object -Property CPU -Descending |
-            Select-Object -First 15 |
-            ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU |
-            Out-PodeWebChart -Type Line
-    }
-)
-```
-
 ## Update
 
 To update the data points of a chart on the page, you can use [`Update-PodeWebChart`](../../../Functions/Outputs/Update-PodeWebChart). The `-Data` supplied can either raw or from [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData):

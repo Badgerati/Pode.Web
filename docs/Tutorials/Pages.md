@@ -162,7 +162,8 @@ Add-PodeWebPage -Name Processes -Icon Activity -Layouts @(
         New-PodeWebForm -Name 'Search' -ScriptBlock {
             Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
                 Select-Object Name, ID, WorkingSet, CPU |
-                Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
+                New-PodeWebTextbox -Name 'Output' -Multiline -Preformat -ReadOnly |
+                Out-PodeWebElement
         } -Content @(
             New-PodeWebTextbox -Name 'Name'
         )

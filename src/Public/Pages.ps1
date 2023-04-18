@@ -130,7 +130,6 @@ function Set-PodeWebLoginPage
 
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Page = $global:PageData
-            # Content = $global:PageData.Content
             Theme = Get-PodeWebTheme
             Logo = $using:Logo
             LogoUrl = $using:LogoUrl
@@ -197,6 +196,12 @@ function Set-PodeWebLoginPage
                 Avatar = $avatar
             }
         }
+    }
+
+    Remove-PodeWebRoute -Method Post -Path "/content" -EndpointName $endpointNames
+
+    Add-PodeRoute -Method Post -Path "/content" -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
+        Write-PodeJsonResponse -Value @()
     }
 
     if ($PassThru) {
@@ -302,13 +307,10 @@ function Set-PodeWebHomePage
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
         $theme = Get-PodeWebTheme
-        # $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
 
         Write-PodeWebViewResponse -Path 'index' -Data @{
             Page = $global:PageData
             Theme = $theme
-            # Navigation = $navigation
-            # Layouts = $comps
             Auth = @{
                 Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
                 Logout = (Get-PodeWebState -Name 'auth-props').Logout
@@ -322,22 +324,13 @@ function Set-PodeWebHomePage
         $global:PageData = $null
     }
 
-    Remove-PodeWebRoute -Method Get -Path "$($routePath)/content" -EndpointName $endpointNames
+    Remove-PodeWebRoute -Method Post -Path "$($routePath)content" -EndpointName $endpointNames
 
-    Add-PodeRoute -Method Post -Path "$($routePath)/content" -Authentication $auth -ArgumentList @{ Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
+    Add-PodeRoute -Method Post -Path "$($routePath)content" -Authentication $auth -ArgumentList @{ Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
         param($Data)
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
         $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
-
-        # we either render the home page, or move to the first page if home page is blank
         $comps = $global:PageData.Layouts
-        # if (($null -eq $comps) -or ($comps.Length -eq 0)) {
-        #     $page = Get-PodeWebFirstPublicPage
-        #     if ($null -ne $page) {
-        #         Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
-        #     }
-        # }
-
         Write-PodeJsonResponse -Value (@($navigation) + @($comps))
         $global:PageData = $null
     }
@@ -519,7 +512,6 @@ function Add-PodeWebPage
         $groups = Get-PodeWebAuthGroups -AuthData $authData
         $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
         $theme = Get-PodeWebTheme
-        # $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -536,41 +528,11 @@ function Add-PodeWebPage
         }
 
         else {
-            # if we have a scriptblock, invoke that to get dynamic components
-            # $layouts = $null
-            # if ($null -ne $global:PageData.ScriptBlock) {
-            #     $layouts = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.ScriptBlock -Arguments $Data.Data -Splat -Return
-            # }
-
-            # if (($null -eq $layouts) -or ($layouts.Length -eq 0)) {
-            #     $layouts = $global:PageData.Layouts
-            # }
-
-            # $breadcrumb = $null
-            # # $filteredLayouts = @()
-
-            # foreach ($item in $layouts) {
-            #     if ($item.ObjectType -ieq 'breadcrumb') {
-            #         if ($null -ne $breadcrumb) {
-            #             throw "Cannot set two breadcrumb trails on one page"
-            #         }
-
-            #         $breadcrumb = $item
-            #         break
-            #     }
-            #     # else {
-            #     #     $filteredLayouts += $item
-            #     # }
-            # }
-
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page = $global:PageData
                 Title = $global:PageData.Title
                 DisplayName = $global:PageData.DisplayName
                 Theme = $theme
-                # Navigation = $navigation
-                # Breadcrumb = $breadcrumb
-                # Layouts = $filteredLayouts
                 Auth = $authMeta
             }
         }
@@ -610,13 +572,6 @@ function Add-PodeWebPage
                 $layouts = $global:PageData.Layouts
             }
 
-            # $filteredLayouts = @(foreach ($item in $layouts) {
-            #     if ($item.ObjectType -ine 'breadcrumb') {
-            #         $item
-            #     }
-            # })
-
-            #TODO: this needs to include Navigation and Breadcrumbs - and remove from above route
             Write-PodeJsonResponse -Value (@($navigation) + @($layouts))
         }
 
@@ -952,10 +907,14 @@ function ConvertTo-PodeWebPage
                 }
 
                 try {
-                    (. $cmd @_args) | Out-PodeWebTextbox -Multiline -Preformat
+                    (. $cmd @_args) |
+                        New-PodeWebTextbox -Name 'Output_Result' -Multiline -Preformat |
+                        Out-PodeWebElement
                 }
                 catch {
-                    $_.Exception | Out-PodeWebTextbox -Multiline -Preformat
+                    $_.Exception |
+                        New-PodeWebTextbox -Name 'Output_Error' -Multiline -Preformat |
+                        Out-PodeWebElement
                 }
             }
 

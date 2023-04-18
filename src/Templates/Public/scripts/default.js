@@ -46,7 +46,8 @@ function getUrl(subpath) {
         subpath = `/${subpath}`;
     }
 
-    return `${window.location.origin}${window.location.pathname}${subpath}`;
+    var base = `${window.location.origin}${window.location.pathname}`;
+    return `${base.replace(/\/$/, '')}${subpath}`;
 }
 
 function loadBreadcrumb() {

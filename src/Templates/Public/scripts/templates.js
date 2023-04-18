@@ -1,13 +1,9 @@
 /*
 TODO:
-- all Home page types will need a /content url
-
 - Home page only has -Layouts, really needs a -ScriptBlock as well!
 
 - Split these files into separate files
   - Use a tool to combine and minimise on build - load this minimised file in html
-
-- A general "Out-PodeWebElement" - to set "IsOutput" for ANY "New-" element
 
 - Tiles need a spinner
 
@@ -31,6 +27,10 @@ TODO:
 - automatically add ".css.classes" and ".css.styles" so we don't have to keep worrying about it
 
 - remove all "Out-" actions
+
+- remove "NoForm" and "NoLabels"
+
+- could this now enable React support?
 */
 
 const PODE_CONTENT = $('content#pode-content');
@@ -170,7 +170,9 @@ class PodeElement {
         this.dynamic = data.IsDynamic ?? false;
         this.autoRender = opts.autoRender ?? true;
         this.contentProperty = null;
-        this.isOutput = data.AsOutput ?? false;
+        this.output = {
+            appendType: ((data.Output ?? {}).AppendType ?? 'append').toLowerCase()
+        };
         this.element = null;
         this.icon = null;
         this.url = `/components/${this.getType()}/${data.ID}`;
@@ -410,7 +412,19 @@ class PodeElement {
 
         data = data ?? {};
         if (html && sender) {
-            this.isOutput ? sender.after(html) : sender.append(html);
+            switch (this.output.appendType) {
+                case 'after':
+                    sender.after(html);
+                    break;
+
+                case 'before':
+                    sender.before(html);
+                    break;
+
+                default:
+                    sender.append(html);
+                    break;
+            }
         }
 
         // render content, load and bind this element
@@ -2149,6 +2163,11 @@ class PodeTable extends PodeRefreshableElement {
     load(data, sender, opts) {
         // ensure the table is dynamic, or has "for" attr
         if (!this.dynamic && !this.element.attr('for')) {
+            if (data.Data) {
+                console.log(data.Data)
+                this.update(data, sender, opts);
+            }
+
             return;
         }
 
@@ -3777,7 +3796,8 @@ class PodeCodeEditor extends PodeContentElement {
                 value: obj.value,
                 language: obj.language,
                 theme: obj.theme,
-                readOnly: obj.readonly
+                readOnly: obj.readonly,
+                automaticLayout: true
             });
 
             obj.value = '';
@@ -3865,6 +3885,10 @@ class PodeChart extends PodeRefreshableElement {
 
     load(data, sender, opts) {
         if (!this.dynamic) {
+            if (data.Data) {
+                this.update(data, sender, opts);
+            }
+
             return;
         }
 
