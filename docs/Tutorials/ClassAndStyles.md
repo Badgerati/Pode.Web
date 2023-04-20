@@ -41,7 +41,7 @@ The `-CssStyle` parameter accepts a hashtable where the key is the name of a CSS
 For example, the following would display a paragraph with yellow text:
 
 ```powershell
-New-PodeWebParagraph -CssStyle @{ Color = 'Yellow' } -Elements @(
+New-PodeWebParagraph -CssStyle @{ Color = 'Yellow' } -Content @(
     New-PodeWebText -Value 'And then here is some more text, that also includes a '
     New-PodeWebLink -Value 'link' -Source 'https://google.com'
     New-PodeWebText -Value ' that takes you to Google'

@@ -1,9 +1,0 @@
-<div id="$($data.ID)" class="jumbotron $($data.CssClasses)" style="$($data.CssStyles)" pode-object="$($data.ObjectType)">
-    <h1 class="display-4">$($data.Title)</h1>
-    <p class="lead">$($data.Message)</p>
-
-    $(if (!(Test-PodeWebArrayEmpty -Array $data.Content)) {
-        "<hr class='my-4'>"
-        Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Content }
-    })
-</div>

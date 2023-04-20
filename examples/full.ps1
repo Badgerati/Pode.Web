@@ -70,16 +70,16 @@ Start-PodeServer -StatusPageExceptions Show {
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
     $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
-        New-PodeWebParagraph -Elements @(
+        New-PodeWebParagraph -Content @(
             New-PodeWebText -Value 'Using some '
             New-PodeWebText -Value 'example' -Style Italics
             New-PodeWebText -Value ' paragraphs' -Style Bold
         )
-        New-PodeWebParagraph -Elements @(
+        New-PodeWebParagraph -Content @(
             New-PodeWebText -Value 'Pronuncation example: '
             New-PodeWebText -Value '漢' -Pronunciation 'ㄏㄢˋ'
         )
-        New-PodeWebParagraph -Elements @(
+        New-PodeWebParagraph -Content @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "! "
@@ -88,7 +88,7 @@ Start-PodeServer -StatusPageExceptions Show {
                     Show-PodeWebToast -Message 'Badge was clicked!'
                 }
         )
-        New-PodeWebParagraph -Elements @(
+        New-PodeWebParagraph -Content @(
             New-PodeWebCode -Id 'code_test' -Value "some code :o"
         )
         $timer1
@@ -179,7 +179,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $hero = New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page for the full.ps1 example' -Content @(
         New-PodeWebText -Value 'Here you will see examples for close to everything Pode.Web can do.' -InParagraph -Alignment Center
-        New-PodeWebParagraph -Alignment Center -Elements @(
+        New-PodeWebParagraph -Alignment Center -Content @(
             New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
         )
     )
@@ -210,13 +210,13 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # tabs and charts
     $tabs1 = New-PodeWebTabs -Cycle -Tabs @(
-        New-PodeWebTab -Name 'Line' -Icon 'chart-line' -Layouts @(
+        New-PodeWebTab -Name 'Line' -Icon 'chart-line' -Content @(
             New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -Height 250 -AsCard
         )
-        New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Layouts @(
+        New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Content @(
             New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard
         )
-        New-PodeWebTab -Name 'Doughnut' -Icon 'chart-donut' -Layouts @(
+        New-PodeWebTab -Name 'Doughnut' -Icon 'chart-donut' -Content @(
             New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard
         )
     )

@@ -1,9 +1,0 @@
-<iframe
-    src="$($data.Url)"
-    title="$($data.Title)"
-    id="$($data.ID)"
-    class="$($data.CssClasses)"
-    style="$($data.CssStyles)"
-    name="$($data.Name)"
-    pode-object="$($data.ObjectType)">
-</iframe>

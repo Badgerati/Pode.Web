@@ -303,7 +303,7 @@ class PodeElement {
     }
 
     apply(action, data, sender, opts) {
-        console.log(`[${action}] ${this.getType()} {${opts.subType ?? ''}}`);
+        // console.log(`[${action}] ${this.getType()} {${opts.subType ?? ''}}`);
 
         // is this a base element action - applies to all
         if (opts.subType && opts.type === 'element') {
@@ -2166,7 +2166,6 @@ class PodeTable extends PodeRefreshableElement {
         // ensure the table is dynamic, or has "for" attr
         if (!this.dynamic && !this.element.attr('for')) {
             if (data.Data) {
-                console.log(data.Data)
                 this.update(data, sender, opts);
             }
 

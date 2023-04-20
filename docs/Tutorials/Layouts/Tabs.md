@@ -6,23 +6,23 @@ The tabs take an array of layouts, that can only be other layouts and *not* raw 
 
 ## Usage
 
-To create a tabs layout you use [`New-PodeWebTabs`](../../../Functions/Layouts/New-PodeWebTabs), and supply it an array of `-Tabs` using [`New-PodeWebTab`](../../../Functions/Layouts/New-PodeWebTab). The tabs themselves accept an array of other `-Layouts`.
+To create a tabs layout you use [`New-PodeWebTabs`](../../../Functions/Layouts/New-PodeWebTabs), and supply it an array of `-Tabs` using [`New-PodeWebTab`](../../../Functions/Layouts/New-PodeWebTab). The tabs themselves accept an array of other `-Content`.
 
 For example, the below renders a layout with 3 tabs each containing an image:
 
 ```powershell
 New-PodeWebTabs -Tabs @(
-    New-PodeWebTab -Name Tab1 -Layouts @(
+    New-PodeWebTab -Name Tab1 -Content @(
         New-PodeWebCard -Content @(
             New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
         )
     )
-    New-PodeWebTab -Name Tab2 -Layouts @(
+    New-PodeWebTab -Name Tab2 -Content @(
         New-PodeWebCard -Content @(
             New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
         )
     )
-    New-PodeWebTab -Name Tab3 -Layouts @(
+    New-PodeWebTab -Name Tab3 -Content @(
         New-PodeWebCard -Content @(
             New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
         )
@@ -40,17 +40,17 @@ You can render tabs that automatically cycle through themselves every X seconds,
 
 ```powershell
 New-PodeWebTabs -Cycle -Tabs @(
-    New-PodeWebTab -Name Tab1 -Layouts @(
+    New-PodeWebTab -Name Tab1 -Content @(
         New-PodeWebCard -Content @(
             New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
         )
     )
-    New-PodeWebTab -Name Tab2 -Layouts @(
+    New-PodeWebTab -Name Tab2 -Content @(
         New-PodeWebCard -Content @(
             New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
         )
     )
-    New-PodeWebTab -Name Tab3 -Layouts @(
+    New-PodeWebTab -Name Tab3 -Content @(
         New-PodeWebCard -Content @(
             New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
         )
