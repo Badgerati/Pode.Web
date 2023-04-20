@@ -26,9 +26,11 @@ TODO:
 
 - automatically add ".css.classes" and ".css.styles" so we don't have to keep worrying about it
 
-- remove all "Out-" actions
+- convert Out-PodeWebError to an Alert instead
 
 - remove "NoForm" and "NoLabels"
+
+- remove old .pode element/layout files!
 
 - could this now enable React support?
 */

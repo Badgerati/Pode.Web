@@ -1151,35 +1151,6 @@ function Reset-PodeWebPage
     }
 }
 
-function Out-PodeWebBreadcrumb
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [hashtable[]]
-        $Items = @()
-    )
-
-    if (($null -eq $Items)) {
-        $Items = @()
-    }
-
-    $foundActive = $false
-    foreach ($item in $Items) {
-        if ($foundActive -and $item.Active) {
-            throw "Cannot have two active breadcrumb items"
-        }
-
-        $foundActive = $item.Active
-    }
-
-    return @{
-        Operation = 'Output'
-        ObjectType = 'Breadcrumb'
-        Items = $Items
-    }
-}
-
 function Update-PodeWebProgress
 {
     [CmdletBinding(DefaultParameterSetName='Name')]
