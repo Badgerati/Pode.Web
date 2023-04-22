@@ -1,11 +1,11 @@
-function Register-PodeWebComponentEventInternal
+function Register-PodeWebElementEventInternal
 {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [ValidateNotNull()]
         [hashtable]
-        $Component,
+        $Element,
 
         [Parameter(Mandatory=$true)]
         [string]
@@ -26,34 +26,34 @@ function Register-PodeWebComponentEventInternal
     )
 
     # does component support events?
-    if ($Component.NoEvents -or ($Component.ComponentType -ine 'element')) {
-        throw "$($Component.ObjectType) $($Component.ComponentType) with ID '$($Component.ID)' does not support events"
+    if ($Element.NoEvents -or ($Element.ComponentType -ine 'element')) {
+        throw "$($Element.ObjectType) $($Element.ComponentType) with ID '$($Element.ID)' does not support events"
     }
 
     # add events map if not present
-    if ($null -eq $Component.Events) {
-        $Component.Events = @()
+    if ($null -eq $Element.Events) {
+        $Element.Events = @()
     }
 
     # ensure not already defined
-    if ($Component.Events -icontains $Type) {
-        throw "$($Component.ObjectType) $($Component.ComponentType) with ID '$($Component.ID)' already has the $($Type) event defined"
+    if ($Element.Events -icontains $Type) {
+        throw "$($Element.ObjectType) $($Element.ComponentType) with ID '$($Element.ID)' already has the $($Type) event defined"
     }
 
     # add event type
-    $Component.Events += $Type.ToLowerInvariant()
+    $Element.Events += $Type.ToLowerInvariant()
 
     # setup the route
-    $routePath = "/components/$($Component.ObjectType.ToLowerInvariant())/$($Component.ID)/events/$($Type.ToLowerInvariant())"
+    $routePath = "/elements/$($Element.ObjectType.ToLowerInvariant())/$($Element.ID)/events/$($Type.ToLowerInvariant())"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
-        if (!$NoAuthentication -and !$Component.NoAuthentication -and !$PageData.NoAuthentication) {
+        if (!$NoAuthentication -and !$Element.NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $Component.EndpointName -ScriptBlock {
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $Element.EndpointName -ScriptBlock {
             param($Data)
-            $global:ComponentData = $using:Component
+            $global:ElementData = $using:Element
             $global:EventType = $using:Type
 
             $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
@@ -65,7 +65,7 @@ function Register-PodeWebComponentEventInternal
                 Write-PodeJsonResponse -Value $result
             }
 
-            $global:ComponentData = $null
+            $global:ElementData = $null
         }
     }
 }

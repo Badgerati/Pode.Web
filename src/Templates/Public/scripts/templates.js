@@ -1,34 +1,3 @@
-/*
-TODO:
-- Home page only has -Layouts, really needs a -ScriptBlock as well!
-
-- Use a tool to combine and minimise on build - load this minimised file in html
-
-- Tiles need a spinner
-
-- no "Update-PodeWebIcon" ...
-
-- add "-Attributes" hashtable to element New- funcs - to be able to add custom attrs to elements
-    - Add-PodeWebAttributes
-    - Add-PodeWebCss [-Classes] [-Styles]
-
-- "reload()" function, to reload the HTML for an element
-    - this would recall new(), load(), then bind() - basically the same as creation
-    - everything would have to be stored as "this." in the constructor - no "data.", so we can dynamically reload
-
-- "setTheme()" function which is called when the theme is updated
-    - this should hopefully let us update the page's theme without reloading the page
-    - like charts for example
-
-- some buttons need disabling once clicked - to prevent double-clicks
-    - like forms, steppers, buttons, etc.
-
-- automatically add ".css.classes" and ".css.styles" so we don't have to keep worrying about it
-    - same for .attrs
-
-- convert Out-PodeWebError to an Alert instead
-*/
-
 const PODE_CONTENT = $('content#pode-content');
 const PODE_BREADCRUMB = $('nav#pode-breadcrumb ol.breadcrumb');
 const PODE_NAVIGATION = $('div#pode-nav-items ul.navbar-nav');
@@ -171,7 +140,7 @@ class PodeElement {
         };
         this.element = null;
         this.icon = null;
-        this.url = `/components/${this.getType()}/${data.ID}`;
+        this.url = `/elements/${this.getType()}/${data.ID}`;
         this.disabled = data.Disabled ?? false;
 
         this.parent = null;

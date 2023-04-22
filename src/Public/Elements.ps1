@@ -167,7 +167,7 @@ function New-PodeWebTextbox
         }
 
         # create autocomplete route
-        $routePath = "/components/textbox/$($Id)/autocomplete"
+        $routePath = "/elements/textbox/$($Id)/autocomplete"
         if (($null -ne $AutoComplete) -and !(Test-PodeWebRoute -Path $routePath)) {
             $auth = $null
             if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -606,7 +606,7 @@ function New-PodeWebSelect
         Disabled = $Disabled.IsPresent
     }
 
-    $routePath = "/components/select/$($Id)"
+    $routePath = "/elements/select/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -1579,7 +1579,7 @@ function New-PodeWebButton
         Disabled = $Disabled.IsPresent
     }
 
-    $routePath = "/components/button/$($Id)"
+    $routePath = "/elements/button/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -2042,7 +2042,7 @@ function New-PodeWebChart
             Colours = $Colours
         }
 
-        $routePath = "/components/chart/$($Id)"
+        $routePath = "/elements/chart/$($Id)"
         if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
             $auth = $null
             if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -2365,7 +2365,7 @@ function New-PodeWebTable
         }
 
         # main table data script
-        $routePath = "/components/table/$($Id)"
+        $routePath = "/elements/table/$($Id)"
         $buildRoute = (($null -ne $ScriptBlock) -or ![string]::IsNullOrWhiteSpace($CsvFilePath))
 
         if ($buildRoute -and !(Test-PodeWebRoute -Path $routePath)) {
@@ -2519,7 +2519,7 @@ function Add-PodeWebTableButton
         $Table = @($Table.Content | Where-Object { $_.ObjectType -ieq 'table' })[0]
     }
 
-    $routePath = "/components/table/$($Table.ID)/button/$($Name)"
+    $routePath = "/elements/table/$($Table.ID)/button/$($Name)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$Table.NoAuthentication) {
@@ -2634,7 +2634,7 @@ function New-PodeWebCodeEditor
     }
 
     # upload route
-    $routePath = "/components/code-editor/$($Id)/upload"
+    $routePath = "/elements/code-editor/$($Id)/upload"
     if ($uploadable -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -2744,7 +2744,7 @@ function New-PodeWebForm
 
     # generate ID
     $Id = Get-PodeWebElementId -Tag Form -Id $Id -Name $Name
-    $routePath = "/components/form/$($Id)"
+    $routePath = "/elements/form/$($Id)"
 
     $element = @{
         ComponentType = 'Element'
@@ -2858,7 +2858,7 @@ function New-PodeWebTimer
         NoAuthentication = $NoAuthentication.IsPresent
     }
 
-    $routePath = "/components/timer/$($Id)"
+    $routePath = "/elements/timer/$($Id)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -3006,7 +3006,7 @@ function New-PodeWebTile
     }
 
     # main route to load tile value
-    $routePath = "/components/tile/$($Id)"
+    $routePath = "/elements/tile/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)

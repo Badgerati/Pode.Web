@@ -59,7 +59,7 @@ function New-PodeWebNavLink
         NewTab = $NewTab.IsPresent
     }
 
-    $routePath = "/components/nav-link/$($Id)"
+    $routePath = "/elements/nav-link/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
