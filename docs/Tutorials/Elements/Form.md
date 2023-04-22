@@ -17,8 +17,8 @@ New-PodeWebCard -Content @(
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
-        New-PodeWebDateTime -Name 'DateTime' -NoLabels
-        New-PodeWebCredential -Name 'Credentials' -NoLabels
+        New-PodeWebDateTime -Name 'DateTime'
+        New-PodeWebCredential -Name 'Credentials'
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
         New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple

@@ -28,10 +28,6 @@ TODO:
 
 - convert Out-PodeWebError to an Alert instead
 
-- remove "NoForm" and "NoLabels"
-
-- remove old .pode element/layout files!
-
 - could this now enable React support?
 */
 

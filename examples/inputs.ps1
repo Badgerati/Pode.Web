@@ -28,8 +28,8 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
-        New-PodeWebDateTime -Name 'DateTime' -NoLabels
-        New-PodeWebCredential -Name 'Credentials' -NoLabels #TODO: NoLabels now redudant
+        New-PodeWebDateTime -Name 'DateTime'
+        New-PodeWebCredential -Name 'Credentials'
         New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent' -ReadOnly
         New-PodeWebCheckbox -Name 'Switches' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -Inline

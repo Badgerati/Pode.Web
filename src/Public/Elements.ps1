@@ -1243,9 +1243,6 @@ function New-PodeWebCredential
         $ReadOnly,
 
         [switch]
-        $NoLabels,
-
-        [switch]
         $Required
     )
 
@@ -1260,7 +1257,6 @@ function New-PodeWebCredential
         ID = $Id
         HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
-        NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Placeholders = @{
@@ -1318,9 +1314,6 @@ function New-PodeWebDateTime
         $ReadOnly,
 
         [switch]
-        $NoLabels,
-
-        [switch]
         $Required
     )
 
@@ -1335,7 +1328,6 @@ function New-PodeWebDateTime
         ID = $Id
         HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
-        NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Placeholders = @{
@@ -1417,9 +1409,6 @@ function New-PodeWebMinMax
         $ReadOnly,
 
         [switch]
-        $NoLabels,
-
-        [switch]
         $Required
     )
 
@@ -1438,7 +1427,6 @@ function New-PodeWebMinMax
         }
         HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
-        NoLabels = $NoLabels.IsPresent
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Prepend = @{

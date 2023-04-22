@@ -13,7 +13,7 @@ Start-PodeServer -Threads 2 {
     # select event
     $select = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Please select a value: '
-        New-PodeWebSelect -Name 'Bellows' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebSelect -Name 'Bellows' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Open-PodeWebBellow -Name $WebEvent.Data['Bellows']
             }
@@ -37,7 +37,7 @@ Start-PodeServer -Threads 2 {
     # textbox event
     $textbox = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Search for processes: '
-        New-PodeWebTextbox -Name 'Filter' -NoForm |
+        New-PodeWebTextbox -Name 'Filter' |
             Register-PodeWebEvent -Type KeyUp -ScriptBlock {
                 Get-Process -Name "*$($WebEvent.Data['Filter'])*" |
                     Sort-Object -Property CPU -Descending |
@@ -54,7 +54,7 @@ Start-PodeServer -Threads 2 {
     # range event
     $range = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Move the slider: '
-        New-PodeWebRange -Name 'Value' -NoForm |
+        New-PodeWebRange -Name 'Value' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Update-PodeWebText -Id 'txt_value' -Value $WebEvent.Data['Value']
             }
@@ -68,7 +68,7 @@ Start-PodeServer -Threads 2 {
     # radio event
     $radio = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Select options: '
-        New-PodeWebRadio -Name 'Options' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebRadio -Name 'Options' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Open-PodeWebBellow -Name $WebEvent.Data['Options']
             }
@@ -92,7 +92,7 @@ Start-PodeServer -Threads 2 {
     # checkbox event
     $checkbox = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Select options: '
-        New-PodeWebCheckbox -Name 'Options' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebCheckbox -Name 'Options' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 if (!$WebEvent.Data['Options']) {
                     Close-PodeWebAccordion -Name 'Accordion3'
