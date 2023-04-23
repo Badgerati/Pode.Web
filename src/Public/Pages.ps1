@@ -215,7 +215,7 @@ function Set-PodeWebHomePage
     param(
         [Parameter()]
         [hashtable[]]
-        $Layouts,
+        $Content,
 
         [Parameter()]
         [string]
@@ -242,8 +242,8 @@ function Set-PodeWebHomePage
     )
 
     # ensure layouts are correct
-    if (!(Test-PodeWebContent -Content $Layouts -ComponentType Layout)) {
-        throw 'The Home Page can only contain layouts'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'The Home Page can only contain layouts/elements'
     }
 
     # set page title
@@ -268,7 +268,7 @@ function Set-PodeWebHomePage
         DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         NoTitle = $NoTitle.IsPresent
         Navigation = $Navigation
-        Layouts = $Layouts
+        Content = $Content
         IsSystem = $true
     }
 
@@ -294,7 +294,7 @@ function Set-PodeWebHomePage
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
 
         # we either render the home page, or move to the first page if home page is blank
-        $comps = $global:PageData.Layouts
+        $comps = $global:PageData.Content
         if (($null -eq $comps) -or ($comps.Length -eq 0)) {
             $page = Get-PodeWebFirstPublicPage
             if ($null -ne $page) {
@@ -330,7 +330,7 @@ function Set-PodeWebHomePage
         param($Data)
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
         $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
-        $comps = $global:PageData.Layouts
+        $comps = $global:PageData.Content
         Write-PodeJsonResponse -Value (@($navigation) + @($comps))
         $global:PageData = $null
     }
@@ -367,7 +367,7 @@ function Add-PodeWebPage
 
         [Parameter()]
         [hashtable[]]
-        $Layouts,
+        $Content,
 
         [Parameter()]
         [scriptblock]
@@ -425,8 +425,8 @@ function Add-PodeWebPage
     )
 
     # ensure layouts are correct
-    if (!(Test-PodeWebContent -Content $Layouts -ComponentType Layout)) {
-        throw 'A Page can only contain layouts'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Page can only contain layouts/elements'
     }
 
     # test if page/page-link exists
@@ -468,7 +468,7 @@ function Add-PodeWebPage
         Navigation = $Navigation
         ScriptBlock = $ScriptBlock
         HelpScriptBlock = $HelpScriptBlock
-        Layouts = $Layouts
+        Content = $Content
         NoAuthentication = $NoAuthentication.IsPresent
         Access = @{
             Groups = @($AccessGroups)
@@ -562,17 +562,17 @@ function Add-PodeWebPage
             Set-PodeResponseStatus -Code 403
         }
         else {
-            # if we have a scriptblock, invoke that to get dynamic components
-            $layouts = $null
+            # if we have a scriptblock, invoke that to get dynamic elements
+            $content = $null
             if ($null -ne $global:PageData.ScriptBlock) {
-                $layouts = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.ScriptBlock -Arguments $Data.Data -Splat -Return
+                $content = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.ScriptBlock -Arguments $Data.Data -Splat -Return
             }
 
-            if (($null -eq $layouts) -or ($layouts.Length -eq 0)) {
-                $layouts = $global:PageData.Layouts
+            if (($null -eq $content) -or ($content.Length -eq 0)) {
+                $content = $global:PageData.Content
             }
 
-            Write-PodeJsonResponse -Value (@($navigation) + @($layouts))
+            Write-PodeJsonResponse -Value (@($navigation) + @($content))
         }
 
         $global:PageData = $null
@@ -918,7 +918,7 @@ function ConvertTo-PodeWebPage
                 }
             }
 
-            New-PodeWebTab -Name $name -Layouts $form
+            New-PodeWebTab -Name $name -Content $form
         })
 
         $group = [string]::Empty
@@ -929,7 +929,7 @@ function ConvertTo-PodeWebPage
             }
         }
 
-        Add-PodeWebPage -Name $cmd -Icon Settings -Layouts $tabs -Group $group -NoAuthentication:$NoAuthentication
+        Add-PodeWebPage -Name $cmd -Icon Settings -Content $tabs -Group $group -NoAuthentication:$NoAuthentication
     }
 }
 

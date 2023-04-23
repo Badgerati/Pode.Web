@@ -18,7 +18,7 @@ Start-PodeServer {
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
-    Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -Content $section -Title 'Awesome Homepage'
 
     # add a page to search process (output as json in an appended textbox)
     $form = New-PodeWebForm -Name 'Search' -ShowReset -SubmitText 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
@@ -32,7 +32,7 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Layouts $form
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Content $form
 
     Use-PodeWebPages
 }

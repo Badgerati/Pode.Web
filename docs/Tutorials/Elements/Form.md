@@ -70,4 +70,4 @@ You can change these values by using the `-Method` and `-Action` parameters. The
 
 ## Reset
 
-You can reset all form inputs by either using the [`Reset-PodeWebForm`](../../../Functions/Outputs/Reset-PodeWebForm) output action, or by using `-ShowReset` switch on [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) to display an optional reset button.
+You can reset all form inputs by either using the [`Reset-PodeWebForm`](../../../Functions/Actions/Reset-PodeWebForm) action, or by using `-ShowReset` switch on [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) to display an optional reset button.

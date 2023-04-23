@@ -1,10 +1,10 @@
 # URL
 
-This page details the output actions available to redirect users to other URLs.
+This page details the actions available to redirect users to other URLs.
 
 ## Move
 
-You can redirect a user to another URL by using [`Move-PodeWebUrl`](../../../Functions/Outputs/Move-PodeWebUrl):
+You can redirect a user to another URL by using [`Move-PodeWebUrl`](../../../Functions/Actions/Move-PodeWebUrl):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

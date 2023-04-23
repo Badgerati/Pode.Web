@@ -1,10 +1,10 @@
 # Code Editor
 
-This page details the output actions available to Code Editors.
+This page details the actions available to Code Editors.
 
 ## Clear
 
-To clear the value of a Code Editor, you can use [`Clear-PodeWebCodeEditor`](../../../Functions/Outputs/Clear-PodeWebCodeEditor):
+To clear the value of a Code Editor, you can use [`Clear-PodeWebCodeEditor`](../../../Functions/Actions/Clear-PodeWebCodeEditor):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -18,7 +18,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Update
 
-To update the value/language of a Code Editor, you can use [`Update-PodeWebCodeEditor`](../../../Functions/Outputs/Update-PodeWebCodeEditor):
+To update the value/language of a Code Editor, you can use [`Update-PodeWebCodeEditor`](../../../Functions/Actions/Update-PodeWebCodeEditor):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

@@ -1,10 +1,10 @@
 # Form
 
-This page details the output actions available to Forms.
+This page details the actions available to Forms.
 
 ## Reset
 
-If at any point you need to reset a form, you can use [`Reset-PodeWebForm`](../../../Functions/Outputs/Reset-PodeWebForm) which will clear all elements of the specified form:
+If at any point you need to reset a form, you can use [`Reset-PodeWebForm`](../../../Functions/Actions/Reset-PodeWebForm) which will clear all elements of the specified form:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -25,7 +25,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Submit
 
-You can adhoc submit a form by using [`Submit-PodeWebForm`](../../../Functions/Outputs/Submit-PodeWebForm):
+You can adhoc submit a form by using [`Submit-PodeWebForm`](../../../Functions/Actions/Submit-PodeWebForm):
 
 ```powershell
 New-PodeWebCard -Content @(

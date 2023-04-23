@@ -23,5 +23,5 @@ Start-PodeServer {
         )
     )
 
-    Set-PodeWebHomePage -Layouts $container -Title 'Page with STYLE'
+    Set-PodeWebHomePage -Content $container -Title 'Page with STYLE'
 }

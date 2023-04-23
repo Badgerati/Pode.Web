@@ -1,6 +1,6 @@
 # Pages
 
-There are 3 different kinds of pages in Pode.Web, which are defined below. Other than the Login page, the Home and normal Webpages can be populated with custom Layout/Element components. When you add pages to your site, they appear on the sidebar for navigation - unless they are specified to be hidden from the sidebar.
+There are 3 different kinds of pages in Pode.Web, which are defined below. Other than the Login page, the Home and normal Webpages can be populated with custom elements. When you add pages to your site, they appear on the sidebar for navigation - unless they are specified to be hidden from the sidebar.
 
 ## Login
 
@@ -93,10 +93,10 @@ Which would look like below:
 
 Every site is setup with a default empty home page. If you choose not to add anything to your home page, then Pode.Web will automatically redirect to the first Webpage.
 
-To setup the home page with content, you use [`Set-PodeWebHomePage`](../../Functions/Pages/Set-PodeWebHomePage). At its simplest this just takes an array of `-Layouts` to render on the page. For example, if you wanted to add a quick Hero element to your home page:
+To setup the home page with content, you use [`Set-PodeWebHomePage`](../../Functions/Pages/Set-PodeWebHomePage). At its simplest this just takes an array of `-Content` to render on the page. For example, if you wanted to add a quick Hero element to your home page:
 
 ```powershell
-Set-PodeWebHomePage -Layouts @(
+Set-PodeWebHomePage -Content @(
     New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page' -Content @(
         New-PodeWebText -Value 'Here is some text!' -InParagraph -Alignment Center
     )
@@ -115,7 +115,7 @@ By adding a page to your site, Pode.Web will add a link to it on your site's sid
 For example, to add a simple Charts page to your site, to show a Windows counter:
 
 ```powershell
-Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts @(
+Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Content @(
     New-PodeWebCard -Content @(
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
     )
@@ -126,7 +126,7 @@ You can split up your pages into different .ps1 files, if you do and you place t
 
 ### Link
 
-If you just need to place a redirect link into the sidebar, then use [`Add-PodeWebPageLink`](../../Functions/Pages/Add-PodeWebPageLink). This works in a similar way to `Add-PodeWebPage`, but takes either a flat `-Url` to redirect to, or a `-ScriptBlock` that you can return output actions from - *not* layout/element components. Page links can also be grouped, like normal pages.
+If you just need to place a redirect link into the sidebar, then use [`Add-PodeWebPageLink`](../../Functions/Pages/Add-PodeWebPageLink). This works in a similar way to `Add-PodeWebPage`, but takes either a flat `-Url` to redirect to, or a `-ScriptBlock` that you can return actions from. Page links can also be grouped, like normal pages.
 
 Flat URLs:
 
@@ -148,16 +148,16 @@ You can group multiple pages together on the sidebar by using the `-Group` param
 
 ### Help Icon
 
-A help icon can be displayed to the right of the page's title by supplying a `-HelpScriptBlock` to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This scriptblock is used to return output actions such as: displaying a modal when the help icon is clicked; redirect the user to a help page; or any other possible actions to help a user out.
+A help icon can be displayed to the right of the page's title by supplying a `-HelpScriptBlock` to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This scriptblock is used to return actions such as: displaying a modal when the help icon is clicked; redirect the user to a help page; or any other possible actions to help a user out.
 
 ### Static
 
-A static page is one that uses just `-Layouts`; this is a page that will render the same layout/element components on every page load, regardless of payload or query parameters supplied to the page.
+A static page is one that uses just `-Content`; this is a page that will render the same elements on every page load, regardless of payload or query parameters supplied to the page.
 
 For example, this page will always render a form to search for processes:
 
 ```powershell
-Add-PodeWebPage -Name Processes -Icon Activity -Layouts @(
+Add-PodeWebPage -Name Processes -Icon Activity -Content @(
     New-PodeWebCard -Content @(
         New-PodeWebForm -Name 'Search' -ScriptBlock {
             Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
@@ -173,7 +173,7 @@ Add-PodeWebPage -Name Processes -Icon Activity -Layouts @(
 
 ### Dynamic
 
-Add dynamic page uses a `-ScriptBlock` instead of `-Layouts`, the scriptblock lets you render different layout/element components depending on query/payload data in the `$WebEvent`. The scriptblock also has access to a `$PageData` object, containing information about the current page - such as Name, Group, Access, etc.
+Add dynamic page uses a `-ScriptBlock` instead of `-Content`, the scriptblock lets you render different elements depending on query/payload data in the `$WebEvent`. The scriptblock also has access to a `$PageData` object, containing information about the current page - such as Name, Group, Access, etc.
 
 For example, the below page will render a table of services if a `value` query parameter is not present. Otherwise, if it is present, then a page with a code-block showing information about the service is displayed:
 
@@ -206,9 +206,9 @@ Add-PodeWebPage -Name Services -Icon Settings -ScriptBlock {
 }
 ```
 
-You can also supply `-Layouts` while using `-ScriptBlock`. If the scriptblock returns no data, then whatever is supplied to `-Layouts` is treated as the default content for the page.
+You can also supply `-Content` while using `-ScriptBlock`. If the scriptblock returns no data, then whatever is supplied to `-Content` is treated as the default content for the page.
 
-For example, the below is the same as the above example, but this time the table is set using `-Layouts`:
+For example, the below is the same as the above example, but this time the table is set using `-Content`:
 
 ```powershell
 $servicesTable = New-PodeWebCard -Content @(
@@ -222,7 +222,7 @@ $servicesTable = New-PodeWebCard -Content @(
     }
 )
 
-Add-PodeWebPage -Name Services -Icon Settings -Layouts $servicesTable -ScriptBlock {
+Add-PodeWebPage -Name Services -Icon Settings -Content $servicesTable -ScriptBlock {
     $value = $WebEvent.Query['value']
 
     # use default layouts - in this case, the services table
@@ -257,14 +257,14 @@ If you add a page when you've enabled authentication, you can set a page to be a
 
 If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`), then there's no further action needed.
 
-If however you're added the elements/layouts using the `-Layouts` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise data/actions will fail with a 401 response.
+If however you're added the elements/layouts using the `-Content` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise data/actions will fail with a 401 response.
 
 ### Sidebar
 
 When you add a page by default it will show in the sidebar. You can stop pages/links from appearing in the sidebar by using the `-Hide` switch:
 
 ```powershell
-Add-PodeWebPage -Name Charts -Hide -Layouts @(
+Add-PodeWebPage -Name Charts -Hide -Content @(
     New-PodeWebCard -Content @(
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
     )
@@ -274,7 +274,7 @@ Add-PodeWebPage -Name Charts -Hide -Layouts @(
 Alternatively, you can also hide the sidebar on a page by using the `-NoSidebar` switch; useful for dashboard pages:
 
 ```powershell
-Add-PodeWebPage -Name Charts -NoSidebar -Layouts @(
+Add-PodeWebPage -Name Charts -NoSidebar -Content @(
     New-PodeWebCard -Content @(
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
     )
@@ -321,7 +321,7 @@ To register an event for each page type:
 For example, if you want to show a message on a Webpage just before it closes:
 
 ```powershell
-Add-PodeWebPage -Name Example -Layouts $some_layouts -PassThru |
+Add-PodeWebPage -Name Example -Content $some_layouts -PassThru |
     Register-PodeWebPageEvent -Type BeforeUnload -ScriptBlock {
         Show-PodeWebToast -Message "Bye!"
     }

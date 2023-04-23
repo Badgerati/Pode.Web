@@ -1,8 +1,8 @@
 # Text
 
-This page details the output actions available to Text elements, or elements available to have text updated within them.
+This page details the actions available to Text elements, or elements available to have text updated within them.
 
-This output action differs slightly, as it doesn't just update elements created by [`New-PodeWebText`](../../../Functions/Elements/New-PodeWebText), but instead applies to the following list:
+This action differs slightly, as it doesn't just update elements created by [`New-PodeWebText`](../../../Functions/Elements/New-PodeWebText), but instead applies to the following list:
 
 * Alert
 * Badge
@@ -15,7 +15,7 @@ This output action differs slightly, as it doesn't just update elements created 
 
 ## Update
 
-To update the textual value of one of the above elements, you can use [`Update-PodeWebText`](../../../Functions/Outputs/Update-PodeWebText):
+To update the textual value of one of the above elements, you can use [`Update-PodeWebText`](../../../Functions/Actions/Update-PodeWebText):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

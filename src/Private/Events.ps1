@@ -25,7 +25,7 @@ function Register-PodeWebElementEventInternal
         $NoAuthentication
     )
 
-    # does component support events?
+    # does element support events?
     if ($Element.NoEvents -or ($Element.ComponentType -ine 'element')) {
         throw "$($Element.ObjectType) $($Element.ComponentType) with ID '$($Element.ID)' does not support events"
     }

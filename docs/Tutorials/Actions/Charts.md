@@ -1,10 +1,10 @@
 # Charts
 
-This page details the output actions available to Charts.
+This page details the actions available to Charts.
 
 ## Update
 
-To update the data points of a chart on the page, you can use [`Update-PodeWebChart`](../../../Functions/Outputs/Update-PodeWebChart). The `-Data` supplied can either raw or from [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData):
+To update the data points of a chart on the page, you can use [`Update-PodeWebChart`](../../../Functions/Actions/Update-PodeWebChart). The `-Data` supplied can either raw or from [`ConvertTo-PodeWebChartData`](../../../Functions/Actions/ConvertTo-PodeWebChartData):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -27,7 +27,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## ConvertTo
 
-The [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData) simplifies using the raw format, by letting you convert data at the end of a pipeline. The function takes a `-LabelProperty` which is the name of a property in the input that should be used for the X-axis, and then a `-DatasetProperty` with is property names for Y-axis values.
+The [`ConvertTo-PodeWebChartData`](../../../Functions/Actions/ConvertTo-PodeWebChartData) simplifies using the raw format, by letting you convert data at the end of a pipeline. The function takes a `-LabelProperty` which is the name of a property in the input that should be used for the X-axis, and then a `-DatasetProperty` with is property names for Y-axis values.
 
 For example, let's say we want to display the top 10 processes using the most CPU. We want to display the process name (x-axis), and its CPU and Memory usage (y-axis):
 
@@ -44,7 +44,7 @@ New-PodeWebContainer -Content @(
 
 ## Sync
 
-To force a chart to refresh its data you can use [`Sync-PodeWebChart`](../../../Functions/Outputs/Sync-PodeWebChart):
+To force a chart to refresh its data you can use [`Sync-PodeWebChart`](../../../Functions/Actions/Sync-PodeWebChart):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -63,7 +63,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Clear
 
-To clear a chart's data you can use [`Clear-PodeWebChart`](../../../Functions/Outputs/Clear-PodeWebChart):
+To clear a chart's data you can use [`Clear-PodeWebChart`](../../../Functions/Actions/Clear-PodeWebChart):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

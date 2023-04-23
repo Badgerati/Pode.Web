@@ -1,10 +1,10 @@
 # Checkbox
 
-This page details the output actions available to Checkboxes.
+This page details the actions available to Checkboxes.
 
 ## Disable
 
-To enable a checkbox you can use [`Disable-PodeWebCheckbox`](../../../Functions/Outputs/Disable-PodeWebCheckbox):
+To enable a checkbox you can use [`Disable-PodeWebCheckbox`](../../../Functions/Actions/Disable-PodeWebCheckbox):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -18,7 +18,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Enable
 
-To enable a checkbox you can use [`Enable-PodeWebCheckbox`](../../../Functions/Outputs/Enable-PodeWebCheckbox):
+To enable a checkbox you can use [`Enable-PodeWebCheckbox`](../../../Functions/Actions/Enable-PodeWebCheckbox):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -32,7 +32,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Update
 
-To update a checkbox to be checked/unchecked, or to enable/disable, you can use [`Update-PodeWebCheckbox`](../../../Functions/Outputs/Update-PodeWebCheckbox):
+To update a checkbox to be checked/unchecked, or to enable/disable, you can use [`Update-PodeWebCheckbox`](../../../Functions/Actions/Update-PodeWebCheckbox):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

@@ -1,10 +1,10 @@
 # Video
 
-This page details the output actions available to Video.
+This page details the actions available to Video.
 
 ## Start
 
-To play video that's currently stopped/paused, you can use [`Start-PodeWebVideo`](../../../Functions/Outputs/Start-PodeWebVideo):
+To play video that's currently stopped/paused, you can use [`Start-PodeWebVideo`](../../../Functions/Actions/Start-PodeWebVideo):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -22,7 +22,7 @@ New-PodeWebContainer -Content @(
 
 ## Stop
 
-To pause video that's currently playing, you can use [`Stop-PodeWebVideo`](../../../Functions/Outputs/Stop-PodeWebVideo):
+To pause video that's currently playing, you can use [`Stop-PodeWebVideo`](../../../Functions/Actions/Stop-PodeWebVideo):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -40,7 +40,7 @@ New-PodeWebContainer -Content @(
 
 ## Reset
 
-To reload an video element, and also reset the video back to the start, you can use [`Reset-PodeWebVideo`](../../../Functions/Outputs/Reset-PodeWebVideo):
+To reload an video element, and also reset the video back to the start, you can use [`Reset-PodeWebVideo`](../../../Functions/Actions/Reset-PodeWebVideo):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -58,7 +58,7 @@ New-PodeWebContainer -Content @(
 
 ## Update
 
-To update the sources/tracks of an video element, you can use [`Update-PodeWebVideo`](../../../Functions/Outputs/Update-PodeWebVideo). This will clear all current sources/tracks, add the new ones, and then reload the element:
+To update the sources/tracks of an video element, you can use [`Update-PodeWebVideo`](../../../Functions/Actions/Update-PodeWebVideo). This will clear all current sources/tracks, add the new ones, and then reload the element:
 
 ```powershell
 New-PodeWebCard -Content @(

@@ -1,10 +1,10 @@
 # Select
 
-This page details the output actions available to Select elements.
+This page details the actions available to Select elements.
 
 ## Clear
 
-To clear the options of a Select element, you can use [`Clear-PodeWebSelect`](../../../Functions/Outputs/Clear-PodeWebSelect):
+To clear the options of a Select element, you can use [`Clear-PodeWebSelect`](../../../Functions/Actions/Clear-PodeWebSelect):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -18,7 +18,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Set
 
-To set the currently selected option/value of a select element, you can use [`Set-PodeWebSelect`](../../../Functions/Outputs/Set-PodeWebSelect):
+To set the currently selected option/value of a select element, you can use [`Set-PodeWebSelect`](../../../Functions/Actions/Set-PodeWebSelect):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -34,7 +34,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Sync
 
-If you built a Select element with the `-ScriptBlock` parameter, then you can re-invoke the scriptblock to update the element by using [`Sync-PodeWebSelect`](../../../Functions/Outputs/Sync-PodeWebSelect):
+If you built a Select element with the `-ScriptBlock` parameter, then you can re-invoke the scriptblock to update the element by using [`Sync-PodeWebSelect`](../../../Functions/Actions/Sync-PodeWebSelect):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -52,7 +52,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Update
 
-You can update a Select element's options by using [`Update-PodeWebSelect`](../../../Functions/Outputs/Update-PodeWebSelect):
+You can update a Select element's options by using [`Update-PodeWebSelect`](../../../Functions/Actions/Update-PodeWebSelect):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

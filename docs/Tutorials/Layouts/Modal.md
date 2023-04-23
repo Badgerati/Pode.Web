@@ -1,22 +1,22 @@
 # Modal
 
-A modal is a layout that renders on top of all other content on your web page - such as prompts to comfirm information before performing an action, or a quick edit dialog.
+A modal is a layout that renders on top of all other content on your web page - such as prompts to confirm information before performing an action, or a quick edit dialog.
 
-A modal takes an array of components via `-Content`, that can be either other layouts or raw elements.
+A modal takes an array of elements via `-Content`.
 
 ## Usage
 
 To create a modal layout you use [`New-PodeWebModal`](../../../Functions/Layouts/New-PodeWebModal), supplying a `-Name` and any `-Content`. The modal will then be on the page, but will be hidden until required. You can also supply a `-ScriptBlock` with logic to be invoked when the modal's Submit button is clicked.
 
-To show the modal, you can use the output action [`Show-PodeWebModal`](../../../Functions/Outputs/Show-PodeWebModal), and supply the `-Name` of the modal to show. You can populate elements within the modal just prior to it being shown by using `-Actions`; this takes more output actions to invoke such as [`Update-PodeWebCheckbox`](../../../Functions/Outputs/Update-PodeWebCheckbox) and [`Update-PodeWebTextbox`](../../../Functions/Outputs/Update-PodeWebTextbox), which reference elements within the modal.
+To show the modal, you can use the action [`Show-PodeWebModal`](../../../Functions/Actions/Show-PodeWebModal), and supply the `-Name` of the modal to show. You can populate elements within the modal just prior to it being shown by using `-Actions`; this takes more actions to invoke such as [`Update-PodeWebCheckbox`](../../../Functions/Actions/Update-PodeWebCheckbox) and [`Update-PodeWebTextbox`](../../../Functions/Actions/Update-PodeWebTextbox), which reference elements within the modal.
 
-On [`Show-PodeWebModal`](../../../Functions/Outputs/Show-PodeWebModal) you can also supply a `-DataValue`, such as a UserId, Service Name, etc., and this value will be supplied on Submit via `$WebEvent.Data['Value']` in [`New-PodeWebModal`](../../../Functions/Layouts/New-PodeWebModal)'s scriptblock. This can be useful if showing a modal from a table using `-DataColumn`.
+On [`Show-PodeWebModal`](../../../Functions/Actions/Show-PodeWebModal) you can also supply a `-DataValue`, such as a UserId, Service Name, etc., and this value will be supplied on Submit via `$WebEvent.Data['Value']` in [`New-PodeWebModal`](../../../Functions/Layouts/New-PodeWebModal)'s scriptblock. This can be useful if showing a modal from a table using `-DataColumn`.
 
-There's also [`Hide-PodeWebModal`](../../../Functions/Outputs/Hide-PodeWebModal), which, well, hides a modal!
+There's also [`Hide-PodeWebModal`](../../../Functions/Actions/Hide-PodeWebModal), which, well, hides a modal!
 
 ### Confirmation
 
-The example below renders a table of services on the current computer. When the "stop" button/icon is clicked, the name of the service on that row (the `-DataColumn`) is passed to the button, and in-turn that supplies the service name to [`Show-PodeWebModal`](../../../Functions/Outputs/Show-PodeWebModal). The modal asks if the user wants to stop the service, and on Submit it will stop the service and hide the modal:
+The example below renders a table of services on the current computer. When the "stop" button/icon is clicked, the name of the service on that row (the `-DataColumn`) is passed to the button, and in-turn that supplies the service name to [`Show-PodeWebModal`](../../../Functions/Actions/Show-PodeWebModal). The modal asks if the user wants to stop the service, and on Submit it will stop the service and hide the modal:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -58,7 +58,7 @@ Which would look like below:
 
 To use a form in your modal, you need to supply `-AsForm` to [`New-PodeWebModal`](../../../Functions/Layouts/New-PodeWebModal).
 
-The example below again renders a table of services on the current computer. But this time there's an edit button to alter the Start-Up type of a service. When the "edit" button/icon is clicked, the name of the service on that row (the `-DataColumn`) is passed to the button, and in-turn that supplies the service name to [`Show-PodeWebModal`](../../../Functions/Outputs/Show-PodeWebModal). The modal then shows a form with a select input to change the service's Start-Up type:
+The example below again renders a table of services on the current computer. But this time there's an edit button to alter the Start-Up type of a service. When the "edit" button/icon is clicked, the name of the service on that row (the `-DataColumn`) is passed to the button, and in-turn that supplies the service name to [`Show-PodeWebModal`](../../../Functions/Actions/Show-PodeWebModal). The modal then shows a form with a select input to change the service's Start-Up type:
 
 ```powershell
 New-PodeWebCard -Content @(

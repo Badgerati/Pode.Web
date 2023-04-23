@@ -222,7 +222,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
+    Set-PodeWebHomePage -NoAuth -Content $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
             Show-PodeWebToast -Message "Home page $($EventType)!"
         }
@@ -241,7 +241,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
+    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Content $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
             Show-PodeWebToast -Message "Page $($EventType)!"
         }
@@ -315,7 +315,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -347,12 +347,12 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Group Tools -AccessGroups Developer -Layouts $form
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Group Tools -AccessGroups Developer -Content $form
 
 
     # page with table showing csv data
     $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -SimpleSort -Paginate -CsvFilePath './misc/data.csv' -AsCard
-    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Layouts $table2
+    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Content $table2
 
 
     # page with table show dynamic paging, filter, and sorting via a csv
@@ -385,7 +385,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $data | Update-PodeWebTable -Name 'Dynamic Users' -PageIndex $pageIndex -TotalItemCount $totalCount
     }
 
-    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Layouts $table3
+    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Content $table3
 
 
     # open twitter

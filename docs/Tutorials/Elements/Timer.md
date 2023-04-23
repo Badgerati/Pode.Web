@@ -4,7 +4,7 @@
 | ------- |-|
 | Events | No |
 
-A timer is a non-visible element, it sets up a javascript timer in the background that periodically (60s) invokes logic. You can add a timer using [`New-PodeWebTimer`](../../../Functions/Elements/New-PodeWebTimer), and they're mostly used with the outputs function to alter the page.
+A timer is a non-visible element, it sets up a javascript timer in the background that periodically (60s) invokes logic. You can add a timer using [`New-PodeWebTimer`](../../../Functions/Elements/New-PodeWebTimer), and they're mostly used with the action function to alter the page.
 
 The below example sets up a timer that will update the badge's value and colour every 10 seconds:
 

@@ -15,7 +15,7 @@ Start-PodeServer {
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
-    Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -Content $section -Title 'Awesome Homepage'
 
 
     $acc = New-PodeWebAccordion -Bellows @(
@@ -67,5 +67,5 @@ Start-PodeServer {
         )
     )
 
-    Add-PodeWebPage -Name 'Add User' -Icon 'account-plus' -Layouts $acc
+    Add-PodeWebPage -Name 'Add User' -Icon 'account-plus' -Content $acc
 }

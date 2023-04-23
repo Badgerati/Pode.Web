@@ -33,9 +33,9 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Layouts $form, $table
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Content $form, $table
 
-    # processes - table for results, and a form to search, but table as output action
+    # processes - table for results, and a form to search, but table as action
     $form2 = New-PodeWebForm -Name 'Search2' -AsCard -ScriptBlock {
         $processes = Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU
         $processes |
@@ -46,7 +46,7 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes2 -Icon 'chart-box-outline' -Layouts $form2
+    Add-PodeWebPage -Name Processes2 -Icon 'chart-box-outline' -Content $form2
 
     # processes - show top "x" processes
     $form3 = New-PodeWebForm -Name 'TopX' -AsCard -ScriptBlock {
@@ -60,7 +60,7 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Amount'
     )
 
-    Add-PodeWebPage -Name 'Top Processes' -Icon 'chart-box-outline' -Layouts $form3
+    Add-PodeWebPage -Name 'Top Processes' -Icon 'chart-box-outline' -Content $form3
 
     # services
     Add-PodeWebPage -Name Services -Icon 'cogs'

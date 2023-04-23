@@ -37,5 +37,5 @@ Start-PodeServer {
         }
     }
 
-    Add-PodeWebPage -Name 'Get Cat Fact' -Icon 'cloud-upload' -Layouts $table
+    Add-PodeWebPage -Name 'Get Cat Fact' -Icon 'cloud-upload' -Content $table
 }

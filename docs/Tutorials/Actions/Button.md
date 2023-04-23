@@ -1,10 +1,10 @@
 # Button
 
-This page details the output actions available to Buttons.
+This page details the actions available to Buttons.
 
 ## Invoke
 
-To invoke/click a button on the page, you can use [`Invoke-PodeWebButton`](../../../Functions/Outputs/Invoke-PodeWebButton):
+To invoke/click a button on the page, you can use [`Invoke-PodeWebButton`](../../../Functions/Actions/Invoke-PodeWebButton):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -20,7 +20,7 @@ New-PodeWebCard -Content @(
 
 ## Enable
 
-To enable a disabled button on the page, you can use [`Enable-PodeWebButton`](../../../Functions/Outputs/Enable-PodeWebButton):
+To enable a disabled button on the page, you can use [`Enable-PodeWebButton`](../../../Functions/Actions/Enable-PodeWebButton):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -36,7 +36,7 @@ New-PodeWebCard -Content @(
 
 ## Disable
 
-To disable a enabled button on the page, you can use [`Disable-PodeWebButton`](../../../Functions/Outputs/Disable-PodeWebButton):
+To disable a enabled button on the page, you can use [`Disable-PodeWebButton`](../../../Functions/Actions/Disable-PodeWebButton):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -52,7 +52,7 @@ New-PodeWebCard -Content @(
 
 ## Update
 
-You can update a button's Icon, DisplayName, Colour, and Size using [`Update-PodeWebButton`](../../../Functions/Outputs/Update-PodeWebButton).
+You can update a button's Icon, DisplayName, Colour, and Size using [`Update-PodeWebButton`](../../../Functions/Actions/Update-PodeWebButton).
 
 For example, just change a solid button to be yellow and outlined:
 

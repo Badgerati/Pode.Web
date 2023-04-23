@@ -1,10 +1,10 @@
 # Error
 
-This page details the output actions available to Errors.
+This page details the actions available to Errors.
 
 ## Out
 
-To create/show an error alert, such as when a form throws an unexpected error, you can use [`Out-PodeWebError`](../../../Functions/Outputs/Out-PodeWebError). This will render an error alert beneath the element/sender that triggered the action (such as a a form, or a button). These errors will automatically be removed if the form is resubmitted.
+To create/show an error alert, such as when a form throws an unexpected error, you can use [`Out-PodeWebError`](../../../Functions/Actions/Out-PodeWebError). This will render an error alert beneath the element/sender that triggered the action (such as a a form, or a button). These errors will automatically be removed if the form is resubmitted.
 
 ```powershell
 New-PodeWebCard -Content @(

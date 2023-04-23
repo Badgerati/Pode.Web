@@ -71,7 +71,7 @@ Start-PodeServer -StatusPageExceptions Show {
         Set-PodeResponseAttachment -Path '/download/test.xlsx'
     }
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $modal, $table -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $modal, $table -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return

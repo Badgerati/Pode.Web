@@ -1,10 +1,10 @@
 # Validation
 
-This page details the output actions available to input form element Validation messages.
+This page details the actions available to input form element Validation messages.
 
 ## Out
 
-To show an error validation message beneath an element - usually form input elements - you can use [`Out-PodeWebValidation`](../../../Functions/Outputs/Out-PodeWebValidation). This will turn the element red, and show a red message beneath it - useful for username lengths, etc:
+To show an error validation message beneath an element - usually form input elements - you can use [`Out-PodeWebValidation`](../../../Functions/Actions/Out-PodeWebValidation). This will turn the element red, and show a red message beneath it - useful for username lengths, etc:
 
 ```powershell
 New-PodeWebCard -Content @(

@@ -86,5 +86,5 @@ Start-PodeServer {
         }
     )
 
-    Set-PodeWebHomePage -Layouts $form, $container -Title 'Testing Inputs'
+    Set-PodeWebHomePage -Content $form, $container -Title 'Testing Inputs'
 }

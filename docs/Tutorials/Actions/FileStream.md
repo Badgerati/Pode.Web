@@ -1,10 +1,10 @@
 # FileStream
 
-This page details the output actions available to FileStream elements.
+This page details the actions available to FileStream elements.
 
 ## Clear
 
-To clear the content of a FileStream, you can use [`Clear-PodeWebFileStream`](../../../Functions/Outputs/Clear-PodeWebFileStream):
+To clear the content of a FileStream, you can use [`Clear-PodeWebFileStream`](../../../Functions/Actions/Clear-PodeWebFileStream):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -60,7 +60,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Update
 
-To update the Url that a FileStream is currently streaming data from, you can use [`Update-PodeWebFileStream`](../../../Functions/Outputs/Update-PodeWebFileStream). This will stop, clear, update the Url, and the start the FileStream element:
+To update the Url that a FileStream is currently streaming data from, you can use [`Update-PodeWebFileStream`](../../../Functions/Actions/Update-PodeWebFileStream). This will stop, clear, update the Url, and the start the FileStream element:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

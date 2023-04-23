@@ -54,5 +54,5 @@ Start-PodeServer {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $tabs
+    Set-PodeWebHomePage -NoAuth -Content $tabs
 }

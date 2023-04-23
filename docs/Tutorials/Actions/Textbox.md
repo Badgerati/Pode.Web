@@ -1,10 +1,10 @@
 # Textbox
 
-This page details the output actions available to Textboxes.
+This page details the actions available to Textboxes.
 
 ## Update
 
-To update the value of a textbox on the page, you can use [`Update-PodeWebTextbox`](../../../Functions/Outputs/Update-PodeWebTextbox). The `-Value` supplied can be a string/object array, any objects will be converted to a string:
+To update the value of a textbox on the page, you can use [`Update-PodeWebTextbox`](../../../Functions/Actions/Update-PodeWebTextbox). The `-Value` supplied can be a string/object array, any objects will be converted to a string:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -18,7 +18,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Clear
 
-You can clear the content of a textbox by using [`Clear-PodeWebTextbox`](../../../Functions/Outputs/Clear-PodeWebTextbox):
+You can clear the content of a textbox by using [`Clear-PodeWebTextbox`](../../../Functions/Actions/Clear-PodeWebTextbox):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

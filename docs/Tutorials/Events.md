@@ -1,23 +1,23 @@
 # Events
 
-In JavaScript you have general events that can trigger, such as `onchange` or `onfocus`. You can bind scriptblocks to these events for different components by using [`Register-PodeWebEvent`](../../Functions/Events/Register-PodeWebEvent).
+In JavaScript you have general events that can trigger, such as `onchange` or `onfocus`. You can bind scriptblocks to these events for different elements by using [`Register-PodeWebEvent`](../../Functions/Events/Register-PodeWebEvent).
 
-For now only Element components support registering events, and not all elements support events (check an elements page to see if it supports events!).
+For now only Elements support registering events, and not all elements support events (check an elements page to see if it supports events!).
 
 The following general events are supported:
 
 | Name | Description |
 | ---- | ----------- |
-| Change | Fires when the value of the component changes |
-| Focus | Fires when the component gains focus |
-| FocusOut | Fires when the component loses focus |
-| Click | Fires when the component is clicked |
-| MouseOver | Fires when the mouse moves over the component |
-| MouseOut | Fires when the mouse moves out of the component |
-| KeyDown | Fires when a key is pressed down on the component |
-| KeyUp | Fires when a key is lifted up on a component |
+| Change | Fires when the value of the element changes |
+| Focus | Fires when the element gains focus |
+| FocusOut | Fires when the element loses focus |
+| Click | Fires when the element is clicked |
+| MouseOver | Fires when the mouse moves over the element |
+| MouseOut | Fires when the mouse moves out of the element |
+| KeyDown | Fires when a key is pressed down on the element |
+| KeyUp | Fires when a key is lifted up on a element |
 
-Similar to say a Button's click scriptblock, these events can run whatever logic you like, including returning output actions for Pode.Web to action against on the frontend.
+Similar to say a Button's click scriptblock, these events can run whatever logic you like, including returning actions for Pode.Web to action against on the frontend.
 
 You can binding the same action to multiple event types by supplying mutliple types to [`Register-PodeWebEvent`](../../Functions/Events/Register-PodeWebEvent)'s `-Type` parameter. The current event that has triggered the logic can be sourced via `$EventType` within the `-ScriptBlock`.
 
@@ -36,7 +36,7 @@ If the element the event triggers for is a form input element, the value will be
 
 ## Element Specific
 
-The events listed above are general events supported by almost every component. However some elements, like Audio, have their own specific events, and these can be found on the element's document page.
+The events listed above are general events supported by almost every element. However some elements, like Audio, have their own specific events, and these can be found on the element's document page.
 
 For example, the Audio element has a `play` event which can be registered as follows:
 

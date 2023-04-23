@@ -40,5 +40,5 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Set-PodeWebHomePage -Layouts $acc -Title 'Accordion'
+    Set-PodeWebHomePage -Content $acc -Title 'Accordion'
 }

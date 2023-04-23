@@ -39,5 +39,5 @@ Start-PodeServer -Threads 2 {
         ) -Colour Light
     )
 
-    Set-PodeWebHomePage -Layouts $card -Title 'Tiles'
+    Set-PodeWebHomePage -Content $card -Title 'Tiles'
 }

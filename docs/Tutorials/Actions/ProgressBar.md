@@ -1,10 +1,10 @@
 # Progress Bar
 
-This page details the output actions available to Progress Bars.
+This page details the actions available to Progress Bars.
 
 ## Update
 
-To update the value or the colour of a progress bar on the page, you can use [`Update-PodeWebProgress`](../../../Functions/Outputs/Update-PodeWebProgress):
+To update the value or the colour of a progress bar on the page, you can use [`Update-PodeWebProgress`](../../../Functions/Actions/Update-PodeWebProgress):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

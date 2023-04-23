@@ -31,7 +31,7 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Add-PodeWebPage -Name 'Select' -Layouts $select, $acc1
+    Add-PodeWebPage -Name 'Select' -Content $select, $acc1
 
 
     # textbox event
@@ -48,7 +48,7 @@ Start-PodeServer -Threads 2 {
         New-PodeWebTable -Name 'Processes'
     )
 
-    Add-PodeWebPage -Name 'Textbox' -Layouts $textbox
+    Add-PodeWebPage -Name 'Textbox' -Content $textbox
 
 
     # range event
@@ -62,7 +62,7 @@ Start-PodeServer -Threads 2 {
         New-PodeWebText -Id 'txt_value' -Style Bold -Value '0'
     )
 
-    Add-PodeWebPage -Name 'Range' -Layouts $range
+    Add-PodeWebPage -Name 'Range' -Content $range
 
 
     # radio event
@@ -86,7 +86,7 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Add-PodeWebPage -Name 'Radio' -Layouts $radio, $acc2
+    Add-PodeWebPage -Name 'Radio' -Content $radio, $acc2
 
 
     # checkbox event
@@ -115,5 +115,5 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Add-PodeWebPage -Name 'Checkbox' -Layouts $checkbox, $acc3
+    Add-PodeWebPage -Name 'Checkbox' -Content $checkbox, $acc3
 }

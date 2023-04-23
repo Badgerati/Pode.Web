@@ -1,10 +1,10 @@
 # Badge
 
-This page details the output actions available to Badges.
+This page details the actions available to Badges.
 
 ## Update
 
-To update the value or the colour of a badge on the page, you can use [`Update-PodeWebBadge`](../../../Functions/Outputs/Update-PodeWebBadge):
+To update the value or the colour of a badge on the page, you can use [`Update-PodeWebBadge`](../../../Functions/Actions/Update-PodeWebBadge):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

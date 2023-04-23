@@ -1,10 +1,10 @@
 # Table
 
-This page details the output actions available to Tables.
+This page details the actions available to Tables.
 
 ## Update
 
-To update a table on the page, you can use [`Update-PodeWebTable`](../../../Functions/Outputs/Update-PodeWebTable):
+To update a table on the page, you can use [`Update-PodeWebTable`](../../../Functions/Actions/Update-PodeWebTable):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -25,7 +25,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Update Row
 
-To update a single row in the table you can use [`Update-PodeWebTableRow`](../../../Functions/Outputs/Update-PodeWebTableRow). You need to supply the table's ID/Name, and then either the index of the row, or the value of that row's `-DataColumn`. The `-Data` is a HashTable/PSCustomObject containing the properties/columns that you want to update:
+To update a single row in the table you can use [`Update-PodeWebTableRow`](../../../Functions/Actions/Update-PodeWebTableRow). You need to supply the table's ID/Name, and then either the index of the row, or the value of that row's `-DataColumn`. The `-Data` is a HashTable/PSCustomObject containing the properties/columns that you want to update:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -56,7 +56,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Sync
 
-To force a table to refresh its data you can use [`Sync-PodeWebTable`](../../../Functions/Outputs/Sync-PodeWebTable):
+To force a table to refresh its data you can use [`Sync-PodeWebTable`](../../../Functions/Actions/Sync-PodeWebTable):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -74,7 +74,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Clear
 
-To clear a table's data you can use [`Clear-PodeWebTable`](../../../Functions/Outputs/Clear-PodeWebTable):
+To clear a table's data you can use [`Clear-PodeWebTable`](../../../Functions/Actions/Clear-PodeWebTable):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -92,7 +92,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Hide Column
 
-To hide a column within a table, you can use [`Hide-PodeWebTableColumn`](../../../Functions/Outputs/Hide-PodeWebTableColumn). You'll need to supply the table's ID/Name and then the Key of column, specified via [`Initialize-PodeWebTableColumn`](../../../Functions/Elements/Initialize-PodeWebTableColumn) (or the Key used in a PSCustomObject or Hashtable used to build the table):
+To hide a column within a table, you can use [`Hide-PodeWebTableColumn`](../../../Functions/Actions/Hide-PodeWebTableColumn). You'll need to supply the table's ID/Name and then the Key of column, specified via [`Initialize-PodeWebTableColumn`](../../../Functions/Elements/Initialize-PodeWebTableColumn) (or the Key used in a PSCustomObject or Hashtable used to build the table):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -125,7 +125,7 @@ New-PodeWebCard -Content @(
 
 ## Show Column
 
-To show a column within a table, you can use [`Show-PodeWebTableColumn`](../../../Functions/Outputs/Show-PodeWebTableColumn). You'll need to supply the table's ID/Name and then the Key of column, specified via [`Initialize-PodeWebTableColumn`](../../../Functions/Elements/Initialize-PodeWebTableColumn) (or the Key used in a PSCustomObject or Hashtable used to build the table):
+To show a column within a table, you can use [`Show-PodeWebTableColumn`](../../../Functions/Actions/Show-PodeWebTableColumn). You'll need to supply the table's ID/Name and then the Key of column, specified via [`Initialize-PodeWebTableColumn`](../../../Functions/Elements/Initialize-PodeWebTableColumn) (or the Key used in a PSCustomObject or Hashtable used to build the table):
 
 ```powershell
 New-PodeWebCard -Content @(
