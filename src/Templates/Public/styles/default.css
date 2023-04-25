@@ -37,7 +37,7 @@ ruby rt {
     margin-bottom: 0.5rem;
 }
 
-.pode-container:not([pode-transparent='True']) {
+.pode-container:not([pode-transparent='true']) {
     border-width: 1px;
     border-style: solid;
     border-radius: 0.25rem;
@@ -60,7 +60,7 @@ ruby rt {
     display: inline-block;
 }
 
-.pode-tile[pode-click="True"]:hover {
+.pode-tile[pode-click="true"]:hover {
     opacity: 0.91;
     cursor: pointer;
 }
@@ -105,7 +105,7 @@ ruby rt {
     border-color: #d53545;
 }
 
-[pode-hidden='True'] {
+[pode-hidden='true'] {
     display: none !important;
 }
 
@@ -195,11 +195,11 @@ span.link-divider {
     margin-top: 1px;
 }
 
-a.pode-nav-link[pode-dynamic='True'] {
+a.pode-nav-link {
     cursor: pointer;
 }
 
-a.nav-link[pode-dynamic='True'] {
+a.nav-link[pode-dynamic='true'] {
     cursor: pointer;
 }
 
@@ -334,8 +334,8 @@ pre code {
     color: #333;
     position: absolute;
     display: flex;
-    top: 3.6rem;
-    right: 0.5em;
+    top: 4rem;
+    right: 0em;
 }
 
 .btn-icon-only,
@@ -432,24 +432,24 @@ table {
     font-size: .9rem;
 }
 
-table[pode-sort='True'] thead th {
+table[pode-sort='true'] thead th {
     cursor: pointer;
 }
 
-table[pode-sort='True'] thead th[sort-direction='asc']::after,
-table[pode-sort='True'] thead th[sort-direction='desc']::after {
+table[pode-sort='true'] thead th[sort-direction='asc']::after,
+table[pode-sort='true'] thead th[sort-direction='desc']::after {
     content: ' ';
     position: relative;
     left: 10px;
     border: 7px solid transparent;
 }
 
-table[pode-sort='True'] thead th[sort-direction='asc']::after {
+table[pode-sort='true'] thead th[sort-direction='asc']::after {
     bottom: 12px;
     border-bottom-color: silver;
 }
 
-table[pode-sort='True'] thead th[sort-direction='desc']::after {
+table[pode-sort='true'] thead th[sort-direction='desc']::after {
     top: 15px;
     border-top-color: silver;
 }
@@ -643,6 +643,11 @@ div.no-form {
 
 .no-form.pode-form-checkbox {
     width: inherit;
+}
+
+.pode-form-button .pode-button:not(.btn-icon-only),
+.pode-form-button .pode-link-button:not(.btn-icon-only) {
+    margin: 0.5em;
 }
 
 /* Fallback for Edge
@@ -841,6 +846,10 @@ iframe {
 
 th .mdi::before {
     vertical-align: sub;
+}
+
+.pode-code-editor .pode-upload .mdi::before {
+    margin-bottom: 0.3em;
 }
 
 .btn:not(.btn-icon-only, .btn-no-text, .btn-block) .mdi::before {

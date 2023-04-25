@@ -15,10 +15,10 @@ Start-PodeServer {
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
-    Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -Content $section -Title 'Awesome Homepage'
 
 
-    $acc = New-PodeWebAccordion -Cycle -Bellows @(
+    $acc = New-PodeWebAccordion -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Content @(
             # add a page to add some fake user
             New-PodeWebSteps -Name 'AddUser' -Steps @(
@@ -26,6 +26,7 @@ Start-PodeServer {
                     New-PodeWebTextbox -Name 'Email'
                     New-PodeWebFileUpload -Name 'SomeFile'
                 ) -ScriptBlock {
+                    Start-Sleep -Seconds 3
                     $WebEvent.Data | Out-Default
                 }
                 New-PodeWebStep -Name 'Password' -Icon 'lock' -Content @(
@@ -66,5 +67,5 @@ Start-PodeServer {
         )
     )
 
-    Add-PodeWebPage -Name 'Add User' -Icon 'account-plus' -Layouts $acc
+    Add-PodeWebPage -Name 'Add User' -Icon 'account-plus' -Content $acc
 }

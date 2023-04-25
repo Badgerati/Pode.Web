@@ -83,11 +83,15 @@ function Use-PodeWebTemplates
             Page = @{
                 Name = 'Home'
                 Path = '/'
-                TItle = 'Home'
+                Title = 'Home'
                 DisplayName = 'Home'
                 IsSystem = $true
             }
         }
+    }
+
+    Add-PodeRoute -Method Post -Path "/content" -EndpointName $EndpointName -ScriptBlock {
+        Write-PodeJsonResponse -Value @()
     }
 
     Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
@@ -358,6 +362,12 @@ function Set-PodeWebAuth
                 Avatar = $avatar
             }
         }
+    }
+
+    Remove-PodeWebRoute -Method Post -Path "/content" -EndpointName $endpointNames
+
+    Add-PodeRoute -Method Post -Path "/content" -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
+        Write-PodeJsonResponse -Value @()
     }
 
     if ($PassThru) {

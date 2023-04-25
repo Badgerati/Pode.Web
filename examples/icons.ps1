@@ -29,5 +29,5 @@ Start-PodeServer -Threads 2 {
         }
     )
 
-    Set-PodeWebHomePage -Layouts $card1, $card2 -Title 'Icons'
+    Set-PodeWebHomePage -Content $card1, $card2 -Title 'Icons'
 }

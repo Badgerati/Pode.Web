@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'File Upload' -Theme Dark
+    Use-PodeWebTemplates -Title 'File Upload' -Theme Terminal
 
     # set the home page controls (just a simple paragraph)
     $form = New-PodeWebForm -Name 'Test'  -AsCard -ScriptBlock {
@@ -18,5 +18,5 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Date' -Type Date
     )
 
-    Set-PodeWebHomePage -Layouts $form -Title 'Testing Uploads'
+    Set-PodeWebHomePage -Content $form -Title 'Testing Uploads'
 }

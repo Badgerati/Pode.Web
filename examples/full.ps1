@@ -70,16 +70,16 @@ Start-PodeServer -StatusPageExceptions Show {
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
     $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
-        New-PodeWebParagraph -Elements @(
+        New-PodeWebParagraph -Content @(
             New-PodeWebText -Value 'Using some '
             New-PodeWebText -Value 'example' -Style Italics
             New-PodeWebText -Value ' paragraphs' -Style Bold
         )
-        New-PodeWebParagraph -Elements @(
+        New-PodeWebParagraph -Content @(
             New-PodeWebText -Value 'Pronuncation example: '
             New-PodeWebText -Value '漢' -Pronunciation 'ㄏㄢˋ'
         )
-        New-PodeWebParagraph -Elements @(
+        New-PodeWebParagraph -Content @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "! "
@@ -88,7 +88,7 @@ Start-PodeServer -StatusPageExceptions Show {
                     Show-PodeWebToast -Message 'Badge was clicked!'
                 }
         )
-        New-PodeWebParagraph -Elements @(
+        New-PodeWebParagraph -Content @(
             New-PodeWebCode -Id 'code_test' -Value "some code :o"
         )
         $timer1
@@ -179,7 +179,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $hero = New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page for the full.ps1 example' -Content @(
         New-PodeWebText -Value 'Here you will see examples for close to everything Pode.Web can do.' -InParagraph -Alignment Center
-        New-PodeWebParagraph -Alignment Center -Elements @(
+        New-PodeWebParagraph -Alignment Center -Content @(
             New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
         )
     )
@@ -202,7 +202,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
+    Set-PodeWebHomePage -NoAuth -Content $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
             Show-PodeWebToast -Message "Home page $($EventType)!"
         }
@@ -210,18 +210,18 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # tabs and charts
     $tabs1 = New-PodeWebTabs -Cycle -Tabs @(
-        New-PodeWebTab -Name 'Line' -Icon 'chart-line' -Layouts @(
+        New-PodeWebTab -Name 'Line' -Icon 'chart-line' -Content @(
             New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -Height 250 -AsCard
         )
-        New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Layouts @(
+        New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Content @(
             New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard
         )
-        New-PodeWebTab -Name 'Doughnut' -Icon 'chart-donut' -Layouts @(
+        New-PodeWebTab -Name 'Doughnut' -Icon 'chart-donut' -Content @(
             New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Layouts $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
+    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Content $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
             Show-PodeWebToast -Message "Page $($EventType)!"
         }
@@ -295,7 +295,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -319,17 +319,20 @@ Start-PodeServer -StatusPageExceptions Show {
             return
         }
 
-        Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU | Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
+        Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
+            Select-Object Name, ID, WorkingSet, CPU |
+            New-PodeWebTextbox -Name 'Output' -Multiline -Preformat -ReadOnly |
+            Out-PodeWebElement
     } -Content @(
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Group Tools -AccessGroups Developer -Layouts $form
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Group Tools -AccessGroups Developer -Content $form
 
 
     # page with table showing csv data
     $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -SimpleSort -Paginate -CsvFilePath './misc/data.csv' -AsCard
-    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Layouts $table2
+    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Content $table2
 
 
     # page with table show dynamic paging, filter, and sorting via a csv
@@ -362,7 +365,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $data | Update-PodeWebTable -Name 'Dynamic Users' -PageIndex $pageIndex -TotalItemCount $totalCount
     }
 
-    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Layouts $table3
+    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Content $table3
 
 
     # open twitter

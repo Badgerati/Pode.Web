@@ -2,7 +2,7 @@
 
 A hero is a layout that renders with a title, message, and extra optional content. They're the big display messages that are normally seen at the top of websites with buttons like "Download Now!" etc.
 
-A hero can take an array of components via `-Content`, that can be either other layouts or raw elements.
+A hero can take an array of elements via `-Content`.
 
 ## Usage
 
@@ -13,7 +13,7 @@ For example, the below renders a hero with a title, message, and content for fur
 ```powershell
 New-PodeWebHero -Title 'Welcome!' -Message 'This is an example Hero for Pode.Web' -Content @(
     New-PodeWebText -Value 'Pode.Web lets you build websites using PowerShell.' -InParagraph -Alignment Center
-    New-PodeWebParagraph -Alignment Center -Elements @(
+    New-PodeWebParagraph -Alignment Center -Content @(
         New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web'
     )
 )

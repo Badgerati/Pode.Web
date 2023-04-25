@@ -44,7 +44,6 @@
 
                 <div id='pode-nav-items'>
                     <ul class="navbar-nav mr-auto">
-                        $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Navigation })
                     </ul>
                 </div>
             </div>
@@ -225,10 +224,13 @@
                     }
 
                     if (!$data.Page.NoBreadcrumb) {
-                        Use-PodeWebPartialView -Path "layouts/breadcrumb" -Data $data.Breadcrumb
+                        "<nav id='pode-breadcrumb' aria-label='breadcrumb'>
+                            <ol class='breadcrumb'>
+                            </ol>
+                        </nav>"
                     })
 
-                    $(Use-PodeWebPartialView -Path 'shared/_load' -Data @{ Content = $data.Layouts })
+                    <content id="pode-content"></content>
                 </main>
             </div>
         </div>

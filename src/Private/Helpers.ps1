@@ -331,8 +331,10 @@ function Get-PodeWebRandomName
         $Length = 5
     )
 
-    $value = (65..90) | Get-Random -Count $Length | ForEach-Object { [char]$_ }
-    return [String]::Concat($value)
+    $r =  [System.Random]::new()
+    return [string]::Concat(@(foreach ($i in 1..$Length) {
+        [char]$r.Next(65, 90)
+    }))
 }
 
 function Protect-PodeWebName
@@ -462,13 +464,7 @@ function Get-PodeWebElementId
 
         [Parameter()]
         [string]
-        $Name,
-
-        [switch]
-        $RandomToken,
-
-        [switch]
-        $NameAsToken
+        $Name
     )
 
     if (![string]::IsNullOrWhiteSpace($Id)) {
@@ -479,6 +475,9 @@ function Get-PodeWebElementId
     $_id = [string]::Empty
     if (![string]::IsNullOrWhiteSpace($ElementData.ID)) {
         $_id = "$($ElementData.ID)_"
+    }
+    elseif (![string]::IsNullOrWhiteSpace($ElementData.Name)) {
+        $_id = "$($ElementData.Name)_"
     }
 
     # start with element tag
@@ -493,13 +492,11 @@ function Get-PodeWebElementId
         $_id += "_$($PageData.Group)"
     }
 
-    # add name if we have one
+    # add name if we have one, or a random name
     if (![string]::IsNullOrWhiteSpace($Name)) {
         $_id += "_$($Name)"
     }
-
-    # add random token - if forced, or if no page
-    if ($RandomToken -or ($NameAsToken -and [string]::IsNullOrWhiteSpace($Name))) {
+    else {
         $_id += "_$(Get-PodeWebRandomName)"
     }
 
@@ -697,15 +694,6 @@ function Test-PodeWebContent
     if (!(Test-PodeWebArrayEmpty -Array $ComponentType)) {
         foreach ($item in $Content) {
             if ($item.ComponentType -inotin $ComponentType) {
-                return $false
-            }
-        }
-    }
-
-    # ensure the content elements are correct
-    if (!(Test-PodeWebArrayEmpty -Array $ObjectType)) {
-        foreach ($item in $Content) {
-            if ($item.ObjectType -inotin $ObjectType) {
                 return $false
             }
         }

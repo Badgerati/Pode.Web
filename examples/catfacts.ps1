@@ -12,7 +12,7 @@ Start-PodeServer {
     $table = New-PodeWebTable -Name 'Static' -DataColumn ID -AsCard -Click -Paginate -ScriptBlock {
         # refresh button, to refresh the current row
         $refreshBtn = New-PodeWebButton -Name 'Refresh' -Icon 'refresh' -IconOnly -ScriptBlock {
-            $response = (Invoke-RestMethod -Uri 'https://catfact.ninja/facts?limit=1' -Method Get).data.fact
+            $response = (Invoke-RestMethod -Uri 'https://catfact.ninja/fact' -Method Get).fact
 
             # this will only update the Fact column of the row
             $data = @{
@@ -37,5 +37,5 @@ Start-PodeServer {
         }
     }
 
-    Add-PodeWebPage -Name 'Get Cat Fact' -Icon 'cloud-upload' -Layouts $table
+    Add-PodeWebPage -Name 'Get Cat Fact' -Icon 'cloud-upload' -Content $table
 }

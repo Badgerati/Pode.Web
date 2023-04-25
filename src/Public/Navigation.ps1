@@ -47,7 +47,7 @@ function New-PodeWebNavLink
 
     $nav = @{
         ComponentType = 'Navigation'
-        NavType = 'Link'
+        ObjectType = 'Nav-Link'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
@@ -59,7 +59,7 @@ function New-PodeWebNavLink
         NewTab = $NewTab.IsPresent
     }
 
-    $routePath = "/nav/link/$($Id)"
+    $routePath = "/elements/nav-link/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
@@ -127,7 +127,7 @@ function New-PodeWebNavDropdown
 
     return @{
         ComponentType = 'Navigation'
-        NavType = 'Dropdown'
+        ObjectType = 'Nav-Dropdown'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag 'Nav-Dropdown' -Id $Id -Name $Name)
@@ -146,7 +146,7 @@ function New-PodeWebNavDivider
 
     return @{
         ComponentType = 'Navigation'
-        NavType = 'Divider'
+        ObjectType = 'Nav-Divider'
         InDropdown = $false
     }
 }
@@ -173,8 +173,12 @@ function Get-PodeWebNavDefault
     )
 
     if (($null -eq $Items) -or ($items.Length -eq 0)) {
-        return (Get-PodeWebState -Name 'default-nav')
+        $Items = (Get-PodeWebState -Name 'default-nav')
     }
-    
+
+    if ($null -eq $Items) {
+        $Items = @()
+    }
+
     return $Items
 }

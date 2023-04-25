@@ -14,7 +14,7 @@ Start-PodeServer {
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
-    Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
+    Set-PodeWebHomePage -Content $section -Title 'Awesome Homepage'
 
     Add-PodeWebPage -Name Example -ArgumentList 'Title', 'BodyText' -ScriptBlock {
         param($title, $text)
