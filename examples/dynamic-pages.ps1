@@ -20,7 +20,7 @@ Start-PodeServer {
         param($title, $text)
 
         New-PodeWebContainer -Content @(
-            New-PodeWebHeader -Size 2 -Value $title
+            New-PodeWebHeader -Size 2 -Value $title -Icon 'folder'
             New-PodeWebText -Value $text
         )
     }
