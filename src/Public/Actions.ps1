@@ -2003,3 +2003,29 @@ function Out-PodeWebElement
 
     return $Element
 }
+
+function Update-PodeWebRaw
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string]
+        $Value
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Raw'
+        ID = $Id
+        Name = $Name
+        Value = $Value
+    }
+}

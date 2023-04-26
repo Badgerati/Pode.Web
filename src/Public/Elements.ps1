@@ -1452,15 +1452,27 @@ function New-PodeWebRaw
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [string]
         $Value
     )
+
+    $Id = Get-PodeWebElementId -Tag Raw -Id $Id
 
     return @{
         ComponentType = 'Element'
         ObjectType = 'Raw'
         Parent = $ElementData
+        ID = $Id
+        Name = $Name
         Value = $Value
         NoEvents = $true
     }

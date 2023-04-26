@@ -3225,10 +3225,16 @@ class PodeRaw extends PodeContentElement {
 
     new(data, sender, opts) {
         return `<span
+            id='${this.id}'
+            name='${this.name}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
             ${data.Value}
         </span>`;
+    }
+
+    update(data, sender, opts) {
+        this.element.html(data.Value);
     }
 }
 PodeElementFactory.setClass(PodeRaw);
@@ -3244,6 +3250,7 @@ class PodeTimer extends PodeContentElement {
     new(data, sender, opts) {
         return `<span
             id="${this.id}"
+            name='${this.name}'
             class="hide pode-timer ${this.css.classes}"
             style="${this.css.styles}"
             pode-object="${this.getType()}"
