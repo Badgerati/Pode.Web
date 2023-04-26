@@ -848,6 +848,30 @@ th .mdi::before {
     vertical-align: sub;
 }
 
+h1 .mdi::before {
+    font-size: 2.5rem;
+}
+
+h2 .mdi::before {
+    font-size: 2rem;
+}
+
+h3 .mdi::before {
+    font-size: 1.75rem;
+}
+
+h4 .mdi::before {
+    font-size: 1.5rem;
+}
+
+h5 .mdi::before {
+    font-size: 1.25rem;
+}
+
+h6 .mdi::before {
+    font-size: 1rem;
+}
+
 .pode-code-editor .pode-upload .mdi::before {
     margin-bottom: 0.3em;
 }

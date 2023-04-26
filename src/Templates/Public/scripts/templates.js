@@ -2802,9 +2802,10 @@ class PodeHeader extends PodeTextualElement {
         super(...args);
     }
 
-    //TODO: add icon support
     new(data, sender, opts) {
         var subHeader = data.Secondary ? `<small class='text-muted'>${data.Secondary}</small>` : '';
+
+        var icon = this.setIcon(data.Icon);
 
         return `<h${data.Size}
             id='${this.id}'
@@ -2812,6 +2813,7 @@ class PodeHeader extends PodeTextualElement {
             style='${this.css.styles}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
+                ${icon}
                 <span pode-content-for='${this.uuid}' class='pode-text'>
                     ${data.Value}
                 </span>

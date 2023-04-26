@@ -878,6 +878,10 @@ function New-PodeWebHeader
         $Secondary,
 
         [Parameter()]
+        [string]
+        $Icon,
+
+        [Parameter()]
         [string[]]
         $CssClass,
 
@@ -896,6 +900,7 @@ function New-PodeWebHeader
         Size = $Size
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Secondary = [System.Net.WebUtility]::HtmlEncode($Secondary)
+        Icon = $Icon
         CssClasses = ($CssClass -join ' ')
         CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
