@@ -1310,6 +1310,14 @@ function New-PodeWebDateTime
         [string[]]
         $Type = @('Date', 'Time'),
 
+        [Parameter()]
+        [string]
+        $DateValue,
+
+        [Parameter()]
+        [string]
+        $TimeValue,
+
         [switch]
         $ReadOnly,
 
@@ -1336,6 +1344,10 @@ function New-PodeWebDateTime
         }
         Type = @($Type)
         Required = $Required.IsPresent
+        Values = @{
+            Date = (Protect-PodeWebValue -Value $DateValue -Default '' -Encode)
+            Time = (Protect-PodeWebValue -Value $TimeValue -Default '' -Encode)
+        }
     }
 }
 

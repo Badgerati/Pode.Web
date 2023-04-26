@@ -81,3 +81,10 @@ By default the label displays the `-Name` of the element. You can change the val
 The `-Width` of a textbox has the default unit of `%`. If `0` is specified then `auto` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
 
 The `-Height` of the textbox is how many lines are displayed when the textbox is multilined.
+
+## Initial Value
+
+You can create the Textbox with an initial value by using the `-Value` parameter. When using this parameter for a Textbox of type Date or Time the formats should be as follows:
+
+* Date: `-Value 'yyyy-mm-dd'`
+* Time: `-Value 'hh:mm'`
