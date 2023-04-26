@@ -4693,7 +4693,8 @@ class PodeDateTime extends PodeFormMultiElement {
                 ReadOnly: this.readonly,
                 Required: this.required,
                 DynamicLabel: true,
-                DisplayName: data.Placeholders.Date
+                DisplayName: data.Placeholders.Date,
+                Value: data.Values.Date
             }, {
                 help: { enabled: true, id: this.id }
             }));
@@ -4707,7 +4708,8 @@ class PodeDateTime extends PodeFormMultiElement {
                 ReadOnly: this.readonly,
                 Required: this.required,
                 DynamicLabel: true,
-                DisplayName: data.Placeholders.Time
+                DisplayName: data.Placeholders.Time,
+                Value: data.Values.Time
             }, {
                 help: { enabled: true, id: this.id }
             }));
