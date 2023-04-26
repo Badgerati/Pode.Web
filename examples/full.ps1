@@ -65,6 +65,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
         Update-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
         Update-PodeWebText -Id 'code_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss'))
+        Update-PodeWebText -Id 'link_test' -Value "link$(Get-Random -Minimum 1 -Maximum 99)"
     }
 
     # set the home page controls (just a simple paragraph) [note: homepage does not require auth in this example]
@@ -81,7 +82,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
         New-PodeWebParagraph -Content @(
             New-PodeWebText -Value "Look, here's a "
-            New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
+            New-PodeWebLink -Id 'link_test' -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value "! "
             New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan |
                 Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
