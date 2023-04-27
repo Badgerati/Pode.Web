@@ -168,6 +168,7 @@ function Set-PodeWebLoginPage
         $page = Get-PodeWebFirstPublicPage
         if ($null -ne $page) {
             Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
+            return
         }
 
         $authData = Get-PodeWebAuthData
@@ -218,12 +219,25 @@ function Set-PodeWebHomePage
         $Content,
 
         [Parameter()]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter()]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
         [string]
         $DisplayName,
 
         [Parameter()]
         [string]
         $Title,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Icon = 'home',
 
         [Parameter()]
         [hashtable[]]
@@ -236,6 +250,12 @@ function Set-PodeWebHomePage
 
         [switch]
         $NoTitle,
+
+        [switch]
+        $NoSidebar,
+
+        [switch]
+        $NoNavigation,
 
         [switch]
         $PassThru
@@ -267,7 +287,12 @@ function Set-PodeWebHomePage
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         NoTitle = $NoTitle.IsPresent
+        Icon = $Icon
+        Url = $routePath
+        NoSidebar = $NoSidebar.IsPresent
+        NoNavigation = $NoNavigation.IsPresent
         Navigation = $Navigation
+        ScriptBlock = $ScriptBlock
         Content = $Content
         IsSystem = $true
     }
@@ -289,16 +314,17 @@ function Set-PodeWebHomePage
     Remove-PodeWebRoute -Method Get -Path $routePath -EndpointName $endpointNames
 
     # re-add route
-    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -ArgumentList @{ Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
+    Add-PodeRoute -Method Get -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList; Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
         param($Data)
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
 
         # we either render the home page, or move to the first page if home page is blank
         $comps = $global:PageData.Content
-        if (($null -eq $comps) -or ($comps.Length -eq 0)) {
+        if ((($null -eq $comps) -or ($comps.Length -eq 0)) -and ($null -eq $global:PageData.ScriptBlock)) {
             $page = Get-PodeWebFirstPublicPage
             if ($null -ne $page) {
                 Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
+                return
             }
         }
 
@@ -326,12 +352,22 @@ function Set-PodeWebHomePage
 
     Remove-PodeWebRoute -Method Post -Path "$($routePath)content" -EndpointName $endpointNames
 
-    Add-PodeRoute -Method Post -Path "$($routePath)content" -Authentication $auth -ArgumentList @{ Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
+    Add-PodeRoute -Method Post -Path "$($routePath)content" -Authentication $auth -ArgumentList @{ Data = $ArgumentList; Path = $routePath } -EndpointName $endpointNames -ScriptBlock {
         param($Data)
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.Path]
+
+        $content = $null
+        if ($null -ne $global:PageData.ScriptBlock) {
+            $content = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.ScriptBlock -Arguments $Data.Data -Splat -Return
+        }
+
+        if (($null -eq $content) -or ($content.Length -eq 0)) {
+            $content = $global:PageData.Content
+        }
+
         $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
-        $comps = $global:PageData.Content
-        Write-PodeJsonResponse -Value (@($navigation) + @($comps))
+        Write-PodeJsonResponse -Value (@($navigation) + @($content))
+
         $global:PageData = $null
     }
 
@@ -421,6 +457,9 @@ function Add-PodeWebPage
         $NoSidebar,
 
         [switch]
+        $NoNavigation,
+
+        [switch]
         $PassThru
     )
 
@@ -465,6 +504,7 @@ function Add-PodeWebPage
         Url = (Get-PodeWebPagePath -Name $Name -Group $Group)
         Hide = $Hide.IsPresent
         NoSidebar = $NoSidebar.IsPresent
+        NoNavigation = $NoNavigation.IsPresent
         Navigation = $Navigation
         ScriptBlock = $ScriptBlock
         HelpScriptBlock = $HelpScriptBlock
@@ -548,7 +588,6 @@ function Add-PodeWebPage
         $authData = Get-PodeWebAuthData
         $username = Get-PodeWebAuthUsername -AuthData $authData
         $groups = Get-PodeWebAuthGroups -AuthData $authData
-        $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
 
         $authMeta = @{
             Enabled = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
@@ -572,6 +611,7 @@ function Add-PodeWebPage
                 $content = $global:PageData.Content
             }
 
+            $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
             Write-PodeJsonResponse -Value (@($navigation) + @($content))
         }
 
