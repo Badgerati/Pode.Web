@@ -103,14 +103,24 @@ Set-PodeWebHomePage -Content @(
 )
 ```
 
-If you want to hide the title on the home page, you can pass `-NoTitle`.
+or, you can do this dynamically by supplying `-ScriptBlock` instead:
+
+```powershell
+Set-PodeWebHomePage -ScriptBlock {
+    New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page' -Content @(
+        New-PodeWebText -Value 'Here is some text!' -InParagraph -Alignment Center
+    )
+}
+```
+
+If you want to hide the title on the home page, you can pass `-NoTitle`. You can also change the home page icon via `-Icon`.
 
 ## Webpage
 
 By adding a page to your site, Pode.Web will add a link to it on your site's sidebar navigation. You can also group pages together so you can collapse groups of them. To add a page to your site you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), and you can give your page a `-Name` and an `-Icon` to display on the sidebar. Pages can either be [static](#static) or [dynamic](#dynamic).
 
 !!! note
-    The `-Icon` is the name of a [Material Design Icon](https://materialdesignicons.com), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplyig the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
+    The `-Icon` is the name of a [Material Design Icon](https://materialdesignicons.com), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplying the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
 
 For example, to add a simple Charts page to your site, to show a Windows counter:
 
@@ -271,7 +281,10 @@ Add-PodeWebPage -Name Charts -Hide -Content @(
 )
 ```
 
-Alternatively, you can also hide the sidebar on a page by using the `-NoSidebar` switch; useful for dashboard pages:
+
+## Hide Navigations
+
+You can hide the sidebar on a page (home or webpage) by using the `-NoSidebar` switch; useful for dashboard pages:
 
 ```powershell
 Add-PodeWebPage -Name Charts -NoSidebar -Content @(
@@ -280,6 +293,8 @@ Add-PodeWebPage -Name Charts -NoSidebar -Content @(
     )
 )
 ```
+
+Conversely, you can also hide the top navigation bar by using the `-NoNavigation` switch as well.
 
 ## Convert Module
 
