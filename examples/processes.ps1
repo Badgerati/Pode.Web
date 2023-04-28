@@ -4,6 +4,7 @@ Import-Module ..\src\Pode.Web.psm1 -Force
 Start-PodeServer {
     # endpoint
     Add-PodeEndpoint -Port 8090 -Protocol Http
+    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # login/auth
     Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
@@ -46,7 +47,7 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes2 -Icon 'chart-box-outline' -Content $form2
+    Add-PodeWebPage -Name Processes2 -Icon 'chart-box-outline' -Content $form2 -NoNavigation
 
     # processes - show top "x" processes
     $form3 = New-PodeWebForm -Name 'TopX' -AsCard -ScriptBlock {

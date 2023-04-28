@@ -312,6 +312,16 @@ function Get-PodeWebHomeName
     return $name
 }
 
+function Get-PodeWebHomeIcon
+{
+    $icon = (Get-PodeWebState -Name 'pages')['/'].Icon
+    if ([string]::IsNullOrWhiteSpace($icon)) {
+        return 'home'
+    }
+
+    return $icon
+}
+
 function Get-PodeWebCookie
 {
     param(

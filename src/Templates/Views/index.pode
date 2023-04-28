@@ -6,78 +6,14 @@
     })
 
     <body id="normal-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
-        <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
-            <button type='button' class='btn btn-icon-only' id='menu-toggle'>
-                <span class='mdi mdi-menu-open'></span>
-            </button>
-
-            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$($data.AppPath)/">
-                $(
-                    $title = Get-PodeWebState -Name 'title'
-                    $logo = Get-PodeWebState -Name 'logo'
-
-                    if (![string]::IsNullOrWhiteSpace($logo)) {
-                        "<img src='$($logo)' width='30' height='30' class='d-inline-block align-top' alt='$($title)' loading='lazy'>"
-                    }
-
-                    $title
-                )
-            </a>
-
-            <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div id='pode-nav'>
-                <div id='pode-nav-social'>
-                    $(
-                        $socials = Get-PodeWebState -Name 'social'
-                        foreach ($key in $socials.Keys) {
-                            $social = $socials[$key]
-
-                            "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
-                                <span class='mdi mdi-$($key.ToLowerInvariant())'></span>
-                            </a>"
-                        }
-                    )
-                </div>
-
-                <div id='pode-nav-items'>
-                    <ul class="navbar-nav mr-auto">
-                    </ul>
-                </div>
-            </div>
-
-            $(if ($data.Auth.Enabled) {
-                if ($data.Auth.Authenticated) {
-                    "<form class='form-inline' action='$($data.AppPath)/logout' method='POST' style='margin-bottom: 0'>
-                        <span class='navbar-text mRight1 welcome-msg'>"
-                            if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
-                                "<img id='avatar' src='$($data.Auth.Avatar)'>"
-                            }
-                            else {
-                                "<span id='avatar' class='mdi mdi-account'></span>"
-                            }
-                            "Hello, $([System.Net.WebUtility]::HtmlEncode($data.Auth.Username))
-                        </span>"
-                        if ($data.Auth.Logout) {
-                            "<button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                                <span class='mdi mdi-logout mRight02'></span>
-                                Sign out
-                            </button>"
-                        }
-                    "</form>"
+        $(
+            if (!$data.Page.NoNavigation) {
+                Use-PodeWebPartialView -Path 'shared/navbar' -Data @{
+                    Auth = $data.Auth
+                    AppPath = $data.AppPath
                 }
-                else {
-                    "<form class='form-inline' action='$($data.AppPath)/login' method='GET' style='margin-bottom: 0'>
-                        <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                            <span class='mdi mdi-login mRight02'></span>
-                            Sign in
-                        </button>
-                    </form>"
-                }
-            })
-        </nav>
+            }
+        )
 
         <div class="container-fluid">
             <div class="row">
@@ -87,7 +23,12 @@
                         $hideSidebar = 'hide-on-start'
                     }
 
-                    "<nav id='sidebarMenu' class='col-md-3 col-lg-2 d-md-block bg-light sidebar collapse $($hideSidebar)'>"
+                    $navPadding = [string]::Empty
+                    if (!$data.Page.NoNavigation) {
+                        $navPadding = 'nav-padding'
+                    }
+
+                    "<nav id='sidebarMenu' class='col-md-3 col-lg-2 d-md-block bg-light sidebar collapse $($hideSidebar) $($navPadding)'>"
                 )
                     $(
                         $noPageFilter = Get-PodeWebState -Name 'no-page-filter'
@@ -117,7 +58,7 @@
                             <li class="nav-item nav-page-item">
                                 <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="$($data.AppPath)/">
                                     <div>
-                                        <span class="mdi mdi-home mdi-size-22 mRight02"></span>
+                                        <span class="mdi mdi-$(Get-PodeWebHomeIcon) mdi-size-22 mRight02"></span>
                                         $(Get-PodeWebHomeName)
                                     </div>
                                 </a>
@@ -203,32 +144,39 @@
                 </div>
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                    $(if (!$data.Page.NoTitle) {
-                        "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom'>
-                            <h1 class='h2'>"
-                                if ($data.Page.ShowBack) {
-                                    "<a href='$($data.Page.Url)'><span class='mdi mdi-arrow-left'></span></a>"
-                                }
-                                if (![string]::IsNullOrWhiteSpace($data.Page.Icon)) {
-                                    "<span class='mdi mdi-$($data.Page.Icon.ToLowerInvariant()) pode-page-title-icon'></span>"
-                                }
-                                $data.Page.Title
-                            "</h1>"
-                            if ($data.Page.ShowHelp) {
-                                "<span class='mdi mdi-help-circle-outline pode-page-help' for='$($data.Page.Url)' title='Help' data-toggle='tooltip'></span>"
-                            }
-                        "</div>"
-                    }
-                    else {
-                        "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2'></div>"
-                    }
+                    $(
+                        $navPadding = [string]::Empty
+                        if (!$data.Page.NoNavigation) {
+                            $navPadding = 'nav-padding'
+                        }
 
-                    if (!$data.Page.NoBreadcrumb) {
-                        "<nav id='pode-breadcrumb' aria-label='breadcrumb'>
-                            <ol class='breadcrumb'>
-                            </ol>
-                        </nav>"
-                    })
+                        if (!$data.Page.NoTitle) {
+                            "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom $($navPadding)'>
+                                <h1 class='h2'>"
+                                    if ($data.Page.ShowBack) {
+                                        "<a href='$($data.Page.Url)'><span class='mdi mdi-arrow-left'></span></a>"
+                                    }
+                                    if (![string]::IsNullOrWhiteSpace($data.Page.Icon)) {
+                                        "<span class='mdi mdi-$($data.Page.Icon.ToLowerInvariant()) pode-page-title-icon'></span>"
+                                    }
+                                    $data.Page.Title
+                                "</h1>"
+                                if ($data.Page.ShowHelp) {
+                                    "<span class='mdi mdi-help-circle-outline pode-page-help' for='$($data.Page.Url)' title='Help' data-toggle='tooltip'></span>"
+                                }
+                            "</div>"
+                        }
+                        else {
+                            "<div id='pode-page-title' class='d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 $($navPadding)'></div>"
+                        }
+
+                        if (!$data.Page.NoBreadcrumb) {
+                            "<nav id='pode-breadcrumb' aria-label='breadcrumb'>
+                                <ol class='breadcrumb'>
+                                </ol>
+                            </nav>"
+                        }
+                    )
 
                     <content id="pode-content"></content>
                 </main>

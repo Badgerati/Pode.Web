@@ -77,6 +77,7 @@ function Use-PodeWebTemplates
         $page = Get-PodeWebFirstPublicPage
         if ($null -ne $page) {
             Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
+            return
         }
 
         Write-PodeWebViewResponse -Path 'index' -Data @{

@@ -1,0 +1,72 @@
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
+    <button type='button' class='btn btn-icon-only' id='menu-toggle'>
+        <span class='mdi mdi-menu-open'></span>
+    </button>
+
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$($data.AppPath)/">
+        $(
+            $title = Get-PodeWebState -Name 'title'
+            $logo = Get-PodeWebState -Name 'logo'
+
+            if (![string]::IsNullOrWhiteSpace($logo)) {
+                "<img src='$($logo)' width='30' height='30' class='d-inline-block align-top' alt='$($title)' loading='lazy'>"
+            }
+
+            $title
+        )
+    </a>
+
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id='pode-nav'>
+        <div id='pode-nav-social'>
+            $(
+                $socials = Get-PodeWebState -Name 'social'
+                foreach ($key in $socials.Keys) {
+                    $social = $socials[$key]
+
+                    "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
+                        <span class='mdi mdi-$($key.ToLowerInvariant())'></span>
+                    </a>"
+                }
+            )
+        </div>
+
+        <div id='pode-nav-items'>
+            <ul class="navbar-nav mr-auto">
+            </ul>
+        </div>
+    </div>
+
+    $(if ($data.Auth.Enabled) {
+        if ($data.Auth.Authenticated) {
+            "<form class='form-inline' action='$($data.AppPath)/logout' method='POST' style='margin-bottom: 0'>
+                <span class='navbar-text mRight1 welcome-msg'>"
+                    if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
+                        "<img id='avatar' src='$($data.Auth.Avatar)'>"
+                    }
+                    else {
+                        "<span id='avatar' class='mdi mdi-account'></span>"
+                    }
+                    "Hello, $([System.Net.WebUtility]::HtmlEncode($data.Auth.Username))
+                </span>"
+                if ($data.Auth.Logout) {
+                    "<button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                        <span class='mdi mdi-logout mRight02'></span>
+                        Sign out
+                    </button>"
+                }
+            "</form>"
+        }
+        else {
+            "<form class='form-inline' action='$($data.AppPath)/login' method='GET' style='margin-bottom: 0'>
+                <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                    <span class='mdi mdi-login mRight02'></span>
+                    Sign in
+                </button>
+            </form>"
+        }
+    })
+</nav>
