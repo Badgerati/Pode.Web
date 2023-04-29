@@ -38,6 +38,10 @@ function Use-PodeWebTemplates
         $UseHsts
     )
 
+    if (Get-PodeWebState -Name 'enabled') {
+        throw "Pode.Web templates have already been enabled."
+    }
+
     if ([string]::IsNullOrWhiteSpace($FavIcon)) {
         $FavIcon = '/pode.web/images/favicon.ico'
     }
@@ -50,6 +54,7 @@ function Use-PodeWebTemplates
     }
     Set-PodeWebState -Name 'app-path' -Value ($appPath.ToLowerInvariant())
 
+    Set-PodeWebState -Name 'enabled' -Value $true
     Set-PodeWebState -Name 'title' -Value ([System.Net.WebUtility]::HtmlEncode($Title))
     Set-PodeWebState -Name 'logo' -Value (Add-PodeWebAppPath -Url $Logo)
     Set-PodeWebState -Name 'favicon' -Value (Add-PodeWebAppPath -Url $FavIcon)
