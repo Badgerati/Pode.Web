@@ -2803,17 +2803,18 @@ PodeElementFactory.setClass(PodeParagraph);
 class PodeHeader extends PodeTextualElement {
     static type = 'header';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.size = data.Size ?? 1;
     }
 
     new(data, sender, opts) {
         var subHeader = data.Secondary ? `<small class='text-muted'>${data.Secondary}</small>` : '';
         var icon = this.setIcon(data.Icon);
 
-        return `<h${data.Size}
+        return `<span
             id='${this.id}'
-            class='header ${this.css.classes}'
+            class='h${this.size} header d-block ${this.css.classes}'
             style='${this.css.styles}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
@@ -2822,7 +2823,17 @@ class PodeHeader extends PodeTextualElement {
                     ${data.Value}
                 </span>
                 ${subHeader}
-        </h${data.Size}>`;
+        </span>`;
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update size
+        if (data.Size && data.Size > 0) {
+            this.replaceClass(`h${this.size}`, `h${data.Size}`);
+            this.size = data.Size;
+        }
     }
 }
 PodeElementFactory.setClass(PodeHeader);

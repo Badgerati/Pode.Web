@@ -2044,7 +2044,12 @@ function Update-PodeWebHeader
 
         [Parameter()]
         [string]
-        $Icon
+        $Icon,
+
+        [Parameter()]
+        [ValidateSet(0, 1, 2, 3, 4, 5, 6)]
+        [int]
+        $Size = 0
     )
 
     return @{
@@ -2053,5 +2058,6 @@ function Update-PodeWebHeader
         ID = $Id
         Value = $Value
         Icon = $Icon
+        Size = $Size
     }
 }

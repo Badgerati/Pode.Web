@@ -852,27 +852,27 @@ th .mdi::before {
     vertical-align: sub;
 }
 
-h1.header .mdi::before {
+.h1.header .mdi::before {
     font-size: 2.5rem;
 }
 
-h2.header .mdi::before {
+.h2.header .mdi::before {
     font-size: 2rem;
 }
 
-h3.header .mdi::before {
+.h3.header .mdi::before {
     font-size: 1.75rem;
 }
 
-h4.header .mdi::before {
+.h4.header .mdi::before {
     font-size: 1.5rem;
 }
 
-h5.header .mdi::before {
+.h5.header .mdi::before {
     font-size: 1.25rem;
 }
 
-h6.header .mdi::before {
+.h6.header .mdi::before {
     font-size: 1rem;
 }
 
