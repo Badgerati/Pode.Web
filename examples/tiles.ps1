@@ -28,7 +28,7 @@ Start-PodeServer -Threads 2 {
             New-PodeWebCell -Content @(New-PodeWebTile -Name Example5 -ScriptBlock {} -Colour Dark)
             New-PodeWebCell -Content @(New-PodeWebTile -Name Example6 -ScriptBlock {} -Colour Cyan -ClickScriptBlock {
                 Show-PodeWebToast -Message 'oooooo'
-                Update-PodeWebTile -Name Example1 -Colour Red
+                Update-PodeWebTile -Name Example1 -Colour Red -Icon (@('cat', 'information', 'home')[(Get-Random -Minimum 0 -Maximum 3)])
                 Sync-PodeWebTile -Name Example2
             })
         )

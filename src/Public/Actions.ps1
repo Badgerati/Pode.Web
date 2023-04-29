@@ -1205,7 +1205,11 @@ function Update-PodeWebTile
         [Parameter()]
         [ValidateSet('', 'Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
         [string]
-        $Colour = ''
+        $Colour = '',
+
+        [Parameter()]
+        [string]
+        $Icon
     )
 
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
@@ -1218,6 +1222,7 @@ function Update-PodeWebTile
         Name = $Name
         Colour = $Colour
         ColourType = $ColourType
+        Icon = $Icon
     }
 }
 
@@ -2006,15 +2011,11 @@ function Out-PodeWebElement
 
 function Update-PodeWebRaw
 {
-    [CmdletBinding(DefaultParameterSetName='Id')]
+    [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory=$true)]
         [string]
         $Id,
-
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
-        [string]
-        $Name,
 
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [string]
@@ -2025,7 +2026,32 @@ function Update-PodeWebRaw
         Operation = 'Update'
         ObjectType = 'Raw'
         ID = $Id
-        Name = $Name
         Value = $Value
+    }
+}
+
+function Update-PodeWebHeader
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter(ValueFromPipeline=$true)]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Icon
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Header'
+        ID = $Id
+        Value = $Value
+        Icon = $Icon
     }
 }

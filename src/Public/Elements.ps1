@@ -1473,10 +1473,6 @@ function New-PodeWebRaw
         [string]
         $Id,
 
-        [Parameter()]
-        [string]
-        $Name,
-
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [string]
         $Value
@@ -1489,7 +1485,6 @@ function New-PodeWebRaw
         ObjectType = 'Raw'
         Parent = $ElementData
         ID = $Id
-        Name = $Name
         Value = $Value
         NoEvents = $true
     }

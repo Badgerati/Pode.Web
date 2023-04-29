@@ -6,12 +6,15 @@ This action differs slightly, as it doesn't just update elements created by [`Ne
 
 * Alert
 * Badge
+* Button
 * Code
 * CodeBlock
 * Header
+* Link
 * Paragraph
 * Quote
 * Text
+* Tile
 
 ## Update
 
