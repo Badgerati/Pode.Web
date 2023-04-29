@@ -757,11 +757,11 @@ class PodeElement {
     }
 
     removeClass(clazz, sender, opts) {
-        removeClass(this.element, clazz, !(opts.AsPattern ?? false));
+        removeClass(this.element, clazz, !((opts ?? {}).AsPattern ?? false));
     }
 
     replaceClass(oldClass, newClass, sender, opts) {
-        removeClass(this.element, oldClass, !(opts.AsPattern ?? false));
+        removeClass(this.element, oldClass, !((opts ?? {}).AsPattern ?? false));
         addClass(this.element, newClass);
     }
 
@@ -772,10 +772,6 @@ class PodeElement {
 
     new(data, sender, opts) {
         throw `${this.getType()} "new" method not implemented`
-    }
-
-    update(data, sender, opts) {
-        throw `${this.getType()} "update" method not implemented`
     }
 
     move(data, sender, opts) {
@@ -816,6 +812,13 @@ class PodeElement {
 
     close(data, sender, opts) {
         throw `${this.getType()} "close" method not implemented`
+    }
+
+    update(data, sender, opts) {
+        // update icon
+        if (this.icon && data.Icon) {
+            this.icon.replace(data.Icon);
+        }
     }
 
     bind(data, sender, opts) {
@@ -875,6 +878,8 @@ class PodeTextualElement extends PodeContentElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
         if (this.textual && data.Value) {
             if (this.element.hasClass('pode-text')) {
                 this.element.text(decodeHTML(data.Value));
@@ -1139,6 +1144,8 @@ class PodeFormElement extends PodeContentElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
         // disable / enable control
         if (data.DisabledState) {
             switch (data.DisabledState.toLowerCase()) {
@@ -1240,6 +1247,9 @@ class PodeMediaElement extends PodeContentElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // skip if no sources/tracks
         if (!data.Sources && !data.Tracks) {
             return;
         }
@@ -1620,11 +1630,6 @@ class PodeButton extends PodeFormElement {
 
     update(data, sender, opts) {
         super.update(data, sender, opts);
-
-        // update icon
-        if (data.Icon) {
-            replaceClass(this.element.find('span.mdi'), 'mdi-\\w+', `mdi-${data.Icon.toLowerCase()}`);
-        }
 
         // update display name
         if (data.DisplayName) {
@@ -2798,18 +2803,18 @@ PodeElementFactory.setClass(PodeParagraph);
 class PodeHeader extends PodeTextualElement {
     static type = 'header';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.size = data.Size ?? 1;
     }
 
     new(data, sender, opts) {
         var subHeader = data.Secondary ? `<small class='text-muted'>${data.Secondary}</small>` : '';
-
         var icon = this.setIcon(data.Icon);
 
-        return `<h${data.Size}
+        return `<span
             id='${this.id}'
-            class='${this.css.classes}'
+            class='h${this.size} header d-block ${this.css.classes}'
             style='${this.css.styles}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
@@ -2818,7 +2823,17 @@ class PodeHeader extends PodeTextualElement {
                     ${data.Value}
                 </span>
                 ${subHeader}
-        </h${data.Size}>`;
+        </span>`;
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update size
+        if (data.Size && data.Size > 0) {
+            this.replaceClass(`h${this.size}`, `h${data.Size}`);
+            this.size = data.Size;
+        }
     }
 }
 PodeElementFactory.setClass(PodeHeader);
@@ -3074,11 +3089,11 @@ class PodeVideo extends PodeMediaElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
         if (data.Thumbnail) {
             this.element.attr('thumbnail', data.Thumbnail);
         }
-
-        super.update(data, sender, opts);
     }
 }
 PodeElementFactory.setClass(PodeVideo);
@@ -3189,6 +3204,8 @@ class PodeIFrame extends PodeContentElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
         if (data.Url) {
             this.element.attr('src', data.Url);
         }
@@ -3228,7 +3245,6 @@ class PodeRaw extends PodeContentElement {
     new(data, sender, opts) {
         return `<span
             id='${this.id}'
-            name='${this.name}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
             ${data.Value}
@@ -3236,6 +3252,7 @@ class PodeRaw extends PodeContentElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
         this.element.html(data.Value);
     }
 }
@@ -3425,6 +3442,7 @@ class PodeTile extends PodeRefreshableElement {
     update(data, sender, opts) {
         super.update(data, sender, opts);
 
+        /// update the colour
         if (data.Colour) {
             this.replaceClass('alert-\\w+', `alert-${data.ColourType}`, null, {AsPattern: true});
         }
@@ -3776,6 +3794,8 @@ class PodeCodeEditor extends PodeContentElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
         // set value
         if (data.Value) {
             this.editor.setValue(data.Value);
@@ -3874,6 +3894,9 @@ class PodeChart extends PodeRefreshableElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // convert chart data points to array
         data.Data = convertToArray(data.Data);
         if (data.Data.length === 0) {
             return;
@@ -4520,6 +4543,8 @@ class PodeProgress extends PodeContentElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
         // value
         if (data.Value) {
             this.element.attr('aria-valuenow', data.Value);
@@ -4581,6 +4606,8 @@ class PodeCheckbox extends PodeFormElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
         // get checkbox
         var checkbox = this.getCheckbox(data.OptionId);
         if (!checkbox) {
@@ -4957,6 +4984,8 @@ class PodeFileStream extends PodeContentElement {
     }
 
     update(data, sender, opts) {
+        super.update(data, sender, opts);
+
         if (data.Url && this.file.url !== data.Url) {
             this.stop(data, sender, opts);
             this.clear(data, sender, opts);

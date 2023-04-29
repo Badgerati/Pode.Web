@@ -4,7 +4,7 @@ This page details the actions available to Tiles.
 
 ## Update
 
-To update the value or the colour of a tile on the page, you can use [`Update-PodeWebTile`](../../../Functions/Actions/Update-PodeWebTile):
+To update the value, colour or icon of a Tile on the page, you can use [`Update-PodeWebTile`](../../../Functions/Actions/Update-PodeWebTile):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -22,7 +22,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Sync
 
-To force a tile to refresh its data you can use [`Sync-PodeWebTile`](../../../Functions/Actions/Sync-PodeWebTile):
+To force a Tile to refresh its data you can use [`Sync-PodeWebTile`](../../../Functions/Actions/Sync-PodeWebTile):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
