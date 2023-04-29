@@ -4,7 +4,7 @@ This page details the actions available to Headers.
 
 ## Update
 
-To update the value or icon of a Header on the page, you can use [`Update-PodeWebHeader`](../../../Functions/Actions/Update-PodeWebHeader):
+To update the value, icon, or size of a Header on the page, you can use [`Update-PodeWebHeader`](../../../Functions/Actions/Update-PodeWebHeader):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -17,3 +17,6 @@ New-PodeWebContainer -NoBackground -Content @(
     }
 )
 ```
+
+!!! note
+    A `-Size` of `0` will leave the Header size unchanged - this is the default.
