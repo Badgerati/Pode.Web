@@ -757,7 +757,7 @@ class PodeElement {
     }
 
     removeClass(clazz, sender, opts) {
-        removeClass(this.element, clazz, !(opts.AsPattern ?? false));
+        removeClass(this.element, clazz, !((opts ?? {}).AsPattern ?? false));
     }
 
     replaceClass(oldClass, newClass, sender, opts) {
