@@ -214,7 +214,9 @@ class PodeElement {
         var result = this.build('icon', {
             ID: `${this.id}_icon`,
             Name: name,
-            CssClasses: `${padRight ? 'mRight02' : ''} ${padTop ? 'mTop-02' : ''}`
+            Css: {
+                Classes: `${padRight ? 'mRight02' : ''} ${padTop ? 'mTop-02' : ''}`
+            }
         }, null, null);
 
         this.icon = result.elements[0];

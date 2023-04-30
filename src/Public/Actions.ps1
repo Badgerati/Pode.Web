@@ -1537,14 +1537,14 @@ function Remove-PodeWebClass
 
         [Parameter(Mandatory=$true)]
         [string[]]
-        $Class
+        $Value
     )
 
 
     # update element
     if ($null -ne $Element) {
         if (($null -ne $Element.Css) -and ($null -ne $Element.Css.Classes)) {
-            $Element.Css.Classes = $Element.Css.Classes | Where-Object { $_ -inotin $Class }
+            $Element.Css.Classes = $Element.Css.Classes | Where-Object { $_ -inotin $Value }
         }
 
         return $Element
@@ -1559,7 +1559,7 @@ function Remove-PodeWebClass
             ID = $Id
             Type = $Type
             Name = $Name
-            Class = $Class
+            Value = $Value
         }
     }
 }
