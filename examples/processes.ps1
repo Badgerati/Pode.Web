@@ -40,8 +40,7 @@ Start-PodeServer {
     $form2 = New-PodeWebForm -Name 'Search2' -AsCard -ScriptBlock {
         $processes = Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore | Select-Object Name, ID, WorkingSet, CPU
         $processes |
-            New-PodeWebTable -Name 'Output' |
-            Out-PodeWebElement
+            New-PodeWebTable -Name 'Output' | Out-PodeWebElement
         Show-PodeWebToast -Message "Found $($processes.Length) processes"
     } -Content @(
         New-PodeWebTextbox -Name 'Name'

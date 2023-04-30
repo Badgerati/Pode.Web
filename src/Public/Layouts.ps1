@@ -14,14 +14,6 @@ function New-PodeWebGrid
         [int]
         $Width = 0,
 
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
         [switch]
         $Vertical
     )
@@ -40,8 +32,6 @@ function New-PodeWebGrid
         Cells = $Cells
         Width = $Width
         ID = (Get-PodeWebElementId -Tag Grid -Id $Id)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -64,15 +54,7 @@ function New-PodeWebCell
         [Parameter()]
         [ValidateSet('Left', 'Right', 'Center')]
         [string]
-        $Alignment = 'Left',
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Alignment = 'Left'
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -86,8 +68,6 @@ function New-PodeWebCell
         Width = (Protect-PodeWebRange -Value $Width -Min 1 -Max 12)
         ID = (Get-PodeWebElementId -Tag Cell -Id $Id)
         Alignment = $Alignment.ToLowerInvariant()
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -102,14 +82,6 @@ function New-PodeWebTabs
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Tabs,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [int]
@@ -132,8 +104,6 @@ function New-PodeWebTabs
         ObjectType = 'Tabs'
         ID = (Get-PodeWebElementId -Tag Tabs -Id $Id)
         Tabs = $Tabs
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Cycle = @{
             Enabled = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
@@ -163,15 +133,7 @@ function New-PodeWebTab
 
         [Parameter()]
         [string]
-        $Icon,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Icon
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -186,8 +148,6 @@ function New-PodeWebTab
         ID = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
         Content = $Content
         Icon = $Icon
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -210,14 +170,6 @@ function New-PodeWebCard
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Content,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string]
@@ -243,8 +195,6 @@ function New-PodeWebCard
         Content = $Content
         NoTitle = $NoTitle.IsPresent
         NoHide  = $NoHide.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Icon = $Icon
     }
 }
@@ -260,14 +210,6 @@ function New-PodeWebContainer
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Content,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [switch]
         $NoBackground,
@@ -285,8 +227,6 @@ function New-PodeWebContainer
         ObjectType = 'Container'
         ID = (Get-PodeWebElementId -Tag Container -Id $Id)
         Content = $Content
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoBackground = $NoBackground.IsPresent
         Hide = $Hide.IsPresent
     }
@@ -338,14 +278,6 @@ function New-PodeWebModal
         [Parameter()]
         [object[]]
         $ArgumentList,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string[]]
@@ -412,8 +344,6 @@ function New-PodeWebModal
         Size = $Size
         AsForm = $AsForm.IsPresent
         ShowSubmit = ($null -ne $ScriptBlock)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Method = $Method
         Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
     }
@@ -437,15 +367,7 @@ function New-PodeWebHero
 
         [Parameter()]
         [hashtable[]]
-        $Content,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Content
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -459,8 +381,6 @@ function New-PodeWebHero
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         Content = $Content
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -474,15 +394,7 @@ function New-PodeWebCarousel
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Slides,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Slides
     )
 
     if (!(Test-PodeWebContent -Content $Slides -ComponentType Layout -ObjectType Slide)) {
@@ -494,8 +406,6 @@ function New-PodeWebCarousel
         ObjectType = 'Carousel'
         ID = (Get-PodeWebElementId -Tag Carousel -Id $Id)
         Slides = $Slides
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -513,15 +423,7 @@ function New-PodeWebSlide
 
         [Parameter()]
         [string]
-        $Message,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Message
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -535,8 +437,6 @@ function New-PodeWebSlide
         ID = (Get-PodeWebElementId -Tag Slide)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -555,14 +455,6 @@ function New-PodeWebSteps
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Steps,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter(Mandatory=$true)]
         [scriptblock]
@@ -618,8 +510,6 @@ function New-PodeWebSteps
         ObjectType = 'Steps'
         ID = $Id
         Steps = $Steps
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -654,14 +544,6 @@ function New-PodeWebStep
         [Parameter()]
         [string[]]
         $EndpointName,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [Alias('NoAuth')]
@@ -709,8 +591,6 @@ function New-PodeWebStep
         Content = $Content
         Icon = $Icon
         IsDynamic = ($null -ne $ScriptBlock)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -796,14 +676,6 @@ function New-PodeWebAccordion
         $Bellows,
 
         [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
         [int]
         $CycleInterval = 15,
 
@@ -830,8 +702,6 @@ function New-PodeWebAccordion
         ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -Name $Name)
         Name = $Name
         Bellows = $Bellows
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Mode = $Mode
         Cycle = @{
             Enabled = $Cycle.IsPresent
@@ -862,15 +732,7 @@ function New-PodeWebBellow
 
         [Parameter()]
         [string]
-        $Icon,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Icon
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -885,7 +747,5 @@ function New-PodeWebBellow
         ID = (Get-PodeWebElementId -Tag Bellow -Id $Id -Name $Name)
         Content = $Content
         Icon = $Icon
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }

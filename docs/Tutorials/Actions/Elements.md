@@ -2,6 +2,9 @@
 
 This page details the actions available to all elements of Pode.Web.
 
+!!! important
+    Most of the functions also have an `-Element` parameter. This parameter should only be used when creating a new element, such as `New-PodeWebTextbox`. Using this function as an action to update an existing element on the frontend will actually just create another new element! For this, use the `-Id` or `-Name`/`-Type` parameters instead.
+
 ## General
 
 ### Out
@@ -20,6 +23,8 @@ $form = New-PodeWebForm -Name 'Search Processes' -AsCard -ScriptBlock {
     New-PodeWebTextbox -Name 'Name'
 )
 ```
+
+## Visibility
 
 ### Hide
 
@@ -49,50 +54,77 @@ Show-PodeWebElement -Id 'card_somename'
 
 ### Add
 
-You can add a class onto an element via [`Add-PodeWebElementClass`](../../../Functions/Actions/Add-PodeWebElementClass). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+You can add a class onto an element via [`Add-PodeWebClass`](../../../Functions/Actions/Add-PodeWebClass). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
 
 ```powershell
-Add-PodeWebElementClass -Type 'Textbox' -Name 'SomeTextboxName' -Class 'my-custom-class'
+Add-PodeWebClass -Type 'Textbox' -Name 'SomeTextboxName' -Value 'my-custom-class'
 
 # or
 
-Add-PodeWebElementClass -Id 'textbox_somename' -Class 'my-custom-class'
+Add-PodeWebClass -Id 'textbox_somename' -Value 'my-custom-class'
 ```
 
 ### Remove
 
-You can remove a class from an element via [`Remove-PodeWebElementClass`](../../../Functions/Actions/Remove-PodeWebElementClass). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+You can remove a class from an element via [`Remove-PodeWebClass`](../../../Functions/Actions/Remove-PodeWebClass). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
 
 ```powershell
-Remove-PodeWebElementClass -Type 'Textbox' -Name 'SomeTextboxName' -Class 'my-custom-class'
+Remove-PodeWebClass -Type 'Textbox' -Name 'SomeTextboxName' -Value 'my-custom-class'
 
 # or
 
-Remove-PodeWebElementClass -Id 'textbox_somename' -Class 'my-custom-class'
+Remove-PodeWebClass -Id 'textbox_somename' -Value 'my-custom-class'
 ```
 
 ## Styles
 
-### Set
+### Add
 
-You can set/update the value of a CSS property on an element via [`Set-PodeWebElementStyle`](../../../Functions/Actions/Set-PodeWebElementStyle). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+You can add/update the value of a CSS property on an element via [`Add-PodeWebStyle`](../../../Functions/Actions/Add-PodeWebStyle). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
 
 ```powershell
-Set-PodeWebElementStyle -Type 'Textbox' -Name 'SomeTextboxName' -Property 'color' -Value 'red'
+Add-PodeWebStyle -Type 'Textbox' -Name 'SomeTextboxName' -Key 'color' -Value 'red'
 
 # or
 
-Set-PodeWebElementStyle -Id 'textbox_somename' -Property 'color' -Value 'red'
+Add-PodeWebStyle -Id 'textbox_somename' -Key 'color' -Value 'red'
 ```
 
 ### Remove
 
-You can remove a CSS property from an element via [`Remove-PodeWebElementStyle`](../../../Functions/Actions/Remove-PodeWebElementStyle). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+You can remove a CSS property from an element via [`Remove-PodeWebStyle`](../../../Functions/Actions/Remove-PodeWebStyle). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
 
 ```powershell
-Remove-PodeWebElementStyle -Type 'Textbox' -Name 'SomeTextboxName' -Property 'color'
+Remove-PodeWebStyle -Type 'Textbox' -Name 'SomeTextboxName' -Key 'color'
 
 # or
 
-Remove-PodeWebElementStyle -Id 'textbox_somename' -Property 'color'
+Remove-PodeWebStyle -Id 'textbox_somename' -Key 'color'
+```
+
+
+## Attributes
+
+### Add
+
+You can add/update the attributes on an element via [`Add-PodeWebAttribute`](../../../Functions/Actions/Add-PodeWebAttribute). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+
+```powershell
+Add-PodeWebAttribute -Type 'Textbox' -Name 'SomeTextboxName' -Key 'hx-confirm' -Value 'Are you sure?'
+
+# or
+
+Add-PodeWebAttribute -Id 'textbox_somename' -Key 'hx-confirm' -Value 'Are you sure?'
+```
+
+### Remove
+
+You can remove an attribute from an element via [`Remove-PodeWebAttribute`](../../../Functions/Actions/Remove-PodeWebAttribute). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+
+```powershell
+Remove-PodeWebAttribute -Type 'Textbox' -Name 'SomeTextboxName' -Key 'hx-confirm'
+
+# or
+
+Remove-PodeWebAttribute -Id 'textbox_somename' -Key 'hx-confirm'
 ```

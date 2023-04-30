@@ -62,14 +62,6 @@ function New-PodeWebTextbox
 
         [Parameter()]
         [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
-        [string[]]
         $EndpointName,
 
         [ValidateRange(0, [int]::MaxValue)]
@@ -146,8 +138,6 @@ function New-PodeWebTextbox
             Disabled = $Disabled.IsPresent
             IsAutoComplete = ($null -ne $AutoComplete)
             Value = $items
-            CssClasses = ($CssClass -join ' ')
-            CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
             Prepend = @{
                 Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
                 Text = $PrependText
@@ -215,14 +205,6 @@ function New-PodeWebFileUpload
         [string[]]
         $Accept = '*/*',
 
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
         [switch]
         $Required
     )
@@ -237,8 +219,6 @@ function New-PodeWebFileUpload
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Accept = ($Accept -join ',')
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
         Required = $Required.IsPresent
     }
@@ -263,15 +243,7 @@ function New-PodeWebParagraph
         [Parameter()]
         [ValidateSet('Left', 'Right', 'Center')]
         [string]
-        $Alignment = 'Left',
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Alignment = 'Left'
     )
 
     # ensure elements are correct
@@ -289,8 +261,6 @@ function New-PodeWebParagraph
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Content = $Content
         Alignment = $Alignment.ToLowerInvariant()
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -310,14 +280,6 @@ function New-PodeWebCodeBlock
         [Parameter()]
         [string]
         $Language = [string]::Empty,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [switch]
         $Scrollable,
@@ -342,8 +304,6 @@ function New-PodeWebCodeBlock
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Language = $Language.ToLowerInvariant()
         Scrollable = $Scrollable.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -358,15 +318,7 @@ function New-PodeWebCode
 
         [Parameter(Mandatory=$true)]
         [string]
-        $Value,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Value
     )
 
     $Id = Get-PodeWebElementId -Tag Code -Id $Id
@@ -377,8 +329,6 @@ function New-PodeWebCode
         Parent = $ElementData
         ID = $Id
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -406,14 +356,6 @@ function New-PodeWebCheckbox
         [Parameter(ParameterSetName='Multiple')]
         [string[]]
         $DisplayOptions,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter(ParameterSetName='Multiple')]
         [switch]
@@ -451,8 +393,6 @@ function New-PodeWebCheckbox
         AsSwitch = $AsSwitch.IsPresent
         Checked = $Checked.IsPresent
         Disabled = $Disabled.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Required = $Required.IsPresent
     }
 }
@@ -481,14 +421,6 @@ function New-PodeWebRadio
         [string[]]
         $DisplayOptions,
 
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
         [switch]
         $Inline,
 
@@ -512,8 +444,6 @@ function New-PodeWebRadio
         DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
         Inline = $Inline.IsPresent
         Disabled = $Disabled.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Required = $Required.IsPresent
     }
 }
@@ -558,14 +488,6 @@ function New-PodeWebSelect
         [int]
         $Size = 4,
 
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
         [switch]
         $Multiple,
 
@@ -599,8 +521,6 @@ function New-PodeWebSelect
         SelectedValue = $SelectedValue
         Multiple = $Multiple.IsPresent
         Size = $Size
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoAuthentication = $NoAuthentication.IsPresent
         Required = $Required.IsPresent
         Disabled = $Disabled.IsPresent
@@ -666,14 +586,6 @@ function New-PodeWebRange
         [int]
         $Max = 100,
 
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
         [switch]
         $Disabled,
 
@@ -706,8 +618,6 @@ function New-PodeWebRange
         Max = $Max
         Disabled = $Disabled.IsPresent
         ShowValue = $ShowValue.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Required = $Required.IsPresent
     }
 }
@@ -744,14 +654,6 @@ function New-PodeWebProgress
         [ValidateSet('Blue', 'Grey', 'Green', 'Red', 'Yellow', 'Cyan', 'Light', 'Dark')]
         [string]
         $Colour = 'Blue',
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [switch]
         $ShowValue,
@@ -795,8 +697,6 @@ function New-PodeWebProgress
         Animated = $Animated.IsPresent
         Colour = $Colour
         ColourType = $ColourType
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -828,15 +728,7 @@ function New-PodeWebImage
 
         [Parameter()]
         [string]
-        $Width = 0,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Width = 0
     )
 
     $Id = Get-PodeWebElementId -Tag Img -Id $Id
@@ -851,8 +743,6 @@ function New-PodeWebImage
         Alignment = $Alignment.ToLowerInvariant()
         Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px')
         Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type 'px')
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -879,15 +769,7 @@ function New-PodeWebHeader
 
         [Parameter()]
         [string]
-        $Icon,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Icon
     )
 
     $Id = Get-PodeWebElementId -Tag Header -Id $Id
@@ -901,8 +783,6 @@ function New-PodeWebHeader
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Secondary = [System.Net.WebUtility]::HtmlEncode($Secondary)
         Icon = $Icon
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -926,15 +806,7 @@ function New-PodeWebQuote
 
         [Parameter()]
         [string]
-        $Source,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Source
     )
 
     $Id = Get-PodeWebElementId -Tag Quote -Id $Id
@@ -947,8 +819,6 @@ function New-PodeWebQuote
         Alignment = $Alignment.ToLowerInvariant()
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Source = [System.Net.WebUtility]::HtmlEncode($Source)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -968,14 +838,6 @@ function New-PodeWebList
         [Parameter(Mandatory=$true, ParameterSetName='Values')]
         [string[]]
         $Values,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [switch]
         $Numbered
@@ -997,8 +859,6 @@ function New-PodeWebList
         })
         Items = $Items
         Numbered = $Numbered.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -1009,15 +869,7 @@ function New-PodeWebListItem
     param(
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Content,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Content
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -1030,8 +882,6 @@ function New-PodeWebListItem
         ID = (Get-PodeWebElementId -Tag ListItem)
         Content = $Content
         NoEvents = $true
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -1051,14 +901,6 @@ function New-PodeWebLink
         [string]
         $Value,
 
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
         [switch]
         $NewTab
     )
@@ -1073,8 +915,6 @@ function New-PodeWebLink
         Source = (Add-PodeWebAppPath -Url $Source)
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         NewTab = $NewTab.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -1101,14 +941,6 @@ function New-PodeWebText
         $Alignment = 'Left',
 
         [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
         [string]
         $Pronunciation,
 
@@ -1127,8 +959,6 @@ function New-PodeWebText
         Style = $Style
         InParagraph = $InParagraph.IsPresent
         Alignment = $Alignment.ToLowerInvariant()
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -1139,15 +969,7 @@ function New-PodeWebLine
     param(
         [Parameter()]
         [string]
-        $Id,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Id
     )
 
     return @{
@@ -1155,8 +977,6 @@ function New-PodeWebLine
         ObjectType = 'Line'
         Parent = $ElementData
         ID = (Get-PodeWebElementId -Tag Line -Id $Id)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -1176,15 +996,7 @@ function New-PodeWebHidden
         [Parameter(Mandatory=$true)]
         [AllowEmptyString()]
         [string]
-        $Value,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Value
     )
 
     $Id = Get-PodeWebElementId -Tag Hidden -Id $Id -Name $Name
@@ -1196,8 +1008,6 @@ function New-PodeWebHidden
         Name = $Name
         ID = $Id
         Value = $Value
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -1221,14 +1031,6 @@ function New-PodeWebCredential
         [Parameter()]
         [string]
         $HelpText,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string]
@@ -1262,8 +1064,6 @@ function New-PodeWebCredential
         ID = $Id
         HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Placeholders = @{
             Username = (Protect-PodeWebValue -Value $DisplayUsername -Default 'Username' -Encode)
             Password = (Protect-PodeWebValue -Value $DisplayPassword -Default 'Password' -Encode)
@@ -1292,14 +1092,6 @@ function New-PodeWebDateTime
         [Parameter()]
         [string]
         $HelpText,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string]
@@ -1341,8 +1133,6 @@ function New-PodeWebDateTime
         ID = $Id
         HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Placeholders = @{
             Date = (Protect-PodeWebValue -Value $DisplayDate -Default 'Date' -Encode)
             Time = (Protect-PodeWebValue -Value $DisplayTime -Default 'Time' -Encode)
@@ -1401,14 +1191,6 @@ function New-PodeWebMinMax
         $AppendIcon,
 
         [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
         [string]
         $DisplayMin,
 
@@ -1444,8 +1226,6 @@ function New-PodeWebMinMax
         }
         HelpText = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly = $ReadOnly.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Prepend = @{
             Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
             Text = $PrependText
@@ -1538,14 +1318,6 @@ function New-PodeWebButton
 
         [Parameter()]
         [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
-        [string[]]
         $EndpointName,
 
         [Parameter(ParameterSetName='ScriptBlock')]
@@ -1594,8 +1366,6 @@ function New-PodeWebButton
         ColourType = $ColourType
         Outline = $Outline.IsPresent
         SizeType = $sizeType
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NewLine = $NewLine.IsPresent
         NewTab = $NewTab.IsPresent
         NoEvents = $true
@@ -1653,15 +1423,7 @@ function New-PodeWebAlert
 
         [Parameter(Mandatory=$true, ParameterSetName='Content')]
         [hashtable[]]
-        $Content,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Content
     )
 
     # ensure content are correct
@@ -1683,8 +1445,6 @@ function New-PodeWebAlert
         IconType = $iconType
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Content = $Content
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -1703,14 +1463,6 @@ function New-PodeWebIcon
         [Parameter()]
         [string]
         $Colour,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string]
@@ -1743,8 +1495,6 @@ function New-PodeWebIcon
         ID = $Id
         Name = $Name
         Colour = $Colour
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Title = $Title
         Flip = $Flip
         Rotate = $Rotate
@@ -1765,14 +1515,6 @@ function New-PodeWebSpinner
         $Colour,
 
         [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
         [string]
         $Title
     )
@@ -1787,8 +1529,6 @@ function New-PodeWebSpinner
         Parent = $ElementData
         ID = (Get-PodeWebElementId -Tag Spinner -Id $Id)
         Colour = $Colour
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Title = $Title
         NoEvents = $true
     }
@@ -1809,15 +1549,7 @@ function New-PodeWebBadge
 
         [Parameter(Mandatory=$true)]
         [string]
-        $Value,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Value
     )
 
     $Id = Get-PodeWebElementId -Tag Alert -Id $Id
@@ -1831,8 +1563,6 @@ function New-PodeWebBadge
         Colour = $Colour
         ColourType = $ColourType.ToLowerInvariant()
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -1858,15 +1588,7 @@ function New-PodeWebComment
 
         [Parameter()]
         [DateTime]
-        $TimeStamp,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $TimeStamp
     )
 
     $Id = Get-PodeWebElementId -Tag Comment -Id $Id
@@ -1880,8 +1602,6 @@ function New-PodeWebComment
         Username = [System.Net.WebUtility]::HtmlEncode($Username)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         TimeStamp = $TimeStamp
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
     }
 }
@@ -1934,14 +1654,6 @@ function New-PodeWebChart
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string[]]
@@ -2051,8 +1763,6 @@ function New-PodeWebChart
             RefreshInterval = ($RefreshInterval * 1000)
             NoRefresh = $NoRefresh.IsPresent
             NoLegend = $NoLegend.IsPresent
-            CssClasses = ($CssClass -join ' ')
-            CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
             Min = @{
                 X = $MinX
                 Y = $MinY
@@ -2122,14 +1832,6 @@ function New-PodeWebCounterChart
         $DisplayName,
 
         [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
         [int]
         $MaxItems = 30,
 
@@ -2182,8 +1884,6 @@ function New-PodeWebCounterChart
         -Append `
         -TimeLabels `
         -AutoRefresh `
-        -CssClass $CssClass `
-        -CssStyle $CssStyle `
         -MinX $MinX `
         -MinY $MinY `
         -MaxX $MaxX `
@@ -2248,14 +1948,6 @@ function New-PodeWebTable
         [Alias('PageAmount')]
         [int]
         $PageSize = 20,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string[]]
@@ -2369,8 +2061,6 @@ function New-PodeWebTable
             RefreshInterval = ($RefreshInterval * 1000)
             NoRefresh = $NoRefresh.IsPresent
             NoAuthentication = $NoAuthentication.IsPresent
-            CssClasses = ($CssClass -join ' ')
-            CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
             Paging = @{
                 Enabled = $Paginate.IsPresent
                 Size = $PageSize
@@ -2607,14 +2297,6 @@ function New-PodeWebCodeEditor
         $Value,
 
         [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
         [scriptblock]
         $Upload,
 
@@ -2652,8 +2334,6 @@ function New-PodeWebCodeEditor
         Value = $Value
         ReadOnly = $ReadOnly.IsPresent
         Uploadable = $uploadable
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoAuthentication = $NoAuthentication.IsPresent
     }
 
@@ -2720,14 +2400,6 @@ function New-PodeWebForm
 
         [Parameter()]
         [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
-        [string[]]
         $EndpointName,
 
         [Parameter()]
@@ -2779,8 +2451,6 @@ function New-PodeWebForm
         Message = $Message
         Content = $Content
         NoHeader = $NoHeader.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Method = $Method
         Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
         NoEvents = $true
@@ -2847,14 +2517,6 @@ function New-PodeWebTimer
 
         [Parameter()]
         [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
-        [string[]]
         $EndpointName,
 
         [Parameter()]
@@ -2876,8 +2538,6 @@ function New-PodeWebTimer
         Name = $Name
         ID = $Id
         Interval = ($Interval * 1000)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoEvents = $true
         NoAuthentication = $NoAuthentication.IsPresent
     }
@@ -2945,14 +2605,6 @@ function New-PodeWebTile
 
         [Parameter()]
         [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
-        [string[]]
         $EndpointName,
 
         [Parameter()]
@@ -3009,8 +2661,6 @@ function New-PodeWebTile
         Icon = $Icon
         Colour = $Colour
         ColourType = $ColourType
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         AutoRefresh = $AutoRefresh.IsPresent
         RefreshInterval = ($RefreshInterval * 1000)
         NoRefresh = $NoRefresh.IsPresent
@@ -3094,14 +2744,6 @@ function New-PodeWebFileStream
         $Height = 20,
 
         [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
         [int]
         $Interval = 10,
 
@@ -3133,8 +2775,6 @@ function New-PodeWebFileStream
         Url = (Add-PodeWebAppPath -Url $Url)
         Interval = ($Interval * 1000)
         Icon = $Icon
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoHeader = $NoHeader.IsPresent
     }
 
@@ -3159,15 +2799,7 @@ function New-PodeWebIFrame
 
         [Parameter()]
         [string]
-        $Title,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Title
     )
 
     if ([string]::IsNullOrWhiteSpace($Title)) {
@@ -3183,8 +2815,6 @@ function New-PodeWebIFrame
         Url = (Add-PodeWebAppPath -Url $Url)
         Title = $Title
         NoEvents = $true
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -3212,14 +2842,6 @@ function New-PodeWebAudio
         [Parameter()]
         [string]
         $NotSupportedText,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string]
@@ -3268,8 +2890,6 @@ function New-PodeWebAudio
         Loop = $Loop.IsPresent
         NoControls = $NoControls.IsPresent
         NoDownload = $NoDownload.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -3332,14 +2952,6 @@ function New-PodeWebVideo
         $NotSupportedText,
 
         [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
         [string]
         $Width = 20,
 
@@ -3396,8 +3008,6 @@ function New-PodeWebVideo
         NoControls = $NoControls.IsPresent
         NoDownload = $NoDownload.IsPresent
         NoPictureInPicture = $NoPictureInPicture.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
