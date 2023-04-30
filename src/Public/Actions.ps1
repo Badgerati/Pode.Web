@@ -1282,6 +1282,10 @@ function Show-PodeWebElement
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
@@ -1295,12 +1299,21 @@ function Show-PodeWebElement
         $Name
     )
 
-    return @{
-        Operation = 'Show'
-        ObjectType = 'Element'
-        ID = $Id
-        Type = $Type
-        Name = $Name
+    # update element
+    if ($null -ne $Element) {
+        $Element.Visible = $false
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Show'
+            ObjectType = 'Element'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+        }
     }
 }
 
@@ -1308,6 +1321,10 @@ function Hide-PodeWebElement
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
@@ -1321,19 +1338,32 @@ function Hide-PodeWebElement
         $Name
     )
 
-    return @{
-        Operation = 'Hide'
-        ObjectType = 'Element'
-        ID = $Id
-        Type = $Type
-        Name = $Name
+    # update element
+    if ($null -ne $Element) {
+        $Element.Visible = $false
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Hide'
+            ObjectType = 'Element'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+        }
     }
 }
 
-function Set-PodeWebElementStyle
+function Add-PodeWebStyle
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
@@ -1348,29 +1378,50 @@ function Set-PodeWebElementStyle
 
         [Parameter(Mandatory=$true)]
         [string]
-        $Property,
+        $Key,
 
         [Parameter()]
         [string]
         $Value
     )
 
-    return @{
-        Operation = 'Set'
-        ObjectType = 'Element'
-        SubObjectType = 'Style'
-        ID = $Id
-        Type = $Type
-        Name = $Name
-        Property = $Property
-        Value = $Value
+    # update element
+    if ($null -ne $Element) {
+        if ($null -eq $Element.Css) {
+            $Element.Css = @{}
+        }
+
+        if ($null -eq $Element.Css.Styles) {
+            $Element.Css.Styles = @{}
+        }
+
+        $Element.Css.Styles[$key] = $Value
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Set'
+            ObjectType = 'Element'
+            SubObjectType = 'Style'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+            Key = $Key
+            Value = $Value
+        }
     }
 }
 
-function Remove-PodeWebElementStyle
+function Remove-PodeWebStyle
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
@@ -1385,24 +1436,40 @@ function Remove-PodeWebElementStyle
 
         [Parameter(Mandatory=$true)]
         [string]
-        $Property
+        $Key
     )
 
-    return @{
-        Operation = 'Remove'
-        ObjectType = 'Element'
-        SubObjectType = 'Style'
-        ID = $Id
-        Type = $Type
-        Name = $Name
-        Property = $Property
+    # update element
+    if ($null -ne $Element) {
+        if (($null -ne $Element.Css) -and ($null -ne $Element.Css.Styles)) {
+            $null = $Element.Css.Styles.Remove($Key)
+        }
+
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Remove'
+            ObjectType = 'Element'
+            SubObjectType = 'Style'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+            Key = $Key
+        }
     }
 }
 
-function Add-PodeWebElementClass
+function Add-PodeWebClass
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
@@ -1416,25 +1483,95 @@ function Add-PodeWebElementClass
         $Name,
 
         [Parameter(Mandatory=$true)]
+        [string[]]
+        $Value
+    )
+
+    # update element
+    if ($null -ne $Element) {
+        if ($null -eq $Element.Css) {
+            $Element.Css = @{}
+        }
+
+        if ($null -eq $Element.Css.Classes) {
+            $Element.Css.Classes = @()
+        }
+
+        $Element.Css.Classes = ($Element.Css.Classes + $Value) | Sort-Object -Unique
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Add'
+            ObjectType = 'Element'
+            SubObjectType = 'Class'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+            Value = $Value
+        }
+    }
+}
+
+function Remove-PodeWebClass
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string[]]
         $Class
     )
 
-    return @{
-        Operation = 'Add'
-        ObjectType = 'Element'
-        SubObjectType = 'Class'
-        ID = $Id
-        Type = $Type
-        Name = $Name
-        Class = $Class
+
+    # update element
+    if ($null -ne $Element) {
+        if (($null -ne $Element.Css) -and ($null -ne $Element.Css.Classes)) {
+            $Element.Css.Classes = $Element.Css.Classes | Where-Object { $_ -inotin $Class }
+        }
+
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Remove'
+            ObjectType = 'Element'
+            SubObjectType = 'Class'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+            Class = $Class
+        }
     }
 }
 
-function Remove-PodeWebElementClass
+function Add-PodeWebAttribute
 {
     [CmdletBinding(DefaultParameterSetName='Id')]
     param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
         [Parameter(Mandatory=$true, ParameterSetName='Id')]
         [string]
         $Id,
@@ -1449,17 +1586,83 @@ function Remove-PodeWebElementClass
 
         [Parameter(Mandatory=$true)]
         [string]
-        $Class
+        $Key,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value
     )
 
-    return @{
-        Operation = 'Remove'
-        ObjectType = 'Element'
-        SubObjectType = 'Class'
-        ID = $Id
-        Type = $Type
-        Name = $Name
-        Class = $Class
+    # update element
+    if ($null -ne $Element) {
+        if ($null -eq $Element.Attributes) {
+            $Element.Attributes = @{}
+        }
+
+        $Element.Attributes[$Key] = $Value
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Add'
+            ObjectType = 'Element'
+            SubObjectType = 'Attribute'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+            Key = $Key
+            Value = $Value
+        }
+    }
+}
+
+function Remove-PodeWebAttribute
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Key
+    )
+
+    # update element
+    if ($null -ne $Element) {
+        if ($null -ne $Element.Attributes) {
+            $null = $Element.Attributes.Remove($Key)
+        }
+
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Remove'
+            ObjectType = 'Element'
+            SubObjectType = 'Attribute'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+            Key = $Key
+        }
     }
 }
 

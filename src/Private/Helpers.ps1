@@ -522,39 +522,21 @@ function Convert-PodeWebAlertTypeToClass
         $Type
     )
 
-    switch ($Type.ToLowerInvariant()) {
-        'error' {
-            return 'danger'
-        }
-
-        'warning' {
-            return 'warning'
-        }
-
-        'tip' {
-            return 'success'
-        }
-
-        'success' {
-            return 'success'
-        }
-
-        'note' {
-            return 'secondary'
-        }
-
-        'info' {
-            return 'info'
-        }
-
-        'important' {
-            return 'primary'
-        }
-
-        default {
-            return 'primary'
-        }
+    $map = @{
+        error       = 'danger'
+        warning     = 'warning'
+        tip         = 'success'
+        success     = 'success'
+        note        = 'secondary'
+        info        = 'info'
+        important   = 'primary'
     }
+
+    if ($map.ContainsKey($Type)) {
+        return $map[$Type]
+    }
+
+    return 'primary'
 }
 
 function Convert-PodeWebAlertTypeToIcon
@@ -565,39 +547,21 @@ function Convert-PodeWebAlertTypeToIcon
         $Type
     )
 
-    switch ($Type.ToLowerInvariant()) {
-        'error' {
-            return 'alert-circle'
-        }
-
-        'warning' {
-            return 'alert'
-        }
-
-        'tip' {
-            return 'thumb-up'
-        }
-
-        'success' {
-            return 'check-circle'
-        }
-
-        'note' {
-            return 'book-open'
-        }
-
-        'info' {
-            return 'information'
-        }
-
-        'important' {
-            return 'bell'
-        }
-
-        default {
-            return 'bell'
-        }
+    $map = @{
+        error       = 'alert-circle'
+        warning     = 'alert'
+        tip         = 'thumb-up'
+        success     = 'check-circle'
+        note        = 'book-open'
+        info        = 'information'
+        important   = 'bell'
     }
+
+    if ($map.ContainsKey($Type)) {
+        return $map[$Type]
+    }
+
+    return 'bell'
 }
 
 function Convert-PodeWebColourToClass
@@ -608,45 +572,22 @@ function Convert-PodeWebColourToClass
         $Colour
     )
 
-    switch ($Colour.ToLowerInvariant()) {
-        'blue' {
-            $css = 'primary'
-        }
-
-        'green' {
-            $css = 'success'
-        }
-
-        'grey' {
-            $css = 'secondary'
-        }
-
-        'red' {
-            $css = 'danger'
-        }
-
-        'yellow' {
-            $css = 'warning'
-        }
-
-        'cyan' {
-            $css = 'info'
-        }
-
-        'light' {
-            $css = 'light'
-        }
-
-        'dark' {
-            $css = 'dark'
-        }
-
-        default {
-            $css = 'primary'
-        }
+    $map = @{
+        blue    = 'primary'
+        green   = 'success'
+        grey    = 'secondary'
+        red     = 'danger'
+        yellow  = 'warning'
+        cyan    = 'info'
+        light   = 'light'
+        dark    = 'dark'
     }
 
-    return $css.ToLowerInvariant()
+    if ($map.ContainsKey($Colour)) {
+        return $map[$Colour]
+    }
+
+    return 'primary'
 }
 
 function Convert-PodeWebButtonSizeToClass
@@ -660,23 +601,16 @@ function Convert-PodeWebButtonSizeToClass
         $FullWidth
     )
 
-    $css = ''
-
-    switch ($Size.ToLowerInvariant()) {
-        'small' {
-            $css = 'btn-sm'
-        }
-
-        'large' {
-            $css = 'btn-lg'
-        }
-    }
+    $css = (@{
+        small = 'btn-sm'
+        large = 'btn-lg'
+    })[$Size]
 
     if ($FullWidth) {
         $css += ' btn-block'
     }
 
-    return $css.ToLowerInvariant()
+    return $css
 }
 
 function Test-PodeWebContent
@@ -847,27 +781,6 @@ function ConvertTo-PodeWebEvents
     }
 
     return $js_events
-}
-
-function ConvertTo-PodeWebStyles
-{
-    param(
-        [Parameter()]
-        [hashtable]
-        $Style
-    )
-
-    $styles = [string]::Empty
-
-    if (($null -eq $Style) -or ($Style.Count -eq 0)) {
-        return $styles
-    }
-
-    foreach ($key in $Style.Keys) {
-        $styles += " $($key.ToLowerInvariant()): $($Style[$key].ToLowerInvariant()) !important;"
-    }
-
-    return $styles
 }
 
 function Protect-PodeWebRange
