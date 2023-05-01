@@ -93,7 +93,11 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebCode -Id 'code_test' -Value "some code :o"
         )
         $timer1
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right
+        New-PodeWebImage -Id 'pode-img' -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right |
+            Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
+                $value = Get-Random -Minimum 70 -Maximum 141
+                Update-PodeWebImage -Id 'pode-img' -Title "Hello$($value)!" -Height $value
+            }
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
         New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"

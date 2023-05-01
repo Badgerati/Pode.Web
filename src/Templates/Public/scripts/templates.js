@@ -818,7 +818,7 @@ class PodeElement {
     }
 
     addStyle(name, value, sender, opts) {
-        setElementStyle((this.container ?? this.element)[0], name, value);
+        setElementStyle((this.container ?? this.element)[0], name, value, ((opts ?? {}).important === false));
     }
 
     removeStyle(name, sender, opts) {
@@ -841,6 +841,22 @@ class PodeElement {
     showValidation(message, sender, opts) {
         $(document).find(`[pode-validation-for='${this.uuid}']`).text(decodeHTML(message));
         setValidationError(this.element);
+    }
+
+    setHeight(value) {
+        if (!value) {
+            return;
+        }
+
+        this.addStyle('height', value, this, { important: false });
+    }
+
+    setWidth(value) {
+        if (!value) {
+            return;
+        }
+
+        this.addStyle('width', value, this, { important: false });
     }
 
     new(data, sender, opts) {
@@ -914,11 +930,30 @@ class PodeElement {
 class PodeContentElement extends PodeElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        this.title = data.Title;
     }
 
     apply(action, data, sender, opts) {
         sender = sender === undefined ? PODE_CONTENT : sender;
         return super.apply(action, data, sender, opts);
+    }
+
+    setTitle(value) {
+        if (!value) {
+            return;
+        }
+
+        this.element.attr('title', value);
+
+        if (!this.title) {
+            this.element.attr('data-toggle', 'tooltip');
+            this.element.tooltip();
+        }
+        else {
+            this.element.attr('data-original-title', value);
+        }
+
+        this.title = value;
     }
 }
 
@@ -3378,13 +3413,14 @@ PodeElementFactory.setClass(PodeTimer);
 class PodeImage extends PodeContentElement {
     static type = 'image';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.source = data.Source;
     }
 
     new(data, sender, opts) {
         var fluid = data.Height === 'auto' || data.Width === 'auto' ? 'img-fluid' : '';
-        var title = data.Title ? `title='${data.Title}' data-toggle='tooltip' data-placement='bottom'` : '';
+        var title = this.title ? `title='${this.title}' data-toggle='tooltip'` : '';
 
         var location = ({
             left: 'float-left',
@@ -3393,14 +3429,34 @@ class PodeImage extends PodeContentElement {
         })[data.Alignment];
 
         return `<img
-            src='${data.Source}'
+            src='${this.source}'
             id='${this.id}'
             class='${fluid} rounded ${location}'
             style='height:${data.Height};width:${data.Width}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
+            data-placement='bottom'
             ${title}
             ${this.events(data.Events)}>`;
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update source
+        if (data.Source) {
+            this.element.attr('src', data.Source);
+            this.source = data.Source;
+        }
+
+        // update title
+        this.setTitle(data.Title);
+
+        // update height
+        this.setHeight(data.Height);
+
+        // update width
+        this.setWidth(data.Width);
     }
 }
 PodeElementFactory.setClass(PodeImage);

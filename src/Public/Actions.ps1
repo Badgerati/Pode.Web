@@ -2264,3 +2264,39 @@ function Update-PodeWebHeader
         Size = $Size
     }
 }
+
+function Update-PodeWebImage
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Source,
+
+        [Parameter()]
+        [string]
+        $Title,
+
+        [Parameter()]
+        [string]
+        $Height,
+
+        [Parameter()]
+        [string]
+        $Width
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Image'
+        ID = $Id
+        Source = (Add-PodeWebAppPath -Url $Source)
+        Title = $Title
+        Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px' -AllowNull)
+        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type 'px' -AllowNull)
+    }
+}
