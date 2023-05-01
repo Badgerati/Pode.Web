@@ -69,3 +69,7 @@ New-PodeWebButton -Name 'Example' -Colour Cyan -Outline -ScriptBlock {
 Which looks like below:
 
 ![button_outline](../../../images/button_outline.png)
+
+## Grouping
+
+You can group a series of Buttons together by using a [Button Group](../ButtonGroup).

@@ -1,10 +1,10 @@
 # Classes, Styles and Attributes
 
-Every element can be piped into either [`Add-PodeWebClass`], [`Add-PodeWebStyle`] or [`Add-PodeWebAttribute`]. These functions let you you add custom classes, styles or attributes to elements, during creation, so you can control their look and functionality.
+Every element can be piped into either [`Add-PodeWebClass`](../../Functions/Actions/Add-PodeWebClass), [`Add-PodeWebStyle`](../../Functions/Actions/Add-PodeWebStyle) or [`Add-PodeWebAttribute`](../../Functions/Actions/Add-PodeWebAttribute). These functions let you you add custom classes, styles or attributes to elements, during creation, so you can control their look and functionality.
 
 ## Classes
 
-To add a class to an element you can pipe a new element into [`Add-PodeWebClass`], and this will set the values on the element's `class` attribute on the frontend. The classes by themselves don't do anything, but you can use them to build custom CSS files and import them via [`Import-PodeWebStylesheet`](../../Functions/Utilities/Import-PodeWebStylesheet); you can also use the custom classes as references in custom JavaScript files, and import these via [`Import-PodeWebJavaScript`](../../Functions/Utilities/Import-PodeWebJavaScript).
+To add a class to an element you can pipe a new element into [`Add-PodeWebClass`](../../Functions/Actions/Add-PodeWebClass), and this will set the values on the element's `class` attribute on the frontend. The classes by themselves don't do anything, but you can use them to build custom CSS files and import them via [`Import-PodeWebStylesheet`](../../Functions/Utilities/Import-PodeWebStylesheet); you can also use the custom classes as references in custom JavaScript files, and import these via [`Import-PodeWebJavaScript`](../../Functions/Utilities/Import-PodeWebJavaScript).
 
 For example, the following would apply the `my-custom-textbox` class to a textbox:
 
@@ -37,7 +37,7 @@ You can add/remove adhoc classes on elements using the [Class actions](../Action
 
 ## Styles
 
-To add a CSS style to an element you can pipe a new element into [`Add-PodeWebStyle`], and this will set the value on the element's `style` attribute on the frontend. The `-Key` is the name of a CSS style property.
+To add a CSS style to an element you can pipe a new element into [`Add-PodeWebStyle`](../../Functions/Actions/Add-PodeWebStyle), and this will set the value on the element's `style` attribute on the frontend. The `-Key` is the name of a CSS style property.
 
 For example, the following would display a paragraph with yellow text:
 
@@ -54,7 +54,7 @@ You can add/remove adhoc CSS style properties on elements using the [Style actio
 
 ## Attributes
 
-To add an attribute to an element you can pipe a new element into [`Add-PodeWebAttribute`], and this will set the attribute on the element on the frontend. The `-Key` is the name of an HTML attribute.
+To add an attribute to an element you can pipe a new element into [`Add-PodeWebAttribute`](../../Functions/Actions/Add-PodeWebAttribute), and this will set the attribute on the element on the frontend. The `-Key` is the name of an HTML attribute.
 
 For example, the following would add the `hx-confirm` attribute to a button:
 
@@ -67,7 +67,7 @@ You can add/remove adhoc attributes on elements using the [Attribute actions](..
 
 ## Visibility
 
-You can hide an element on creation by piping it into [`Hide-PodeWebElement`]. For example, the following will hide a textbox initially when it's created:
+You can hide an element on creation by piping it into [`Hide-PodeWebElement`](../../Functions/Actions/Hide-PodeWebElement). For example, the following will hide a textbox initially when it's created:
 
 ```powershell
 New-PodeWebTextbox -Name 'Message' |

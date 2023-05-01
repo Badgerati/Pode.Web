@@ -303,7 +303,8 @@ a.nav-link[pode-dynamic='true'] {
 }
 
 .btn-icon-only {
-    margin-left: -1em;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
 }
 
 .ui-autocomplete {
@@ -335,7 +336,7 @@ pre code {
     position: absolute;
     display: flex;
     top: 4rem;
-    right: 0em;
+    right: 0.5em;
 }
 
 .btn-icon-only,
@@ -464,6 +465,11 @@ table tbody td {
 
 .pode-card {
     margin-bottom: 2em;
+}
+
+.pode-card .pode-card-collapse {
+    padding-top: 0.625em;
+    padding-bottom: 0.625em;
 }
 
 .accordion .card-header button {
@@ -890,7 +896,7 @@ th .mdi::before {
     top: 2px;
 }
 
-.pode-card .card-header .mdi::before {
+.pode-card .card-header .pode-card-collapse .mdi::before {
     position: relative;
     top: 1px;
 }

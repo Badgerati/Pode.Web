@@ -1270,6 +1270,44 @@ function New-PodeWebRaw
     }
 }
 
+function New-PodeWebButtonGroup
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [ValidateSet('Horizontal', 'Vertical')]
+        [string]
+        $Direction = 'Horizontal',
+
+        [Parameter()]
+        [ValidateSet('Normal', 'Small', 'Large')]
+        [string]
+        $Size = 'Normal',
+
+        [Parameter()]
+        [hashtable[]]
+        $Buttons
+    )
+
+    if (!(Test-PodeWebContent -Content $Buttons -ComponentType Element -ObjectType Button)) {
+        throw 'A Button Group can only contain Buttons'
+    }
+
+    return @{
+        ComponentType = 'Element'
+        ObjectType = 'Button-Group'
+        ID = (Get-PodeWebElementId -Tag ButtonGroup -Id $Id)
+        Buttons = $Buttons
+        Direction = $Direction
+        SizeType = (Convert-PodeWebButtonSizeToClass -Size $Size -Group)
+        NoEvents = $true
+    }
+}
+
 function New-PodeWebButton
 {
     [CmdletBinding(DefaultParameterSetName='ScriptBlock')]
