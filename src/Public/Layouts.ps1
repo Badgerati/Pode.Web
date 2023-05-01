@@ -172,6 +172,10 @@ function New-PodeWebCard
         $Content,
 
         [Parameter()]
+        [hashtable[]]
+        $Buttons,
+
+        [Parameter()]
         [string]
         $Icon,
 
@@ -186,6 +190,10 @@ function New-PodeWebCard
         throw 'A Card can only contain layouts and/or elements'
     }
 
+    if (!(Test-PodeWebContent -Content $Buttons -ComponentType Element -ObjectType Button, 'Button-Group')) {
+        throw 'Card Buttons can only contain Buttons'
+    }
+
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Card'
@@ -193,6 +201,7 @@ function New-PodeWebCard
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name)
         Content = $Content
+        Buttons = $Buttons
         NoTitle = $NoTitle.IsPresent
         NoHide  = $NoHide.IsPresent
         Icon = $Icon

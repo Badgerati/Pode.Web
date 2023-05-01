@@ -31,3 +31,27 @@ New-PodeWebCard -Name 'Quote' -Content @(
 Which would look like below:
 
 ![card_title](../../../images/card_title.png)
+
+## Buttons
+
+By default the only button in a Card's header is the visibility toggle - to hide or show the Card's contents. You can add custom buttons to a Card's header by supplying `New-PodeWebButton` or `New-PodeWebButtonGroup` elements to the `-Buttons` parameter:
+
+```powershell
+New-PodeWebCard -Name 'Example' -Content @(
+    New-PodeWebTextbox -Name 'Name'
+) `
+-Buttons @(
+    New-PodeWebButtonGroup -Buttons @(
+        New-PodeWebButton -Name 'Hide' -ScriptBlock {
+            Hide-PodeWebElement -Name 'Name' -Type 'Textbox'
+        }
+        New-PodeWebButton -Name 'Show' -ScriptBlock {
+            Show-PodeWebElement -Name 'Name' -Type 'Textbox'
+        }
+    )
+
+    New-PodeWebButton -Name 'Update' -ScriptBlock {
+        Update-PodeWebTextbox -Name 'Name' -Value 'Some random text'
+    }
+)
+```

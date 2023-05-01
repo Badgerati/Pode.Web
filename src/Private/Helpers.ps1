@@ -598,13 +598,20 @@ function Convert-PodeWebButtonSizeToClass
         $Size,
 
         [switch]
-        $FullWidth
+        $FullWidth,
+
+        [switch]
+        $Group
     )
 
     $css = (@{
         small = 'btn-sm'
         large = 'btn-lg'
     })[$Size]
+
+    if ($Group) {
+        $css = $css -replace 'btn-', 'btn-group-'
+    }
 
     if ($FullWidth) {
         $css += ' btn-block'

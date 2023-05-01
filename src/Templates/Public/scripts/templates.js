@@ -134,7 +134,6 @@ class PodeElement {
         this.ephemeral = false;
         this.dynamic = data.IsDynamic ?? false;
         this.autoRender = opts.autoRender ?? true;
-        this.contentProperty = null;
         this.output = {
             appendType: ((data.Output ?? {}).AppendType ?? 'append').toLowerCase()
         };
@@ -144,6 +143,11 @@ class PodeElement {
         this.url = `/elements/${this.getType()}/${data.ID}`;
         this.disabled = data.Disabled ?? false;
         this.visible = data.Visible ?? true;
+
+        this.content = {
+            0: 'Content',
+            1: null
+        };
 
         this.parent = null;
         this.children = [];
@@ -483,13 +487,19 @@ class PodeElement {
             return;
         }
 
-        var area = this.getContentArea();
-        if (!area) {
-            return;
-        }
+        var area = null;
+        Object.keys(this.content).forEach((order) => {
+            if (!this.content[order]) {
+                return;
+            }
 
-        var content = this.contentProperty ? data[this.contentProperty] : data.Content;
-        this.render(content, area, this, opts);
+            area = this.getContentArea(order);
+            if (!area) {
+                return;
+            }
+
+            this.render(data[this.content[order]], area, this, opts);
+        });
     }
 
     render(content, sender, parent, opts) {
@@ -730,8 +740,8 @@ class PodeElement {
         return this.parent ? this.parent.getType() === type.toLowerCase() : false;
     }
 
-    getContentArea() {
-        return $(document).find(`[pode-content-for='${this.uuid}']`);
+    getContentArea(order) {
+        return $(document).find(`[pode-content-for='${this.uuid}'][pode-content-order='${order}']`);
     }
 
     html() {
@@ -1167,7 +1177,7 @@ class PodeFormElement extends PodeContentElement {
                     ${html}`;
                 }
 
-                if (!(this.parent instanceof PodeFormElement)) {
+                if (this.parent instanceof PodeForm) { // !(this.parent instanceof PodeFormElement)) {
                     var formGroup = !this.inForm || this.dynamicLabel ? 'd-inline-block' : `form-group row`;
                     var divTag = this.asFieldset ? 'fieldset' : 'div';
                     var idProps = this.asFieldset ? `id='${this.id}' pode-object='${this.getType()}' pode-id='${this.uuid}'` : '';
@@ -1184,7 +1194,11 @@ class PodeFormElement extends PodeContentElement {
                 }
 
                 // overload html from super
-                opts.html = `<span pode-container-for='${this.uuid}'>${html}</span>`;
+                if (!(this.parent instanceof PodeButtonGroup)) {
+                    html = `<span pode-container-for='${this.uuid}'>${html}</span>`;
+                }
+
+                opts.html = html;
                 break;
         }
 
@@ -1564,10 +1578,33 @@ class PodeIcon extends PodeContentElement {
 }
 PodeElementFactory.setClass(PodeIcon);
 
+class PodeButtonGroup extends PodeContentElement {
+    static type = 'button-group';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.content[0] = 'Buttons';
+        this.direction = (data.Direction ?? 'horizontal').toLowerCase();
+    }
+
+    new(data, sender, opts) {
+        var dirClass = this.direction == 'horizontal' ? 'btn-group' : 'btn-group-vertical'
+        return `<div
+            id='${this.id}'
+            class="${dirClass} ${data.SizeType} mr-2"
+            role="group"
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            pode-content-for="${this.uuid}"
+            pode-content-order='0'>
+        </div>`
+    }
+}
+PodeElementFactory.setClass(PodeButtonGroup);
+
 class PodeButton extends PodeFormElement {
     static type = 'button';
 
-    //TODO: New-PodeWebButtonGroup needed -- horizontal and vertical support
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.iconOnly =  data.IconOnly;
@@ -1752,7 +1789,7 @@ class PodeContainer extends PodeContentElement {
             pode-transparent="${data.NoBackground}"
             pode-hidden="${data.Hide}"
             pode-id='${this.uuid}'>
-                <div pode-content-for='${this.uuid}'></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
         </div>`;
     }
 }
@@ -1784,7 +1821,7 @@ class PodeForm extends PodeContentElement {
             action="${this.action}"
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
-                <div pode-content-for='${this.uuid}'></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
 
                 <button class="btn btn-inbuilt-theme" type="submit">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
@@ -1903,26 +1940,29 @@ class PodeCard extends PodeContentElement {
 
     constructor(...args) {
         super(...args);
+        this.content[1] = 'Buttons';
     }
 
-    //TODO: allow for "data.Buttons" -- which adds custom buttons to the card header
     new(data, sender, opts) {
         var header = '';
-        if ((!data.NoTitle && this.name) || !data.NoHide) {
+        if ((!data.NoTitle && this.name) || !data.NoHide || data.Buttons) {
             var icon = this.setIcon(data.Icon, true);
-
             var title = data.NoTitle ? `${icon}` : `${icon}${data.DisplayName}`;
-            var hideBtn = data.NoHide ? '' : `<div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
-                <div class='btn-group mr-2'>
-                    <button type='button' class='btn btn-no-text btn-outline-secondary pode-card-collapse'>
-                        <span class='mdi mdi-eye-outline mdi-size-20' title='Hide' data-toggle='tooltip'></span>
-                    </button>
-                </div>
+
+            var hideBtn = data.NoHide ? '' : `<div class='btn-group ml-2'>
+                <button type='button' class='btn btn-no-text btn-outline-secondary pode-card-collapse'>
+                    <span class='mdi mdi-eye-outline mdi-size-20' title='Hide' data-toggle='tooltip'></span>
+                </button>
+            </div>`;
+
+            var btns = `<div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
+                <span pode-content-for='${this.uuid}' pode-content-order='1'></span>
+                ${hideBtn}
             </div>`;
 
             header = `<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
                 <h5>${title}</h5>
-                ${hideBtn}
+                ${btns}
             </div>`;
         }
 
@@ -1932,7 +1972,7 @@ class PodeCard extends PodeContentElement {
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
                 ${header}
-                <div pode-content-for='${this.uuid}' class="card-body"></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0' class="card-body"></div>
         </div>`;
     }
 
@@ -1967,7 +2007,7 @@ class PodeAlert extends PodeTextualElement {
                     <span class="mdi mdi-${data.IconType.toLowerCase()}"></span>
                     <strong>${data.Type}</strong>
                 </h6>
-                <div pode-content-for='${this.uuid}' class='pode-alert-body pode-text'>
+                <div pode-content-for='${this.uuid}' pode-content-order='0' class='pode-alert-body pode-text'>
                     ${data.Value ? data.Value : ''}
                 </div>
         </div>`;
@@ -2731,7 +2771,7 @@ class PodeAccordion extends PodeCyclingElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.contentProperty = 'Bellows'
+        this.content[0] = 'Bellows'
         this.mode = data.Mode.toLowerCase()
     }
 
@@ -2742,7 +2782,7 @@ class PodeAccordion extends PodeCyclingElement {
             name='${this.name}'
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
-                <div pode-content-for='${this.uuid}'></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
         </div>`;
     }
 }
@@ -2793,7 +2833,7 @@ class PodeBellow extends PodeCyclingChildElement {
                 </div>
 
                 <div id='${this.id}_body' class='bellow-body collapse ${show}' aria-labelledby='${this.id}_header' data-parent='#${this.parent.id}'>
-                    <div pode-content-for='${this.uuid}' class='card-body'></div>
+                    <div pode-content-for='${this.uuid}' pode-content-order='0' class='card-body'></div>
                 </div>
         </div>`;
     }
@@ -2847,7 +2887,7 @@ class PodeParagraph extends PodeTextualElement {
             class="text-${data.Alignment}"
             pode-object="${this.getType()}"
             pode-id="${this.uuid}">
-                <span pode-content-for='${this.uuid}' class='pode-text'>
+                <span pode-content-for='${this.uuid}' pode-content-order='0' class='pode-text'>
                     ${data.Value ? data.Value : ''}
                 </span>
         </p>`;
@@ -2873,7 +2913,7 @@ class PodeHeader extends PodeTextualElement {
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
                 ${icon}
-                <span pode-content-for='${this.uuid}' class='pode-text'>
+                <span pode-content-for='${this.uuid}' pode-content-order='0' class='pode-text'>
                     ${data.Value}
                 </span>
                 ${subHeader}
@@ -3404,7 +3444,7 @@ class PodeHero extends PodeContentElement {
     }
 
     new(data, sender, opts) {
-        var content = data.Content ? `<hr class='my-4'><div pode-content-for='${this.uuid}'></div>` : '';
+        var content = data.Content ? `<hr class='my-4'><div pode-content-for='${this.uuid}' pode-content-order='0'></div>` : '';
 
         return `<div
             id="${this.id}"
@@ -3429,7 +3469,7 @@ class PodeTile extends PodeRefreshableElement {
 
     new(data, sender, opts) {
         var icon = this.setIcon(data.Icon);
-        var contentId = this.dynamic ? '' : `pode-content-for='${this.uuid}'`;
+        var contentId = this.dynamic ? '' : `pode-content-for='${this.uuid}' pode-content-order='0'`;
 
         return `<div
             id="${this.id}"
@@ -3496,7 +3536,7 @@ class PodeGrid extends PodeContentElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.contentProperty = 'Cells';
+        this.content[0] = 'Cells';
         this.cells = convertToArray(data.Cells).length;
         this.width = data.Width === 0 ? this.cells : (data.Width ?? this.cells);
         this.rows = Math.ceil(this.cells / this.width);
@@ -3505,7 +3545,13 @@ class PodeGrid extends PodeContentElement {
     new(data, sender, opts) {
         var rows = '';
         for (var i = 1; i <= this.rows; i++) {
-            rows += `<div pode-content-for='${this.uuid}' pode-min-index='${this.width * (i - 1)}' pode-max-index='${(this.width * i) - 1}' class='row'></div>`;
+            rows += `<div
+                pode-content-for='${this.uuid}'
+                pode-content-order='0'
+                pode-min-index='${this.width * (i - 1)}'
+                pode-max-index='${(this.width * i) - 1}'
+                class='row'>
+            </div>`;
         }
 
         return `<div
@@ -3541,7 +3587,7 @@ class PodeCell extends PodeContentElement {
             class='text-${data.Alignment} ${width}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
-                <div pode-content-for='${this.uuid}'></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
         </div>`;
 
         // render dummy cells if last child before grid width
@@ -3561,7 +3607,7 @@ class PodeTabs extends PodeCyclingElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.contentProperty = 'Tabs';
+        this.content[0] = 'Tabs';
     }
 
     new(data, sender, opts) {
@@ -3570,7 +3616,7 @@ class PodeTabs extends PodeCyclingElement {
             pode-object="${this.getType()}"
             pode-id="${this.uuid}">
                 <ul class="nav nav-tabs" role="tablist"></ul>
-                <div class='tab-content' pode-content-for='${this.uuid}'></div>
+                <div class='tab-content' pode-content-for='${this.uuid}' pode-content-order='0'></div>
         </div>`;
     }
 
@@ -3624,7 +3670,7 @@ class PodeTab extends PodeCyclingChildElement {
             pode-id="${this.uuid}"
             role='tabpanel'
             aria-labelledby='${this.id}'>
-                <div pode-content-for='${this.uuid}'></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
         </div>`;
     }
 
@@ -3657,7 +3703,7 @@ class PodeCarousel extends PodeCyclingElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.contentProperty = 'Slides';
+        this.content[0] = 'Slides';
     }
 
     new(data, sender, opts) {
@@ -3668,7 +3714,7 @@ class PodeCarousel extends PodeCyclingElement {
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
                 <ol class="carousel-indicators"></ol>
-                <div class="carousel-inner" pode-content-for='${this.uuid}'></div>
+                <div class="carousel-inner" pode-content-for='${this.uuid}' pode-content-order='0'></div>
 
                 <a class="carousel-control-prev carousel-arrow" href="#${this.id}" role="button" data-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -3725,7 +3771,7 @@ class PodeSlide extends PodeCyclingChildElement {
             class='carousel-item ${this.child.isFirst ? 'active' : ''}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
-                <div class='d-flex w-100 h-100' pode-content-for='${this.uuid}'></div>
+                <div class='d-flex w-100 h-100' pode-content-for='${this.uuid}' pode-content-order='0'></div>
                 <div class='carousel-caption d-none d-md-block'>
                     ${title}
                     ${message}
@@ -4143,8 +4189,8 @@ class PodeModal extends PodeContentElement {
         </button>`;
 
         var contentArea = this.asForm
-            ? `<form class='pode-form' method='${data.Method}' action='${data.Action}' pode-content-for='${this.uuid}'>`
-            : `<div pode-content-for='${this.uuid}'></div>`;
+            ? `<form class='pode-form' method='${data.Method}' action='${data.Action}' pode-content-for='${this.uuid}' pode-content-order='0'>`
+            : `<div pode-content-for='${this.uuid}' pode-content-order='0'></div>`;
 
         return `<div
             id="${this.id}"
@@ -4282,7 +4328,7 @@ class PodeList extends PodeContentElement {
 
     constructor(...args) {
         super(...args);
-        this.contentProperty = 'Items';
+        this.content[0] = 'Items';
     }
 
     new(data, sender, opts) {
@@ -4293,7 +4339,7 @@ class PodeList extends PodeContentElement {
 
         var content = '';
         if (data.Items.length > 0) {
-            content = `<span pode-content-for='${this.uuid}'></span>`
+            content = `<span pode-content-for='${this.uuid}' pode-content-order='0'></span>`
         }
         else {
             data.Values.forEach((v) => {
@@ -4323,7 +4369,7 @@ class PodeListItem extends PodeContentElement {
             id='${this.id}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
-                <span pode-content-for='${this.uuid}'></span>
+                <span pode-content-for='${this.uuid}' pode-content-order='0'></span>
         </li>`;
     }
 }
@@ -4610,18 +4656,22 @@ class PodeCheckbox extends PodeFormElement {
                 return;
             }
 
-            options += `<div class='custom-control ${divClass} ${inline}'>
-                <input
-                    type='checkbox'
-                    id='${this.id}_option${index}'
-                    class='custom-control-input'
-                    value='${opt}'
-                    name='${this.name}'
-                    pode-option-id='${index}'
-                    ${checked}>
-                <label class='custom-control-label' for='${this.id}_option${index}'>
-                    ${opt !== 'true' ? data.DisplayOptions[index] : ''}
-                </label>
+            options += `<div
+                id='${this.id}'
+                class='custom-control ${divClass} ${inline}'
+                pode-object='${this.getType()}'
+                pode-id='${this.uuid}'>
+                    <input
+                        type='checkbox'
+                        id='${this.id}_option${index}'
+                        class='custom-control-input'
+                        value='${opt}'
+                        name='${this.name}'
+                        pode-option-id='${index}'
+                        ${checked}>
+                    <label class='custom-control-label' for='${this.id}_option${index}'>
+                        ${opt !== 'true' ? data.DisplayOptions[index] : ''}
+                    </label>
             </div>`;
         });
 
@@ -4702,18 +4752,22 @@ class PodeRadio extends PodeFormElement {
                 return;
             }
 
-            options += `<div class='custom-control custom-radio ${inline}'>
-                <input
-                    type='radio'
-                    id='${this.id}_option${index}'
-                    class='custom-control-input'
-                    value='${opt}'
-                    name='${this.name}'
-                    pode-option-id='${index}'
-                    ${index === 0 ? 'checked' : ''}>
-                <label class='custom-control-label' for='${this.id}_option${index}'>
-                    ${opt !== 'true' ? data.DisplayOptions[index] : ''}
-                </label>
+            options += `<div
+                id='${this.id}'
+                class='custom-control custom-radio ${inline}'
+                pode-object='${this.getType()}'
+                pode-id='${this.uuid}'>
+                    <input
+                        type='radio'
+                        id='${this.id}_option${index}'
+                        class='custom-control-input'
+                        value='${opt}'
+                        name='${this.name}'
+                        pode-option-id='${index}'
+                        ${index === 0 ? 'checked' : ''}>
+                    <label class='custom-control-label' for='${this.id}_option${index}'>
+                        ${opt !== 'true' ? data.DisplayOptions[index] : ''}
+                    </label>
             </div>`;
         });
 
@@ -5054,7 +5108,7 @@ class PodeSteps extends PodeContentElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.contentProperty = 'Steps';
+        this.content[0] = 'Steps';
         this.stepper = null;
     }
 
@@ -5066,7 +5120,7 @@ class PodeSteps extends PodeContentElement {
             pode-object="${this.getType()}"
             pode-id="${this.uuid}">
                 <div class="bs-stepper-header" role="tablist"></div>
-                <div class="bs-stepper-content" pode-content-for='${this.uuid}'></div>
+                <div class="bs-stepper-content" pode-content-for='${this.uuid}' pode-content-order='0'></div>
         </div>`;
     }
 
@@ -5144,7 +5198,7 @@ class PodeStep extends PodeContentElement {
             role='tabpanel'
             aria-labelledby='${this.id}-trigger'
             for='${this.parent.id}'>
-                <div pode-content-for='${this.uuid}'></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
                 ${prevBtn}
                 ${nextBtn}
         </div>`;
@@ -5221,7 +5275,7 @@ class PodeBreadcrumb extends PodeBreadcrumbElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.id = '__pode_breadcrumb__';
-        this.contentProperty = 'Items';
+        this.content[0] = 'Items';
         this.isCustom = opts.isCustom ?? true;
         PODE_BREADCRUMB.attr('for', this.uuid);
     }
@@ -5233,7 +5287,8 @@ class PodeBreadcrumb extends PodeBreadcrumbElement {
             id='${this.id}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
-            pode-content-for='${this.uuid}'>
+            pode-content-for='${this.uuid}'
+            pode-content-order='0'>
         </div>`;
     }
 
@@ -5297,7 +5352,7 @@ class PodeNavDropdown extends PodeNavElement {
 
     constructor(...args) {
         super(...args);
-        this.contentProperty = 'Items';
+        this.content[0] = 'Items';
     }
 
     new(data, sender, opts) {
@@ -5318,7 +5373,7 @@ class PodeNavDropdown extends PodeNavElement {
                     ${data.DisplayName}
             </a>
 
-            <ul class='dropdown-menu' aria-labelledby='${this.id}' pode-content-for='${this.uuid}'></ul>
+            <ul class='dropdown-menu' aria-labelledby='${this.id}' pode-content-for='${this.uuid}' pode-content-order='0'></ul>
         </li>`;
     }
 }
