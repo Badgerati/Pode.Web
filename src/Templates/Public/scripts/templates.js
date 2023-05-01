@@ -145,8 +145,7 @@ class PodeElement {
         this.visible = data.Visible ?? true;
 
         this.content = {
-            0: 'Content',
-            1: null
+            0: 'Content'
         };
 
         this.parent = null;
@@ -1177,7 +1176,7 @@ class PodeFormElement extends PodeContentElement {
                     ${html}`;
                 }
 
-                if (this.parent instanceof PodeForm) { // !(this.parent instanceof PodeFormElement)) {
+                if (this.parent instanceof PodeForm) {
                     var formGroup = !this.inForm || this.dynamicLabel ? 'd-inline-block' : `form-group row`;
                     var divTag = this.asFieldset ? 'fieldset' : 'div';
                     var idProps = this.asFieldset ? `id='${this.id}' pode-object='${this.getType()}' pode-id='${this.uuid}'` : '';
