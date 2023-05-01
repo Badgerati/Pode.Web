@@ -852,8 +852,15 @@ function ConvertTo-PodeWebSize
         [Parameter(Mandatory=$true)]
         [ValidateSet('px', '%', 'em')]
         [string]
-        $Type
+        $Type,
+
+        [switch]
+        $AllowNull
     )
+
+    if ($AllowNull -and [string]::IsNullOrEmpty($Value)) {
+        return $null
+    }
 
     $pattern = Get-PodeWebNumberRegex
     $defIsNumber = ($Default -match $pattern)

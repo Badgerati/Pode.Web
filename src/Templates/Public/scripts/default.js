@@ -767,9 +767,9 @@ function resetForm(form, isInner = false) {
     }
 }
 
-function setElementStyle(obj, property, value) {
+function setElementStyle(obj, property, value, notImportant) {
     if (value) {
-        obj.style.setProperty(property, value, 'important');
+        obj.style.setProperty(property, value, (notImportant ? undefined : 'important'));
     }
     else {
         obj.style.setProperty(property, null);
