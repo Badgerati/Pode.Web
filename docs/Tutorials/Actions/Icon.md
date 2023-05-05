@@ -18,7 +18,7 @@ New-PodeWebContainer -Content @(
 
 ## Switch
 
-To switch the state of an Icon between the Base/Toggle presets, or specifically to either the Base, Toggle or Hover presets via the `-State` parameter, you can use [`Switch-PodeWebIcon`]:
+To switch the state of an Icon between the Base/Toggle presets, or specifically to either the Base, Toggle or Hover presets via the `-State` parameter, you can use [`Switch-PodeWebIcon`](../../../Functions/Actions/Switch-PodeWebIcon):
 
 ```powershell
 New-PodeWebContainer -Content @(

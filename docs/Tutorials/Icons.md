@@ -14,12 +14,12 @@ Which would look like below:
 
 ## Name or Element
 
-On elements such as a Button ([`New-PodeWebButton`]), when you supply the `-Icon` parameter this can be done in one of two ways:
+On elements such as a Button ([`New-PodeWebButton`](../../Functions/Elements/New-PodeWebButton)), when you supply the `-Icon` parameter this can be done in one of two ways:
 
 1. You can supply just the name of the icon, such as the example at the top of this page.
-2. You can supply a more dynamic icon by using [`New-PodeWebIcon`] instead.
+2. You can supply a more dynamic icon by using [`New-PodeWebIcon`](../../Functions/Elements/New-PodeWebIcon) instead.
 
-In the case of 2., the following is the same example as above but using [`New-PodeWebIcon`] instead:
+In the case of 2., the following is the same example as above but using [`New-PodeWebIcon`](../../Functions/Elements/New-PodeWebIcon) instead:
 
 ```powershell
 $icon = New-PodeWebIcon -Name 'github' -Spin
