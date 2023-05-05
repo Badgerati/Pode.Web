@@ -11,12 +11,10 @@ function Set-PodeWebLoginPage
         $Content,
 
         [Parameter()]
-        [Alias('Icon')]
         [string]
         $Logo,
 
         [Parameter()]
-        [Alias('IconUrl')]
         [string]
         $LogoUrl,
 

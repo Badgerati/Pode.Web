@@ -76,6 +76,30 @@ Remove-PodeWebClass -Type 'Textbox' -Name 'SomeTextboxName' -Value 'my-custom-cl
 Remove-PodeWebClass -Id 'textbox_somename' -Value 'my-custom-class'
 ```
 
+### Rename
+
+You can rename one class to another class on an element by using [`Rename-PodeWebClass`]. You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+
+```powershell
+Rename-PodeWebClass -Type 'Textbox' -Name 'SomeTextboxName' -From 'my-custom-class' -To 'my-other-class'
+
+# or
+
+Rename-PodeWebClass -Id 'textbox_somename' -From 'my-custom-class' -To 'my-other-class'
+```
+
+### Switch
+
+You can toggle a class to be added/removed by using [`Switch-PodeWebClass`]. By default this will toggle a class between being added/removed, but you can specify the state to be added or removed by supplying the `-State` parameter. You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+
+```powershell
+Switch-PodeWebClass -Type 'Textbox' -Name 'SomeTextboxName' -Value 'my-custom-class'
+
+# or
+
+Switch-PodeWebClass -Id 'textbox_somename' -Value 'my-custom-class' -State Remove
+```
+
 ## Styles
 
 ### Add

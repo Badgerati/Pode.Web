@@ -132,7 +132,7 @@ function New-PodeWebTab
         $Content,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon
     )
 
@@ -147,7 +147,7 @@ function New-PodeWebTab
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
         Content = $Content
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Tab')
     }
 }
 
@@ -176,7 +176,7 @@ function New-PodeWebCard
         $Buttons,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [switch]
@@ -204,7 +204,7 @@ function New-PodeWebCard
         Buttons = $Buttons
         NoTitle = $NoTitle.IsPresent
         NoHide  = $NoHide.IsPresent
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Card')
     }
 }
 
@@ -262,7 +262,7 @@ function New-PodeWebModal
         $Content,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter()]
@@ -346,7 +346,7 @@ function New-PodeWebModal
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Modal')
         Content = $Content
         CloseText = [System.Net.WebUtility]::HtmlEncode($CloseText)
         SubmitText = [System.Net.WebUtility]::HtmlEncode($SubmitText)
@@ -547,7 +547,7 @@ function New-PodeWebStep
         $ArgumentList,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter()]
@@ -598,7 +598,7 @@ function New-PodeWebStep
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Content = $Content
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Step')
         IsDynamic = ($null -ne $ScriptBlock)
     }
 }
@@ -740,7 +740,7 @@ function New-PodeWebBellow
         $Content,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon
     )
 
@@ -755,6 +755,6 @@ function New-PodeWebBellow
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Bellow -Id $Id -Name $Name)
         Content = $Content
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Bellow')
     }
 }

@@ -507,7 +507,7 @@ function Show-PodeWebToast
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [string]
+        [object]
         $Icon = 'information'
     )
 
@@ -521,7 +521,7 @@ function Show-PodeWebToast
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Duration = $Duration
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Toast')
     }
 }
 
@@ -936,7 +936,7 @@ function Show-PodeWebNotification
 
         [Parameter()]
         [string]
-        $Icon
+        $IconUrl
     )
 
     return @{
@@ -944,7 +944,7 @@ function Show-PodeWebNotification
         ObjectType = 'Notification'
         Title = $Title
         Body = $Body
-        Icon = (Add-PodeWebAppPath -Url $Icon)
+        IconUrl = (Add-PodeWebAppPath -Url $IconUrl)
     }
 }
 
@@ -1208,7 +1208,7 @@ function Update-PodeWebTile
         $Colour = '',
 
         [Parameter()]
-        [string]
+        [object]
         $Icon
     )
 
@@ -1222,7 +1222,7 @@ function Update-PodeWebTile
         Name = $Name
         Colour = $Colour
         ColourType = $ColourType
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Tile')
     }
 }
 
@@ -1540,10 +1540,9 @@ function Remove-PodeWebClass
         $Value
     )
 
-
     # update element
     if ($null -ne $Element) {
-        if (($null -ne $Element.Css) -and ($null -ne $Element.Css.Classes)) {
+        if ($null -ne $Element.Css.Classes) {
             $Element.Css.Classes = $Element.Css.Classes | Where-Object { $_ -inotin $Value }
         }
 
@@ -1560,6 +1559,126 @@ function Remove-PodeWebClass
             Type = $Type
             Name = $Name
             Value = $Value
+        }
+    }
+}
+
+function Rename-PodeWebClass
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $From,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $To
+    )
+
+    # update element
+    if ($null -ne $Element) {
+        return ($Element |
+            Remove-PodeWebClass -Value $From |
+            Add-PodeWebClass -Value $To)
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Rename'
+            ObjectType = 'Element'
+            SubObjectType = 'Class'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+            From = $From
+            To = $To
+        }
+    }
+}
+
+function Switch-PodeWebClass
+{
+    [CmdletBinding(DefaultParameterSetName='Id')]
+    param(
+        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [hashtable]
+        $Element,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Type,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Toggle', 'Add', 'Remove')]
+        [string]
+        $State = 'Toggle'
+    )
+
+    # update element
+    if ($null -ne $Element) {
+        switch ($State.ToLowerInvariant()) {
+            'add' {
+                $Element = $Element | Add-PodeWebClass -Value $Value
+            }
+
+            'remove' {
+                $Element = $Element | Remove-PodeWebClass -Value $Value
+            }
+
+            'toggle' {
+                if ($Element.Css.Classes -icontains $Value) {
+                    $Element = $Element | Remove-PodeWebClass -Value $Value
+                }
+                else {
+                    $Element = $Element | Add-PodeWebClass -Value $Value
+                }
+            }
+        }
+
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        return @{
+            Operation = 'Switch'
+            ObjectType = 'Element'
+            SubObjectType = 'Class'
+            ID = $Id
+            Type = $Type
+            Name = $Name
+            Value = $Value
+            State = $State
         }
     }
 }
@@ -2127,7 +2246,7 @@ function Update-PodeWebButton
         $DisplayName,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter()]
@@ -2166,7 +2285,7 @@ function Update-PodeWebButton
         SizeType = $sizeType
         SizeState = $SizeState.ToLowerInvariant()
         DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Button')
     }
 }
 
@@ -2246,7 +2365,7 @@ function Update-PodeWebHeader
         $Value,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter()]
@@ -2260,7 +2379,7 @@ function Update-PodeWebHeader
         ObjectType = 'Header'
         ID = $Id
         Value = $Value
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Header')
         Size = $Size
     }
 }
@@ -2298,5 +2417,92 @@ function Update-PodeWebImage
         Title = $Title
         Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px' -AllowNull)
         Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type 'px' -AllowNull)
+    }
+}
+
+function Update-PodeWebIcon
+{
+    [CmdletBinding(DefaultParameterSetName='Rotate')]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Colour = $null,
+
+        [Parameter()]
+        [string]
+        $Title = $null,
+
+        [Parameter(ParameterSetName='Flip')]
+        [ValidateSet('', 'Horizontal', 'Vertical')]
+        [string]
+        $Flip = '',
+
+        [Parameter(ParameterSetName='Rotate')]
+        [ValidateSet(-1, 0, 45, 90, 135, 180, 225, 270, 315)]
+        [int]
+        $Rotate = -1,
+
+        [Parameter()]
+        [ValidateSet(-1, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)]
+        [int]
+        $Size = -1,
+
+        [Parameter()]
+        [hashtable]
+        $ToggleIcon = $null,
+
+        [Parameter()]
+        [hashtable]
+        $HoverIcon = $null,
+
+        [switch]
+        $Spin
+    )
+
+    return @{
+        Operation = 'Update'
+        ObjectType = 'Icon'
+        ID = $Id
+        Name = $Name
+        Colour = $Colour
+        Title = $Title
+        Flip = $Flip
+        Rotate = $Rotate
+        Size = $Size
+        Spin = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Spin' -Value $Spin.IsPresent)
+        Icons = @{
+            Toggle = $ToggleIcon
+            Hover = $HoverIcon
+        }
+    }
+}
+
+function Switch-PodeWebIcon
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [ValidateSet('Default', 'Base', 'Toggle', 'Hover')]
+        [string]
+        $State = 'Default'
+    )
+
+    return @{
+        Operation = 'Switch'
+        ObjectType = 'Icon'
+        ID = $Id
+        State = $State
     }
 }
