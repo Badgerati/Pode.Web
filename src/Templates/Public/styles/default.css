@@ -975,6 +975,14 @@ a.nav-link .mdi:before {
     top: 3px;
 }
 
+.mdi-size-5::before {
+    font-size: 5px;
+}
+
+.mdi-size-10::before {
+    font-size: 10px;
+}
+
 .mdi-size-15::before {
     font-size: 15px;
 }
@@ -985,6 +993,30 @@ a.nav-link .mdi:before {
 
 .mdi-size-22::before {
     font-size: 22px;
+}
+
+.mdi-size-25::before {
+    font-size: 25px;
+}
+
+.mdi-size-30::before {
+    font-size: 30px;
+}
+
+.mdi-size-35::before {
+    font-size: 35px;
+}
+
+.mdi-size-40::before {
+    font-size: 40px;
+}
+
+.mdi-size-45::before {
+    font-size: 45px;
+}
+
+.mdi-size-50::before {
+    font-size: 50px;
 }
 
 .dropdown-menu .mdi {

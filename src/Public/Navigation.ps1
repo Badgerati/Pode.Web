@@ -27,7 +27,7 @@ function New-PodeWebNavLink
         $ArgumentList,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [switch]
@@ -52,7 +52,7 @@ function New-PodeWebNavLink
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Url = (Add-PodeWebAppPath -Url $Url)
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Nav Link')
         IsDynamic = ($null -ne $ScriptBlock)
         Disabled = $Disabled.IsPresent
         InDropdown = $false
@@ -111,7 +111,7 @@ function New-PodeWebNavDropdown
         $Items,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [switch]
@@ -132,7 +132,7 @@ function New-PodeWebNavDropdown
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag 'Nav-Dropdown' -Id $Id -Name $Name)
         Items = $Items
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Nav Dropdown')
         Disabled = $Disabled.IsPresent
         Hover = $Hover.IsPresent
         InDropdown = $false

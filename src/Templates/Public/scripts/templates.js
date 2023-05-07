@@ -95,7 +95,10 @@ class PodeElementFactory {
 
         var obj = clazz.findId(data, sender, null, opts);
         if (obj) {
-            return this.getObject(obj);
+            obj = this.getObject(obj);
+            if (obj) {
+                return obj;
+            }
         }
 
         return (new clazz(data, sender, opts));
@@ -114,7 +117,7 @@ class PodeElementFactory {
     }
 
     static triggerObject(id, evt) {
-        return this.getObject(id).trigger(evt);
+        return this.getObject(id).trigger(evt, true);
     }
 }
 
@@ -131,7 +134,7 @@ class PodeElement {
         this.uuid = generateUuid();
         this.created = false;
         this.loading = false;
-        this.ephemeral = false;
+        this.ephemeral = (opts.ephemeral ?? false);
         this.dynamic = data.IsDynamic ?? false;
         this.autoRender = opts.autoRender ?? true;
         this.output = {
@@ -151,6 +154,7 @@ class PodeElement {
         this.parent = null;
         this.children = [];
         this.child = {
+            ignore: false,
             isFirst: false,
             isLast: false,
             index: 0,
@@ -183,6 +187,12 @@ class PodeElement {
             return;
         }
 
+        // don't add element as child?
+        if (opts.child && opts.child.ignore) {
+            element.child.ignore = true;
+            return;
+        }
+
         // set element child index and first/last
         element.child = {
             index: this.children.length,
@@ -209,19 +219,43 @@ class PodeElement {
         this.children.push(element);
     }
 
-    setIcon(name, padRight, padTop) {
-        if (!name) {
+    setIcon(data, padRight, padTop, opts) {
+        // empty if not icon
+        if (!data) {
             return '';
         }
 
-        var result = this.build('icon', {
-            ID: `${this.id}_icon`,
-            Name: name,
-            Css: {
-                Classes: `${padRight ? 'mRight02' : ''} ${padTop ? 'mTop-02' : ''}`
+        // build data, or use new-icon data?
+        if (typeof(data) === 'string') {
+            data = {
+                ID: `${this.id}_icon`,
+                Name: data
             }
-        }, null, null);
+        }
 
+        // add padding
+        if (padRight || padTop) {
+            data.Css = data.Css ?? {};
+            data.Css.Classes = data.Css.Classes ?? [];
+
+            if (padRight) {
+                data.Css.Classes.push('mRight02');
+            }
+
+            if (padTop) {
+                data.Css.Classes.push('mTop-02');
+            }
+        }
+
+        // build opts
+        opts = opts ?? {};
+        opts.child = opts.child ?? {};
+        opts.child.ignore = true;
+
+        // build icon
+        var result = this.build('icon', data, opts);
+
+        // set icon and return its html
         this.icon = result.elements[0];
         return result.html;
     }
@@ -259,6 +293,14 @@ class PodeElement {
 
                     case 'remove':
                         this.removeClass(data.Value, sender, {...data, ...opts});
+                        break;
+
+                    case 'rename':
+                        this.replaceClass(data.From, data.To, sender, {...data, ...opts});
+                        break;
+
+                    case 'switch':
+                        this.toggleClass(data.Value, data.State, sender, {...data, ...opts})
                         break;
                 }
                 break;
@@ -380,6 +422,10 @@ class PodeElement {
 
             case 'close':
                 this.close(data, sender, opts);
+                break;
+
+            case 'switch':
+                this.switch(data, sender, opts);
                 break;
         }
 
@@ -526,9 +572,8 @@ class PodeElement {
                 senderToUse = sender;
             }
 
-            opts.child = {
-                isLast: () => { return index == content.length - 1; }
-            };
+            opts.child = opts.child ?? {};
+            opts.child.isLast = () => { return index == content.length - 1; };
 
             var result = PodeElementFactory.invokeClass(item.ObjectType, 'new', item, senderToUse, opts);
             created.push(result.element);
@@ -589,10 +634,15 @@ class PodeElement {
         return strEvents;
     }
 
-    trigger(evt) {
-        var inputs = this.serialize();
-        inputs.opts.keepFocus = true;
-        sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this.element, true, null, inputs.opts);
+    trigger(evt, asAjax) {
+        if (asAjax) {
+            var inputs = this.serialize();
+            inputs.opts.keepFocus = true;
+            sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this.element, true, null, inputs.opts);
+        }
+        else {
+            this.element.trigger(evt);
+        }
     }
 
     listen(element, evt, func, noPreventDefault) {
@@ -601,14 +651,24 @@ class PodeElement {
             return;
         }
 
+        var obj = this;
         element.off(evt).on(evt, function(e) {
             if (!noPreventDefault) {
                 e.preventDefault();
                 e.stopPropagation();
             }
 
-            func(e, $(this));
+            func(e, $(this), obj);
         });
+    }
+
+    silence(element, evt) {
+        element = element ?? this.element;
+        if (!element) {
+            return;
+        }
+
+        element.off(evt);
     }
 
     spinner(show) {
@@ -770,7 +830,7 @@ class PodeElement {
     }
 
     submit(data, sender, opts) {
-        this.element.trigger('click');
+        this.trigger('click');
     }
 
     invoke(data, sender, opts) {
@@ -830,12 +890,29 @@ class PodeElement {
     }
 
     removeClass(clazz, sender, opts) {
-        removeClass((this.container ?? this.element), clazz, !((opts ?? {}).AsPattern ?? false));
+        removeClass((this.container ?? this.element), clazz, !((opts ?? {}).pattern ?? false));
     }
 
     replaceClass(oldClass, newClass, sender, opts) {
-        removeClass((this.container ?? this.element), oldClass, !((opts ?? {}).AsPattern ?? false));
-        addClass((this.container ?? this.element), newClass);
+        var obj = (this.container ?? this.element);
+
+        if (!hasClass(obj, newClass)) {
+            removeClass(obj, oldClass, !((opts ?? {}).pattern ?? false));
+            addClass(obj, newClass);
+        }
+    }
+
+    toggleClass(clazz, state, sender, opts) {
+        if (typeof(state) === 'string') {
+            state = ({
+                toggle: null,
+                add: true,
+                remove: false
+            })[state.toLowerCase()];
+        }
+
+        var obj = (this.container ?? this.element);
+        obj.toggleClass(clazz, state);
     }
 
     showValidation(message, sender, opts) {
@@ -903,10 +980,19 @@ class PodeElement {
         throw `${this.getType()} "close" method not implemented`
     }
 
+    switch(data, sender, opts) {
+        throw `${this.getType()} "switch" method not implemented`
+    }
+
     update(data, sender, opts) {
         // update icon
         if (this.icon && data.Icon) {
-            this.icon.replace(data.Icon);
+            if (typeof(data.Icon) === 'string') {
+                this.icon.replace(data.Icon);
+            }
+            else {
+                this.icon.update(data.Icon, sender, opts);
+            }
         }
     }
 
@@ -939,7 +1025,7 @@ class PodeContentElement extends PodeElement {
     }
 
     setTitle(value) {
-        if (!value) {
+        if (value == null) {
             return;
         }
 
@@ -1412,7 +1498,7 @@ class PodeBadge extends PodeTextualElement {
 
         // change colour
         if (data.Colour) {
-            this.replaceClass('badge-\\w+', `badge-${data.ColourType}`, null, {AsPattern: true});
+            this.replaceClass('badge-\\w+', `badge-${data.ColourType}`, null, { pattern: true });
         }
     }
 }
@@ -1552,6 +1638,17 @@ class PodeIcon extends PodeContentElement {
         super(data, sender, opts);
         this.setName(this.name);
         this.title = data.Title ?? '';
+        this.colour = (data.Colour ?? '').toLowerCase();
+        this.size = data.Size ?? 0;
+        this.flip = (data.Flip ?? '').toLowerCase();
+        this.spin = data.Spin ?? false;
+        this.rotate = data.Rotate ?? 0;
+        this.icons = {
+            base: data,
+            toggle: (data.Icons ?? {}).Toggle,
+            hover: (data.Icons ?? {}).Hover
+        };
+        this.state = 'base';
     }
 
     getName() {
@@ -1559,20 +1656,22 @@ class PodeIcon extends PodeContentElement {
     }
 
     setName(name) {
-        if (name) {
-            name = name.toLowerCase();
-            this.name = name.startsWith('mdi-') ? name : `mdi-${name}`;
+        if (!name) {
+            return;
         }
+
+        name = name.toLowerCase();
+        this.name = name.startsWith('mdi-') ? name : `mdi-${name}`;
     }
 
     new(data, sender, opts) {
-        var colour = data.Colour ? `color:${data.Colour};` : '';
+        var colour = this.colour ? `color:${this.colour};` : '';
         var title = this.title ? `title='${this.title}' data-toggle='tooltip'` : '';
-        var size = data.Size ? `mdi-size-${data.Size}` : '';
+        var size = this.size > 0 ? `mdi-size-${this.size}` : '';
 
-        var spin = data.Spin ? 'mdi-spin' : '';
-        var flip = data.Flip ? `mdi-flip-${data.Flip[0]}`.toLowerCase() : '';
-        var rotate = data.Rotate > 0 ? `mdi-rotate-${data.Rotate}` : '';
+        var spin = this.spin ? 'mdi-spin' : '';
+        var flip = this.flip ? `mdi-flip-${this.flip[0]}` : '';
+        var rotate = this.rotate > 0 ? `mdi-rotate-${this.rotate}` : '';
 
         return `<span
             id='${this.id}'
@@ -1583,6 +1682,139 @@ class PodeIcon extends PodeContentElement {
             ${title}
             ${this.events(data.Events)}>
         </span>`;
+    }
+
+    bind(data, sender, opts) {
+        // icon or parent?
+        var obj = this;
+        if (this.parent && this.parent.icon && this.parent.icon.uuid === this.uuid) {
+            obj = this.parent;
+        }
+
+        // is the icon wrapped in a top-level header?
+        var ele = obj.element;
+
+        var forObj = $(`[for='${obj.uuid}']`);
+        if (forObj && forObj.length > 0) {
+            ele = forObj;
+        }
+
+        // do we have a hover icon?
+        if (this.icons.hover) {
+            // add mouseover
+            obj.listen(ele, 'mouseover', function(e, target, sender) {
+                (sender.icon ?? sender).switch({ State: 'hover' }, sender, null);
+            });
+
+            // add mouseout
+            obj.listen(ele, 'mouseout', function(e, target, sender) {
+                (sender.icon ?? sender).switch({ State: 'base' }, sender, null);
+            });
+        }
+        else {
+            // remove mouseover/out
+            obj.silence(ele, 'mouseover');
+            obj.silence(ele, 'mouseout');
+        }
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update name
+        if (data.Name) {
+            this.replace(data.Name);
+        }
+
+        // update title
+        this.setTitle(data.Title);
+
+        // update colour
+        if (data.Colour != null) {
+            this.colour = data.Colour.toLowerCase();
+
+            if (this.colour === '') {
+                this.removeStyle('color', this);
+            }
+            else {
+                this.addStyle('color', this.colour, this, { important: false });
+            }
+        }
+
+        // update flip
+        if (data.Flip != '') {
+            var newFlip = data.Flip;
+
+            if (data.Flip == null) {
+                this.removeClass(`mdi-flip-\\w+`, this, { pattern: true });
+            }
+            else {
+                newFlip = newFlip.toLowerCase();
+                this.replaceClass(`mdi-flip-\\w+`, `mdi-flip-${newFlip[0]}`, this, { pattern: true });
+            }
+
+            this.flip = newFlip;
+        }
+
+        // update rotation
+        if (data.Rotate || data.Rotate > -1) {
+            if (data.Rotate === 0) {
+                this.removeClass(`mdi-rotate-\\w+`, this, { pattern: true });
+            }
+            else {
+                this.replaceClass(`mdi-rotate-\\w+`, `mdi-rotate-${data.Rotate}`, this, { pattern: true });
+            }
+
+            this.rotate = data.Rotate;
+        }
+
+        // update size
+        if (data.Size || data.Size > -1) {
+            if (data.Size === 0) {
+                this.removeClass(`mdi-size-\\w+`, this, { pattern: true });
+            }
+            else {
+                this.replaceClass(`mdi-size-\\w+`, `mdi-size-${data.Size}`, this, { pattern: true });
+            }
+
+            this.size = data.Size;
+        }
+
+        // update spin
+        if (data.Spin != null) {
+            this.toggleClass('mdi-spin', data.Spin, this);
+        }
+
+        // update toggle icon
+        if (data.Icons) {
+            if (data.Icons.Toggle != null) {
+                this.icons.toggle = Object.keys(data.Icons.Toggle).length > 0 ? data.Icons.Toggle : null;
+            }
+
+            // update hover icon
+            if (data.Icons.Hover != null) {
+                this.icons.hover = Object.keys(data.Icons.Hover).length > 0 ? data.Icons.Hover : null;
+                this.bind(data, sender, opts);
+            }
+        }
+    }
+
+    switch(data, sender, opts) {
+        data.State = data.State.toLowerCase();
+        if (this.state === data.State) {
+            return;
+        }
+
+        switch (data.State) {
+            case 'default':
+                this.toggle(sender, opts);
+                break;
+
+            default:
+                this.update(this.icons[data.State], sender, opts);
+                this.state = data.State;
+                break;
+        }
     }
 
     replace(name, title) {
@@ -1600,15 +1832,22 @@ class PodeIcon extends PodeContentElement {
         }
 
         // replace title
-        if (title) {
-            setTitle(this.element, title);
-            this.title = title;
-        }
+        this.setTitle(title);
     }
 
-    //TODO: toggle function to help with toggling between two icon?
-    //          - plus a '-ToggleIcon' and title on New-PodeWebIcon ?
-    //          - possible even a '-HoverIcon'
+    toggle(sender, opts) {
+        this.switch({ State: this.state === 'base' ? 'toggle' : 'base' }, (sender ?? this), opts);
+    }
+
+    // mouseover() {
+    //     sender.update(sender.icons.hover, sender, null);
+    //     sender.state = 'hover';
+    // }
+
+    // mouseout() {
+    //     sender.update(sender.icons.base, sender, null);
+    //     sender.state = 'base';
+    // }
 }
 PodeElementFactory.setClass(PodeIcon);
 
@@ -1732,26 +1971,26 @@ class PodeButton extends PodeFormElement {
 
     bind(data, sender, opts) {
         super.bind(data, sender, opts);
-        var obj = this;
 
-        this.listen(this.element, 'click', function(e, target) {
+        // bind click
+        this.listen(this.element, 'click', function(e, target, sender) {
             // hide tooltip
-            obj.tooltip(false);
+            sender.tooltip(false);
 
             // find a form
             var inputs = {};
-            var form = obj.element.closest('form');
+            var form = sender.element.closest('form');
             if (form) {
-                inputs = obj.serialize(form);
+                inputs = sender.serialize(form);
             }
 
             // get a data value
-            var dataValue = getDataValue(obj.element);
+            var dataValue = getDataValue(sender.element);
             if (dataValue) {
                 inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
             }
 
-            sendAjaxReq(obj.url, inputs.data, obj.element, true, null, inputs.opts);
+            sendAjaxReq(sender.url, inputs.data, sender.element, true, null, inputs.opts);
         });
     }
 
@@ -1761,7 +2000,7 @@ class PodeButton extends PodeFormElement {
         // update display name
         if (data.DisplayName) {
             if (this.iconOnly) {
-                setTitle(this.element, data.DisplayName);
+                this.setTitle(data.DisplayName);
             }
             else {
                 this.element.find('span.pode-text').text(decodeHTML(data.DisplayName));
@@ -1801,7 +2040,7 @@ class PodeButton extends PodeFormElement {
             }
 
             if (data.Size) {
-                this.replaceClass('btn-(sm|lg)', data.SizeType, null, { AsPattern: true });
+                this.replaceClass('btn-(sm|lg)', data.SizeType, null, { pattern: true });
             }
         }
     }
@@ -1911,10 +2150,12 @@ class PodeToast extends PodeElement {
             return;
         }
 
+        var icon = this.setIcon(data.Icon, false, false, { ephemeral: true });
+
         toastArea.append(`
             <div pode-id="${this.uuid}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${data.Duration}">
                 <div class="toast-header">
-                    <span class='mdi mdi-${data.Icon.toLowerCase()}'></span>
+                    ${icon}
                     <strong class="mr-auto mLeft05">${data.Title}</strong>
                     <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -1929,6 +2170,12 @@ class PodeToast extends PodeElement {
         $(`div[pode-id='${this.uuid}']`).on('hidden.bs.toast', function(e) {
             $(e.target).remove();
         })
+
+        if (this.icon) {
+            this.refresh(null, true);
+            this.icon.refresh(null, true);
+            this.icon.bind();
+        }
 
         $(`div[pode-id='${this.uuid}']`).toast('show');
     }
@@ -1951,7 +2198,7 @@ class PodeNotification extends PodeElement {
         var display = () => {
             new Notification(data.Title, {
                 body: data.Body,
-                icon: data.Icon
+                icon: data.IconUrl
             });
         };
 
@@ -1994,9 +2241,11 @@ class PodeCard extends PodeContentElement {
                 ${hideBtn}
             </div>`;
 
-            header = `<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
-                <h5>${title}</h5>
-                ${btns}
+            header = `<div
+                class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'
+                for='${this.uuid}'>
+                    <h5>${title}</h5>
+                    ${btns}
             </div>`;
         }
 
@@ -2856,7 +3105,7 @@ class PodeBellow extends PodeCyclingChildElement {
             name='${this.name}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
-                <div class='card-header bellow-header' id='${this.id}_header'>
+                <div class='card-header bellow-header' id='${this.id}_header' for='${this.uuid}'>
                     <h2 class='mb-0'>
                         <button class='btn btn-link btn-block text-left ${collapsed}' type='button' data-toggle='collapse' data-target='#${this.id}_body' aria-expanded='${expanded}' aria-controls='${this.id}_body'>
                             ${icon}
@@ -3476,7 +3725,7 @@ class PodeComment extends PodeContentElement {
             class="media"
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
-                <img src="${data.Icon}" class="align-self-start mr-3" alt="${data.Username} icon">
+                <img src="${data.AvatarUrl}" class="align-self-start mr-3" alt="${data.Username} icon">
                 <div class="media-body">
                     <div class="media-head">
                         <h5 class="mt-0">
@@ -3532,7 +3781,7 @@ class PodeTile extends PodeRefreshableElement {
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'
             name="${this.name}">
-                <h6 class="pode-tile-header">
+                <h6 class="pode-tile-header" for='${this.uuid}'>
                     ${icon}
                     ${data.DisplayName}
                     ${this.buildRefreshButton(true)}
@@ -3580,7 +3829,7 @@ class PodeTile extends PodeRefreshableElement {
 
         /// update the colour
         if (data.Colour) {
-            this.replaceClass('alert-\\w+', `alert-${data.ColourType}`, null, {AsPattern: true});
+            this.replaceClass('alert-\\w+', `alert-${data.ColourType}`, null, { pattern: true });
         }
     }
 }
@@ -4259,7 +4508,7 @@ class PodeModal extends PodeContentElement {
             pode-data-value="">
                 <div class="modal-dialog modal-dialog-scrollable pode-modal-${data.Size.toLowerCase()}">
                     <div class="modal-content">
-                        <div class="modal-header">
+                        <div class="modal-header" for='${this.uuid}'>
                             <h5 class="modal-title" id="${this.id}_lbl">
                                 ${icon}
                                 ${data.DisplayName}
@@ -4681,7 +4930,7 @@ class PodeProgress extends PodeContentElement {
 
         // colour
         if (data.Colour) {
-            this.replaceClass('bg-\\w+', `bg-${data.ColourType}`, null, {AsPattern: true});
+            this.replaceClass('bg-\\w+', `bg-${data.ColourType}`, null, { pattern: true });
         }
     }
 }
@@ -4988,7 +5237,7 @@ class PodeFileStream extends PodeContentElement {
         if (!data.NoHeader) {
             var icon = this.setIcon(data.Icon);
 
-            header = `<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom'>
+            header = `<div class='card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 border-bottom' for='${this.uuid}'>
                 <h5>
                     ${icon}
                     ${encodeHTML(this.file.url)}
@@ -5206,7 +5455,7 @@ class PodeSteps extends PodeContentElement {
         }
 
         var html = `<div class='step ${element.child.isFirst ? 'active' : ''}' data-target='#${element.id}'>
-            <button type='button' class='step-trigger' role='tab' id='${element.id}-trigger' aria-controls='${element.id}' ${!element.child.isFirst ? 'disabled' : ''}>
+            <button type='button' class='step-trigger' role='tab' id='${element.id}-trigger' for='${this.uuid}' aria-controls='${element.id}' ${!element.child.isFirst ? 'disabled' : ''}>
                 <span class='bs-stepper-circle'>
                     ${data.Icon ? element.setIcon(data.Icon) : element.child.index + 1}
                 </span>

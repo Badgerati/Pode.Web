@@ -942,3 +942,97 @@ function Set-PodeWebSecurity
         -Scripts 'self', 'unsafe-inline' `
         -Image 'self', 'data'
 }
+
+function Test-PodeWebParameter
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        $Parameters,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        $Value
+    )
+
+    if ($Parameters.ContainsKey($Name)) {
+        return $Value
+    }
+
+    return $null
+}
+
+function Protect-PodeWebIconType
+{
+    param(
+        [Parameter()]
+        [object]
+        $Icon,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Element
+    )
+
+    # just null or string
+    if (($null -eq $Icon) -or ($Icon -is [string])) {
+        return $Icon
+    }
+
+    # if hashtable, check object type
+    if (($Icon -is [hashtable]) -and ($Icon.ObjectType -ieq 'icon')) {
+        return $Icon
+    }
+
+    # error
+    throw "Icon for '$($Element)' is not a string or hashtable from New-PodeWebIcon"
+}
+
+function Protect-PodeWebIconPreset
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable]
+        $Icon,
+
+        [Parameter()]
+        [hashtable]
+        $Preset
+    )
+
+    if (($null -eq $Preset) -or ($Preset.Length -eq 0)) {
+        return $null
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Preset.Name)) {
+        $Preset.Name = $Icon.Name
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Preset.Colour)) {
+        $Preset.Colour = $Icon.Colour
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Preset.Title)) {
+        $Preset.Title = $Icon.Title
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Preset.Flip)) {
+        $Preset.Flip = $Icon.Flip
+    }
+
+    if ($Preset.Rotate -le -1) {
+        $Preset.Rotate = $Icon.Rotate
+    }
+
+    if ($Preset.Size -le -1) {
+        $Preset.Size = $Icon.Size
+    }
+
+    if ($null -eq $Preset.Spin) {
+        $Preset.Spin = $Icon.Spin
+    }
+
+    return $Preset
+}

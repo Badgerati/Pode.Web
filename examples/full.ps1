@@ -136,8 +136,8 @@ Start-PodeServer -StatusPageExceptions Show {
     )
 
     $section3 = New-PodeWebCard -Name 'Comments' -Icon 'comment' -Content @(
-        New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
-        New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
+        New-PodeWebComment -AvatarUrl '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
+        New-PodeWebComment -AvatarUrl '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )
 
     $codeEditor = New-PodeWebCodeEditor -Language PowerShell -Name 'Code Editor' -AsCard
@@ -187,7 +187,7 @@ Start-PodeServer -StatusPageExceptions Show {
     $hero = New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page for the full.ps1 example' -Content @(
         New-PodeWebText -Value 'Here you will see examples for close to everything Pode.Web can do.' -InParagraph -Alignment Center
         New-PodeWebParagraph -Alignment Center -Content @(
-            New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
+            New-PodeWebButton -Name 'Repository' -Icon (New-PodeWebIcon -Name Link -HoverIcon (New-PodeWebIconPreset -Spin)) -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
         )
     )
 
@@ -223,7 +223,7 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Content @(
             New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard
         )
-        New-PodeWebTab -Name 'Doughnut' -Icon 'chart-donut' -Content @(
+        New-PodeWebTab -Name 'Doughnut' -Icon (New-PodeWebIcon -Name 'chart-donut' -HoverIcon (New-PodeWebIconPreset -Spin)) -Content @(
             New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard
         )
     )
@@ -290,7 +290,10 @@ Start-PodeServer -StatusPageExceptions Show {
                 Actions = $btns
             }
         }
-    }
+    } `
+    -Columns @(
+        Initialize-PodeWebTableColumn -Key Actions -Alignment Center
+    )
 
     Add-PodeStaticRoute -Path '/download' -Source '.\storage' -DownloadOnly
 

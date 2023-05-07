@@ -768,7 +768,7 @@ function New-PodeWebHeader
         $Secondary,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon
     )
 
@@ -782,7 +782,7 @@ function New-PodeWebHeader
         Size = $Size
         Value = [System.Net.WebUtility]::HtmlEncode($Value)
         Secondary = [System.Net.WebUtility]::HtmlEncode($Secondary)
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Header')
         NoEvents = $true
     }
 }
@@ -1329,7 +1329,7 @@ function New-PodeWebButton
         $DataValue,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter(Mandatory=$true, ParameterSetName='ScriptBlock')]
@@ -1396,7 +1396,7 @@ function New-PodeWebButton
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         DataValue = $DataValue
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Button')
         Url = (Add-PodeWebAppPath -Url $Url)
         IsDynamic = ($null -ne $ScriptBlock)
         IconOnly = $IconOnly.IsPresent
@@ -1500,6 +1500,87 @@ function New-PodeWebIcon
 
         [Parameter()]
         [string]
+        $Colour = '',
+
+        [Parameter()]
+        [string]
+        $Title = '',
+
+        [Parameter(ParameterSetName='Flip')]
+        [ValidateSet('Horizontal', 'Vertical')]
+        [string]
+        $Flip,
+
+        [Parameter(ParameterSetName='Rotate')]
+        [ValidateSet(0, 45, 90, 135, 180, 225, 270, 315)]
+        [int]
+        $Rotate = 0,
+
+        [Parameter()]
+        [ValidateSet(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)]
+        [int]
+        $Size = 0,
+
+        [Parameter()]
+        [hashtable]
+        $ToggleIcon,
+
+        [Parameter()]
+        [hashtable]
+        $HoverIcon,
+
+        [switch]
+        $Spin
+    )
+
+    # ensure icon presets are correct
+    if (!(Test-PodeWebContent -Content $ToggleIcon -ComponentType Element -ObjectType 'Icon-Preset')) {
+        throw 'The ToggleIcon for an Icon can only be an Icon-Preset element'
+    }
+
+    if (!(Test-PodeWebContent -Content $HoverIcon -ComponentType Element -ObjectType 'Icon-Preset')) {
+        throw 'The HoverIcon for an Icon can only be an Icon-Preset element'
+    }
+
+    # generate an ID
+    $Id = Get-PodeWebElementId -Tag Icon -Id $Id
+
+    if (![string]::IsNullOrWhiteSpace($Colour)) {
+        $Colour = $Colour.ToLowerInvariant()
+    }
+
+    $element = @{
+        ComponentType = 'Element'
+        ObjectType = 'Icon'
+        Parent = $ElementData
+        ID = $Id
+        Name = $Name
+        Colour = $Colour
+        Title = $Title
+        Flip = $Flip
+        Rotate = $Rotate
+        Size = $Size
+        Spin = $Spin.IsPresent
+    }
+
+    $element.Icons = @{
+        Toggle = (Protect-PodeWebIconPreset -Icon $element -Preset $ToggleIcon)
+        Hover = (Protect-PodeWebIconPreset -Icon $element -Preset $HoverIcon)
+    }
+
+    return $element
+}
+
+function New-PodeWebIconPreset
+{
+    [CmdletBinding(DefaultParameterSetName='Rotate')]
+    param(
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
         $Colour,
 
         [Parameter()]
@@ -1512,15 +1593,18 @@ function New-PodeWebIcon
         $Flip,
 
         [Parameter(ParameterSetName='Rotate')]
-        [ValidateSet(0, 45, 90, 135, 180, 225, 270, 315)]
+        [ValidateSet(-1, 0, 45, 90, 135, 180, 225, 270, 315)]
         [int]
-        $Rotate = 0,
+        $Rotate = -1,
+
+        [Parameter()]
+        [ValidateSet(-1, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50)]
+        [int]
+        $Size = -1,
 
         [switch]
         $Spin
     )
-
-    $Id = Get-PodeWebElementId -Tag Icon -Id $Id
 
     if (![string]::IsNullOrWhiteSpace($Colour)) {
         $Colour = $Colour.ToLowerInvariant()
@@ -1528,15 +1612,14 @@ function New-PodeWebIcon
 
     return @{
         ComponentType = 'Element'
-        ObjectType = 'Icon'
-        Parent = $ElementData
-        ID = $Id
+        ObjectType = 'Icon-Preset'
         Name = $Name
         Colour = $Colour
         Title = $Title
         Flip = $Flip
         Rotate = $Rotate
-        Spin = $Spin.IsPresent
+        Size = $Size
+        Spin = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Spin' -Value $Spin.IsPresent)
     }
 }
 
@@ -1614,7 +1697,7 @@ function New-PodeWebComment
 
         [Parameter(Mandatory=$true)]
         [string]
-        $Icon,
+        $AvatarUrl,
 
         [Parameter(Mandatory=$true)]
         [string]
@@ -1636,7 +1719,7 @@ function New-PodeWebComment
         ObjectType = 'Comment'
         Parent = $ElementData
         ID = $Id
-        Icon = (Add-PodeWebAppPath -Url $Icon)
+        AvatarUrl = (Add-PodeWebAppPath -Url $AvatarUrl)
         Username = [System.Net.WebUtility]::HtmlEncode($Username)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         TimeStamp = $TimeStamp
@@ -2205,7 +2288,7 @@ function Initialize-PodeWebTableColumn
         $Name,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter()]
@@ -2225,7 +2308,7 @@ function Initialize-PodeWebTableColumn
         Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
         Alignment = $Alignment.ToLowerInvariant()
         Name = $Name
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Table Column')
         Default = $Default
         Hide = $Hide.IsPresent
     }
@@ -2248,7 +2331,7 @@ function Add-PodeWebTableButton
         $DisplayName,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter(Mandatory=$true)]
@@ -2302,7 +2385,7 @@ function Add-PodeWebTableButton
     $Table.Buttons += @{
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Table Button')
         IsDynamic = ($null -ne $ScriptBlock)
         WithText = $WithText.IsPresent
     }
@@ -2626,7 +2709,7 @@ function New-PodeWebTile
         $Id,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter(Mandatory=$true, ParameterSetName='ScriptBlock')]
@@ -2696,7 +2779,7 @@ function New-PodeWebTile
         Click = ($null -ne $ClickScriptBlock)
         IsDynamic = ($null -ne $ScriptBlock)
         Content = $Content
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Tile')
         Colour = $Colour
         ColourType = $ColourType
         AutoRefresh = $AutoRefresh.IsPresent
@@ -2786,7 +2869,7 @@ function New-PodeWebFileStream
         $Interval = 10,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [switch]
@@ -2812,7 +2895,7 @@ function New-PodeWebFileStream
         Height = $Height
         Url = (Add-PodeWebAppPath -Url $Url)
         Interval = ($Interval * 1000)
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'File Stream')
         NoHeader = $NoHeader.IsPresent
     }
 
