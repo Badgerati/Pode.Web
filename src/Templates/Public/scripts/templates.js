@@ -146,6 +146,11 @@ class PodeElement {
         this.url = `/elements/${this.getType()}/${data.ID}`;
         this.disabled = data.Disabled ?? false;
         this.visible = data.Visible ?? true;
+        this.title = data.Title ?? '';
+        this.readonly = data.ReadOnly ?? false;
+        this.required = data.Required ?? false;
+        this.width = data.Width ?? '';
+        this.height = data.Height ?? '';
 
         this.content = {
             0: 'Content'
@@ -825,6 +830,24 @@ class PodeElement {
         this.children.forEach((child) => { child.setRequired(enabled); });
     }
 
+    setTitle(value) {
+        if (value == null) {
+            return;
+        }
+
+        this.element.attr('title', value);
+
+        if (!this.title) {
+            this.element.attr('data-toggle', 'tooltip');
+            this.element.tooltip();
+        }
+        else {
+            this.element.attr('data-original-title', value);
+        }
+
+        this.title = value;
+    }
+
     reset(data, sender, opts) {
         this.element[0].reset();
     }
@@ -1016,30 +1039,11 @@ class PodeElement {
 class PodeContentElement extends PodeElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.title = data.Title;
     }
 
     apply(action, data, sender, opts) {
         sender = sender === undefined ? PODE_CONTENT : sender;
         return super.apply(action, data, sender, opts);
-    }
-
-    setTitle(value) {
-        if (value == null) {
-            return;
-        }
-
-        this.element.attr('title', value);
-
-        if (!this.title) {
-            this.element.attr('data-toggle', 'tooltip');
-            this.element.tooltip();
-        }
-        else {
-            this.element.attr('data-original-title', value);
-        }
-
-        this.title = value;
     }
 }
 
@@ -1234,12 +1238,9 @@ class PodeFormElement extends PodeContentElement {
         super(data, sender, opts);
         opts.help = opts.help ?? {};
 
-        this.readonly = data.ReadOnly ?? false;
-        this.required = data.Required ?? false;
         this.autofocus = data.AutoFocus ?? false;
         this.dynamicLabel = data.DynamicLabel ?? false;
         this.validation = opts.validation ?? true;
-        this.width = data.Width ?? '';
         this.label = {
             enabled: opts.label ?? true,
             asLegend: false
@@ -1637,7 +1638,6 @@ class PodeIcon extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.setName(this.name);
-        this.title = data.Title ?? '';
         this.colour = (data.Colour ?? '').toLowerCase();
         this.size = data.Size ?? 0;
         this.flip = (data.Flip ?? '').toLowerCase();
@@ -1838,16 +1838,6 @@ class PodeIcon extends PodeContentElement {
     toggle(sender, opts) {
         this.switch({ State: this.state === 'base' ? 'toggle' : 'base' }, (sender ?? this), opts);
     }
-
-    // mouseover() {
-    //     sender.update(sender.icons.hover, sender, null);
-    //     sender.state = 'hover';
-    // }
-
-    // mouseout() {
-    //     sender.update(sender.icons.base, sender, null);
-    //     sender.state = 'base';
-    // }
 }
 PodeElementFactory.setClass(PodeIcon);
 
@@ -4095,7 +4085,6 @@ class PodeCodeEditor extends PodeContentElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.readonly = data.ReadOnly ?? false;
         this.language = (data.Language ?? 'plaintext').toLowerCase();
         this.uploadable = data.Uploadable ?? false;
         this.theme = (data.Theme ?? '').toLowerCase();
