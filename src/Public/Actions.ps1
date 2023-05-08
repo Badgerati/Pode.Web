@@ -427,6 +427,10 @@ function Update-PodeWebTextbox
         $AsJson,
 
         [Parameter()]
+        [switch]
+        $JsonInline,
+
+        [Parameter()]
         [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
         [string]
         $ReadOnlyState = 'Unchanged',
@@ -446,8 +450,8 @@ function Update-PodeWebTextbox
     }
 
     end {
-        if (!$AsJson) {
-            $items = ($items | Out-String -NoNewline)
+        if (!$AsJson -and ($items.Length -gt 0)) {
+            $items = ($items | Out-String).Trim()
         }
         
         return @{
@@ -457,6 +461,7 @@ function Update-PodeWebTextbox
             ID = $Id
             Name = $Name
             AsJson = $AsJson.IsPresent
+            JsonInline = $JsonInline.IsPresent
             ReadOnlyState = $ReadOnlyState
             DisabledState = $DisabledState
         }

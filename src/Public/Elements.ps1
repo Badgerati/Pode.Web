@@ -96,7 +96,11 @@ function New-PodeWebTextbox
         $DynamicLabel,
 
         [switch]
-        $AsJson
+        $AsJson,
+
+        [Parameter(ParameterSetName='Multi')]
+        [switch]
+        $JsonInline
     )
 
     begin {
@@ -154,6 +158,7 @@ function New-PodeWebTextbox
             DynamicLabel = $DynamicLabel.IsPresent
             MaxLength = $MaxLength
             AsJson = $AsJson.IsPresent
+            JsonInline = $JsonInline.IsPresent
         }
 
         # create autocomplete route
