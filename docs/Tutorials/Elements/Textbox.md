@@ -6,9 +6,9 @@
 
 A textbox element is a form input element; you can render a textbox, single and multiline, to your page using [`New-PodeWebTextbox`](../../../Functions/Elements/New-PodeWebTextbox).
 
-A textbox by default is a normal plain single lined textbox, however you can customise its `-Type` to Email/Password/etc. To change the textbox to be multilined you ca supply `-Multiline`.
+A textbox by default is a normal plain single lined textbox, however you can customise its `-Type` to Email/Password/etc. To change the textbox to be a multiline textbox you can supply the `-Multiline` switch.
 
-Textboxes also allow you to specify `-AutoComplete` values.
+Textboxes also allow you to specify `-AutoComplete` values ([see here](#autocomplete)).
 
 ## Single
 
@@ -80,7 +80,7 @@ By default the label displays the `-Name` of the element. You can change the val
 
 The `-Width` of a textbox has the default unit of `%`. If `0` is specified then `auto` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
 
-The `-Height` of the textbox is how many lines are displayed when the textbox is multilined.
+The `-Height` of the textbox is how many lines are displayed when the textbox is multiline.
 
 ## Initial Value
 

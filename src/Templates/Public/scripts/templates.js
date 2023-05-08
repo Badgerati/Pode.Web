@@ -3226,11 +3226,6 @@ class PodeTextbox extends PodeFormElement {
         var placeholder = data.Placeholder ? `placeholder='${data.Placeholder}'` : '';
         var events = this.events(data.Events);
 
-        var value = '';
-        if (data.Value) {
-            value = this.multiline ? data.Value : `value='${data.Value}'`;
-        }
-
         // multiline textbox
         if (this.multiline) {
             html = `<textarea
@@ -3244,7 +3239,7 @@ class PodeTextbox extends PodeFormElement {
                 ${placeholder}
                 ${autofocus}
                 ${events}
-                ${maxLength}>${value}</textarea>`;
+                ${maxLength}></textarea>`;
         }
 
         // single line textbox
@@ -3272,7 +3267,6 @@ class PodeTextbox extends PodeFormElement {
                 style='${width}'
                 placeholder='${data.Placeholder ?? ''}'
                 ${autofocus}
-                ${value}
                 ${events}
                 ${maxLength}>`;
 
@@ -3322,20 +3316,22 @@ class PodeTextbox extends PodeFormElement {
         // update value
         if (data.Value) {
             if (data.AsJson) {
-                data.Value = JSON.stringify(data.Value, null, 4);
+                data.Value = data.JsonInline || !this.multiline
+                    ? JSON.stringify(data.Value)
+                    : JSON.stringify(data.Value, null, 4);
             }
         
-            this.get().val(data.Value);
+            this.element.val(data.Value);
         }
 
         // resize textbox rows
         if (this.multiline && data.Size) {
-            this.get().attr('rows', data.Size);
+            this.element.attr('rows', data.Size);
         }
     }
 
     clear(data, sender, opts) {
-        this.get().val('');
+        this.element.val('');
     }
 }
 PodeElementFactory.setClass(PodeTextbox);
