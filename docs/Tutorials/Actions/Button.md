@@ -82,4 +82,4 @@ New-PodeWebCard -Content @(
 )
 ```
 
-The `-ColourState` and `-SizeState` have default values of `Unchanged`. They map to `-Outline` and `-FullWidth` of a button's switches, so they can be toggled in a stateful manor.
+The `-ColourState` and `-SizeState` have default values of `Unchanged`. They map to `-Outline` and `-FullWidth` of a button's switches, so they can be toggled in a stateful manner.
