@@ -19,7 +19,7 @@ The following general events are supported:
 
 Similar to say a Button's click scriptblock, these events can run whatever logic you like, including returning output actions for Pode.Web to action against on the frontend.
 
-You can binding the same action to multiple event types by supplying mutliple types to [`Register-PodeWebEvent`](../../Functions/Events/Register-PodeWebEvent)'s `-Type` parameter. The current event that has triggered the logic can be sourced via `$EventType` within the `-ScriptBlock`.
+You can bind the same action to multiple event types by supplying mutliple types to [`Register-PodeWebEvent`](../../Functions/Events/Register-PodeWebEvent)'s `-Type` parameter. The current event that has triggered the logic can be sourced via `$EventType` within the `-ScriptBlock`.
 
 ## Example
 
