@@ -1,6 +1,6 @@
 # Accordion
 
-An accordion layout is an array of accordion bellows with content. They are displayed in a collapsible manor, with the first bellow being expanded. When another bellow is expanded, all other bellows are collapsed.
+An accordion layout is an array of accordion bellows with content. They are displayed in a collapsible manner, with the first bellow being expanded. When another bellow is expanded, all other bellows are collapsed.
 
 The bellows take an array of elements via `-Content`.
 
