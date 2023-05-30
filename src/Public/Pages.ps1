@@ -783,7 +783,7 @@ function Add-PodeWebPageLink
 
 function ConvertTo-PodeWebPage
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'NoGrouping')]
     param(
         [Parameter(ValueFromPipeline=$true)]
         [string[]]
@@ -793,8 +793,17 @@ function ConvertTo-PodeWebPage
         [string]
         $Module,
 
+        [Parameter(ParameterSetName = 'GroupByCustomKey')]
+        [string]
+        $Group,
+
+        [Parameter(ParameterSetName = 'GroupByVerbs')]
         [switch]
         $GroupVerbs,
+
+        [Parameter(ParameterSetName = 'GroupByModuleName')]
+        [switch]
+        $GroupModule,
 
         [Parameter()]
         [Alias('NoAuth')]
@@ -959,11 +968,33 @@ function ConvertTo-PodeWebPage
             New-PodeWebTab -Name $name -Content $form
         })
 
-        $group = [string]::Empty
-        if ($GroupVerbs) {
-            $group = $cmdInfo.Verb
-            if ([string]::IsNullOrWhiteSpace($group)) {
-                $group = '_'
+        switch ($PSCmdlet.ParameterSetName) {
+            'NoGrouping' {
+                $group = [string]::Empty
+                break
+            }
+
+            'GroupByVerbs' {
+                $group = [string]::Empty
+                $group = $cmdInfo.Verb
+                if ([string]::IsNullOrWhiteSpace($group)) {
+                    $group = '_'
+                }
+                break
+            }
+
+            'GroupByCustomKey' {
+                $group = $Group -replace "\.",""
+                break
+            }
+
+            'GroupByModuleName' {
+                $group = $cmdInfo.ModuleName -replace "\.",""
+                break
+            }
+
+            default {
+                throw 'Unknown parameter set.'
             }
         }
 
