@@ -1,4 +1,4 @@
-function Use-PodeWebTemplates
+function Use-PodeWebTemplates  #TODO: Initialize-PodeWeb ?
 {
     [CmdletBinding()]
     param(
@@ -62,6 +62,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'hide-sidebar' -Value $HideSidebar.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @{}
+    Set-PodeWebState -Name 'groups' -Value @{}
     Set-PodeWebState -Name 'default-nav' -Value $null
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
@@ -73,32 +74,39 @@ function Use-PodeWebTemplates
         Themes = [ordered]@{}
     }
 
+    Set-PodeWebState -Name 'system-urls' -Value @{
+        Home = $null
+        Register = $null
+        Login = $null
+        Logout = $null
+    }
+
     $templatePath = Get-PodeWebTemplatePath
 
     Add-PodeStaticRoute -Path '/pode.web' -Source (Join-PodeWebPath $templatePath 'Public')
     Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-PodeWebPath $templatePath 'Views')
 
-    Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
-        $page = Get-PodeWebFirstPublicPage
-        if ($null -ne $page) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
-            return
-        }
+    # Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
+    #     $page = Get-PodeWebFirstPublicPage
+    #     if ($null -ne $page) {
+    #         Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
+    #         return
+    #     }
 
-        Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = @{
-                Name = 'Home'
-                Path = '/'
-                Title = 'Home'
-                DisplayName = 'Home'
-                IsSystem = $true
-            }
-        }
-    }
+    #     Write-PodeWebViewResponse -Path 'index' -Data @{
+    #         Page = @{
+    #             Name = 'Home'
+    #             Path = '/'
+    #             Title = 'Home'
+    #             DisplayName = 'Home'
+    #             IsSystem = $true
+    #         }
+    #     }
+    # }
 
-    Add-PodeRoute -Method Post -Path "/content" -EndpointName $EndpointName -ScriptBlock {
-        Write-PodeJsonResponse -Value @()
-    }
+    # Add-PodeRoute -Method Post -Path "/content" -EndpointName $EndpointName -ScriptBlock {
+    #     Write-PodeJsonResponse -Value @()
+    # }
 
     Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
 }
@@ -333,48 +341,48 @@ function Set-PodeWebAuth
     $auth.Success.Url = (Add-PodeWebAppPath -Url '/')
 
     # get the endpoints to bind
-    $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+    # $endpointNames = Get-PodeWebState -Name 'endpoint-name'
 
     # add an authenticated home route
-    Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
+    # Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
 
-    Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
-        $page = Get-PodeWebFirstPublicPage
-        if ($null -ne $page) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
-        }
+    # Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
+    #     $page = Get-PodeWebFirstPublicPage
+    #     if ($null -ne $page) {
+    #         Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
+    #     }
 
-        $authData = Get-PodeWebAuthData
-        $username = Get-PodeWebAuthUsername -AuthData $authData
-        $groups = Get-PodeWebAuthGroups -AuthData $authData
-        $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
-        $theme = Get-PodeWebTheme
-        $navigation = Get-PodeWebNavDefault
+    #     $authData = Get-PodeWebAuthData
+    #     $username = Get-PodeWebAuthUsername -AuthData $authData
+    #     $groups = Get-PodeWebAuthGroups -AuthData $authData
+    #     $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
+    #     $theme = Get-PodeWebTheme
+    #     $navigation = Get-PodeWebNavDefault
 
-        Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = @{
-                Name = 'Home'
-                Path = '/'
-                IsSystem = $true
-            }
-            Theme = $theme
-            Navigation = $navigation
-            Auth = @{
-                Enabled = $true
-                Logout = (Get-PodeWebState -Name 'auth-props').Logout
-                Authenticated = $authData.IsAuthenticated
-                Username = $username
-                Groups = $groups
-                Avatar = $avatar
-            }
-        }
-    }
+    #     Write-PodeWebViewResponse -Path 'index' -Data @{
+    #         Page = @{
+    #             Name = 'Home'
+    #             Path = '/'
+    #             IsSystem = $true
+    #         }
+    #         Theme = $theme
+    #         Navigation = $navigation
+    #         Auth = @{
+    #             Enabled = $true
+    #             Logout = (Get-PodeWebState -Name 'auth-props').Logout
+    #             Authenticated = $authData.IsAuthenticated
+    #             Username = $username
+    #             Groups = $groups
+    #             Avatar = $avatar
+    #         }
+    #     }
+    # }
 
-    Remove-PodeWebRoute -Method Post -Path "/content" -EndpointName $endpointNames
+    # Remove-PodeWebRoute -Method Post -Path "/content" -EndpointName $endpointNames
 
-    Add-PodeRoute -Method Post -Path "/content" -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
-        Write-PodeJsonResponse -Value @()
-    }
+    # Add-PodeRoute -Method Post -Path "/content" -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
+    #     Write-PodeJsonResponse -Value @()
+    # }
 
     if ($PassThru) {
         return $pageMeta

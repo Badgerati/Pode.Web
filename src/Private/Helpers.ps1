@@ -302,6 +302,7 @@ function Get-PodeWebState
     return (Get-PodeState -Name "pode.web.$($Name)")
 }
 
+#TODO: remove
 function Get-PodeWebHomeName
 {
     $name = (Get-PodeWebState -Name 'pages')['/'].DisplayName
@@ -312,6 +313,7 @@ function Get-PodeWebHomeName
     return $name
 }
 
+#TODO: remove
 function Get-PodeWebHomeIcon
 {
     $icon = (Get-PodeWebState -Name 'pages')['/'].Icon
@@ -461,6 +463,93 @@ function Test-PodeWebRoute
     return ($null -ne $route)
 }
 
+function Register-PodeWebPage
+{
+    param(
+        [Parameter(Mandatory)]
+        [hashtable]
+        $Metadata
+    )
+
+    # check home page
+    if ($Metadata.IsHomePage) {
+        $sysUrls = Get-PodeWebState -Name 'system-urls'
+        if ($null -ne $sysUrls.Home) {
+            throw "A home page has already been defined: $($sysUrls.Home.Path)"
+        }
+
+        $auth = Get-PodeWebState -Name 'auth'
+        if (![string]::IsNullOrEmpty($auth)) {
+            $auth = Get-PodeAuth -Name $Authentication
+            if ([string]::IsNullOrWhiteSpace($auth.Success.Url) -or ($auth.Success.Url -ieq $sysUrls.Home.Url)) {
+                $auth.Success.Url = $Metadata.Url
+            }
+        }
+
+        $sysUrls.Home = @{
+            Path = $Metadata.Path
+            Url = $Metadata.Url
+        }
+    }
+
+    # register page
+    $pages = Get-PodeWebState -Name 'pages'
+    $pages[$Metadata.ID] = $Metadata
+
+    # register page to group
+    $group = (Get-PodeWebState -Name 'groups')[$Metadata.Group]
+
+    if (!$group.Pages.ContainsKey($Metadata.Index)) {
+        $group.Pages.Add($Metadata.Index, @())
+    }
+
+    $group.Pages[$Metadata.Index] += $Metadata.ID
+}
+
+function Get-PodeWebPageId
+{
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Group,
+
+        [switch]
+        $System
+    )
+
+    if (![string]::IsNullOrWhiteSpace($Id)) {
+        return $Id
+    }
+
+    # prep id
+    $_id = [string]::Empty
+
+    # internal?
+    if ($System) {
+        $_id += "system_"
+    }
+
+    # add group
+    if (![string]::IsNullOrWhiteSpace($Group)) {
+        $_id += "group_$($Group)_"
+    }
+
+    # add page
+    $_id += "page_$($Name)"
+
+    # protect id, and return
+    $_id = Protect-PodeWebName -Name $_id
+    return ($_id -replace '\s+', '_').ToLowerInvariant()
+}
+
 function Get-PodeWebElementId
 {
     param(
@@ -494,12 +583,8 @@ function Get-PodeWebElementId
     $_id += "$($Tag)"
 
     # add page name and group if we have one
-    if (![string]::IsNullOrWhiteSpace($PageData.Name)) {
-        $_id += "_$($PageData.Name)"
-    }
-
-    if (![string]::IsNullOrWhiteSpace($PageData.Group)) {
-        $_id += "_$($PageData.Group)"
+    if (![string]::IsNullOrWhiteSpace($PageData.ID)) {
+        $_id += "_$($PageData.ID)"
     }
 
     # add name if we have one, or a random name
@@ -728,45 +813,41 @@ function Get-PodeWebFirstPublicPage
 
 function Get-PodeWebPagePath
 {
-    [CmdletBinding(DefaultParameterSetName='Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory=$true)]
         [string]
         $Name,
 
-        [Parameter(ParameterSetName='Name')]
+        [Parameter()]
         [string]
         $Group,
 
-        [Parameter(ParameterSetName='Page')]
-        [hashtable]
-        $Page,
+        [Parameter()]
+        [string]
+        $Path = [string]::Empty,
 
         [switch]
         $NoAppPath
     )
 
-    $path = [string]::Empty
+    # inbuilt page route path if custom not supplied
+    if ([string]::IsNullOrEmpty($Path)) {
+        $Name = Protect-PodeWebSpecialCharacters -Value $Name
+        $Group = Protect-PodeWebSpecialCharacters -Value $Group
 
-    if ($null -ne $Page) {
-        $Name = $Page.Name
-        $Group = $Page.Group
+        if (![string]::IsNullOrEmpty($Group)) {
+            $Path += "/groups/$($Group)"
+        }
+
+        $Path += "/pages/$($Name)"
     }
 
-    $Name = Protect-PodeWebSpecialCharacters -Value $Name
-    $Group = Protect-PodeWebSpecialCharacters -Value $Group
-
-    if (![string]::IsNullOrWhiteSpace($Group)) {
-        $path += "/groups/$($Group)"
-    }
-
-    $path += "/pages/$($Name)"
-
+    # add app path from IIS
     if (!$NoAppPath) {
-        $path = (Add-PodeWebAppPath -Url $path)
+        $Path = (Add-PodeWebAppPath -Url $Path)
     }
 
-    return $path
+    return $Path
 }
 
 function ConvertTo-PodeWebEvents

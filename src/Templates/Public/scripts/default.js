@@ -23,7 +23,7 @@ $(() => {
         return;
     }
 
-    sendAjaxReq(`${getUrl('content')}`, null, undefined, true, (res, sender) => {
+    sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, (res, sender) => {
         mapElementThemes();
 
         loadBreadcrumb();
@@ -48,6 +48,27 @@ function getUrl(subpath) {
 
     var base = `${window.location.origin}${window.location.pathname}`;
     return `${base.replace(/\/$/, '')}${subpath}`;
+}
+
+function getPageUrl(subpath) {
+    subpath = subpath ?? '';
+    if (subpath && !subpath.startsWith('/')) {
+        subpath = `/${subpath}`;
+    }
+
+    var pageId = $('body').attr('pode-page-id');
+    if (!pageId) {
+        return getUrl(subpath);
+    }
+
+    var base = `${window.location.origin}`;
+
+    var appPath = $('body').attr('pode-app-path');
+    if (appPath) {
+        base += `/${appPath}`;
+    }
+
+    return `${base}/pode.web/pages/${pageId}${subpath}`;
 }
 
 function loadBreadcrumb() {

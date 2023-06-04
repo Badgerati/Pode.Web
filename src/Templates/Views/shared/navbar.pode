@@ -3,7 +3,7 @@
         <span class='mdi mdi-menu-open'></span>
     </button>
 
-    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$($data.AppPath)/">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$((Get-PodeWebState -Name 'system-urls').Home.Url)">
         $(
             $title = Get-PodeWebState -Name 'title'
             $logo = Get-PodeWebState -Name 'logo'
