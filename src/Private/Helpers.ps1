@@ -302,28 +302,6 @@ function Get-PodeWebState
     return (Get-PodeState -Name "pode.web.$($Name)")
 }
 
-#TODO: remove
-function Get-PodeWebHomeName
-{
-    $name = (Get-PodeWebState -Name 'pages')['/'].DisplayName
-    if ([string]::IsNullOrWhiteSpace($name)) {
-        return 'Home'
-    }
-
-    return $name
-}
-
-#TODO: remove
-function Get-PodeWebHomeIcon
-{
-    $icon = (Get-PodeWebState -Name 'pages')['/'].Icon
-    if ([string]::IsNullOrWhiteSpace($icon)) {
-        return 'home'
-    }
-
-    return $icon
-}
-
 function Get-PodeWebCookie
 {
     param(
@@ -478,9 +456,9 @@ function Register-PodeWebPage
             throw "A home page has already been defined: $($sysUrls.Home.Path)"
         }
 
-        $auth = Get-PodeWebState -Name 'auth'
-        if (![string]::IsNullOrEmpty($auth)) {
-            $auth = Get-PodeAuth -Name $Authentication
+        # update auth success url to home page
+        if (![string]::IsNullOrEmpty($Metadata.Authentication)) {
+            $auth = Get-PodeAuth -Name $Metadata.Authentication
             if ([string]::IsNullOrWhiteSpace($auth.Success.Url) -or ($auth.Success.Url -ieq $sysUrls.Home.Url)) {
                 $auth.Success.Url = $Metadata.Url
             }
@@ -840,6 +818,11 @@ function Get-PodeWebPagePath
         }
 
         $Path += "/pages/$($Name)"
+    }
+
+    # check forward slash
+    if (!$Path.StartsWith('/')) {
+        $Path = "/$($Path)"
     }
 
     # add app path from IIS
