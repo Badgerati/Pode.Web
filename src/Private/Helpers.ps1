@@ -341,9 +341,8 @@ function Get-PodeWebRandomName
         $Length = 5
     )
 
-    $r =  [System.Random]::new()
     return [string]::Concat(@(foreach ($i in 1..$Length) {
-        [char]$r.Next(65, 90)
+        [char](Get-Random -Minimum 65 -Maximum 90)
     }))
 }
 
