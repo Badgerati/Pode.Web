@@ -19,3 +19,7 @@ Which looks like below:
 ## Size
 
 The `-Width` and `-Height` of an image have the default unit of `px`. If `0` is specified then `auto` is used instead. Any custom value such as `10%` can be used, but if a plain number is used then `px` is appended.
+
+## Public Content
+
+Images are typically stored in a public folder in your project root. At least on windows, the path is case-insensitive. More details [available in Pode documentation](https://badgerati.github.io/Pode/Tutorials/Routes/Utilities/StaticContent/#public-directory).
