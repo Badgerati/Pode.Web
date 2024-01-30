@@ -89,7 +89,7 @@ function Set-PodeWebLoginPage
 
     # set a default logo/url
     if ([string]::IsNullOrWhiteSpace($Logo)) {
-        $Logo = '/pode.web/images/icon.png'
+        $Logo = '/pode.web-static/images/icon.png'
     }
     $Logo = (Add-PodeWebAppPath -Url $Logo)
 
@@ -127,12 +127,12 @@ function Set-PodeWebLoginPage
         ID = $Id
         Route = @{
             Login = @{
-                Path = (Get-PodeWebPagePath -Path $LoginPath -NoAppPath)
-                Url = (Get-PodeWebPagePath -Path $LoginPath)
+                Path = (Get-PodeWebPagePath -Name 'login' -Path $LoginPath -NoAppPath)
+                Url = (Get-PodeWebPagePath -Name 'login' -Path $LoginPath)
             }
             Logout = @{
-                Path = (Get-PodeWebPagePath -Path $LogoutPath -NoAppPath)
-                Url = (Get-PodeWebPagePath -Path $LogoutPath)
+                Path = (Get-PodeWebPagePath -Name 'logout' -Path $LogoutPath -NoAppPath)
+                Url = (Get-PodeWebPagePath -Name 'logout' -Path $LogoutPath)
             }
         }
         Name = 'Login'
@@ -378,7 +378,7 @@ function Add-PodeWebPage
     }
 
     # does the page need auth?
-    $auth = [string]::Empty
+    $auth = $null
     if (!$pageMeta.NoAuthentication) {
         $auth = Get-PodeWebState -Name 'auth'
     }
@@ -390,6 +390,11 @@ function Add-PodeWebPage
     # get the endpoints to bind
     if (Test-PodeIsEmpty $EndpointName) {
         $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+    }
+
+    # remove the "root" page, if "root-redirect" was originally flagged and this page is for the root path
+    if (($pageMeta.Path -eq '/') -and (Get-PodeWebState -Name 'root-redirect')) {
+        Remove-PodeRoute -Method Get -Path '/'
     }
 
     # add the page route
@@ -442,7 +447,7 @@ function Add-PodeWebPage
         $global:PageData = $null
     }
 
-    Add-PodeRoute -Method Post -Path "/pode.web/pages/$($pageMeta.ID)/content" -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
+    Add-PodeRoute -Method Post -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/content" -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
         param($Data)
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
 
@@ -481,7 +486,7 @@ function Add-PodeWebPage
     }
 
     # add the page help route
-    $helpPath = "/pode.web/pages/$($pageMeta.ID)/help"
+    $helpPath = "/pode.web-dynamic/pages/$($pageMeta.ID)/help"
     if (($null -ne $HelpScriptBlock) -and !(Test-PodeWebRoute -Path $helpPath)) {
         Add-PodeRoute -Method Post -Path $helpPath -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
             param($Data)
@@ -657,6 +662,12 @@ function Add-PodeWebPageLink
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
+        # remove the "root" page, if "root-redirect" was originally flagged and this page is for the root path
+        if (($pageMeta.Path -eq '/') -and (Get-PodeWebState -Name 'root-redirect')) {
+            Remove-PodeRoute -Method Get -Path '/'
+        }
+
+        # add the route
         Add-PodeRoute -Method Post -Path $pageMeta.Path -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -Middleware $Middleware -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $pageData = (Get-PodeWebState -Name 'pages')[$Data.ID]

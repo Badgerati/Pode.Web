@@ -261,6 +261,28 @@ function Add-PodeWebAppPath
     return $Url
 }
 
+function Set-PodeWebSystemUrlDefaults
+{
+    Set-PodeWebState -Name 'system-urls' -Value @{
+        Home = @{
+            Path = '/'
+            Url = (Add-PodeWebAppPath -Url '/')
+        }
+        Register = @{
+            Path = '/register'
+            Url = (Add-PodeWebAppPath -Url '/register')
+        }
+        Login = @{
+            Path = '/login'
+            Url = (Add-PodeWebAppPath -Url '/login')
+        }
+        Logout = @{
+            Path = '/logout'
+            Url = (Add-PodeWebAppPath -Url '/logout')
+        }
+    }
+}
+
 function Use-PodeWebPartialView
 {
     param(
@@ -452,7 +474,7 @@ function Register-PodeWebPage
     # check home page
     if ($Metadata.IsHomePage) {
         $sysUrls = Get-PodeWebState -Name 'system-urls'
-        if ($null -ne $sysUrls.Home) {
+        if (($null -ne $sysUrls.Home) -and ($sysUrls.Home.Path -ine $Metadata.Path)) {
             throw "A home page has already been defined: $($sysUrls.Home.Path)"
         }
 

@@ -68,7 +68,7 @@ function getPageUrl(subpath) {
         base += `/${appPath}`;
     }
 
-    return `${base}/pode.web/pages/${pageId}${subpath}`;
+    return `${base}/pode.web-dynamic/pages/${pageId}${subpath}`;
 }
 
 function loadBreadcrumb() {

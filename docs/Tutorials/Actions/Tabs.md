@@ -19,17 +19,17 @@ New-PodeWebContainer -NoBackground -Content @(
 New-PodeWebTabs -Name Tabs1 -Tabs @(
     New-PodeWebTab -Name Tab1 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
     New-PodeWebTab -Name Tab2 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
     New-PodeWebTab -Name Tab3 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
 )

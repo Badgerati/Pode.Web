@@ -14,17 +14,17 @@ For example, the below renders a layout with 3 tabs each containing an image:
 New-PodeWebTabs -Tabs @(
     New-PodeWebTab -Name Tab1 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
     New-PodeWebTab -Name Tab2 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
     New-PodeWebTab -Name Tab3 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
 )
@@ -42,17 +42,17 @@ You can render tabs that automatically cycle through themselves every X seconds,
 New-PodeWebTabs -Cycle -Tabs @(
     New-PodeWebTab -Name Tab1 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
     New-PodeWebTab -Name Tab2 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
     New-PodeWebTab -Name Tab3 -Content @(
         New-PodeWebCard -Content @(
-            New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+            New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
         )
     )
 )

@@ -57,9 +57,9 @@
                         <ul id="sidebar-list" class="nav flex-column">
                             $(
                                 $pages = Get-PodeWebState -Name 'pages'
-
                                 $groups = Get-PodeWebState -Name 'groups'
-                                $groupNames = $groups.Keys | Sort-Object
+                                $groupNames = @($groups.Keys)
+                                [array]::Sort($groupNames)
 
                                 foreach ($grpName in $groupNames) {
                                     $group = $groups[$grpName]
@@ -67,13 +67,16 @@
                                         continue
                                     }
 
-                                    $grpPages = @(foreach ($grpPage in $group.Pages.Values) {
-                                        $page = $pages[$grpPage]
-                                        if ($page.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
-                                            continue
-                                        }
+                                    $grpPageIndexes = @($group.Pages.Keys)
+                                    [array]::Sort($grpPageIndexes)
 
-                                        $page
+                                    $grpPages = @(foreach ($grpPageIndex in $grpPageIndexes) {
+                                        foreach ($grpPage in $group.Pages[$grpPageIndex]) {
+                                            $page = $pages[$grpPage]
+                                            if (!($page.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth))) {
+                                                $page
+                                            }
+                                        }
                                     })
 
                                     if ($grpPages.Length -eq 0) {
@@ -100,7 +103,7 @@
                                                     <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$($icon)$($group.DisplayName)</span>
                                                     $(if (!$group.NoCounter) {
-                                                        "<span class='badge badge-inbuilt-theme'>$($pages.Length)</span>"
+                                                        "<span class='badge badge-inbuilt-theme'>$($grpPages.Length)</span>"
                                                     })
                                                 </div>
                                             </a>
@@ -134,7 +137,7 @@
                                         </li>"
                                     }
 
-                                    if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
+                                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
                                         "</div>"
                                     }
                                 }
