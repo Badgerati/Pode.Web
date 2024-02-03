@@ -18,5 +18,5 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Date' -Type Date
     )
 
-    Set-PodeWebHomePage -Content $form -Title 'Testing Uploads'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $form -Title 'Testing Uploads'
 }

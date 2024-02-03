@@ -36,5 +36,5 @@ Start-PodeServer -Threads 2 {
         }
     )
 
-    Set-PodeWebHomePage -Content $card1, $card2, $card3 -Title 'Icons'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $card1, $card2, $card3 -Title 'Icons'
 }

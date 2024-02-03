@@ -54,5 +54,5 @@ Start-PodeServer {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Content $tabs
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -NoAuth -Content $tabs
 }

@@ -18,8 +18,7 @@ Start-PodeServer {
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
-    Add-PodeWebPage -Name 'Home' -Path '/' -Content $section -Title 'Awesome Homepage' -HomePage
-    # Set-PodeWebHomePage -Content $section -Title 'Awesome Homepage'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $section -Title 'Awesome Homepage'
 
     # add a page to search process (output as json in an appended textbox)
     $form = New-PodeWebForm -Name 'Search' -ShowReset -SubmitText 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {

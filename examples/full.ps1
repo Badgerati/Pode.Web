@@ -209,7 +209,6 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    #Set-PodeWebHomePage -NoAuth -Content $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
     Add-PodeWebPage -Name 'Home' -Path '/' -Content $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -HomePage -NoAuth -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
             Show-PodeWebToast -Message "Home page $($EventType)!"

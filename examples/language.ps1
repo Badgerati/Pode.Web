@@ -52,7 +52,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -Content $grid1 -DisplayName '家'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $grid1 -DisplayName '家'
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]

@@ -56,5 +56,5 @@ Start-PodeServer -Threads 2 {
             )
     )
 
-    Set-PodeWebHomePage -Content $card1, $card2 -Title 'Tables'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $card1, $card2 -Title 'Tables'
 }

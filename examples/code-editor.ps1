@@ -14,5 +14,5 @@ Start-PodeServer -StatusPageExceptions Show {
     $codeEditor = New-PodeWebCodeEditor -Language Html -Name 'Code Editor' -AsCard -Value '<p style="color:white;">well</p>' -Upload {
         $WebEvent.Data | Out-Default
     }
-    Set-PodeWebHomePage -NoAuth -Content $codeEditor -NoTitle
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -NoAuth -Content $codeEditor -NoTitle
 }
