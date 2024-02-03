@@ -12,8 +12,8 @@ $src_path = './pode_modules'
 #>
 
 $Versions = @{
-    MkDocs = '1.4.2'
-    MkDocsTheme = '9.0.2'
+    MkDocs = '1.5.3'
+    MkDocsTheme = '9.4.6'
     PlatyPS = '0.14.2'
 }
 
@@ -311,7 +311,7 @@ task DockerPack {
 
 # Synopsis: Run the documentation locally
 task Docs DocsDeps, DocsHelpBuild, {
-    mkdocs serve
+    mkdocs serve --quiet
 }
 
 # Synopsis: Build the function help documentation
@@ -360,5 +360,5 @@ task DocsHelpBuild DocsDeps, {
 
 # Synopsis: Build the documentation
 task DocsBuild DocsDeps, DocsHelpBuild, {
-    mkdocs build
+    mkdocs build --quiet
 }
