@@ -15,7 +15,7 @@ A chart gets its data from a supplied `-ScriptBlock`, more information below, an
 
 ## Data
 
-To supply data to be rendered on a chart, you have to supply a `-ScritpBlock` which returns the appropriate data in the correct format; fortunately there's [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData) to help with this format.
+To supply data to be rendered on a chart, you have to supply a `-ScriptBlock` which returns the appropriate data in the correct format; fortunately there's [`ConvertTo-PodeWebChartData`](../../../Functions/Actions/ConvertTo-PodeWebChartData) to help with this format.
 
 You can pass values to the scriptblock by using the `-ArgumentList` parameter. This accepts an array of values/objects, and they are supplied as parameters to the scriptblock:
 
@@ -68,7 +68,7 @@ If you click the refresh button in the top-left corner, the `-ScriptBlock` will 
 
 ### ConvertTo
 
-The [`ConvertTo-PodeWebChartData`](../../../Functions/Outputs/ConvertTo-PodeWebChartData) helps to simplify the above a raw format, by letting you convert data at the end of a pipeline. The function takes a `-LabelProperty` which is the name of a property in the input that should be used for the X-axis, and then a `-DatasetProperty` with is property names for Y-axis values.
+The [`ConvertTo-PodeWebChartData`](../../../Functions/Actions/ConvertTo-PodeWebChartData) helps to simplify the above a raw format, by letting you convert data at the end of a pipeline. The function takes a `-LabelProperty` which is the name of a property in the input that should be used for the X-axis, and then a `-DatasetProperty` with is property names for Y-axis values.
 
 For example, let's say we want to display the top 10 processes using the most CPU. We want to display the process name, and its CPU and Memory usage, *and* we want it to auto-refresh every minute:
 
@@ -87,9 +87,26 @@ which renders a chart that looks like below:
 
 ![chart_bar_process](../../../images/chart_bar_process.png)
 
+### Data
+
+You can pass static data to a Chart to be rendered by using the `-Data` parameter. This parameter can be used to in general, but is more appropriate to be used when rendering a new Chart as an action from another element - such as a Form to show "top X" processes.
+
+!!! important
+    If you render a main Chart using `-Data` on your page the data will be static and unchanging on page loads - unless you render the Chart inside a `-ScriptBlock` of `Add-PodeWebPage`, but you'd be refetching the data on every page load which might impact the performance of loading the page as it will be synchronous not asynchronous.
+
+```powershell
+New-PodeWebContainer -Content @(
+    Get-Process |
+        Sort-Object -Property CPU -Descending |
+        Select-Object -First 10 |
+        ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU |
+        New-PodeWebChart -Name 'TopX' -Type Line -AsCard
+)
+```
+
 ## Colours
 
-A chart has 15 default colours that they can be rendered using. These colours can be customised if required, by suppling an array of hex colour codes to the `-Colours` parameter.
+A chart has 15 default colours that they can be rendered using. These colours can be customised if required, by supplying an array of hex colour codes to the `-Colours` parameter.
 
 For example, to render the below bar chart with reg/green bars, you could use:
 

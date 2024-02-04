@@ -261,6 +261,28 @@ function Add-PodeWebAppPath
     return $Url
 }
 
+function Set-PodeWebSystemUrlDefaults
+{
+    Set-PodeWebState -Name 'system-urls' -Value @{
+        Home = @{
+            Path = '/'
+            Url = (Add-PodeWebAppPath -Url '/')
+        }
+        Register = @{
+            Path = '/register'
+            Url = (Add-PodeWebAppPath -Url '/register')
+        }
+        Login = @{
+            Path = '/login'
+            Url = (Add-PodeWebAppPath -Url '/login')
+        }
+        Logout = @{
+            Path = '/logout'
+            Url = (Add-PodeWebAppPath -Url '/logout')
+        }
+    }
+}
+
 function Use-PodeWebPartialView
 {
     param(
@@ -302,16 +324,6 @@ function Get-PodeWebState
     return (Get-PodeState -Name "pode.web.$($Name)")
 }
 
-function Get-PodeWebHomeName
-{
-    $name = (Get-PodeWebState -Name 'pages')['/'].DisplayName
-    if ([string]::IsNullOrWhiteSpace($name)) {
-        return 'Home'
-    }
-
-    return $name
-}
-
 function Get-PodeWebCookie
 {
     param(
@@ -331,8 +343,10 @@ function Get-PodeWebRandomName
         $Length = 5
     )
 
-    $value = (65..90) | Get-Random -Count $Length | ForEach-Object { [char]$_ }
-    return [String]::Concat($value)
+    $r =  [System.Random]::new()
+    return [string]::Concat(@(foreach ($i in 1..$Length) {
+        [char]$r.Next(65, 90)
+    }))
 }
 
 function Protect-PodeWebName
@@ -449,6 +463,93 @@ function Test-PodeWebRoute
     return ($null -ne $route)
 }
 
+function Register-PodeWebPage
+{
+    param(
+        [Parameter(Mandatory)]
+        [hashtable]
+        $Metadata
+    )
+
+    # check home page
+    if ($Metadata.IsHomePage) {
+        $sysUrls = Get-PodeWebState -Name 'system-urls'
+        if (($null -ne $sysUrls.Home) -and ($sysUrls.Home.Path -ine $Metadata.Path)) {
+            throw "A home page has already been defined: $($sysUrls.Home.Path)"
+        }
+
+        # update auth success url to home page
+        if (![string]::IsNullOrEmpty($Metadata.Authentication)) {
+            $auth = Get-PodeAuth -Name $Metadata.Authentication
+            if ([string]::IsNullOrWhiteSpace($auth.Success.Url) -or ($auth.Success.Url -ieq $sysUrls.Home.Url)) {
+                $auth.Success.Url = $Metadata.Url
+            }
+        }
+
+        $sysUrls.Home = @{
+            Path = $Metadata.Path
+            Url = $Metadata.Url
+        }
+    }
+
+    # register page
+    $pages = Get-PodeWebState -Name 'pages'
+    $pages[$Metadata.ID] = $Metadata
+
+    # register page to group
+    $group = (Get-PodeWebState -Name 'groups')[$Metadata.Group]
+
+    if (!$group.Pages.ContainsKey($Metadata.Index)) {
+        $group.Pages.Add($Metadata.Index, @())
+    }
+
+    $group.Pages[$Metadata.Index] += $Metadata.ID
+}
+
+function Get-PodeWebPageId
+{
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $Group,
+
+        [switch]
+        $System
+    )
+
+    if (![string]::IsNullOrWhiteSpace($Id)) {
+        return $Id
+    }
+
+    # prep id
+    $_id = [string]::Empty
+
+    # internal?
+    if ($System) {
+        $_id += "system_"
+    }
+
+    # add group
+    if (![string]::IsNullOrWhiteSpace($Group)) {
+        $_id += "group_$($Group)_"
+    }
+
+    # add page
+    $_id += "page_$($Name)"
+
+    # protect id, and return
+    $_id = Protect-PodeWebName -Name $_id
+    return ($_id -replace '\s+', '_').ToLowerInvariant()
+}
+
 function Get-PodeWebElementId
 {
     param(
@@ -462,13 +563,7 @@ function Get-PodeWebElementId
 
         [Parameter()]
         [string]
-        $Name,
-
-        [switch]
-        $RandomToken,
-
-        [switch]
-        $NameAsToken
+        $Name
     )
 
     if (![string]::IsNullOrWhiteSpace($Id)) {
@@ -480,26 +575,23 @@ function Get-PodeWebElementId
     if (![string]::IsNullOrWhiteSpace($ElementData.ID)) {
         $_id = "$($ElementData.ID)_"
     }
+    elseif (![string]::IsNullOrWhiteSpace($ElementData.Name)) {
+        $_id = "$($ElementData.Name)_"
+    }
 
     # start with element tag
     $_id += "$($Tag)"
 
     # add page name and group if we have one
-    if (![string]::IsNullOrWhiteSpace($PageData.Name)) {
-        $_id += "_$($PageData.Name)"
+    if (![string]::IsNullOrWhiteSpace($PageData.ID)) {
+        $_id += "_$($PageData.ID)"
     }
 
-    if (![string]::IsNullOrWhiteSpace($PageData.Group)) {
-        $_id += "_$($PageData.Group)"
-    }
-
-    # add name if we have one
+    # add name if we have one, or a random name
     if (![string]::IsNullOrWhiteSpace($Name)) {
         $_id += "_$($Name)"
     }
-
-    # add random token - if forced, or if no page
-    if ($RandomToken -or ($NameAsToken -and [string]::IsNullOrWhiteSpace($Name))) {
+    else {
         $_id += "_$(Get-PodeWebRandomName)"
     }
 
@@ -515,39 +607,21 @@ function Convert-PodeWebAlertTypeToClass
         $Type
     )
 
-    switch ($Type.ToLowerInvariant()) {
-        'error' {
-            return 'danger'
-        }
-
-        'warning' {
-            return 'warning'
-        }
-
-        'tip' {
-            return 'success'
-        }
-
-        'success' {
-            return 'success'
-        }
-
-        'note' {
-            return 'secondary'
-        }
-
-        'info' {
-            return 'info'
-        }
-
-        'important' {
-            return 'primary'
-        }
-
-        default {
-            return 'primary'
-        }
+    $map = @{
+        error       = 'danger'
+        warning     = 'warning'
+        tip         = 'success'
+        success     = 'success'
+        note        = 'secondary'
+        info        = 'info'
+        important   = 'primary'
     }
+
+    if ($map.ContainsKey($Type)) {
+        return $map[$Type]
+    }
+
+    return 'primary'
 }
 
 function Convert-PodeWebAlertTypeToIcon
@@ -558,39 +632,21 @@ function Convert-PodeWebAlertTypeToIcon
         $Type
     )
 
-    switch ($Type.ToLowerInvariant()) {
-        'error' {
-            return 'alert-circle'
-        }
-
-        'warning' {
-            return 'alert'
-        }
-
-        'tip' {
-            return 'thumb-up'
-        }
-
-        'success' {
-            return 'check-circle'
-        }
-
-        'note' {
-            return 'book-open'
-        }
-
-        'info' {
-            return 'information'
-        }
-
-        'important' {
-            return 'bell'
-        }
-
-        default {
-            return 'bell'
-        }
+    $map = @{
+        error       = 'alert-circle'
+        warning     = 'alert'
+        tip         = 'thumb-up'
+        success     = 'check-circle'
+        note        = 'book-open'
+        info        = 'information'
+        important   = 'bell'
     }
+
+    if ($map.ContainsKey($Type)) {
+        return $map[$Type]
+    }
+
+    return 'bell'
 }
 
 function Convert-PodeWebColourToClass
@@ -601,45 +657,22 @@ function Convert-PodeWebColourToClass
         $Colour
     )
 
-    switch ($Colour.ToLowerInvariant()) {
-        'blue' {
-            $css = 'primary'
-        }
-
-        'green' {
-            $css = 'success'
-        }
-
-        'grey' {
-            $css = 'secondary'
-        }
-
-        'red' {
-            $css = 'danger'
-        }
-
-        'yellow' {
-            $css = 'warning'
-        }
-
-        'cyan' {
-            $css = 'info'
-        }
-
-        'light' {
-            $css = 'light'
-        }
-
-        'dark' {
-            $css = 'dark'
-        }
-
-        default {
-            $css = 'primary'
-        }
+    $map = @{
+        blue    = 'primary'
+        green   = 'success'
+        grey    = 'secondary'
+        red     = 'danger'
+        yellow  = 'warning'
+        cyan    = 'info'
+        light   = 'light'
+        dark    = 'dark'
     }
 
-    return $css.ToLowerInvariant()
+    if ($map.ContainsKey($Colour)) {
+        return $map[$Colour]
+    }
+
+    return 'primary'
 }
 
 function Convert-PodeWebButtonSizeToClass
@@ -650,26 +683,26 @@ function Convert-PodeWebButtonSizeToClass
         $Size,
 
         [switch]
-        $FullWidth
+        $FullWidth,
+
+        [switch]
+        $Group
     )
 
-    $css = ''
+    $css = (@{
+        small = 'btn-sm'
+        large = 'btn-lg'
+    })[$Size]
 
-    switch ($Size.ToLowerInvariant()) {
-        'small' {
-            $css = 'btn-sm'
-        }
-
-        'large' {
-            $css = 'btn-lg'
-        }
+    if ($Group) {
+        $css = $css -replace 'btn-', 'btn-group-'
     }
 
     if ($FullWidth) {
         $css += ' btn-block'
     }
 
-    return $css.ToLowerInvariant()
+    return $css
 }
 
 function Test-PodeWebContent
@@ -697,15 +730,6 @@ function Test-PodeWebContent
     if (!(Test-PodeWebArrayEmpty -Array $ComponentType)) {
         foreach ($item in $Content) {
             if ($item.ComponentType -inotin $ComponentType) {
-                return $false
-            }
-        }
-    }
-
-    # ensure the content elements are correct
-    if (!(Test-PodeWebArrayEmpty -Array $ObjectType)) {
-        foreach ($item in $Content) {
-            if ($item.ObjectType -inotin $ObjectType) {
                 return $false
             }
         }
@@ -789,45 +813,46 @@ function Get-PodeWebFirstPublicPage
 
 function Get-PodeWebPagePath
 {
-    [CmdletBinding(DefaultParameterSetName='Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory=$true)]
         [string]
         $Name,
 
-        [Parameter(ParameterSetName='Name')]
+        [Parameter()]
         [string]
         $Group,
 
-        [Parameter(ParameterSetName='Page')]
-        [hashtable]
-        $Page,
+        [Parameter()]
+        [string]
+        $Path = [string]::Empty,
 
         [switch]
         $NoAppPath
     )
 
-    $path = [string]::Empty
+    # inbuilt page route path if custom not supplied
+    if ([string]::IsNullOrEmpty($Path)) {
+        $Name = Protect-PodeWebSpecialCharacters -Value $Name
+        $Group = Protect-PodeWebSpecialCharacters -Value $Group
 
-    if ($null -ne $Page) {
-        $Name = $Page.Name
-        $Group = $Page.Group
+        if (![string]::IsNullOrEmpty($Group)) {
+            $Path += "/groups/$($Group)"
+        }
+
+        $Path += "/pages/$($Name)"
     }
 
-    $Name = Protect-PodeWebSpecialCharacters -Value $Name
-    $Group = Protect-PodeWebSpecialCharacters -Value $Group
-
-    if (![string]::IsNullOrWhiteSpace($Group)) {
-        $path += "/groups/$($Group)"
+    # check forward slash
+    if (!$Path.StartsWith('/')) {
+        $Path = "/$($Path)"
     }
 
-    $path += "/pages/$($Name)"
-
+    # add app path from IIS
     if (!$NoAppPath) {
-        $path = (Add-PodeWebAppPath -Url $path)
+        $Path = (Add-PodeWebAppPath -Url $Path)
     }
 
-    return $path
+    return $Path
 }
 
 function ConvertTo-PodeWebEvents
@@ -849,27 +874,6 @@ function ConvertTo-PodeWebEvents
     }
 
     return $js_events
-}
-
-function ConvertTo-PodeWebStyles
-{
-    param(
-        [Parameter()]
-        [hashtable]
-        $Style
-    )
-
-    $styles = [string]::Empty
-
-    if (($null -eq $Style) -or ($Style.Count -eq 0)) {
-        return $styles
-    }
-
-    foreach ($key in $Style.Keys) {
-        $styles += " $($key.ToLowerInvariant()): $($Style[$key].ToLowerInvariant()) !important;"
-    }
-
-    return $styles
 }
 
 function Protect-PodeWebRange
@@ -934,8 +938,15 @@ function ConvertTo-PodeWebSize
         [Parameter(Mandatory=$true)]
         [ValidateSet('px', '%', 'em')]
         [string]
-        $Type
+        $Type,
+
+        [switch]
+        $AllowNull
     )
+
+    if ($AllowNull -and [string]::IsNullOrEmpty($Value)) {
+        return $null
+    }
 
     $pattern = Get-PodeWebNumberRegex
     $defIsNumber = ($Default -match $pattern)
@@ -1016,4 +1027,98 @@ function Set-PodeWebSecurity
         -Style 'self', 'unsafe-inline' `
         -Scripts 'self', 'unsafe-inline' `
         -Image 'self', 'data'
+}
+
+function Test-PodeWebParameter
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        $Parameters,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        $Value
+    )
+
+    if ($Parameters.ContainsKey($Name)) {
+        return $Value
+    }
+
+    return $null
+}
+
+function Protect-PodeWebIconType
+{
+    param(
+        [Parameter()]
+        [object]
+        $Icon,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $Element
+    )
+
+    # just null or string
+    if (($null -eq $Icon) -or ($Icon -is [string])) {
+        return $Icon
+    }
+
+    # if hashtable, check object type
+    if (($Icon -is [hashtable]) -and ($Icon.ObjectType -ieq 'icon')) {
+        return $Icon
+    }
+
+    # error
+    throw "Icon for '$($Element)' is not a string or hashtable from New-PodeWebIcon"
+}
+
+function Protect-PodeWebIconPreset
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable]
+        $Icon,
+
+        [Parameter()]
+        [hashtable]
+        $Preset
+    )
+
+    if (($null -eq $Preset) -or ($Preset.Length -eq 0)) {
+        return $null
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Preset.Name)) {
+        $Preset.Name = $Icon.Name
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Preset.Colour)) {
+        $Preset.Colour = $Icon.Colour
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Preset.Title)) {
+        $Preset.Title = $Icon.Title
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Preset.Flip)) {
+        $Preset.Flip = $Icon.Flip
+    }
+
+    if ($Preset.Rotate -le -1) {
+        $Preset.Rotate = $Icon.Rotate
+    }
+
+    if ($Preset.Size -le -1) {
+        $Preset.Size = $Icon.Size
+    }
+
+    if ($null -eq $Preset.Spin) {
+        $Preset.Spin = $Icon.Spin
+    }
+
+    return $Preset
 }

@@ -21,10 +21,10 @@ Start-PodeServer {
         New-PodeWebIFrame -Name 'IFrame' -Url '/pages/Page1'
     )
 
-    Add-PodeWebPage -Name 'Example' -Layouts $con1, $con2
+    Add-PodeWebPage -Name 'Example' -Content $con1, $con2
 
     1..3 |  ForEach-Object {
-        Add-PodeWebPage -Name "Page$_" -Hide -Layouts @(
+        Add-PodeWebPage -Name "Page$_" -Hide -Content @(
             New-PodeWebContainer -Content @(
                 New-PodeWebText -Value "Page$_!"
             )

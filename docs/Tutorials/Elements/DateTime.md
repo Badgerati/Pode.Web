@@ -39,3 +39,10 @@ New-PodeWebDateTime -Name 'Example' -Type Time
 ## Display Name
 
 By default the label displays the `-Name` of the element. You can change the value displayed by also supplying an optional `-DisplayName` value; this value is purely visual, when the user submits the form the value of the element is still retrieved using the `-Name` from `$WebEvent.Data`.
+
+## Initial Value
+
+You can create the DateTime element with initial values by using the `-DateValue` and/or `-TimeValue` parameters. When setting these values the formats should be as follows:
+
+* `-DateValue 'yyyy-mm-dd'`
+* `-TimeValue 'hh:mm'`

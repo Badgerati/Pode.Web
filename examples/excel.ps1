@@ -12,7 +12,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
+    Use-PodeWebTemplates -Title Test -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
 
     # add a page to search and filter services (output in a new table element)
@@ -71,7 +71,7 @@ Start-PodeServer -StatusPageExceptions Show {
         Set-PodeResponseAttachment -Path '/download/test.xlsx'
     }
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $modal, $table -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $modal, $table -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return

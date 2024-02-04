@@ -2,7 +2,7 @@
 
 A grid layout is an array of cells with content, equally spaced in size, that can be either horizontal or vertical in orientation.
 
-The cells take an array of components via `-Content`, that can be either other layouts or raw elements.
+The cells take an array of elements via `-Content`.
 
 ## Usage
 
@@ -13,13 +13,13 @@ For example, the below renders a 3 celled horizontal grid of centered images:
 ```powershell
 New-PodeWebGrid -Cells @(
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
 )
 ```
@@ -37,13 +37,13 @@ You can render the cells of a grid vertically by either supplying `-Width 1` or 
 ```powershell
 New-PodeWebGrid -Vertical -Cells @(
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
 )
 ```
@@ -61,39 +61,39 @@ New-PodeWebGrid -Cells @(
     New-PodeWebCell -Content @(
         New-PodeWebGrid -Vertical -Cells @(
             New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
             )
             New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
             )
             New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
-            )
-        )
-    )
-    New-PodeWebCell -Content @(
-        New-PodeWebGrid -Vertical -Cells @(
-            New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
-            )
-            New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
-            )
-            New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
             )
         )
     )
     New-PodeWebCell -Content @(
         New-PodeWebGrid -Vertical -Cells @(
             New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
             )
             New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
             )
             New-PodeWebCell -Content @(
-                New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
+            )
+        )
+    )
+    New-PodeWebCell -Content @(
+        New-PodeWebGrid -Vertical -Cells @(
+            New-PodeWebCell -Content @(
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
+            )
+            New-PodeWebCell -Content @(
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
+            )
+            New-PodeWebCell -Content @(
+                New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
             )
         )
     )
@@ -109,31 +109,31 @@ The above is useful if you want pure control over the grid layout. However, the 
 ```powershell
 New-PodeWebGrid -Width 3 -Cells @(
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
 )
 ```
@@ -147,13 +147,13 @@ You can also supply the value as a percentage as well; 50% being 6 segments, etc
 ```powershell
 New-PodeWebGrid -Cells @(
     New-PodeWebCell -Width 6 -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Width '25%' -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebCell -Width 3 -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
 )
 ```

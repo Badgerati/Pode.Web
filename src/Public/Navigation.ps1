@@ -27,7 +27,7 @@ function New-PodeWebNavLink
         $ArgumentList,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [switch]
@@ -47,19 +47,19 @@ function New-PodeWebNavLink
 
     $nav = @{
         ComponentType = 'Navigation'
-        NavType = 'Link'
+        ObjectType = 'Nav-Link'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Url = (Add-PodeWebAppPath -Url $Url)
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Nav Link')
         IsDynamic = ($null -ne $ScriptBlock)
         Disabled = $Disabled.IsPresent
         InDropdown = $false
         NewTab = $NewTab.IsPresent
     }
 
-    $routePath = "/nav/link/$($Id)"
+    $routePath = "/elements/nav-link/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
@@ -111,7 +111,7 @@ function New-PodeWebNavDropdown
         $Items,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [switch]
@@ -127,12 +127,12 @@ function New-PodeWebNavDropdown
 
     return @{
         ComponentType = 'Navigation'
-        NavType = 'Dropdown'
+        ObjectType = 'Nav-Dropdown'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag 'Nav-Dropdown' -Id $Id -Name $Name)
         Items = $Items
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Nav Dropdown')
         Disabled = $Disabled.IsPresent
         Hover = $Hover.IsPresent
         InDropdown = $false
@@ -146,7 +146,7 @@ function New-PodeWebNavDivider
 
     return @{
         ComponentType = 'Navigation'
-        NavType = 'Divider'
+        ObjectType = 'Nav-Divider'
         InDropdown = $false
     }
 }
@@ -173,8 +173,12 @@ function Get-PodeWebNavDefault
     )
 
     if (($null -eq $Items) -or ($items.Length -eq 0)) {
-        return (Get-PodeWebState -Name 'default-nav')
+        $Items = (Get-PodeWebState -Name 'default-nav')
     }
-    
+
+    if ($null -eq $Items) {
+        $Items = @()
+    }
+
     return $Items
 }

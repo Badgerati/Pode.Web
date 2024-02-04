@@ -32,5 +32,5 @@ Start-PodeServer -Threads 2 {
         New-PodeWebFileStream -Name 'Example' -Url '/logs/error.log' -Icon 'information'
     )
 
-    Set-PodeWebHomePage -Layouts $con -Title 'File Stream'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $con -Title 'File Stream'
 }

@@ -17,8 +17,8 @@ New-PodeWebCard -Content @(
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
-        New-PodeWebDateTime -Name 'DateTime' -NoLabels
-        New-PodeWebCredential -Name 'Credentials' -NoLabels
+        New-PodeWebDateTime -Name 'DateTime'
+        New-PodeWebCredential -Name 'Credentials'
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
         New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple
@@ -70,4 +70,4 @@ You can change these values by using the `-Method` and `-Action` parameters. The
 
 ## Reset
 
-You can reset all form inputs by either using the [`Reset-PodeWebForm`](../../../Functions/Outputs/Reset-PodeWebForm) output action, or by using `-ShowReset` switch on [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) to display an optional reset button.
+You can reset all form inputs by either using the [`Reset-PodeWebForm`](../../../Functions/Actions/Reset-PodeWebForm) action, or by using `-ShowReset` switch on [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) to display an optional reset button.

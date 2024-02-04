@@ -10,7 +10,7 @@ Start-PodeServer {
 }
 ```
 
-To speed-up loading of pages, enable caching within your `server.psd1` file:
+To speed up the loading of pages, enable caching within your `server.psd1` file:
 
 ```powershell
 @{
@@ -26,7 +26,10 @@ To speed-up loading of pages, enable caching within your `server.psd1` file:
 
 ## Use the Templates
 
-Pode.Web contains extension functions that can be used within your [Pode](https://github.com/Badgerati/Pode) server. To setup the templates, and start using them, you will always first need to call [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates); this will let you define the title of your website, the default theme, and the logo/favicon:
+Pode.Web contains extension functions that can be used within your [Pode](https://github.com/Badgerati/Pode) server. To set up the templates, and start using them, you will always first need to call [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates); this will let you define the title of your website, the default theme, and the logo/favicon.
+
+!!! important
+    You **must** call [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates) before you can start using any other function within the Pode.Web module.
 
 ```powershell
 Import-Module -Name Pode.Web
@@ -50,15 +53,20 @@ Start-PodeServer {
 }
 ```
 
+### Root Redirect
+
+You can have [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates) set up a default root (`/`) Route for you, which simply redirects the user to the first created Page of your site, by supplying the `-RootRedirect` switch.
+
+This will let users navigate to `http://localhost:8080/` and be redirected to a page without seeing a 404 error.
+
 ## Add some Pages
 
-Once the templates are enabled, you can start to add some pages! You can find more information on the [Pages](../Pages) page, but in general there are 3 types of pages:
+Once the templates are enabled, you can start to add some pages! You can find more information on the [Pages](../Pages) page, but in general, there are 2 types of pages:
 
-* Home
 * Login
-* Webpage
+* Page
 
-To just add a new page, you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), supplying the `-Name` of the page and a `-ScriptBlock` for defining the layout/element components on the page:
+To add a new page, you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), supplying the `-Name` of the page and a `-ScriptBlock` for defining the elements on the page:
 
 ```powershell
 Add-PodeWebPage -Name 'Services' -Icon 'Settings' -ScriptBlock {

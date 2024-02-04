@@ -8,7 +8,7 @@ This will render an image onto your page, using [`New-PodeWebImage`](../../../Fu
 
 ```powershell
 New-PodeWebCard -Content @(
-    New-PodeWebImage -Source '/pode.web/images/icon.png' -Title 'Pode' -Alignment Center
+    New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Title 'Pode' -Alignment Center
 )
 ```
 

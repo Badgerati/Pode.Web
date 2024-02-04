@@ -1,8 +1,0 @@
-$(
-    $target = '_self'
-    if ($data.NewTab) {
-        $target = '_blank'
-    }
-
-    "<a href='$($data.Source)' id='$($data.ID)' target='$($target)' class='$($data.CssClasses)' style='$($data.CssStyles)' pode-object='$($data.ObjectType)' $(ConvertTo-PodeWebEvents -Events $data.Events)>$($data.Value)</a>"
-)

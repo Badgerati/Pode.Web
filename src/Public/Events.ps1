@@ -5,7 +5,7 @@ function Register-PodeWebEvent
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [ValidateNotNull()]
         [hashtable]
-        $Component,
+        $Element,
 
         [Parameter(Mandatory=$true)]
         [ValidateSet('Change', 'Focus', 'FocusOut', 'Click', 'MouseOver', 'MouseOut', 'KeyDown', 'KeyUp')]
@@ -27,15 +27,15 @@ function Register-PodeWebEvent
     )
 
     foreach ($t in $Type) {
-        Register-PodeWebComponentEventInternal `
-            -Component $Component `
+        Register-PodeWebElementEventInternal `
+            -Element $Element `
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 
-    return $Component
+    return $Element
 }
 
 function Register-PodeWebMediaEvent
@@ -45,7 +45,7 @@ function Register-PodeWebMediaEvent
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [ValidateNotNull()]
         [hashtable]
-        $Component,
+        $Element,
 
         [Parameter(Mandatory=$true)]
         [ValidateSet('CanPlay', 'Pause', 'Play', 'Ended')]
@@ -67,21 +67,21 @@ function Register-PodeWebMediaEvent
     )
 
     # ensure component is Audio or Video only
-    if (!(Test-PodeWebContent -Content $Component -ComponentType Element -ObjectType Audio, Video)) {
+    if (!(Test-PodeWebContent -Content $Element -ComponentType Element -ObjectType Audio, Video)) {
         throw 'Media events can only be registered on Audio/Video elements'
     }
 
     # register event
     foreach ($t in $Type) {
-        Register-PodeWebComponentEventInternal `
-            -Component $Component `
+        Register-PodeWebElementEventInternal `
+            -Element $Element `
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 
-    return $Component
+    return $Element
 }
 
 function Register-PodeWebPageEvent

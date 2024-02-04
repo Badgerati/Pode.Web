@@ -2,7 +2,7 @@
 
 A card is a layout that renders with an optional title, and can be collapsed by the end-user.
 
-A card takes an array of components via `-Content`, that can be either other layouts or raw elements.
+A card takes an array of elements via `-Content`.
 
 ## Usage
 
@@ -31,3 +31,27 @@ New-PodeWebCard -Name 'Quote' -Content @(
 Which would look like below:
 
 ![card_title](../../../images/card_title.png)
+
+## Buttons
+
+By default the only button in a Card's header is the visibility toggle - to hide or show the Card's contents. You can add custom buttons to a Card's header by supplying `New-PodeWebButton` or `New-PodeWebButtonGroup` elements to the `-Buttons` parameter:
+
+```powershell
+New-PodeWebCard -Name 'Example' -Content @(
+    New-PodeWebTextbox -Name 'Name'
+) `
+-Buttons @(
+    New-PodeWebButtonGroup -Buttons @(
+        New-PodeWebButton -Name 'Hide' -ScriptBlock {
+            Hide-PodeWebElement -Name 'Name' -Type 'Textbox'
+        }
+        New-PodeWebButton -Name 'Show' -ScriptBlock {
+            Show-PodeWebElement -Name 'Name' -Type 'Textbox'
+        }
+    )
+
+    New-PodeWebButton -Name 'Update' -ScriptBlock {
+        Update-PodeWebTextbox -Name 'Name' -Value 'Some random text'
+    }
+)
+```

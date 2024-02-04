@@ -8,7 +8,7 @@ To display a button on your page you use [`New-PodeWebButton`](../../../Function
 
 ## Dynamic
 
-A dynamic button is one that takes a custom `-ScriptBlock`, and when clicked will invoke that logic. You can run whatever you like, including output actions for Pode.Web to action against.
+A dynamic button is one that takes a custom `-ScriptBlock`, and when clicked will invoke that logic. You can run whatever you like, including actions for Pode.Web to action against.
 
 When using a dynamic button you can also supply a `-DataValue`, which is a way of supplying a special value/identity when the button is clicked. If supplied, this value is available in your scriptblock via `$WebEvent.Data['Value']`.
 
@@ -69,3 +69,7 @@ New-PodeWebButton -Name 'Example' -Colour Cyan -Outline -ScriptBlock {
 Which looks like below:
 
 ![button_outline](../../../images/button_outline.png)
+
+## Grouping
+
+You can group a series of Buttons together by using a [Button Group](../ButtonGroup).

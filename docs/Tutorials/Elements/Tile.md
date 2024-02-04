@@ -26,7 +26,7 @@ Which looks like below:
 
 > If you click the refresh icon, the scriptblock will be re-called, and the value updated.
 
-Or, if you want to display the current CPU but change the colour if it goes above 50%, then you can use [`Update-PodeWebTile`](../../../Functions/Outputs/Update-PodeWebTile) instead:
+Or, if you want to display the current CPU but change the colour if it goes above 50%, then you can use [`Update-PodeWebTile`](../../../Functions/Actions/Update-PodeWebTile) instead:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -84,7 +84,7 @@ Which looks like below:
 
 ## Clickable
 
-You can make a whole tile clickable by supplying a `-ClickScriptBlock`. When clicked the scriptblock will be called, and you can use any output action within the scriptblock.
+You can make a whole tile clickable by supplying a `-ClickScriptBlock`. When clicked the scriptblock will be called, and you can use any action within the scriptblock.
 
 For example, the following will show a tile with a random number, but when clicked it will display a toast message:
 

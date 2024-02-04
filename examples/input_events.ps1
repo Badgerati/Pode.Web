@@ -13,13 +13,13 @@ Start-PodeServer -Threads 2 {
     # select event
     $select = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Please select a value: '
-        New-PodeWebSelect -Name 'Bellows' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebSelect -Name 'Bellows' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
-                Move-PodeWebAccordion -Name $WebEvent.Data['Bellows']
+                Open-PodeWebBellow -Name $WebEvent.Data['Bellows']
             }
     )
 
-    $acc1 = New-PodeWebAccordion -Bellows @(
+    $acc1 = New-PodeWebAccordion -Name 'Accordion1' -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Icon 'information' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
         )
@@ -31,13 +31,13 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Add-PodeWebPage -Name 'Select' -Layouts $select, $acc1
+    Add-PodeWebPage -Name 'Select' -Content $select, $acc1
 
 
     # textbox event
     $textbox = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Search for processes: '
-        New-PodeWebTextbox -Name 'Filter' -NoForm |
+        New-PodeWebTextbox -Name 'Filter' |
             Register-PodeWebEvent -Type KeyUp -ScriptBlock {
                 Get-Process -Name "*$($WebEvent.Data['Filter'])*" |
                     Sort-Object -Property CPU -Descending |
@@ -48,13 +48,13 @@ Start-PodeServer -Threads 2 {
         New-PodeWebTable -Name 'Processes'
     )
 
-    Add-PodeWebPage -Name 'Textbox' -Layouts $textbox
+    Add-PodeWebPage -Name 'Textbox' -Content $textbox
 
 
     # range event
     $range = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Move the slider: '
-        New-PodeWebRange -Name 'Value' -NoForm |
+        New-PodeWebRange -Name 'Value' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Update-PodeWebText -Id 'txt_value' -Value $WebEvent.Data['Value']
             }
@@ -62,19 +62,19 @@ Start-PodeServer -Threads 2 {
         New-PodeWebText -Id 'txt_value' -Style Bold -Value '0'
     )
 
-    Add-PodeWebPage -Name 'Range' -Layouts $range
+    Add-PodeWebPage -Name 'Range' -Content $range
 
 
     # radio event
     $radio = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Select options: '
-        New-PodeWebRadio -Name 'Options' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebRadio -Name 'Options' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
-                Move-PodeWebAccordion -Name $WebEvent.Data['Options']
+                Open-PodeWebBellow -Name $WebEvent.Data['Options']
             }
     )
 
-    $acc2 = New-PodeWebAccordion -Bellows @(
+    $acc2 = New-PodeWebAccordion -Name 'Accordion2' -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Icon 'information' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
         )
@@ -86,19 +86,24 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Add-PodeWebPage -Name 'Radio' -Layouts $radio, $acc2
+    Add-PodeWebPage -Name 'Radio' -Content $radio, $acc2
 
 
     # checkbox event
     $checkbox = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Select options: '
-        New-PodeWebCheckbox -Name 'Options' -NoForm -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebCheckbox -Name 'Options' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
             Register-PodeWebEvent -Type Change -ScriptBlock {
-                Move-PodeWebAccordion -Name $WebEvent.Data['Options']
+                if (!$WebEvent.Data['Options']) {
+                    Close-PodeWebAccordion -Name 'Accordion3'
+                }
+                else {
+                    Open-PodeWebBellow -Name ($WebEvent.Data['Options'] -split ',')[-1]
+                }
             }
     )
 
-    $acc3 = New-PodeWebAccordion -Bellows @(
+    $acc3 = New-PodeWebAccordion -Name 'Accordion3' -Bellows @(
         New-PodeWebBellow -Name 'Bellow 1' -Icon 'information' -Content @(
             New-PodeWebText -Value 'Some random text' -InParagraph
         )
@@ -110,5 +115,5 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Add-PodeWebPage -Name 'Checkbox' -Layouts $checkbox, $acc3
+    Add-PodeWebPage -Name 'Checkbox' -Content $checkbox, $acc3
 }

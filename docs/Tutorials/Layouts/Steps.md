@@ -2,7 +2,7 @@
 
 A steps layout is an array of steps with content. You can use them to step through multiple parts of a setup process.
 
-The steps take an array of components via `-Content`, that can be either other layouts or raw elements.
+The steps take an array of elements via `-Content`.
 
 ## Usage
 
@@ -11,9 +11,9 @@ To create a steps layout you use [`New-PodeWebSteps`](../../../Functions/Layouts
 !!! note
     If you have multiple steps layouts on one page, make sure the Name/IDs are unique, including the Name/IDs of all form input elements as well.
 
-Each step you create via [`New-PodeWebStep`](../../../Functions/Layouts/New-PodeWebStep) has a `-Name`, `-Content`, an optional `-ScriptBlock`. This scriptblock lets you run validation, or other logic, on a per step basis. If any [`Out-PodeWebValidation`](../../../Functions/Outputs/Out-PodeWebValidation) is used, then the step will be prevented from moving forwards.
+Each step you create via [`New-PodeWebStep`](../../../Functions/Layouts/New-PodeWebStep) has a `-Name`, `-Content`, and an optional `-ScriptBlock`. This scriptblock lets you run validation, or other logic, on a per-step basis. If any [`Show-PodeWebValidation`](../../../Functions/Actions/Show-PodeWebValidation) calls are used, then the step will be prevented from moving forward.
 
-For example, the below renders a layout with 3 steps to setup a very basic user. The email/password perform validation in their steps, with the user being created in the main final scriptblock:
+For example, the below renders a layout with 3 steps to set up a very basic user. The email/password performs validation in their steps, with the user being created in the main final scriptblock:
 
 ```powershell
 New-PodeWebSteps -Name 'AddUser' -Steps @(
@@ -25,14 +25,14 @@ New-PodeWebSteps -Name 'AddUser' -Steps @(
         New-PodeWebTextbox -Name 'Email'
     ) -ScriptBlock {
         if ($WebEvent.Data['Email'] -inotlike '*@*') {
-            Out-PodeWebValidation -Name 'Email' -Message 'The email supplied is invalid'
+            Show-PodeWebValidation -Name 'Email' -Message 'The email supplied is invalid'
         }
     }
     New-PodeWebStep -Name 'Password' -Icon 'Lock' -Content @(
         New-PodeWebTextbox -Name 'Password' -Type Password
     ) -ScriptBlock {
         if ($WebEvent.Data['Password'].Length -lt 8) {
-            Out-PodeWebValidation -Name 'Password' -Message 'Password should be 8+ characters'
+            Show-PodeWebValidation -Name 'Password' -Message 'Password should be 8+ characters'
         }
     }
 ) -ScriptBlock {

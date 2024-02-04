@@ -6,9 +6,9 @@
 
 A textbox element is a form input element; you can render a textbox, single and multiline, to your page using [`New-PodeWebTextbox`](../../../Functions/Elements/New-PodeWebTextbox).
 
-A textbox by default is a normal plain single lined textbox, however you can customise its `-Type` to Email/Password/etc. To change the textbox to be multilined you ca supply `-Multiline`.
+A textbox by default is a normal plain single lined textbox, however you can customise its `-Type` to Email/Password/etc. To change the textbox to be a multiline textbox you can supply the `-Multiline` switch.
 
-Textboxes also allow you to specify `-AutoComplete` values.
+Textboxes also allow you to specify `-AutoComplete` values ([see here](#autocomplete)).
 
 ## Single
 
@@ -72,10 +72,6 @@ Which looks like below:
 
 By default it shows the first 4 lines of text, this can be altered using the `-Size` parameter.
 
-## Inline
-
-You can render this element inline with other non-form elements by using the `-NoForm` switch. This will remove the form layout, and render the element more cleanly when used outside of a form.
-
 ## Display Name
 
 By default the label displays the `-Name` of the element. You can change the value displayed by also supplying an optional `-DisplayName` value; this value is purely visual, when the user submits the form the value of the element is still retrieved using the `-Name` from `$WebEvent.Data`.
@@ -84,4 +80,11 @@ By default the label displays the `-Name` of the element. You can change the val
 
 The `-Width` of a textbox has the default unit of `%`. If `0` is specified then `auto` is used instead. Any custom value such as `100px` can be used, but if a plain number is used then `%` is appended.
 
-The `-Height` of the textbox is how many lines are displayed when the textbox is multilined.
+The `-Height` of the textbox is how many lines are displayed when the textbox is multiline.
+
+## Initial Value
+
+You can create the Textbox with an initial value by using the `-Value` parameter. When using this parameter for a Textbox of type Date or Time the formats should be as follows:
+
+* Date: `-Value 'yyyy-mm-dd'`
+* Time: `-Value 'hh:mm'`

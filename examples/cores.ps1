@@ -13,7 +13,7 @@ Start-PodeServer {
 
     # set the home page controls
     $tabs = New-PodeWebTabs -Tabs @(
-        New-PodeWebTab -Name 'West Europe' -Layouts @(
+        New-PodeWebTab -Name 'West Europe' -Content @(
             New-PodeWebCard -NoTitle -Content @(
                 @(foreach ($quota in (az vm list-usage --location westeurope | ConvertFrom-Json)) {
                     if ($quota.currentValue -gt 0) {
@@ -23,7 +23,7 @@ Start-PodeServer {
             )
         )
 
-        New-PodeWebTab -Name 'Central US' -Layouts @(
+        New-PodeWebTab -Name 'Central US' -Content @(
             New-PodeWebCard -NoTitle -Content @(
                 @(foreach ($quota in (az vm list-usage --location centralus | ConvertFrom-Json)) {
                     if ($quota.currentValue -gt 0) {
@@ -33,7 +33,7 @@ Start-PodeServer {
             )
         )
 
-        New-PodeWebTab -Name 'Japan East' -Layouts @(
+        New-PodeWebTab -Name 'Japan East' -Content @(
             New-PodeWebCard -NoTitle -Content @(
                 @(foreach ($quota in (az vm list-usage --location japaneast | ConvertFrom-Json)) {
                     if ($quota.currentValue -gt 0) {
@@ -43,7 +43,7 @@ Start-PodeServer {
             )
         )
 
-        New-PodeWebTab -Name 'UK South' -Layouts @(
+        New-PodeWebTab -Name 'UK South' -Content @(
             New-PodeWebCard -NoTitle -Content @(
                 @(foreach ($quota in (az vm list-usage --location uksouth | ConvertFrom-Json)) {
                     if ($quota.currentValue -gt 0) {
@@ -54,5 +54,5 @@ Start-PodeServer {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Layouts $tabs
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -NoAuth -Content $tabs
 }

@@ -14,14 +14,6 @@ function New-PodeWebGrid
         [int]
         $Width = 0,
 
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
         [switch]
         $Vertical
     )
@@ -39,9 +31,7 @@ function New-PodeWebGrid
         ObjectType = 'Grid'
         Cells = $Cells
         Width = $Width
-        ID = (Get-PodeWebElementId -Tag Grid -Id $Id -RandomToken)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        ID = (Get-PodeWebElementId -Tag Grid -Id $Id)
     }
 }
 
@@ -64,19 +54,11 @@ function New-PodeWebCell
         [Parameter()]
         [ValidateSet('Left', 'Right', 'Center')]
         [string]
-        $Alignment = 'Left',
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Alignment = 'Left'
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
-        throw 'A Grid Cell can only contain layouts and/or elements'
+        throw 'A Cell can only contain layouts and/or elements'
     }
 
     return @{
@@ -84,10 +66,8 @@ function New-PodeWebCell
         ObjectType = 'Cell'
         Content = $Content
         Width = (Protect-PodeWebRange -Value $Width -Min 1 -Max 12)
-        ID = (Get-PodeWebElementId -Tag Cell -Id $Id -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Cell -Id $Id)
         Alignment = $Alignment.ToLowerInvariant()
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -102,14 +82,6 @@ function New-PodeWebTabs
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Tabs,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [int]
@@ -130,10 +102,8 @@ function New-PodeWebTabs
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Tabs'
-        ID = (Get-PodeWebElementId -Tag Tabs -Id $Id -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Tabs -Id $Id)
         Tabs = $Tabs
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Cycle = @{
             Enabled = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
@@ -159,23 +129,15 @@ function New-PodeWebTab
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Layouts,
+        $Content,
 
         [Parameter()]
-        [string]
-        $Icon,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        [object]
+        $Icon
     )
 
-    if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout)) {
-        throw 'A Tab can only contain layouts'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
+        throw 'A Tab can only contain layouts and/or elements'
     }
 
     return @{
@@ -184,10 +146,8 @@ function New-PodeWebTab
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
-        Layouts = $Layouts
-        Icon = $Icon
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Content = $Content
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Tab')
     }
 }
 
@@ -212,15 +172,11 @@ function New-PodeWebCard
         $Content,
 
         [Parameter()]
-        [string[]]
-        $CssClass,
+        [hashtable[]]
+        $Buttons,
 
         [Parameter()]
-        [hashtable]
-        $CssStyle,
-
-        [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [switch]
@@ -234,18 +190,21 @@ function New-PodeWebCard
         throw 'A Card can only contain layouts and/or elements'
     }
 
+    if (!(Test-PodeWebContent -Content $Buttons -ComponentType Element -ObjectType Button, 'Button-Group')) {
+        throw 'Card Buttons can only contain Buttons'
+    }
+
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Card'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name -NameAsToken)
+        ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name)
         Content = $Content
+        Buttons = $Buttons
         NoTitle = $NoTitle.IsPresent
         NoHide  = $NoHide.IsPresent
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Card')
     }
 }
 
@@ -261,14 +220,6 @@ function New-PodeWebContainer
         [hashtable[]]
         $Content,
 
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
-
         [switch]
         $NoBackground,
 
@@ -283,10 +234,8 @@ function New-PodeWebContainer
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Container'
-        ID = (Get-PodeWebElementId -Tag Container -Id $Id -NameAsToken)
+        ID = (Get-PodeWebElementId -Tag Container -Id $Id)
         Content = $Content
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         NoBackground = $NoBackground.IsPresent
         Hide = $Hide.IsPresent
     }
@@ -313,7 +262,7 @@ function New-PodeWebModal
         $Content,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter()]
@@ -338,14 +287,6 @@ function New-PodeWebModal
         [Parameter()]
         [object[]]
         $ArgumentList,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [string[]]
@@ -376,7 +317,7 @@ function New-PodeWebModal
     # generate ID
     $Id = Get-PodeWebElementId -Tag Modal -Id $Id -Name $Name
 
-    $routePath = "/components/modal/$($Id)"
+    $routePath = "/elements/modal/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -405,15 +346,13 @@ function New-PodeWebModal
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Modal')
         Content = $Content
         CloseText = [System.Net.WebUtility]::HtmlEncode($CloseText)
         SubmitText = [System.Net.WebUtility]::HtmlEncode($SubmitText)
         Size = $Size
         AsForm = $AsForm.IsPresent
         ShowSubmit = ($null -ne $ScriptBlock)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Method = $Method
         Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
     }
@@ -437,15 +376,7 @@ function New-PodeWebHero
 
         [Parameter()]
         [hashtable[]]
-        $Content,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Content
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -455,12 +386,10 @@ function New-PodeWebHero
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Hero'
-        ID = (Get-PodeWebElementId -Tag Hero -Id $Id -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Hero -Id $Id)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
         Content = $Content
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -474,15 +403,7 @@ function New-PodeWebCarousel
 
         [Parameter(Mandatory=$true)]
         [hashtable[]]
-        $Slides,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Slides
     )
 
     if (!(Test-PodeWebContent -Content $Slides -ComponentType Layout -ObjectType Slide)) {
@@ -492,10 +413,8 @@ function New-PodeWebCarousel
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Carousel'
-        ID = (Get-PodeWebElementId -Tag Carousel -Id $Id -NameAsToken)
+        ID = (Get-PodeWebElementId -Tag Carousel -Id $Id)
         Slides = $Slides
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -513,15 +432,7 @@ function New-PodeWebSlide
 
         [Parameter()]
         [string]
-        $Message,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        $Message
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -532,11 +443,9 @@ function New-PodeWebSlide
         ComponentType = 'Layout'
         ObjectType = 'Slide'
         Content = $Content
-        ID = (Get-PodeWebElementId -Tag Slide -RandomToken)
+        ID = (Get-PodeWebElementId -Tag Slide)
         Title = [System.Net.WebUtility]::HtmlEncode($Title)
         Message = [System.Net.WebUtility]::HtmlEncode($Message)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -555,14 +464,6 @@ function New-PodeWebSteps
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Steps,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter(Mandatory=$true)]
         [scriptblock]
@@ -590,7 +491,7 @@ function New-PodeWebSteps
     $Id = Get-PodeWebElementId -Tag Steps -Id $Id -Name $Name
 
     # add route
-    $routePath = "/components/steps/$($Id)"
+    $routePath = "/elements/steps/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -618,8 +519,6 @@ function New-PodeWebSteps
         ObjectType = 'Steps'
         ID = $Id
         Steps = $Steps
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -648,20 +547,12 @@ function New-PodeWebStep
         $ArgumentList,
 
         [Parameter()]
-        [string]
+        [object]
         $Icon,
 
         [Parameter()]
         [string[]]
         $EndpointName,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [Alias('NoAuth')]
@@ -677,7 +568,7 @@ function New-PodeWebStep
     $Id = Get-PodeWebElementId -Tag Step -Name $Name
 
     # add route
-    $routePath = "/components/step/$($Id)"
+    $routePath = "/elements/step/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -707,10 +598,8 @@ function New-PodeWebStep
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         ID = $Id
         Content = $Content
-        Icon = $Icon
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Step')
         IsDynamic = ($null -ne $ScriptBlock)
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
     }
 }
 
@@ -770,7 +659,7 @@ function New-PodeWebBreadcrumbItem
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'BreadcrumbItem'
+        ObjectType = 'Breadcrumb-Item'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         Url = (Add-PodeWebAppPath -Url $Url)
@@ -787,17 +676,13 @@ function New-PodeWebAccordion
         [string]
         $Id,
 
+        [Parameter()]
+        [string]
+        $Name,
+
         [Parameter(Mandatory=$true)]
         [hashtable[]]
         $Bellows,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle,
 
         [Parameter()]
         [int]
@@ -813,7 +698,7 @@ function New-PodeWebAccordion
     )
 
     if (!(Test-PodeWebContent -Content $Bellows -ComponentType Layout -ObjectType Bellow)) {
-        throw 'Accordions can only contain Bellow layouts'
+        throw 'An Accordion can only contain Bellow layouts'
     }
 
     if ($CycleInterval -lt 10) {
@@ -823,10 +708,9 @@ function New-PodeWebAccordion
     return @{
         ComponentType = 'Layout'
         ObjectType = 'Accordion'
-        ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -NameAsToken)
+        ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -Name $Name)
+        Name = $Name
         Bellows = $Bellows
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
         Mode = $Mode
         Cycle = @{
             Enabled = $Cycle.IsPresent
@@ -839,6 +723,10 @@ function New-PodeWebBellow
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory=$true)]
         [string]
         $Name,
@@ -852,16 +740,8 @@ function New-PodeWebBellow
         $Content,
 
         [Parameter()]
-        [string]
-        $Icon,
-
-        [Parameter()]
-        [string[]]
-        $CssClass,
-
-        [Parameter()]
-        [hashtable]
-        $CssStyle
+        [object]
+        $Icon
     )
 
     if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
@@ -873,10 +753,8 @@ function New-PodeWebBellow
         ObjectType = 'Bellow'
         Name = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = (Get-PodeWebElementId -Tag Bellow -Name $Name)
+        ID = (Get-PodeWebElementId -Tag Bellow -Id $Id -Name $Name)
         Content = $Content
-        Icon = $Icon
-        CssClasses = ($CssClass -join ' ')
-        CssStyles = (ConvertTo-PodeWebStyles -Style $CssStyle)
+        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Bellow')
     }
 }

@@ -111,3 +111,8 @@ pre code {
 iframe {
     border-color: #bbb;
 }
+
+.custom-file-input:hover + .custom-file-label::after {
+    background-color: #6c757d !important;
+    color: #fff !important
+}

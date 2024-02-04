@@ -27,7 +27,7 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 * Display data in tables, with pagination, sorting and filtering
 * Use a stepper for a more controlled flow of form input
 * Or, use a tabs layout for your pages!
-* Show or right code via the Monaco editor (still WIP)
+* Show or write code via the Monaco editor (still WIP)
 * Render code in code-blocks with code highlighting!
 * Support for Light, Dark, Terminal, and custom themes
 

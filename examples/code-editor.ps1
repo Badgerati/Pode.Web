@@ -8,11 +8,11 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Code Editor' -Logo '/pode.web/images/icon.png' -Theme Dark
+    Use-PodeWebTemplates -Title 'Code Editor' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
 
     $codeEditor = New-PodeWebCodeEditor -Language Html -Name 'Code Editor' -AsCard -Value '<p style="color:white;">well</p>' -Upload {
         $WebEvent.Data | Out-Default
     }
-    Set-PodeWebHomePage -NoAuth -Layouts $codeEditor -NoTitle
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -NoAuth -Content $codeEditor -NoTitle
 }

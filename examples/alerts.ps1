@@ -20,5 +20,5 @@ Start-PodeServer {
         New-PodeWebAlert -Type Success -Value 'Hello, world'
     )
 
-    Set-PodeWebHomePage -Layouts $card -Title 'Alerts'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $card -Title 'Alerts'
 }

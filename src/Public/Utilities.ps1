@@ -35,62 +35,80 @@ function Use-PodeWebTemplates
         $HideSidebar,
 
         [switch]
-        $UseHsts
+        $UseHsts,
+
+        [switch]
+        $RootRedirect
     )
 
-    if ([string]::IsNullOrWhiteSpace($FavIcon)) {
-        $FavIcon = '/pode.web/images/favicon.ico'
+    # has Pode.Web already been initialised?
+    if (Get-PodeWebState -Name 'enabled') {
+        throw "Pode.Web templates have already been enabled."
     }
 
+    # get a favicon path
+    if ([string]::IsNullOrWhiteSpace($FavIcon)) {
+        $FavIcon = '/pode.web-static/images/favicon.ico'
+    }
+
+    # tell Pode to export the module for auto-loading
     Export-PodeModule -Name Pode.Web
 
+    # if available, do we need an IIS sub-path?
     $appPath = Get-PodeIISApplicationPath
     if ([string]::IsNullOrWhiteSpace($appPath) -or ($appPath -eq '/')) {
         $appPath = [string]::Empty
     }
     Set-PodeWebState -Name 'app-path' -Value ($appPath.ToLowerInvariant())
 
+    # setup settings
+    Set-PodeWebState -Name 'enabled' -Value $true
     Set-PodeWebState -Name 'title' -Value ([System.Net.WebUtility]::HtmlEncode($Title))
     Set-PodeWebState -Name 'logo' -Value (Add-PodeWebAppPath -Url $Logo)
     Set-PodeWebState -Name 'favicon' -Value (Add-PodeWebAppPath -Url $FavIcon)
     Set-PodeWebState -Name 'no-page-filter' -Value $NoPageFilter.IsPresent
     Set-PodeWebState -Name 'hide-sidebar' -Value $HideSidebar.IsPresent
+    Set-PodeWebState -Name 'root-redirect' -Value $RootRedirect.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @{}
+    Set-PodeWebState -Name 'groups' -Value @{}
     Set-PodeWebState -Name 'default-nav' -Value $null
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
 
+    # themes
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
     Set-PodeWebState -Name 'custom-themes' -Value @{
         Default = $null
         Themes = [ordered]@{}
     }
 
-    $templatePath = Get-PodeWebTemplatePath
+    # system urls
+    Set-PodeWebSystemUrlDefaults
 
-    Add-PodeStaticRoute -Path '/pode.web' -Source (Join-PodeWebPath $templatePath 'Public')
+    # public and view folders
+    $templatePath = Get-PodeWebTemplatePath
+    Add-PodeStaticRoute -Path '/pode.web-static' -Source (Join-PodeWebPath $templatePath 'Public')
     Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-PodeWebPath $templatePath 'Views')
 
-    Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
-        $page = Get-PodeWebFirstPublicPage
-        if ($null -ne $page) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
-        }
+    # setup default security headers
+    Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
 
-        Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = @{
-                Name = 'Home'
-                Path = '/'
-                TItle = 'Home'
-                DisplayName = 'Home'
-                IsSystem = $true
+    # add an empty root route, which simply redirects to the first available page
+    if ($RootRedirect) {
+        Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
+            # get first page and redirect
+            $page = Get-PodeWebFirstPublicPage
+            if ($null -ne $page) {
+                Move-PodeResponseUrl -Url $page.Url
+                return
             }
+
+            # fail if no pages found
+            Set-PodeResponseStatus -Code 421
         }
     }
-
-    Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
 }
 
 function Import-PodeWebStylesheet
@@ -319,45 +337,13 @@ function Set-PodeWebAuth
 
     # set default failure/success urls
     $auth = Get-PodeAuth -Name $Authentication
-    $auth.Failure.Url = (Add-PodeWebAppPath -Url '/')
-    $auth.Success.Url = (Add-PodeWebAppPath -Url '/')
 
-    # get the endpoints to bind
-    $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+    if ([string]::IsNullOrWhiteSpace($auth.Failure.Url)) {
+        $auth.Failure.Url = (Add-PodeWebAppPath -Url '/')
+    }
 
-    # add an authenticated home route
-    Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
-
-    Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
-        $page = Get-PodeWebFirstPublicPage
-        if ($null -ne $page) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
-        }
-
-        $authData = Get-PodeWebAuthData
-        $username = Get-PodeWebAuthUsername -AuthData $authData
-        $groups = Get-PodeWebAuthGroups -AuthData $authData
-        $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
-        $theme = Get-PodeWebTheme
-        $navigation = Get-PodeWebNavDefault
-
-        Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = @{
-                Name = 'Home'
-                Path = '/'
-                IsSystem = $true
-            }
-            Theme = $theme
-            Navigation = $navigation
-            Auth = @{
-                Enabled = $true
-                Logout = (Get-PodeWebState -Name 'auth-props').Logout
-                Authenticated = $authData.IsAuthenticated
-                Username = $username
-                Groups = $groups
-                Avatar = $avatar
-            }
-        }
+    if ([string]::IsNullOrWhiteSpace($auth.Success.Url)) {
+        $auth.Success.Url = (Add-PodeWebAppPath -Url '/')
     }
 
     if ($PassThru) {
