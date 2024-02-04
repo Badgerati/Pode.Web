@@ -335,7 +335,7 @@ Start-PodeServer -StatusPageExceptions Show {
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
     $form = New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
         if ($WebEvent.Data.Name.Length -le 3) {
-            Out-PodeWebValidation -Name 'Name' -Message 'Name must be greater than 3 characters'
+            Show-PodeWebValidation -Name 'Name' -Message 'Name must be greater than 3 characters'
             return
         }
 

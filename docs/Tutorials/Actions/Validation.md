@@ -2,9 +2,9 @@
 
 This page details the actions available to input form element Validation messages.
 
-## Out
+## Show
 
-To show an error validation message beneath an element - usually form input elements - you can use [`Out-PodeWebValidation`](../../../Functions/Actions/Out-PodeWebValidation). This will turn the element red, and show a red message beneath it - useful for username lengths, etc:
+To show an error validation message beneath an element - usually form input elements - you can use [`Show-PodeWebValidation`](../../../Functions/Actions/Show-PodeWebValidation). This will turn the element red, and show a red message beneath it - useful for username lengths, etc:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -12,12 +12,12 @@ New-PodeWebCard -Content @(
         $invalid = $false
 
         if ($WebEvent.Data['Username'].Length -le 3) {
-            Out-PodeWebValidation -Name 'Username' -Message 'Username must be 4+ chars'
+            Show-PodeWebValidation -Name 'Username' -Message 'Username must be 4+ chars'
             $invalid = $true
         }
 
         if ($WebEvent.Data['Password'].Length -le 7) {
-            Out-PodeWebValidation -Name 'Password' -Message 'Password must be 8+ chars'
+            Show-PodeWebValidation -Name 'Password' -Message 'Password must be 8+ chars'
             $invalid = $true
         }
 

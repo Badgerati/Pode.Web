@@ -100,6 +100,7 @@ Start-PodeServer -StatusPageExceptions Show {
             }
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
         New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock {
+            start-sleep 4
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
         }
@@ -325,7 +326,7 @@ Start-PodeServer -StatusPageExceptions Show {
     # add a page to search process (output as json in an appended textbox) [note: requires auth]
     $form = New-PodeWebForm -Name 'Search' -AsCard -ScriptBlock {
         if ($WebEvent.Data.Name.Length -le 3) {
-            Out-PodeWebValidation -Name 'Name' -Message 'Name must be greater than 3 characters'
+            Show-PodeWebValidation -Name 'Name' -Message 'Name must be greater than 3 characters'
             return
         }
 

@@ -330,10 +330,17 @@ function setValidationError(element) {
     }
 }
 
-function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
+function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallback, opts, button) {
     // show the spinner
     showSpinner(sender);
     $('.alert.pode-error').remove();
+
+    // disable the button
+    if (isDisabled(button)) {
+        return;
+    }
+
+    disable(button);
 
     // remove validation errors
     removeValidationErrors(sender);
@@ -370,6 +377,10 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
             // attempt to hide any spinners
             hideSpinner(sender);
 
+            // re-enable the button
+            enable(button);
+
+            // re-gain focus, or lose focus?
             if (!opts.keepFocus) {
                 unfocus(sender);
             }
@@ -402,14 +413,25 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, opts) {
             }
         },
         error: function(err, msg, stack) {
+            // attempt to hide any spinners
             hideSpinner(sender);
 
+            // re-enable the button
+            enable(button);
+
+            // re-gain focus, or lose focus?
             if (!opts.keepFocus) {
                 unfocus(sender);
             }
 
+            // log the error/stack
             console.log(err);
             console.log(stack);
+
+            // call error callback
+            if (errorCallback) {
+                errorCallback(err, msg, stack, sender);
+            }
         }
     });
 }
@@ -1116,6 +1138,14 @@ function disable(element) {
     else {
         element.prop('disabled', true);
     }
+}
+
+function isDisabled(element) {
+    if (!element) {
+        return false;
+    }
+
+    return element.is(':disabled');
 }
 
 function actionPage(action) {
