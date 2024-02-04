@@ -1,8 +1,7 @@
-function Use-PodeWebTemplates
-{
+function Use-PodeWebTemplates {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Title,
 
@@ -43,7 +42,7 @@ function Use-PodeWebTemplates
 
     # has Pode.Web already been initialised?
     if (Get-PodeWebState -Name 'enabled') {
-        throw "Pode.Web templates have already been enabled."
+        throw 'Pode.Web templates have already been enabled.'
     }
 
     # get a favicon path
@@ -81,7 +80,7 @@ function Use-PodeWebTemplates
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
     Set-PodeWebState -Name 'custom-themes' -Value @{
         Default = $null
-        Themes = [ordered]@{}
+        Themes  = [ordered]@{}
     }
 
     # system urls
@@ -111,11 +110,10 @@ function Use-PodeWebTemplates
     }
 }
 
-function Import-PodeWebStylesheet
-{
+function Import-PodeWebStylesheet {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url
     )
@@ -123,11 +121,10 @@ function Import-PodeWebStylesheet
     Set-PodeWebState -Name 'custom-css' -Value  (@(Get-PodeWebState -Name 'custom-css') + (Add-PodeWebAppPath -Url $Url))
 }
 
-function Import-PodeWebJavaScript
-{
+function Import-PodeWebJavaScript {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url
     )
@@ -135,17 +132,16 @@ function Import-PodeWebJavaScript
     Set-PodeWebState -Name 'custom-js' -Value  (@(Get-PodeWebState -Name 'custom-js') + (Add-PodeWebAppPath -Url $Url))
 }
 
-function Set-PodeWebSocial
-{
+function Set-PodeWebSocial {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('GitHub', 'Twitter', 'Facebook', 'LinkedIn', 'Twitch', 'GitLab', 'Instagram', 'Telegram',
             'Pinterest', 'Slack', 'Discord', 'BitBucket', 'Jira', 'YouTube')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url,
 
@@ -160,13 +156,12 @@ function Set-PodeWebSocial
 
     $socials = Get-PodeWebState -Name 'social'
     $socials[$Type] = @{
-        Url = $Url
+        Url     = $Url
         Tooltip = $Tooltip
     }
 }
 
-function Get-PodeWebTheme
-{
+function Get-PodeWebTheme {
     [CmdletBinding()]
     param(
         [switch]
@@ -205,8 +200,7 @@ function Get-PodeWebTheme
     return $theme.ToLowerInvariant()
 }
 
-function Test-PodeWebTheme
-{
+function Test-PodeWebTheme {
     [CmdletBinding()]
     param(
         [Parameter()]
@@ -217,8 +211,7 @@ function Test-PodeWebTheme
     return ((Test-PodeWebThemeInbuilt -Name $Name) -or (Test-PodeWebThemeCustom -Name $Name))
 }
 
-function Get-PodeWebUsername
-{
+function Get-PodeWebUsername {
     [CmdletBinding()]
     param()
 
@@ -226,15 +219,14 @@ function Get-PodeWebUsername
     return (Get-PodeWebAuthUsername -AuthData $authData)
 }
 
-function Add-PodeWebCustomTheme
-{
+function Add-PodeWebCustomTheme {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url
     )
@@ -269,8 +261,7 @@ function Add-PodeWebCustomTheme
     }
 }
 
-function Join-PodeWebPath
-{
+function Join-PodeWebPath {
     param(
         [Parameter()]
         [string]
@@ -301,11 +292,10 @@ function Join-PodeWebPath
     return $result
 }
 
-function Set-PodeWebAuth
-{
+function Set-PodeWebAuth {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Authentication,
 
@@ -329,10 +319,10 @@ function Set-PodeWebAuth
     Set-PodeWebState -Name 'auth' -Value $Authentication
     Set-PodeWebState -Name 'auth-props' -Value @{
         Username = $UsernameProperty
-        Group = $GroupProperty
-        Avatar = $AvatarProperty
-        Theme = $ThemeProperty
-        Logout = $false
+        Group    = $GroupProperty
+        Avatar   = $AvatarProperty
+        Theme    = $ThemeProperty
+        Logout   = $false
     }
 
     # set default failure/success urls

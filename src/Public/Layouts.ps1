@@ -1,12 +1,11 @@
-function New-PodeWebGrid
-{
+function New-PodeWebGrid {
     [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Cells,
 
@@ -28,22 +27,21 @@ function New-PodeWebGrid
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Grid'
-        Cells = $Cells
-        Width = $Width
-        ID = (Get-PodeWebElementId -Tag Grid -Id $Id)
+        ObjectType    = 'Grid'
+        Cells         = $Cells
+        Width         = $Width
+        ID            = (Get-PodeWebElementId -Tag Grid -Id $Id)
     }
 }
 
-function New-PodeWebCell
-{
+function New-PodeWebCell {
     [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Content,
 
@@ -63,23 +61,22 @@ function New-PodeWebCell
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Cell'
-        Content = $Content
-        Width = (Protect-PodeWebRange -Value $Width -Min 1 -Max 12)
-        ID = (Get-PodeWebElementId -Tag Cell -Id $Id)
-        Alignment = $Alignment.ToLowerInvariant()
+        ObjectType    = 'Cell'
+        Content       = $Content
+        Width         = (Protect-PodeWebRange -Value $Width -Min 1 -Max 12)
+        ID            = (Get-PodeWebElementId -Tag Cell -Id $Id)
+        Alignment     = $Alignment.ToLowerInvariant()
     }
 }
 
-function New-PodeWebTabs
-{
+function New-PodeWebTabs {
     [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Tabs,
 
@@ -101,25 +98,24 @@ function New-PodeWebTabs
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Tabs'
-        ID = (Get-PodeWebElementId -Tag Tabs -Id $Id)
-        Tabs = $Tabs
-        Cycle = @{
-            Enabled = $Cycle.IsPresent
+        ObjectType    = 'Tabs'
+        ID            = (Get-PodeWebElementId -Tag Tabs -Id $Id)
+        Tabs          = $Tabs
+        Cycle         = @{
+            Enabled  = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
         }
     }
 }
 
-function New-PodeWebTab
-{
+function New-PodeWebTab {
     [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
@@ -127,7 +123,7 @@ function New-PodeWebTab
         [string]
         $DisplayName,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Content,
 
@@ -142,17 +138,16 @@ function New-PodeWebTab
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Tab'
-        Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
-        Content = $Content
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Tab')
+        ObjectType    = 'Tab'
+        Name          = $Name
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        ID            = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
+        Content       = $Content
+        Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Tab')
     }
 }
 
-function New-PodeWebCard
-{
+function New-PodeWebCard {
     [CmdletBinding()]
     param(
         [Parameter()]
@@ -167,7 +162,7 @@ function New-PodeWebCard
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Content,
 
@@ -196,27 +191,26 @@ function New-PodeWebCard
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Card'
-        Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name)
-        Content = $Content
-        Buttons = $Buttons
-        NoTitle = $NoTitle.IsPresent
-        NoHide  = $NoHide.IsPresent
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Card')
+        ObjectType    = 'Card'
+        Name          = $Name
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        ID            = (Get-PodeWebElementId -Tag Card -Id $Id -Name $Name)
+        Content       = $Content
+        Buttons       = $Buttons
+        NoTitle       = $NoTitle.IsPresent
+        NoHide        = $NoHide.IsPresent
+        Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Card')
     }
 }
 
-function New-PodeWebContainer
-{
+function New-PodeWebContainer {
     [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Content,
 
@@ -233,19 +227,18 @@ function New-PodeWebContainer
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Container'
-        ID = (Get-PodeWebElementId -Tag Container -Id $Id)
-        Content = $Content
-        NoBackground = $NoBackground.IsPresent
-        Hide = $Hide.IsPresent
+        ObjectType    = 'Container'
+        ID            = (Get-PodeWebElementId -Tag Container -Id $Id)
+        Content       = $Content
+        NoBackground  = $NoBackground.IsPresent
+        Hide          = $Hide.IsPresent
     }
 }
 
-function New-PodeWebModal
-{
+function New-PodeWebModal {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
@@ -257,7 +250,7 @@ function New-PodeWebModal
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Content,
 
@@ -342,35 +335,34 @@ function New-PodeWebModal
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Modal'
-        Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = $Id
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Modal')
-        Content = $Content
-        CloseText = [System.Net.WebUtility]::HtmlEncode($CloseText)
-        SubmitText = [System.Net.WebUtility]::HtmlEncode($SubmitText)
-        Size = $Size
-        AsForm = $AsForm.IsPresent
-        ShowSubmit = ($null -ne $ScriptBlock)
-        Method = $Method
-        Action = (Protect-PodeWebValue -Value $Action -Default $routePath)
+        ObjectType    = 'Modal'
+        Name          = $Name
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        ID            = $Id
+        Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Modal')
+        Content       = $Content
+        CloseText     = [System.Net.WebUtility]::HtmlEncode($CloseText)
+        SubmitText    = [System.Net.WebUtility]::HtmlEncode($SubmitText)
+        Size          = $Size
+        AsForm        = $AsForm.IsPresent
+        ShowSubmit    = ($null -ne $ScriptBlock)
+        Method        = $Method
+        Action        = (Protect-PodeWebValue -Value $Action -Default $routePath)
     }
 }
 
-function New-PodeWebHero
-{
+function New-PodeWebHero {
     [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Title,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Message,
 
@@ -385,23 +377,22 @@ function New-PodeWebHero
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Hero'
-        ID = (Get-PodeWebElementId -Tag Hero -Id $Id)
-        Title = [System.Net.WebUtility]::HtmlEncode($Title)
-        Message = [System.Net.WebUtility]::HtmlEncode($Message)
-        Content = $Content
+        ObjectType    = 'Hero'
+        ID            = (Get-PodeWebElementId -Tag Hero -Id $Id)
+        Title         = [System.Net.WebUtility]::HtmlEncode($Title)
+        Message       = [System.Net.WebUtility]::HtmlEncode($Message)
+        Content       = $Content
     }
 }
 
-function New-PodeWebCarousel
-{
+function New-PodeWebCarousel {
     [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Slides
     )
@@ -412,17 +403,16 @@ function New-PodeWebCarousel
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Carousel'
-        ID = (Get-PodeWebElementId -Tag Carousel -Id $Id)
-        Slides = $Slides
+        ObjectType    = 'Carousel'
+        ID            = (Get-PodeWebElementId -Tag Carousel -Id $Id)
+        Slides        = $Slides
     }
 }
 
-function New-PodeWebSlide
-{
+function New-PodeWebSlide {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Content,
 
@@ -441,19 +431,18 @@ function New-PodeWebSlide
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Slide'
-        Content = $Content
-        ID = (Get-PodeWebElementId -Tag Slide)
-        Title = [System.Net.WebUtility]::HtmlEncode($Title)
-        Message = [System.Net.WebUtility]::HtmlEncode($Message)
+        ObjectType    = 'Slide'
+        Content       = $Content
+        ID            = (Get-PodeWebElementId -Tag Slide)
+        Title         = [System.Net.WebUtility]::HtmlEncode($Title)
+        Message       = [System.Net.WebUtility]::HtmlEncode($Message)
     }
 }
 
-function New-PodeWebSteps
-{
+function New-PodeWebSteps {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
@@ -461,11 +450,11 @@ function New-PodeWebSteps
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Steps,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
@@ -516,17 +505,16 @@ function New-PodeWebSteps
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Steps'
-        ID = $Id
-        Steps = $Steps
+        ObjectType    = 'Steps'
+        ID            = $Id
+        Steps         = $Steps
     }
 }
 
-function New-PodeWebStep
-{
+function New-PodeWebStep {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
@@ -593,18 +581,17 @@ function New-PodeWebStep
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Step'
-        Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = $Id
-        Content = $Content
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Step')
-        IsDynamic = ($null -ne $ScriptBlock)
+        ObjectType    = 'Step'
+        Name          = $Name
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        ID            = $Id
+        Content       = $Content
+        Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Step')
+        IsDynamic     = ($null -ne $ScriptBlock)
     }
 }
 
-function Set-PodeWebBreadcrumb
-{
+function Set-PodeWebBreadcrumb {
     [CmdletBinding()]
     param(
         [Parameter()]
@@ -623,7 +610,7 @@ function Set-PodeWebBreadcrumb
     $foundActive = $false
     foreach ($item in $Items) {
         if ($foundActive -and $item.Active) {
-            throw "Cannot have two active breadcrumb items"
+            throw 'Cannot have two active breadcrumb items'
         }
 
         $foundActive = $item.Active
@@ -631,17 +618,16 @@ function Set-PodeWebBreadcrumb
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Breadcrumb'
-        Items = $Items
-        NoEvents = $true
+        ObjectType    = 'Breadcrumb'
+        Items         = $Items
+        NoEvents      = $true
     }
 }
 
-function New-PodeWebBreadcrumbItem
-{
+function New-PodeWebBreadcrumbItem {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
@@ -649,7 +635,7 @@ function New-PodeWebBreadcrumbItem
         [string]
         $DisplayName,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url,
 
@@ -659,17 +645,16 @@ function New-PodeWebBreadcrumbItem
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Breadcrumb-Item'
-        Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        Url = (Add-PodeWebAppPath -Url $Url)
-        Active = $Active.IsPresent
-        NoEvents = $true
+        ObjectType    = 'Breadcrumb-Item'
+        Name          = $Name
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        Url           = (Add-PodeWebAppPath -Url $Url)
+        Active        = $Active.IsPresent
+        NoEvents      = $true
     }
 }
 
-function New-PodeWebAccordion
-{
+function New-PodeWebAccordion {
     [CmdletBinding()]
     param(
         [Parameter()]
@@ -680,7 +665,7 @@ function New-PodeWebAccordion
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable[]]
         $Bellows,
 
@@ -707,27 +692,26 @@ function New-PodeWebAccordion
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Accordion'
-        ID = (Get-PodeWebElementId -Tag Accordion -Id $Id -Name $Name)
-        Name = $Name
-        Bellows = $Bellows
-        Mode = $Mode
-        Cycle = @{
-            Enabled = $Cycle.IsPresent
+        ObjectType    = 'Accordion'
+        ID            = (Get-PodeWebElementId -Tag Accordion -Id $Id -Name $Name)
+        Name          = $Name
+        Bellows       = $Bellows
+        Mode          = $Mode
+        Cycle         = @{
+            Enabled  = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
         }
     }
 }
 
-function New-PodeWebBellow
-{
+function New-PodeWebBellow {
     [CmdletBinding()]
     param(
         [Parameter()]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
@@ -750,11 +734,11 @@ function New-PodeWebBellow
 
     return @{
         ComponentType = 'Layout'
-        ObjectType = 'Bellow'
-        Name = $Name
-        DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        ID = (Get-PodeWebElementId -Tag Bellow -Id $Id -Name $Name)
-        Content = $Content
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Bellow')
+        ObjectType    = 'Bellow'
+        Name          = $Name
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        ID            = (Get-PodeWebElementId -Tag Bellow -Id $Id -Name $Name)
+        Content       = $Content
+        Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Bellow')
     }
 }
