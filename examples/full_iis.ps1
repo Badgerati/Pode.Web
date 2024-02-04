@@ -13,7 +13,7 @@ Start-PodeServer -StatusPageExceptions Show {
     Add-PodeAuthIIS -Name Example
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web/images/icon.png' -Theme Dark
+    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
     # set auth to iis
     Set-PodeWebAuth -Authentication Example
@@ -70,15 +70,15 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebCode -Id 'code_test' -Value "some code :o"
         )
         $timer1
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Height 70 -Alignment Right
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
         New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -Icon 'console-line' -Colour Green -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
-            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
+            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
         }
         New-PodeWebButton -Name 'Click Me Outlined' -DataValue 'PowerShell Rules!' -Icon 'console-line' -Colour Green -Outline -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
-            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
+            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
         }
         New-PodeWebContainer -Content @(
             New-PodeWebButton -Name 'Dark Theme' -Icon 'moon-new' -Colour Dark -ScriptBlock { Update-PodeWebTheme -Name Dark }
@@ -107,8 +107,8 @@ Start-PodeServer -StatusPageExceptions Show {
     )
 
     $section3 = New-PodeWebCard -Name 'Comments' -Icon 'comment' -Content @(
-        New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
-        New-PodeWebComment -Icon '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
+        New-PodeWebComment -Icon '/pode.web-static/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
+        New-PodeWebComment -Icon '/pode.web-static/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )
 
     $codeEditor = New-PodeWebCodeEditor -Language PowerShell -Name 'Code Editor' -AsCard
@@ -180,7 +180,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -Content $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
             Show-PodeWebToast -Message "Home page $($EventType)!"
         }

@@ -5,7 +5,7 @@
         AppPath = $data.AppPath
     })
 
-    <body id="normal-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
+    <body id="normal-page" pode-page-id="$($data.Page.ID)" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
         $(
             if (!$data.Page.NoNavigation) {
                 Use-PodeWebPartialView -Path 'shared/navbar' -Data @{
@@ -55,55 +55,64 @@
 
                     <div class="sidebar-sticky pt-0">
                         <ul id="sidebar-list" class="nav flex-column">
-                            <li class="nav-item nav-page-item">
-                                <a class="nav-link $(if ($data.Page.Name -ieq 'home') { 'active' })" href="$($data.AppPath)/">
-                                    <div>
-                                        <span class="mdi mdi-$(Get-PodeWebHomeIcon) mdi-size-22 mRight02"></span>
-                                        $(Get-PodeWebHomeName)
-                                    </div>
-                                </a>
-                            </li>
-
                             $(
-                                $pageGroups = ((Get-PodeWebState -Name 'pages').Values | Group-Object -Property { $_.Group } | Sort-Object -Property Name)
+                                $pages = Get-PodeWebState -Name 'pages'
+                                $groups = Get-PodeWebState -Name 'groups'
+                                $groupNames = @($groups.Keys)
+                                [array]::Sort($groupNames)
 
-                                foreach ($pageGroup in $pageGroups) {
-                                    $pages = @(foreach ($page in $pageGroup.Group) {
-                                        if ($page.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth)) {
-                                            continue
-                                        }
-
-                                        $page
-                                    })
-
-                                    if ($pages.Length -eq 0) {
+                                foreach ($grpName in $groupNames) {
+                                    $group = $groups[$grpName]
+                                    if ($group.Pages.Count -eq 0) {
                                         continue
                                     }
 
-                                    if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
+                                    $grpPageIndexes = @($group.Pages.Keys)
+                                    [array]::Sort($grpPageIndexes)
+
+                                    $grpPages = @(foreach ($grpPageIndex in $grpPageIndexes) {
+                                        foreach ($grpPage in $group.Pages[$grpPageIndex]) {
+                                            $page = $pages[$grpPage]
+                                            if (!($page.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth))) {
+                                                $page
+                                            }
+                                        }
+                                    })
+
+                                    if ($grpPages.Length -eq 0) {
+                                        continue
+                                    }
+
+                                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
                                         $chevron = 'right'
                                         $show = [string]::Empty
-                                        $safeGrpName = Protect-PodeWebSpecialCharacters -Value $pageGroup.Name
 
-                                        if ($data.Page.Group -ieq $pageGroup.Name) {
+                                        if ($data.Page.Group -ieq $group.Name) {
                                             $chevron = 'down'
                                             $show = 'show'
                                         }
 
+                                        $icon = [string]::Empty
+                                        if (![string]::IsNullOrWhiteSpace($group.Icon)) {
+                                            $icon = "<span class='mdi mdi-$($group.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>"
+                                        }
+
                                         "<li class='nav-item mTop1 nav-group-title'>
-                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($safeGrpName)' aria-expanded='$($data.Page.Group -ieq $pageGroup.Name)' aria-controls='nav-$($safeGrpName)'>
+                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($group.ID)' aria-expanded='$($data.Page.Group -ieq $group.Name)' aria-controls='nav-$($group.ID)'>
                                                 <div>
                                                     <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
-                                                    <span class='h6'>$([System.Net.WebUtility]::HtmlEncode($pageGroup.Name))</span>
-                                                    <span class='badge badge-inbuilt-theme'>$($pages.Length)</span>
+                                                    <span class='h6'>$($icon)$($group.DisplayName)</span>
+                                                    $(if (!$group.NoCounter) {
+                                                        "<span class='badge badge-inbuilt-theme'>$($grpPages.Length)</span>"
+                                                    })
                                                 </div>
                                             </a>
                                         </li>"
 
-                                        "<div class='collapse $($show)' id='nav-$($safeGrpName)'>"
+                                        "<div class='collapse $($show)' id='nav-$($group.ID)'>"
                                     }
 
-                                    foreach ($page in ($pages | Sort-Object -Property { $_.Name })) {
+                                    foreach ($page in $grpPages) {
                                         $href = [string]::Empty
                                         if (!$page.IsDynamic) {
                                             $href = "href='$($page.Url)'"
@@ -114,12 +123,12 @@
                                         }
 
                                         $activePage = [string]::Empty
-                                        if (($data.Page.Name -ieq $page.Name) -and ($data.Page.Group -ieq $pageGroup.Name)) {
+                                        if (($data.Page.Name -ieq $page.Name) -and ($data.Page.Group -ieq $group.Name)) {
                                             $activePage = 'active'
                                         }
 
                                         "<li class='nav-item nav-page-item'>
-                                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($pageGroup.Name)' pode-page-type='$($page.ObjectType)' pode-dynamic='$($page.IsDynamic)' $($href)>
+                                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($group.Name)' pode-page-type='$($page.ObjectType)' pode-dynamic='$($page.IsDynamic)' $($href)>
                                                 <div>
                                                     <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
                                                     $($page.DisplayName)
@@ -128,7 +137,7 @@
                                         </li>"
                                     }
 
-                                    if (![string]::IsNullOrWhiteSpace($pageGroup.Name)) {
+                                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
                                         "</div>"
                                     }
                                 }

@@ -8,7 +8,7 @@ Start-PodeServer {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Pester'
+    Use-PodeWebTemplates -Title 'Pester' -RootRedirect
 
 
     # convert module to pages

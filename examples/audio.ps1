@@ -10,7 +10,7 @@ Start-PodeServer -Threads 2 {
     Use-PodeWebTemplates -Title 'Audio' -Theme Dark
 
     # set the home page controls
-    Set-PodeWebHomePage -Title 'Audio' -Content @(
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Title 'Audio' -Content @(
         New-PodeWebCard -Content @(
             New-PodeWebAudio -Name 'sample' -NoDownload -Source @(
                 New-PodeWebAudioSource -Url 'https://samplelib.com/lib/preview/mp3/sample-6s.mp3'

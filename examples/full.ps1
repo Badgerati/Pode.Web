@@ -21,7 +21,7 @@ Start-PodeServer -StatusPageExceptions Show {
                     Name = 'Morty'
                     Type = 'Human'
                     Groups = @('Developer')
-                    #AvatarUrl = '/pode.web/images/icon.png'
+                    #AvatarUrl = '/pode.web-static/images/icon.png'
                 }
             }
         }
@@ -31,11 +31,11 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web/images/icon.png' -Theme Dark
+    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
     # set login page 
     # -BackgroundImage '/images/galaxy.jpg'
-    Set-PodeWebLoginPage -Authentication Example -PassThru |
+    Set-PodeWebLoginPage -Authentication Example -LoginPath '/auth/login' -LogoutPath '/auth/logout' -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
             Show-PodeWebToast -Message "Login page $($EventType)!"
         }
@@ -93,7 +93,7 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebCode -Id 'code_test' -Value "some code :o"
         )
         $timer1
-        New-PodeWebImage -Id 'pode-img' -Source '/pode.web/images/icon.png' -Height 70 -Alignment Right |
+        New-PodeWebImage -Id 'pode-img' -Source '/pode.web-static/images/icon.png' -Height 70 -Alignment Right |
             Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
                 $value = Get-Random -Minimum 70 -Maximum 141
                 Update-PodeWebImage -Id 'pode-img' -Title "Hello$($value)!" -Height $value
@@ -101,11 +101,11 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
         New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
-            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
+            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
         }
         New-PodeWebButton -Name 'Click Me Outlined' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -Outline -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
-            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web/images/icon.png'
+            Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
         }
         New-PodeWebContainer -Content @(
             New-PodeWebButtonGroup -Buttons @(
@@ -136,8 +136,8 @@ Start-PodeServer -StatusPageExceptions Show {
     )
 
     $section3 = New-PodeWebCard -Name 'Comments' -Icon 'comment' -Content @(
-        New-PodeWebComment -AvatarUrl '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
-        New-PodeWebComment -AvatarUrl '/pode.web/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
+        New-PodeWebComment -AvatarUrl '/pode.web-static/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
+        New-PodeWebComment -AvatarUrl '/pode.web-static/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )
 
     $codeEditor = New-PodeWebCodeEditor -Language PowerShell -Name 'Code Editor' -AsCard
@@ -209,7 +209,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -NoAuth -Content $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -PassThru |
+    Add-PodeWebPage -Name 'Home' -Path '/' -Content $hero, $grid1, $section, $carousel, $section2, $section3, $codeEditor -NoTitle -HomePage -NoAuth -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
             Show-PodeWebToast -Message "Home page $($EventType)!"
         }
@@ -228,7 +228,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Content $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
+    Add-PodeWebPage -Name Charts -Path 'my-charts' -Icon 'chart-bar' -Content $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
             Show-PodeWebToast -Message "Page $($EventType)!"
         }
@@ -342,7 +342,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # page with table showing csv data
     $table2 = New-PodeWebTable -Name 'Users' -DataColumn UserId -Filter -SimpleSort -Paginate -CsvFilePath './misc/data.csv' -AsCard
-    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Content $table2
+    Add-PodeWebPage -Name CSV -Icon Database -Group Tools -Content $table2 -Index 0
 
 
     # page with table show dynamic paging, filter, and sorting via a csv

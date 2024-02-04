@@ -13,13 +13,13 @@ For example, the following renders an accordion with 3 bellows each containing a
 ```powershell
 New-PodeWebAccordion -Bellows @(
     New-PodeWebBellow -Name Bellow1 -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebBellow -Name Bellow2 -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebBellow -Name Bellow3 -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
 )
 ```
@@ -35,13 +35,13 @@ You can render accordions that automatically cycle through their bellows every X
 ```powershell
 New-PodeWebAccordion -Cycle -Bellows @(
     New-PodeWebBellow -Name Bellow1 -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebBellow -Name Bellow2 -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
     New-PodeWebBellow -Name Bellow3 -Content @(
-        New-PodeWebImage -Source '/pode.web/images/icon.png' -Alignment Center
+        New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Alignment Center
     )
 )
 ```

@@ -5,7 +5,7 @@
         AppPath = $data.AppPath
     })
 
-    <body id="login-page" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" style="background-image: url('$($data.Background.Image)'); background-repeat: no-repeat; background-size: cover" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
+    <body id="login-page" pode-page-id="$($data.Page.ID)" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" style="background-image: url('$($data.Background.Image)'); background-repeat: no-repeat; background-size: cover" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
         <div aria-live="polite" aria-atomic="true" style="min-height: 200px;" class="sticky">
             <div id="toast-area">
             </div>
@@ -13,13 +13,13 @@
 
         <div class="form-signin">
             <div class='text-center mb-4'>
-                <a href='$($data.LogoUrl)'>
+                <a href='$(if ($data.LogoUrl) { $data.LogoUrl } else { (Get-PodeWebState -Name 'system-urls').Home.Url })'>
                     <img class='mb-4 rounded' src='$($data.Logo)' alt='logo' height='72'>
                 </a>
                 <h1 class='h3 mb-3 font-weight-normal'>$($data.SignInMessage)</h1>
             </div>
 
-            <form action="$($data.AppPath)/login" method='POST'>
+            <form action="$((Get-PodeWebState -Name 'system-urls').Login.Url)" method='POST'>
                 $(if (!$data.Auth.IsOAuth2 -or ($data.Auth.GrantType -ieq 'password')) {
                     "<content id='pode-content'></content>"
 

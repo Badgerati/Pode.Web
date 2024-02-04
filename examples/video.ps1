@@ -10,7 +10,7 @@ Start-PodeServer -Threads 2 {
     Use-PodeWebTemplates -Title 'Video' -Theme Dark
 
     # set the home page controls
-    Set-PodeWebHomePage -Title 'Video' -Content @(
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Title 'Video' -Content @(
         New-PodeWebCard -Content @(
             New-PodeWebVideo -Name 'sample' -Thumbnail 'https://samplelib.com/lib/preview/mp4/sample-5s.jpg' -NoDownload -Source @(
                 New-PodeWebVideoSource -Url 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'

@@ -40,5 +40,5 @@ Start-PodeServer -Threads 2 {
         )
     )
 
-    Set-PodeWebHomePage -Content $acc -Title 'Accordion'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $acc -Title 'Accordion'
 }

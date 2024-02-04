@@ -40,5 +40,5 @@ Start-PodeServer -Threads 2 {
         -AsCard `
         -Colours '#ff0000', '#00ff00', '#0000ff'
 
-    Set-PodeWebHomePage -Content $card1 -Title 'Charts'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $card1 -Title 'Charts'
 }

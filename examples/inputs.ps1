@@ -86,5 +86,5 @@ Start-PodeServer {
         }
     )
 
-    Set-PodeWebHomePage -Content $form, $container -Title 'Testing Inputs'
+    Add-PodeWebPage -Name 'Home' -Path '/' -Content $form, $container -Title 'Testing Inputs' -HomePage
 }

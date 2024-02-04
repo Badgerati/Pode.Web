@@ -27,5 +27,5 @@ Start-PodeServer {
             Add-PodeWebAttribute -Key 'custom-name' -Value 'joe bloggs'
     )
 
-    Set-PodeWebHomePage -Content $container -Title 'Page with STYLE'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $container -Title 'Page with STYLE'
 }

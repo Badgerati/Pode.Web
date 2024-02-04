@@ -15,7 +15,7 @@ Start-PodeServer {
         New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
         New-PodeWebParagraph -Value 'Using some example paragraphs'
     )
-    Set-PodeWebHomePage -Content $section -Title 'Awesome Homepage'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $section -Title 'Awesome Homepage'
 
 
     $acc = New-PodeWebAccordion -Bellows @(

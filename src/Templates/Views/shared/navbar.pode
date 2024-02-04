@@ -3,7 +3,7 @@
         <span class='mdi mdi-menu-open'></span>
     </button>
 
-    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$($data.AppPath)/">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$((Get-PodeWebState -Name 'system-urls').Home.Url)">
         $(
             $title = Get-PodeWebState -Name 'title'
             $logo = Get-PodeWebState -Name 'logo'
@@ -42,7 +42,7 @@
 
     $(if ($data.Auth.Enabled) {
         if ($data.Auth.Authenticated) {
-            "<form class='form-inline' action='$($data.AppPath)/logout' method='POST' style='margin-bottom: 0'>
+            "<form class='form-inline' action='$((Get-PodeWebState -Name 'system-urls').Logout.Url)' method='POST' style='margin-bottom: 0'>
                 <span class='navbar-text mRight1 welcome-msg'>"
                     if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
                         "<img id='avatar' src='$($data.Auth.Avatar)'>"
@@ -61,7 +61,7 @@
             "</form>"
         }
         else {
-            "<form class='form-inline' action='$($data.AppPath)/login' method='GET' style='margin-bottom: 0'>
+            "<form class='form-inline' action='$((Get-PodeWebState -Name 'system-urls').Login.Url)' method='GET' style='margin-bottom: 0'>
                 <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
                     <span class='mdi mdi-login mRight02'></span>
                     Sign in

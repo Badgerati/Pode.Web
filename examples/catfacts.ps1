@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'CatFacts' -Theme Dark
+    Use-PodeWebTemplates -Title 'CatFacts' -Theme Dark -RootRedirect
 
     $table = New-PodeWebTable -Name 'Static' -DataColumn ID -AsCard -Click -Paginate -ScriptBlock {
         # refresh button, to refresh the current row

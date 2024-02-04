@@ -1,16 +1,15 @@
-<script src="$($data.AppPath)/pode.web/libs/jquery/jquery.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/jquery-ui/jquery-ui.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/popperjs/popper.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/bootstrap/bootstrap.bundle.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/bs-stepper/bs-stepper.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/moment/moment.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/chartjs/chart.umd.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/highlightjs/highlight.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/highlightjs/languages/powershell.min.js"></script>
-<script src="$($data.AppPath)/pode.web/libs/monaco/loader.js" role='monaco'></script>
-
-<script src="$($data.AppPath)/pode.web/scripts/default.js"></script>
-<script src="$($data.AppPath)/pode.web/scripts/templates.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/jquery/jquery.min.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/jquery-ui/jquery-ui.min.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/popperjs/popper.min.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/bs-stepper/bs-stepper.min.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/moment/moment.min.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/chartjs/chart.umd.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/highlightjs/highlight.min.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/highlightjs/languages/powershell.min.js"></script>
+<script src="$($data.AppPath)/pode.web-static/libs/monaco/loader.js" role='monaco'></script>
+<script src="$($data.AppPath)/pode.web-static/scripts/default.js"></script>
+<script src="$($data.AppPath)/pode.web-static/scripts/templates.js"></script>
 
 $(
     $scripts = @(Get-PodeWebState -Name 'custom-js')

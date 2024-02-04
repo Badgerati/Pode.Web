@@ -18,5 +18,5 @@ Start-PodeServer {
         }
     )
 
-    Set-PodeWebHomePage -Content $card -Title 'Update Raw'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $card -Title 'Update Raw'
 }
