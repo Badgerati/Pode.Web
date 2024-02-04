@@ -311,6 +311,7 @@ task DockerPack {
 
 # Synopsis: Run the documentation locally
 task Docs DocsDeps, DocsHelpBuild, {
+    Write-Host "Documentation available at 127:0.0.1:8000..." -ForegroundColor Yellow
     mkdocs serve --quiet
 }
 

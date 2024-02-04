@@ -35,7 +35,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # set login page 
     # -BackgroundImage '/images/galaxy.jpg'
-    Set-PodeWebLoginPage -Authentication Example -PassThru |
+    Set-PodeWebLoginPage -Authentication Example -LoginPath '/auth/login' -LogoutPath '/auth/logout' -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
             Show-PodeWebToast -Message "Login page $($EventType)!"
         }
@@ -228,7 +228,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Add-PodeWebPage -Name Charts -Icon 'chart-bar' -Content $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
+    Add-PodeWebPage -Name Charts -Path 'my-charts' -Icon 'chart-bar' -Content $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
             Show-PodeWebToast -Message "Page $($EventType)!"
         }

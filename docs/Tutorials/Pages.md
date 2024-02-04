@@ -9,6 +9,9 @@ To enable the use of a login page, and lock your site behind authentication, is 
 !!! note
     Since the login page uses a form to log a user in, the best scheme to use is Forms: `New-PodeAuthScheme -Form`. OAuth2 also works, as the login page will automatically trigger the relevant redirects to your OAuth2 provider.
 
+!!! important
+    If you require a login page, then you **must** call [`Set-PodeWebLoginPage`] before you make any calls to [`Add-PodeWebPage`].
+
 ```powershell
 Enable-PodeSessionMiddleware -Duration 120 -Extend
 
@@ -28,6 +31,16 @@ Set-PodeWebLoginPage -Authentication Example
 ```
 
 By default, the Pode icon is displayed as the logo but you can change this by using the `-Logo` parameter, this takes a literal or relative URL to an image file. If a relative URL is used then the image should be available as [public/static content](https://badgerati.github.io/Pode/Tutorials/Routes/Utilities/StaticContent/#public-directory).
+
+### Paths
+
+When a login page is configured, Pode will automatically set up the Routes for you at `/login` and `/logout`. You can customise these paths to meet your needs by supplying `-LoginPath` and/or `-LogoutPath` - when not supplied the default paths mentioned previously will be used.
+
+For example, the following will configure a Login path but with the paths being `/auth/login` and `/auth/logout` instead.
+
+```powershell
+Set-PodeWebLoginPath -Authentication ExampleAuth -LoginPath '/auth/login' -LogoutPath '/auth/logout'
+```
 
 ### IIS
 

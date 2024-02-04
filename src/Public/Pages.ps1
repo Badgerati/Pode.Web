@@ -192,7 +192,7 @@ function Set-PodeWebLoginPage
     Add-PodeRoute -Method Post -Path $pageMeta.Route.Logout.Path -Authentication $Authentication -EndpointName $endpointNames -Logout
 
     # login content
-    Add-PodeRoute -Method Post -Path "$($pageMeta.Route.Login.Path)/content" -ArgumentList @{ ID = $Id } -EndpointName $endpointNames -ScriptBlock {
+    Add-PodeRoute -Method Post -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/content" -ArgumentList @{ ID = $Id } -EndpointName $endpointNames -ScriptBlock {
         param($Data)
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
         Write-PodeJsonResponse -Value $global:PageData.Content
