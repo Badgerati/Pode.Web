@@ -100,7 +100,6 @@ Start-PodeServer -StatusPageExceptions Show {
             }
         New-PodeWebQuote -Value 'Pode is awesome!' -Source 'Badgerati'
         New-PodeWebButton -Name 'Click Me' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock {
-            start-sleep 4
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
         }
