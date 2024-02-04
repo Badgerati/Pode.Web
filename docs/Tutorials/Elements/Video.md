@@ -60,3 +60,9 @@ Register-PodeWebMediaEvent -Type Play -ScriptBlock {
     Show-PodeWebToast -Title 'Action' -Message $EventType
 }
 ```
+
+## Public Content
+
+The `-Thumbnail` parameter path for a video from `New-PodeWebVideo` typically references media stored in a `public` folder in the project root. If the file system is case sensitive (default on Linux, but not on Windows), then the `public` folder in the project root MUST be all lower case. More details [available in Pode documentation](https://badgerati.github.io/Pode/Tutorials/Routes/Utilities/StaticContent/#public-directory).
+
+This same behavior is also found in the `-Url` parameter for both `New-PodeWebVideoSource` and `New-PodeWebMediaSource`.

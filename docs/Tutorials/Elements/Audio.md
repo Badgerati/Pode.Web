@@ -60,3 +60,7 @@ Register-PodeWebMediaEvent -Type Play -ScriptBlock {
     Show-PodeWebToast -Title 'Action' -Message $EventType
 }
 ```
+
+## Public Content
+
+The `-Url` parameter path for for both `New-PodeWebAudioSource` and `New-PodeWebMediaSource` typically references media stored in a `public` folder in the project root. If the file system is case sensitive (default on Linux, but not on Windows), then the `public` folder in the project root MUST be all lower case. More details [available in Pode documentation](https://badgerati.github.io/Pode/Tutorials/Routes/Utilities/StaticContent/#public-directory).
