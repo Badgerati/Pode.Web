@@ -643,7 +643,7 @@ class PodeElement {
         if (asAjax) {
             var inputs = this.serialize();
             inputs.opts.keepFocus = true;
-            sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this.element, true, null, inputs.opts);
+            sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this.element, true, null, null, inputs.opts);
         }
         else {
             this.element.trigger(evt);
@@ -1980,7 +1980,7 @@ class PodeButton extends PodeFormElement {
                 inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
             }
 
-            sendAjaxReq(sender.url, inputs.data, sender.element, true, null, inputs.opts);
+            sendAjaxReq(sender.url, inputs.data, sender.element, true, null, null, inputs.opts, $(e.currentTarget));
         });
     }
 
@@ -2108,7 +2108,7 @@ class PodeForm extends PodeContentElement {
         // submit form
         this.listen(this.element, 'submit', function(e, target) {
             var result = obj.serialize();
-            sendAjaxReq(obj.action, result.data, obj.element, true, null, result.opts);
+            sendAjaxReq(obj.action, result.data, obj.element, true, null, null, result.opts, obj.getSubmitButton());
         });
 
         // reset form
@@ -2121,7 +2121,11 @@ class PodeForm extends PodeContentElement {
     }
 
     submit(data, sender, opts) {
-        $(this.element[0]).find('[type="submit"]').trigger('click');
+        this.getSubmitButton().trigger('click');
+    }
+
+    getSubmitButton() {
+        return $(this.element[0]).find('[type="submit"]');
     }
 }
 PodeElementFactory.setClass(PodeForm);
@@ -2573,7 +2577,7 @@ class PodeTable extends PodeRefreshableElement {
         }
 
         // invoke and load table content
-        sendAjaxReq(url, query, this.element, true, () => { this.loading = false; }, { successCallbackBefore: true });
+        sendAjaxReq(url, query, this.element, true, () => { this.loading = false; }, null, { successCallbackBefore: true });
         this.loading = true;
     }
 
@@ -2742,7 +2746,7 @@ class PodeTable extends PodeRefreshableElement {
         this.listen(this.element.find('.pode-table-button'), 'click', function(e, target) {
             obj.tooltip(false, target);
             var url = `${obj.url}/button/${target.attr('name')}`;
-            sendAjaxReq(url, obj.export(), obj.element, true, null, { contentType: 'text/csv' });
+            sendAjaxReq(url, obj.export(), obj.element, true, null, null, { contentType: 'text/csv' }, $(e.currentTarget));
         });
     }
 
@@ -4154,9 +4158,9 @@ class PodeCodeEditor extends PodeContentElement {
                     value: obj.editor.getValue()
                 });
 
-                sendAjaxReq(`${obj.url}/upload`, data, null, true, null, {
+                sendAjaxReq(`${obj.url}/upload`, data, null, true, null, null, {
                     contentType: 'application/json; charset=UTF-8'
-                });
+                }, $(e.currentTarget));
             });
         }
     }
@@ -4255,7 +4259,7 @@ class PodeChart extends PodeRefreshableElement {
         }
 
         // invoke and load chart content
-        sendAjaxReq(url, data, this.element, true, () => { this.loading = false }, { successCallbackBefore: true });
+        sendAjaxReq(url, data, this.element, true, () => { this.loading = false }, null, { successCallbackBefore: true });
         this.loading = true;
     }
 
@@ -4574,7 +4578,7 @@ class PodeModal extends PodeContentElement {
                 inputs.opts.method = method;
 
                 // invoke url
-                sendAjaxReq(url, inputs.data, (form ?? obj.element), true, null, inputs.opts);
+                sendAjaxReq(url, inputs.data, (form ?? obj.element), true, null, null, inputs.opts, $(e.currentTarget));
             });
         }
     }
@@ -5428,7 +5432,7 @@ class PodeSteps extends PodeContentElement {
 
     submit() {
         var result = this.serialize();
-        sendAjaxReq(this.url, result.data, this.element, true, null, result.opts);
+        sendAjaxReq(this.url, result.data, this.element, true, null, null, result.opts);
     }
 
     addChild(element, data, sender, opts) {
@@ -5529,7 +5533,7 @@ class PodeStep extends PodeContentElement {
                     if (!hasValidationErrors(sender)) {
                         obj.parent.next();
                     }
-                }, result.opts);
+                }, null, result.opts, $(e.currentTarget));
             }
             else {
                 obj.parent.next();
@@ -5548,7 +5552,7 @@ class PodeStep extends PodeContentElement {
                     if (!hasValidationErrors(sender)) {
                         obj.parent.submit();
                     }
-                }, result.opts);
+                }, null, result.opts, $(e.currentTarget));
             }
             else {
                 obj.parent.submit();

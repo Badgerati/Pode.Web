@@ -33,7 +33,7 @@ Start-PodeServer {
                     New-PodeWebTextbox -Name 'Password' -Type Password
                 ) -ScriptBlock {
                     if ([string]::IsNullOrWhiteSpace($WebEvent.Data['Password'])) {
-                        Out-PodeWebValidation -Name 'Password' -Message 'No password supplied'
+                        Show-PodeWebValidation -Name 'Password' -Message 'No password supplied'
                     }
                     $WebEvent.Data | Out-Default
                 }
@@ -56,7 +56,7 @@ Start-PodeServer {
                     New-PodeWebTextbox -Name 'Password2' -Type Password
                 ) -ScriptBlock {
                     if ([string]::IsNullOrWhiteSpace($WebEvent.Data['Password2'])) {
-                        Out-PodeWebValidation -Name 'Password2' -Message 'No password supplied'
+                        Show-PodeWebValidation -Name 'Password2' -Message 'No password supplied'
                     }
                     $WebEvent.Data | Out-Default
                 }
