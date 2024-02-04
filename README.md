@@ -101,14 +101,14 @@ Start-PodeServer {
     Use-PodeWebTemplates -Title 'Example' -Theme Dark
 
     # add the page
-    Add-PodeWebPage -Name Processes -Icon Activity -Content @(
+    Add-PodeWebPage -Name Processes -Icon Activity -ScriptBlock {
         New-PodeWebChart -Name 'Top Processes' -Type Bar -AutoRefresh -AsCard -ScriptBlock {
             Get-Process |
                 Sort-Object -Property CPU -Descending |
                 Select-Object -First 10 |
                 ConvertTo-PodeWebChartData -LabelProperty ProcessName -DatasetProperty CPU
         }
-    )
+    }
 }
 ```
 
