@@ -1,15 +1,14 @@
-function Update-PodeWebTable
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebTable {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         $Data,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -111,142 +110,137 @@ function Update-PodeWebTable
 
         # table output
         return @{
-            Operation = 'Update'
+            Operation  = 'Update'
             ObjectType = 'Table'
-            Data = $items
-            ID = $Id
-            Name = $Name
-            Columns = $_columns
-            Paging = @{
+            Data       = $items
+            ID         = $Id
+            Name       = $Name
+            Columns    = $_columns
+            Paging     = @{
                 Index = $pageIndex
-                Size = $pageSize
+                Size  = $pageSize
                 Total = $totalItems
-                Max = $maxPages
+                Max   = $maxPages
             }
         }
     }
 }
 
-function Sync-PodeWebTable
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Sync-PodeWebTable {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Sync'
+        Operation  = 'Sync'
         ObjectType = 'Table'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Clear-PodeWebTable
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Clear-PodeWebTable {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Clear'
+        Operation  = 'Clear'
         ObjectType = 'Table'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Hide-PodeWebTableColumn
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Hide-PodeWebTableColumn {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Key
     )
 
     return @{
-        Operation = 'Hide'
-        ObjectType = 'Table'
+        Operation     = 'Hide'
+        ObjectType    = 'Table'
         SubObjectType = 'Column'
-        ID = $Id
-        Name = $Name
-        Key = $Key
+        ID            = $Id
+        Name          = $Name
+        Key           = $Key
     }
 }
 
-function Show-PodeWebTableColumn
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Show-PodeWebTableColumn {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Key
     )
 
     return @{
-        Operation = 'Show'
-        ObjectType = 'Table'
+        Operation     = 'Show'
+        ObjectType    = 'Table'
         SubObjectType = 'Column'
-        ID = $Id
-        Name = $Name
-        Key = $Key
+        ID            = $Id
+        Name          = $Name
+        Key           = $Key
     }
 }
 
-function Update-PodeWebTableRow
-{
-    [CmdletBinding(DefaultParameterSetName='Name_and_DataValue')]
+function Update-PodeWebTableRow {
+    [CmdletBinding(DefaultParameterSetName = 'Name_and_DataValue')]
     param(
-        [Parameter(ValueFromPipeline=$true)]
+        [Parameter(ValueFromPipeline = $true)]
         $Data,
 
-        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DataValue')]
-        [Parameter(Mandatory=$true, ParameterSetName='ID_and_Index')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ID_and_DataValue')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ID_and_Index')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DataValue')]
-        [Parameter(Mandatory=$true, ParameterSetName='Name_and_Index')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name_and_DataValue')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name_and_Index')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='ID_and_DataValue')]
-        [Parameter(Mandatory=$true, ParameterSetName='Name_and_DataValue')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ID_and_DataValue')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name_and_DataValue')]
         [string]
         $DataValue,
 
-        [Parameter(Mandatory=$true, ParameterSetName='ID_and_Index')]
-        [Parameter(Mandatory=$true, ParameterSetName='Name_and_Index')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ID_and_Index')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name_and_Index')]
         [int]
         $Index,
 
@@ -260,34 +254,33 @@ function Update-PodeWebTableRow
     )
 
     return @{
-        Operation = 'Update'
-        ObjectType = 'Table'
-        SubObjectType = 'Row'
-        ID = $Id
-        Name = $Name
-        Row = @{
-            Type = $PSCmdlet.ParameterSetName.ToLowerInvariant()
+        Operation        = 'Update'
+        ObjectType       = 'Table'
+        SubObjectType    = 'Row'
+        ID               = $Id
+        Name             = $Name
+        Row              = @{
+            Type      = $PSCmdlet.ParameterSetName.ToLowerInvariant()
             DataValue = $DataValue
-            Index = $Index
+            Index     = $Index
         }
-        Data = $Data
+        Data             = $Data
         BackgroundColour = $BackgroundColour
-        Colour = $Colour
+        Colour           = $Colour
     }
 }
 
-function Update-PodeWebChart
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Update-PodeWebChart {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         $Data,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
@@ -303,9 +296,9 @@ function Update-PodeWebChart
             }
             else {
                 $Data.Values = @(@{
-                    Key = 'Default'
-                    Value = $Data.Values
-                })
+                        Key   = 'Default'
+                        Value = $Data.Values
+                    })
             }
         }
 
@@ -314,28 +307,27 @@ function Update-PodeWebChart
 
     end {
         return @{
-            Operation = 'Update'
+            Operation  = 'Update'
             ObjectType = 'Chart'
-            Data = $items
-            ID = $Id
-            Name = $Name
+            Data       = $items
+            ID         = $Id
+            Name       = $Name
         }
     }
 }
 
-function ConvertTo-PodeWebChartData
-{
+function ConvertTo-PodeWebChartData {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         $Data,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [Alias('Label')]
         [string]
         $LabelProperty,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [Alias('Dataset')]
         [string[]]
         $DatasetProperty
@@ -352,73 +344,70 @@ function ConvertTo-PodeWebChartData
     end {
         foreach ($item in $items) {
             @{
-                Key = $item.$LabelProperty
+                Key    = $item.$LabelProperty
                 Values = @(foreach ($prop in $DatasetProperty) {
-                    @{
-                        Key = $prop
-                        Value = $item.$prop
-                    }
-                })
+                        @{
+                            Key   = $prop
+                            Value = $item.$prop
+                        }
+                    })
             }
         }
     }
 }
 
-function Sync-PodeWebChart
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Sync-PodeWebChart {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Sync'
+        Operation  = 'Sync'
         ObjectType = 'Chart'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Clear-PodeWebChart
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Clear-PodeWebChart {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Clear'
+        Operation  = 'Clear'
         ObjectType = 'Chart'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Update-PodeWebTextbox
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Update-PodeWebTextbox {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [Alias('Data')]
         $Value,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
@@ -453,30 +442,29 @@ function Update-PodeWebTextbox
         if (!$AsJson -and ($items.Length -gt 0)) {
             $items = ($items | Out-String).Trim()
         }
-        
+
         return @{
-            Operation = 'Update'
-            ObjectType = 'Textbox'
-            Value = $items
-            ID = $Id
-            Name = $Name
-            AsJson = $AsJson.IsPresent
-            JsonInline = $JsonInline.IsPresent
+            Operation     = 'Update'
+            ObjectType    = 'Textbox'
+            Value         = $items
+            ID            = $Id
+            Name          = $Name
+            AsJson        = $AsJson.IsPresent
+            JsonInline    = $JsonInline.IsPresent
             ReadOnlyState = $ReadOnlyState
             DisabledState = $DisabledState
         }
     }
 }
 
-function Clear-PodeWebTextbox
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Clear-PodeWebTextbox {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
@@ -486,19 +474,18 @@ function Clear-PodeWebTextbox
     )
 
     return @{
-        Operation = 'Clear'
+        Operation  = 'Clear'
         ObjectType = 'Textbox'
-        ID = $Id
-        Name = $Name
-        Multiline = $Multiline.IsPresent
+        ID         = $Id
+        Name       = $Name
+        Multiline  = $Multiline.IsPresent
     }
 }
 
-function Show-PodeWebToast
-{
+function Show-PodeWebToast {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Message,
 
@@ -521,144 +508,138 @@ function Show-PodeWebToast
     }
 
     return @{
-        Operation = 'Show'
+        Operation  = 'Show'
         ObjectType = 'Toast'
-        Message = [System.Net.WebUtility]::HtmlEncode($Message)
-        Title = [System.Net.WebUtility]::HtmlEncode($Title)
-        Duration = $Duration
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Toast')
+        Message    = [System.Net.WebUtility]::HtmlEncode($Message)
+        Title      = [System.Net.WebUtility]::HtmlEncode($Title)
+        Duration   = $Duration
+        Icon       = (Protect-PodeWebIconType -Icon $Icon -Element 'Toast')
     }
 }
 
-function Show-PodeWebValidation
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Show-PodeWebValidation {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Message
     )
 
     return @{
-        Operation = 'Show'
-        ObjectType = 'Element'
+        Operation     = 'Show'
+        ObjectType    = 'Element'
         SubObjectType = 'Validation'
-        Name = $Name
-        ID = $Id
-        Message = [System.Net.WebUtility]::HtmlEncode($Message)
+        Name          = $Name
+        ID            = $Id
+        Message       = [System.Net.WebUtility]::HtmlEncode($Message)
     }
 }
 
-function Reset-PodeWebForm
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Reset-PodeWebForm {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
 
     return @{
-        Operation = 'Reset'
+        Operation  = 'Reset'
         ObjectType = 'Form'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Submit-PodeWebForm
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Submit-PodeWebForm {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
 
     return @{
-        Operation = 'Submit'
+        Operation  = 'Submit'
         ObjectType = 'Form'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Update-PodeWebText
-{
+function Update-PodeWebText {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
         $Value
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Text'
-        ID = $Id
-        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        ID         = $Id
+        Value      = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
 
-function Set-PodeWebSelect
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Set-PodeWebSelect {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
         $Value
     )
 
     return @{
-        Operation = 'Set'
+        Operation  = 'Set'
         ObjectType = 'Select'
-        Name = $Name
-        ID = $Id
-        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        Name       = $Name
+        ID         = $Id
+        Value      = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
 
-function Update-PodeWebSelect
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Update-PodeWebSelect {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string[]]
         $Options,
 
@@ -669,7 +650,7 @@ function Update-PodeWebSelect
         [Parameter()]
         [string[]]
         $SelectedValue,
-        
+
         [Parameter()]
         [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
         [string]
@@ -686,65 +667,62 @@ function Update-PodeWebSelect
 
     end {
         return @{
-            Operation = 'Update'
-            ObjectType = 'Select'
-            Name = $Name
-            ID = $Id
-            Options = $items
+            Operation      = 'Update'
+            ObjectType     = 'Select'
+            Name           = $Name
+            ID             = $Id
+            Options        = $items
             DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $items -EqualCount)
-            SelectedValue = @(Protect-PodeWebValues -Value $SelectedValue -Encode)
-            DisabledState = $DisabledState
+            SelectedValue  = @(Protect-PodeWebValues -Value $SelectedValue -Encode)
+            DisabledState  = $DisabledState
         }
     }
 }
 
-function Clear-PodeWebSelect
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Clear-PodeWebSelect {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
 
     return @{
-        Operation = 'Clear'
+        Operation  = 'Clear'
         ObjectType = 'Select'
-        Name = $Name
-        ID = $Id
+        Name       = $Name
+        ID         = $Id
     }
 }
 
-function Sync-PodeWebSelect
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Sync-PodeWebSelect {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
 
     return @{
-        Operation = 'Sync'
+        Operation  = 'Sync'
         ObjectType = 'Select'
-        Name = $Name
-        ID = $Id
+        Name       = $Name
+        ID         = $Id
     }
 }
 
-function Update-PodeWebBadge
-{
+function Update-PodeWebBadge {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Id,
 
@@ -761,24 +739,23 @@ function Update-PodeWebBadge
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Badge'
-        ID = $Id
-        Colour = $Colour
+        ID         = $Id
+        Colour     = $Colour
         ColourType = $ColourType
-        Value = [System.Net.WebUtility]::HtmlEncode($Value)
+        Value      = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
 
-function Update-PodeWebCheckbox
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebCheckbox {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -797,25 +774,24 @@ function Update-PodeWebCheckbox
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Checkbox'
-        ID = $Id
-        Name = $Name
-        OptionId = $OptionId
-        State = $State.ToLowerInvariant()
-        Checked = $Checked.IsPresent
+        ID         = $Id
+        Name       = $Name
+        OptionId   = $OptionId
+        State      = $State.ToLowerInvariant()
+        Checked    = $Checked.IsPresent
     }
 }
 
-function Enable-PodeWebCheckbox
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Enable-PodeWebCheckbox {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -825,23 +801,22 @@ function Enable-PodeWebCheckbox
     )
 
     return @{
-        Operation = 'Enable'
+        Operation  = 'Enable'
         ObjectType = 'Checkbox'
-        ID = $Id
-        Name = $Name
-        OptionId = $OptionId
+        ID         = $Id
+        Name       = $Name
+        OptionId   = $OptionId
     }
 }
 
-function Disable-PodeWebCheckbox
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Disable-PodeWebCheckbox {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -851,23 +826,22 @@ function Disable-PodeWebCheckbox
     )
 
     return @{
-        Operation = 'Disable'
+        Operation  = 'Disable'
         ObjectType = 'Checkbox'
-        ID = $Id
-        Name = $Name
-        OptionId = $OptionId
+        ID         = $Id
+        Name       = $Name
+        OptionId   = $OptionId
     }
 }
 
-function Show-PodeWebModal
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Show-PodeWebModal {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -881,57 +855,54 @@ function Show-PodeWebModal
     )
 
     return @{
-        Operation = 'Show'
+        Operation  = 'Show'
         ObjectType = 'Modal'
-        ID = $Id
-        Name = $Name
-        DataValue = $DataValue
-        Actions = $Actions
+        ID         = $Id
+        Name       = $Name
+        DataValue  = $DataValue
+        Actions    = $Actions
     }
 }
 
-function Hide-PodeWebModal
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Hide-PodeWebModal {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(ParameterSetName='Id')]
+        [Parameter(ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(ParameterSetName='Name')]
+        [Parameter(ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Hide'
+        Operation  = 'Hide'
         ObjectType = 'Modal'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Out-PodeWebError
-{
+function Out-PodeWebError {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Message
     )
 
     return @{
-        Operation = 'Output'
+        Operation  = 'Output'
         ObjectType = 'Error'
-        Message = $Message
+        Message    = $Message
     }
 }
 
-function Show-PodeWebNotification
-{
+function Show-PodeWebNotification {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Title,
 
@@ -945,19 +916,18 @@ function Show-PodeWebNotification
     )
 
     return @{
-        Operation = 'Show'
+        Operation  = 'Show'
         ObjectType = 'Notification'
-        Title = $Title
-        Body = $Body
-        IconUrl = (Add-PodeWebAppPath -Url $IconUrl)
+        Title      = $Title
+        Body       = $Body
+        IconUrl    = (Add-PodeWebAppPath -Url $IconUrl)
     }
 }
 
-function Move-PodeWebPage
-{
+function Move-PodeWebPage {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
@@ -980,18 +950,17 @@ function Move-PodeWebPage
     }
 
     return @{
-        Operation = 'Move'
+        Operation  = 'Move'
         ObjectType = 'Href'
-        Url = $page
-        NewTab = $NewTab.IsPresent
+        Url        = $page
+        NewTab     = $NewTab.IsPresent
     }
 }
 
-function Move-PodeWebUrl
-{
+function Move-PodeWebUrl {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url,
 
@@ -1000,22 +969,21 @@ function Move-PodeWebUrl
     )
 
     return @{
-        Operation = 'Move'
+        Operation  = 'Move'
         ObjectType = 'Href'
-        Url = (Add-PodeWebAppPath -Url $Url)
-        NewTab = $NewTab.IsPresent
+        Url        = (Add-PodeWebAppPath -Url $Url)
+        NewTab     = $NewTab.IsPresent
     }
 }
 
-function Move-PodeWebTabs
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Move-PodeWebTabs {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
@@ -1026,44 +994,42 @@ function Move-PodeWebTabs
     )
 
     return @{
-        Operation = 'Move'
+        Operation  = 'Move'
         ObjectType = 'Tabs'
-        ID = $Id
-        Name = $Name
-        Direction = $Direction.ToLowerInvariant()
+        ID         = $Id
+        Name       = $Name
+        Direction  = $Direction.ToLowerInvariant()
     }
 }
 
-function Open-PodeWebTab
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Open-PodeWebTab {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
 
     return @{
-        Operation = 'Open'
+        Operation  = 'Open'
         ObjectType = 'Tab'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Move-PodeWebAccordion
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Move-PodeWebAccordion {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
@@ -1074,97 +1040,92 @@ function Move-PodeWebAccordion
     )
 
     return @{
-        Operation = 'Move'
+        Operation  = 'Move'
         ObjectType = 'Accordion'
-        ID = $Id
-        Name = $Name
-        Direction = $Direction.ToLowerInvariant()
+        ID         = $Id
+        Name       = $Name
+        Direction  = $Direction.ToLowerInvariant()
     }
 }
 
-function Close-PodeWebAccordion
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Close-PodeWebAccordion {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
 
     return @{
-        Operation = 'Close'
+        Operation  = 'Close'
         ObjectType = 'Accordion'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Open-PodeWebBellow
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Open-PodeWebBellow {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
 
     return @{
-        Operation = 'Open'
+        Operation  = 'Open'
         ObjectType = 'Bellow'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Close-PodeWebBellow
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Close-PodeWebBellow {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id
     )
 
     return @{
-        Operation = 'Close'
+        Operation  = 'Close'
         ObjectType = 'Bellow'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Reset-PodeWebPage
-{
+function Reset-PodeWebPage {
     [CmdletBinding()]
     param()
 
     return @{
-        Operation = 'Reset'
+        Operation  = 'Reset'
         ObjectType = 'Page'
     }
 }
 
-function Update-PodeWebProgress
-{
-    [CmdletBinding(DefaultParameterSetName='Name')]
+function Update-PodeWebProgress {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
@@ -1181,29 +1142,28 @@ function Update-PodeWebProgress
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Progress'
-        ID = $Id
-        Name = $Name
-        Colour = $Colour
+        ID         = $Id
+        Name       = $Name
+        Colour     = $Colour
         ColourType = $ColourType
-        Value = $Value
+        Value      = $Value
     }
 }
 
-function Update-PodeWebTile
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebTile {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(ValueFromPipeline=$true)]
+        [Parameter(ValueFromPipeline = $true)]
         [string]
         $Value,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -1220,43 +1180,41 @@ function Update-PodeWebTile
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Tile'
-        Value = [System.Net.WebUtility]::HtmlEncode($Value)
-        ID = $Id
-        Name = $Name
-        Colour = $Colour
+        Value      = [System.Net.WebUtility]::HtmlEncode($Value)
+        ID         = $Id
+        Name       = $Name
+        Colour     = $Colour
         ColourType = $ColourType
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Tile')
+        Icon       = (Protect-PodeWebIconType -Icon $Icon -Element 'Tile')
     }
 }
 
-function Sync-PodeWebTile
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Sync-PodeWebTile {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Sync'
+        Operation  = 'Sync'
         ObjectType = 'Tile'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Update-PodeWebTheme
-{
+function Update-PodeWebTheme {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name
     )
@@ -1266,40 +1224,38 @@ function Update-PodeWebTheme
     }
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Theme'
-        Name = $Name.ToLowerInvariant()
+        Name       = $Name.ToLowerInvariant()
     }
 }
 
-function Reset-PodeWebTheme
-{
+function Reset-PodeWebTheme {
     [CmdletBinding()]
     param()
 
     return @{
-        Operation = 'Reset'
+        Operation  = 'Reset'
         ObjectType = 'Theme'
     }
 }
 
-function Show-PodeWebElement
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Show-PodeWebElement {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
@@ -1313,32 +1269,31 @@ function Show-PodeWebElement
     # send frontend action
     else {
         return @{
-            Operation = 'Show'
+            Operation  = 'Show'
             ObjectType = 'Element'
-            ID = $Id
-            Type = $Type
-            Name = $Name
+            ID         = $Id
+            Type       = $Type
+            Name       = $Name
         }
     }
 }
 
-function Hide-PodeWebElement
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Hide-PodeWebElement {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
@@ -1352,36 +1307,35 @@ function Hide-PodeWebElement
     # send frontend action
     else {
         return @{
-            Operation = 'Hide'
+            Operation  = 'Hide'
             ObjectType = 'Element'
-            ID = $Id
-            Type = $Type
-            Name = $Name
+            ID         = $Id
+            Type       = $Type
+            Name       = $Name
         }
     }
 }
 
-function Add-PodeWebStyle
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Add-PodeWebStyle {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Key,
 
@@ -1407,39 +1361,38 @@ function Add-PodeWebStyle
     # send frontend action
     else {
         return @{
-            Operation = 'Set'
-            ObjectType = 'Element'
+            Operation     = 'Set'
+            ObjectType    = 'Element'
             SubObjectType = 'Style'
-            ID = $Id
-            Type = $Type
-            Name = $Name
-            Key = $Key
-            Value = $Value
+            ID            = $Id
+            Type          = $Type
+            Name          = $Name
+            Key           = $Key
+            Value         = $Value
         }
     }
 }
 
-function Remove-PodeWebStyle
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Remove-PodeWebStyle {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Key
     )
@@ -1456,38 +1409,37 @@ function Remove-PodeWebStyle
     # send frontend action
     else {
         return @{
-            Operation = 'Remove'
-            ObjectType = 'Element'
+            Operation     = 'Remove'
+            ObjectType    = 'Element'
             SubObjectType = 'Style'
-            ID = $Id
-            Type = $Type
-            Name = $Name
-            Key = $Key
+            ID            = $Id
+            Type          = $Type
+            Name          = $Name
+            Key           = $Key
         }
     }
 }
 
-function Add-PodeWebClass
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Add-PodeWebClass {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string[]]
         $Value
     )
@@ -1509,38 +1461,37 @@ function Add-PodeWebClass
     # send frontend action
     else {
         return @{
-            Operation = 'Add'
-            ObjectType = 'Element'
+            Operation     = 'Add'
+            ObjectType    = 'Element'
             SubObjectType = 'Class'
-            ID = $Id
-            Type = $Type
-            Name = $Name
-            Value = $Value
+            ID            = $Id
+            Type          = $Type
+            Name          = $Name
+            Value         = $Value
         }
     }
 }
 
-function Remove-PodeWebClass
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Remove-PodeWebClass {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string[]]
         $Value
     )
@@ -1557,42 +1508,41 @@ function Remove-PodeWebClass
     # send frontend action
     else {
         return @{
-            Operation = 'Remove'
-            ObjectType = 'Element'
+            Operation     = 'Remove'
+            ObjectType    = 'Element'
             SubObjectType = 'Class'
-            ID = $Id
-            Type = $Type
-            Name = $Name
-            Value = $Value
+            ID            = $Id
+            Type          = $Type
+            Name          = $Name
+            Value         = $Value
         }
     }
 }
 
-function Rename-PodeWebClass
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Rename-PodeWebClass {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $From,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $To
     )
@@ -1600,46 +1550,45 @@ function Rename-PodeWebClass
     # update element
     if ($null -ne $Element) {
         return ($Element |
-            Remove-PodeWebClass -Value $From |
-            Add-PodeWebClass -Value $To)
+                Remove-PodeWebClass -Value $From |
+                Add-PodeWebClass -Value $To)
     }
 
     # send frontend action
     else {
         return @{
-            Operation = 'Rename'
-            ObjectType = 'Element'
+            Operation     = 'Rename'
+            ObjectType    = 'Element'
             SubObjectType = 'Class'
-            ID = $Id
-            Type = $Type
-            Name = $Name
-            From = $From
-            To = $To
+            ID            = $Id
+            Type          = $Type
+            Name          = $Name
+            From          = $From
+            To            = $To
         }
     }
 }
 
-function Switch-PodeWebClass
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Switch-PodeWebClass {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Value,
 
@@ -1676,43 +1625,42 @@ function Switch-PodeWebClass
     # send frontend action
     else {
         return @{
-            Operation = 'Switch'
-            ObjectType = 'Element'
+            Operation     = 'Switch'
+            ObjectType    = 'Element'
             SubObjectType = 'Class'
-            ID = $Id
-            Type = $Type
-            Name = $Name
-            Value = $Value
-            State = $State
+            ID            = $Id
+            Type          = $Type
+            Name          = $Name
+            Value         = $Value
+            State         = $State
         }
     }
 }
 
-function Add-PodeWebAttribute
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Add-PodeWebAttribute {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Key,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Value
     )
@@ -1730,39 +1678,38 @@ function Add-PodeWebAttribute
     # send frontend action
     else {
         return @{
-            Operation = 'Add'
-            ObjectType = 'Element'
+            Operation     = 'Add'
+            ObjectType    = 'Element'
             SubObjectType = 'Attribute'
-            ID = $Id
-            Type = $Type
-            Name = $Name
-            Key = $Key
-            Value = $Value
+            ID            = $Id
+            Type          = $Type
+            Name          = $Name
+            Key           = $Key
+            Value         = $Value
         }
     }
 }
 
-function Remove-PodeWebAttribute
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Remove-PodeWebAttribute {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Element', ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Key
     )
@@ -1779,110 +1726,105 @@ function Remove-PodeWebAttribute
     # send frontend action
     else {
         return @{
-            Operation = 'Remove'
-            ObjectType = 'Element'
+            Operation     = 'Remove'
+            ObjectType    = 'Element'
             SubObjectType = 'Attribute'
-            ID = $Id
-            Type = $Type
-            Name = $Name
-            Key = $Key
+            ID            = $Id
+            Type          = $Type
+            Name          = $Name
+            Key           = $Key
         }
     }
 }
 
-function Start-PodeWebFileStream
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Start-PodeWebFileStream {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Start'
+        Operation  = 'Start'
         ObjectType = 'File-Stream'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Stop-PodeWebFileStream
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Stop-PodeWebFileStream {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Stop'
+        Operation  = 'Stop'
         ObjectType = 'File-Stream'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Restart-PodeWebFileStream
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Restart-PodeWebFileStream {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Restart'
+        Operation  = 'Restart'
         ObjectType = 'File-Stream'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Clear-PodeWebFileStream
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Clear-PodeWebFileStream {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Clear'
+        Operation  = 'Clear'
         ObjectType = 'File-Stream'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Update-PodeWebFileStream
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebFileStream {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -1892,86 +1834,82 @@ function Update-PodeWebFileStream
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'File-Stream'
-        ID = $Id
-        Name = $Name
-        Url = (Add-PodeWebAppPath -Url $Url)
+        ID         = $Id
+        Name       = $Name
+        Url        = (Add-PodeWebAppPath -Url $Url)
     }
 }
 
-function Start-PodeWebAudio
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Start-PodeWebAudio {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Start'
+        Operation  = 'Start'
         ObjectType = 'Audio'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Stop-PodeWebAudio
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Stop-PodeWebAudio {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Stop'
+        Operation  = 'Stop'
         ObjectType = 'Audio'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Reset-PodeWebAudio
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Reset-PodeWebAudio {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Reset'
+        Operation  = 'Reset'
         ObjectType = 'Audio'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Update-PodeWebAudio
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebAudio {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -1993,87 +1931,83 @@ function Update-PodeWebAudio
     }
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Audio'
-        ID = $Id
-        Name = $Name
-        Sources = $Source
-        Tracks = $Track
+        ID         = $Id
+        Name       = $Name
+        Sources    = $Source
+        Tracks     = $Track
     }
 }
 
-function Start-PodeWebVideo
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Start-PodeWebVideo {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Start'
+        Operation  = 'Start'
         ObjectType = 'Video'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Stop-PodeWebVideo
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Stop-PodeWebVideo {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Stop'
+        Operation  = 'Stop'
         ObjectType = 'Video'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Reset-PodeWebVideo
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Reset-PodeWebVideo {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Reset'
+        Operation  = 'Reset'
         ObjectType = 'Video'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Update-PodeWebVideo
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebVideo {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -2099,25 +2033,24 @@ function Update-PodeWebVideo
     }
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Video'
-        ID = $Id
-        Name = $Name
-        Sources = $Source
-        Tracks = $Track
-        Thumbnail = $Thumbnail
+        ID         = $Id
+        Name       = $Name
+        Sources    = $Source
+        Tracks     = $Track
+        Thumbnail  = $Thumbnail
     }
 }
 
-function Update-PodeWebCodeEditor
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebCodeEditor {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -2131,45 +2064,43 @@ function Update-PodeWebCodeEditor
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Code-Editor'
-        ID = $Id
-        Name = $Name
-        Value = $Value
-        Language = $Language
+        ID         = $Id
+        Name       = $Name
+        Value      = $Value
+        Language   = $Language
     }
 }
 
-function Clear-PodeWebCodeEditor
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Clear-PodeWebCodeEditor {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Clear'
+        Operation  = 'Clear'
         ObjectType = 'Code-Editor'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Update-PodeWebIFrame
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebIFrame {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -2183,66 +2114,63 @@ function Update-PodeWebIFrame
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'IFrame'
-        ID = $Id
-        Name = $Name
-        Url = $Url
-        Title = $Title
+        ID         = $Id
+        Name       = $Name
+        Url        = $Url
+        Title      = $Title
     }
 }
 
-function Enable-PodeWebButton
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Enable-PodeWebButton {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Enable'
+        Operation  = 'Enable'
         ObjectType = 'Button'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Disable-PodeWebButton
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Disable-PodeWebButton {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Disable'
+        Operation  = 'Disable'
         ObjectType = 'Button'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Update-PodeWebButton
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Update-PodeWebButton {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name,
 
@@ -2279,47 +2207,45 @@ function Update-PodeWebButton
     $sizeType = Convert-PodeWebButtonSizeToClass -Size $Size
 
     return @{
-        Operation = 'Update'
-        ObjectType = 'Button'
-        ID = $Id
-        Name = $Name
-        Colour = $Colour
-        ColourType = $ColourType
+        Operation   = 'Update'
+        ObjectType  = 'Button'
+        ID          = $Id
+        Name        = $Name
+        Colour      = $Colour
+        ColourType  = $ColourType
         ColourState = $ColourState.ToLowerInvariant()
-        Size = $Size
-        SizeType = $sizeType
-        SizeState = $SizeState.ToLowerInvariant()
+        Size        = $Size
+        SizeType    = $sizeType
+        SizeState   = $SizeState.ToLowerInvariant()
         DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Button')
+        Icon        = (Protect-PodeWebIconType -Icon $Icon -Element 'Button')
     }
 }
 
-function Invoke-PodeWebButton
-{
-    [CmdletBinding(DefaultParameterSetName='Id')]
+function Invoke-PodeWebButton {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory=$true, ParameterSetName='Id')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ParameterSetName='Name')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
         $Name
     )
 
     return @{
-        Operation = 'Invoke'
+        Operation  = 'Invoke'
         ObjectType = 'Button'
-        ID = $Id
-        Name = $Name
+        ID         = $Id
+        Name       = $Name
     }
 }
 
-function Out-PodeWebElement
-{
+function Out-PodeWebElement {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [hashtable]
         $Element,
 
@@ -2336,36 +2262,34 @@ function Out-PodeWebElement
     return $Element
 }
 
-function Update-PodeWebRaw
-{
+function Update-PodeWebRaw {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Id,
 
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
         $Value
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Raw'
-        ID = $Id
-        Value = $Value
+        ID         = $Id
+        Value      = $Value
     }
 }
 
-function Update-PodeWebHeader
-{
+function Update-PodeWebHeader {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Id,
 
-        [Parameter(ValueFromPipeline=$true)]
+        [Parameter(ValueFromPipeline = $true)]
         [string]
         $Value,
 
@@ -2380,20 +2304,19 @@ function Update-PodeWebHeader
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Header'
-        ID = $Id
-        Value = $Value
-        Icon = (Protect-PodeWebIconType -Icon $Icon -Element 'Header')
-        Size = $Size
+        ID         = $Id
+        Value      = $Value
+        Icon       = (Protect-PodeWebIconType -Icon $Icon -Element 'Header')
+        Size       = $Size
     }
 }
 
-function Update-PodeWebImage
-{
+function Update-PodeWebImage {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Id,
 
@@ -2415,21 +2338,20 @@ function Update-PodeWebImage
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Image'
-        ID = $Id
-        Source = (Add-PodeWebAppPath -Url $Source)
-        Title = $Title
-        Height = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px' -AllowNull)
-        Width = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type 'px' -AllowNull)
+        ID         = $Id
+        Source     = (Add-PodeWebAppPath -Url $Source)
+        Title      = $Title
+        Height     = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px' -AllowNull)
+        Width      = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type 'px' -AllowNull)
     }
 }
 
-function Update-PodeWebIcon
-{
-    [CmdletBinding(DefaultParameterSetName='Rotate')]
+function Update-PodeWebIcon {
+    [CmdletBinding(DefaultParameterSetName = 'Rotate')]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Id,
 
@@ -2445,12 +2367,12 @@ function Update-PodeWebIcon
         [string]
         $Title = $null,
 
-        [Parameter(ParameterSetName='Flip')]
+        [Parameter(ParameterSetName = 'Flip')]
         [ValidateSet('', 'Horizontal', 'Vertical')]
         [string]
         $Flip = '',
 
-        [Parameter(ParameterSetName='Rotate')]
+        [Parameter(ParameterSetName = 'Rotate')]
         [ValidateSet(-1, 0, 45, 90, 135, 180, 225, 270, 315)]
         [int]
         $Rotate = -1,
@@ -2473,28 +2395,27 @@ function Update-PodeWebIcon
     )
 
     return @{
-        Operation = 'Update'
+        Operation  = 'Update'
         ObjectType = 'Icon'
-        ID = $Id
-        Name = $Name
-        Colour = $Colour
-        Title = $Title
-        Flip = $Flip
-        Rotate = $Rotate
-        Size = $Size
-        Spin = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Spin' -Value $Spin.IsPresent)
-        Icons = @{
+        ID         = $Id
+        Name       = $Name
+        Colour     = $Colour
+        Title      = $Title
+        Flip       = $Flip
+        Rotate     = $Rotate
+        Size       = $Size
+        Spin       = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Spin' -Value $Spin.IsPresent)
+        Icons      = @{
             Toggle = $ToggleIcon
-            Hover = $HoverIcon
+            Hover  = $HoverIcon
         }
     }
 }
 
-function Switch-PodeWebIcon
-{
+function Switch-PodeWebIcon {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Id,
 
@@ -2505,9 +2426,9 @@ function Switch-PodeWebIcon
     )
 
     return @{
-        Operation = 'Switch'
+        Operation  = 'Switch'
         ObjectType = 'Icon'
-        ID = $Id
-        State = $State
+        ID         = $Id
+        State      = $State
     }
 }

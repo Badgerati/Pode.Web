@@ -12,23 +12,21 @@ $src_path = './pode_modules'
 #>
 
 $Versions = @{
-    MkDocs = '1.5.3'
+    MkDocs      = '1.5.3'
     MkDocsTheme = '9.4.6'
-    PlatyPS = '0.14.2'
+    PlatyPS     = '0.14.2'
 }
 
 <#
 # Helper Functions
 #>
 
-function Test-PodeBuildIsWindows
-{
+function Test-PodeBuildIsWindows {
     $v = $PSVersionTable
     return ($v.Platform -ilike '*win*' -or ($null -eq $v.Platform -and $v.PSEdition -ieq 'desktop'))
 }
 
-function Test-PodeBuildCommand($cmd)
-{
+function Test-PodeBuildCommand($cmd) {
     $path = $null
 
     if (Test-PodeBuildIsWindows) {
@@ -41,8 +39,7 @@ function Test-PodeBuildCommand($cmd)
     return (![string]::IsNullOrWhiteSpace($path))
 }
 
-function Invoke-PodeBuildInstall($name, $version)
-{
+function Invoke-PodeBuildInstall($name, $version) {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
     if (Test-PodeBuildIsWindows) {
@@ -63,8 +60,7 @@ function Invoke-PodeBuildInstall($name, $version)
     }
 }
 
-function Install-PodeBuildModule($name)
-{
+function Install-PodeBuildModule($name) {
     if ($null -ne ((Get-Module -ListAvailable $name) | Where-Object { $_.Version -ieq $Versions[$name] })) {
         return
     }
@@ -311,7 +307,7 @@ task DockerPack {
 
 # Synopsis: Run the documentation locally
 task Docs DocsDeps, DocsHelpBuild, {
-    Write-Host "Documentation available at 127:0.0.1:8000..." -ForegroundColor Yellow
+    Write-Host 'Documentation available at 127:0.0.1:8000...' -ForegroundColor Yellow
     mkdocs serve --quiet
 }
 
@@ -323,7 +319,7 @@ task DocsHelpBuild DocsDeps, {
 
     # build the function docs
     $path = './docs/Functions'
-    $map =@{}
+    $map = @{}
 
     (Get-Module Pode.Web).ExportedFunctions.Keys | ForEach-Object {
         $type = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path -Leaf -Path (Get-Command $_ -Module Pode.Web).ScriptBlock.File))
@@ -338,17 +334,17 @@ task DocsHelpBuild DocsDeps, {
         $updated = $false
 
         $content = (Get-Content -Path $_.FullName | ForEach-Object {
-            $line = $_
+                $line = $_
 
-            while ($line -imatch '\[`(?<name>[a-z]+\-podeweb[a-z]+)`\](?<char>([^(]|$))') {
-                $updated = $true
-                $name = $Matches['name']
-                $char = $Matches['char']
-                $line = ($line -ireplace "\[``$($name)``\]([^(]|$)", "[``$($name)``]($('../' * $depth)Functions/$($map[$name])/$($name))$($char)")
-            }
+                while ($line -imatch '\[`(?<name>[a-z]+\-podeweb[a-z]+)`\](?<char>([^(]|$))') {
+                    $updated = $true
+                    $name = $Matches['name']
+                    $char = $Matches['char']
+                    $line = ($line -ireplace "\[``$($name)``\]([^(]|$)", "[``$($name)``]($('../' * $depth)Functions/$($map[$name])/$($name))$($char)")
+                }
 
-            $line
-        })
+                $line
+            })
 
         if ($updated) {
             $content | Out-File -FilePath $_.FullName -Force -Encoding ascii
