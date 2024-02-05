@@ -17,3 +17,7 @@ New-PodeWebCard -Content @(
 Which looks like below:
 
 ![comments](../../../images/comments.png)
+
+## Public Content
+
+The `-Icon` parameter path for an image typically references media stored in a `public` folder in the project root. If the file system is case sensitive (default on Linux, but not on Windows), then the `public` folder in the project root MUST be all lower case. More details [available in Pode documentation](https://badgerati.github.io/Pode/Tutorials/Routes/Utilities/StaticContent/#public-directory).

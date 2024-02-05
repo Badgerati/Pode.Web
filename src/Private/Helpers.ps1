@@ -324,10 +324,17 @@ function Get-PodeWebRandomName {
         $Length = 5
     )
 
-    $r = [System.Random]::new()
-    return [string]::Concat(@(foreach ($i in 1..$Length) {
-                [char]$r.Next(65, 90)
-            }))
+    if ($PSVersionTable.PSVersion.Major -eq 5) {
+        return [string]::Concat(@(foreach ($i in 1..$Length) {
+                    [char](Get-Random -Minimum 65 -Maximum 90)
+                }))
+    }
+    else {
+        $r = [System.Random]::new()
+        return [string]::Concat(@(foreach ($i in 1..$Length) {
+                    [char]$r.Next(65, 90)
+                }))
+    }
 }
 
 function Protect-PodeWebName {
