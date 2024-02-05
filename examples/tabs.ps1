@@ -9,7 +9,7 @@ Start-PodeServer {
     # set the use of templates, and set a login page
     Use-PodeWebTemplates -Title 'Basic tabs' -Theme Dark
     
-    $tabs = New-PodeWebTabs -Tabs @(
+    $tabs = New-PodeWebTabs -ActiveTab Tab2 -Tabs @(
         New-PodeWebTab -Name Tab1 -Content @(
             New-PodeWebContainer -Content @(
                 New-PodeWebText -Value 'Hello World'
@@ -27,5 +27,5 @@ Start-PodeServer {
         )
     )
     
-    Set-PodeWebHomePage -Content $tabs -Title 'Tabs'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $tabs -Title 'Tabs'
 }
