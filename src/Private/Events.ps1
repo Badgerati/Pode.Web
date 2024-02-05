@@ -18,6 +18,10 @@ function Register-PodeWebElementEventInternal {
         [object[]]
         $ArgumentList,
 
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.SessionState]
+        $PSSession,
+
         [Parameter()]
         [Alias('NoAuth')]
         [switch]
@@ -45,6 +49,13 @@ function Register-PodeWebElementEventInternal {
     # setup the route
     $routePath = "/elements/$($Element.ObjectType.ToLowerInvariant())/$($Element.ID)/events/$($Type.ToLowerInvariant())"
     if (!(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSSession
+        $eventLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$Element.NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -55,7 +66,8 @@ function Register-PodeWebElementEventInternal {
             $global:ElementData = $using:Element
             $global:EventType = $using:Type
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:eventLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:eventLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -88,6 +100,10 @@ function Register-PodeWebPageEventInternal {
         [Parameter()]
         [object[]]
         $ArgumentList,
+
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.SessionState]
+        $PSSession,
 
         [Parameter()]
         [Alias('NoAuth')]
@@ -122,6 +138,13 @@ function Register-PodeWebPageEventInternal {
     $routePath = "$($pagePath)/events/$($Type.ToLowerInvariant())"
 
     if (!(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSSession
+        $eventLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$Page.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -132,7 +155,8 @@ function Register-PodeWebPageEventInternal {
             $global:PageData = $using:Page
             $global:EventType = $using:Type
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:eventLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:eventLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }

@@ -1,4 +1,5 @@
-Import-Module Pode -MaximumVersion 2.99.99 -Force
+#Import-Module Pode -MaximumVersion 2.99.99 -Force
+Import-Module ..\..\Pode\src\Pode.psm1 -Force
 Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer -StatusPageExceptions Show {
@@ -17,9 +18,9 @@ Start-PodeServer -StatusPageExceptions Show {
         if ($username -eq 'morty' -and $password -eq 'pickle') {
             return @{
                 User = @{
-                    ID ='M0R7Y302'
-                    Name = 'Morty'
-                    Type = 'Human'
+                    ID     = 'M0R7Y302'
+                    Name   = 'Morty'
+                    Type   = 'Human'
                     Groups = @('Developer')
                     #AvatarUrl = '/pode.web-static/images/icon.png'
                 }
@@ -33,7 +34,7 @@ Start-PodeServer -StatusPageExceptions Show {
     # set the use of templates
     Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
-    # set login page 
+    # set login page
     # -BackgroundImage '/images/galaxy.jpg'
     Set-PodeWebLoginPage -Authentication Example -LoginPath '/auth/login' -LogoutPath '/auth/logout' -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
@@ -83,14 +84,14 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebParagraph -Content @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Id 'link_test' -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
-            New-PodeWebText -Value "! "
+            New-PodeWebText -Value '! '
             New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan |
                 Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
                     Show-PodeWebToast -Message 'Badge was clicked!'
                 }
         )
         New-PodeWebParagraph -Content @(
-            New-PodeWebCode -Id 'code_test' -Value "some code :o"
+            New-PodeWebCode -Id 'code_test' -Value 'some code :o'
         )
         $timer1
         New-PodeWebImage -Id 'pode-img' -Source '/pode.web-static/images/icon.png' -Height 70 -Alignment Right |
@@ -149,20 +150,20 @@ Start-PodeServer -StatusPageExceptions Show {
         }
 
         return (1..$count | ForEach-Object {
-            @{
-                Key = $_
-                Values = @(
-                    @{
-                        Key = 'Example1'
-                        Value = (Get-Random -Maximum 10)
-                    },
-                    @{
-                        Key = 'Example2'
-                        Value = (Get-Random -Maximum 10)
-                    }
-                )
-            }
-        })
+                @{
+                    Key    = $_
+                    Values = @(
+                        @{
+                            Key   = 'Example1'
+                            Value = (Get-Random -Maximum 10)
+                        },
+                        @{
+                            Key   = 'Example2'
+                            Value = (Get-Random -Maximum 10)
+                        }
+                    )
+                }
+            })
     }
 
     $processData = {
@@ -285,13 +286,13 @@ Start-PodeServer -StatusPageExceptions Show {
             }
 
             [ordered]@{
-                Name = $svc.Name
-                Status = "$($svc.Status)"
+                Name    = $svc.Name
+                Status  = "$($svc.Status)"
                 Actions = $btns
             }
         }
     } `
-    -Columns @(
+        -Columns @(
         Initialize-PodeWebTableColumn -Key Actions -Alignment Center
     )
 
@@ -317,7 +318,7 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebCodeBlock -Value $svc -NoHighlight
         )
     } `
-    -HelpScriptBlock {
+        -HelpScriptBlock {
         Show-PodeWebModal -Name 'Help'
     }
 

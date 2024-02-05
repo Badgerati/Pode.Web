@@ -163,6 +163,13 @@ function New-PodeWebTextbox {
         # create autocomplete route
         $routePath = "/elements/textbox/$($Id)/autocomplete"
         if (($null -ne $AutoComplete) -and !(Test-PodeWebRoute -Path $routePath)) {
+            # check for scoped vars
+            $AutoComplete, $autoUsingVars = Convert-PodeScopedVariables -ScriptBlock $AutoComplete -PSSession $PSCmdlet.SessionState
+            $autoLogic = @{
+                ScriptBlock    = $AutoComplete
+                UsingVariables = $autoUsingVars
+            }
+
             $auth = $null
             if (!$NoAuthentication -and !$PageData.NoAuthentication) {
                 $auth = (Get-PodeWebState -Name 'auth')
@@ -175,7 +182,8 @@ function New-PodeWebTextbox {
             Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
                 $global:ElementData = $using:element
 
-                $result = Invoke-PodeScriptBlock -ScriptBlock $using:AutoComplete -Return
+                $_args = @(Merge-PodeScriptblockArguments -UsingVariables ($using:autoLogic).UsingVariables)
+                $result = Invoke-PodeScriptBlock -ScriptBlock ($using:autoLogic).ScriptBlock -Arguments $_args -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
@@ -525,6 +533,13 @@ function New-PodeWebSelect {
 
     $routePath = "/elements/select/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -538,7 +553,8 @@ function New-PodeWebSelect {
             param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -1393,6 +1409,15 @@ function New-PodeWebButton {
 
     $routePath = "/elements/button/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
+        $ScriptBlock | Out-Default
+
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -1406,7 +1431,8 @@ function New-PodeWebButton {
             param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -1872,6 +1898,13 @@ function New-PodeWebChart {
 
         $routePath = "/elements/chart/$($Id)"
         if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+            # check for scoped vars
+            $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+            $elementLogic = @{
+                ScriptBlock    = $ScriptBlock
+                UsingVariables = $usingVars
+            }
+
             $auth = $null
             if (!$NoAuthentication -and !$PageData.NoAuthentication) {
                 $auth = (Get-PodeWebState -Name 'auth')
@@ -1885,7 +1918,8 @@ function New-PodeWebChart {
                 param($Data)
                 $global:ElementData = $using:element
 
-                $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
+                $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
@@ -2175,13 +2209,21 @@ function New-PodeWebTable {
         $buildRoute = (($null -ne $ScriptBlock) -or ![string]::IsNullOrWhiteSpace($CsvFilePath))
 
         if ($buildRoute -and !(Test-PodeWebRoute -Path $routePath)) {
+            # check for scoped vars
+            $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+            $elementLogic = @{
+                ScriptBlock    = $ScriptBlock
+                UsingVariables = $usingVars
+            }
+
             Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
                 param($Data)
                 $global:ElementData = $using:element
 
                 $csvFilePath = $using:CsvFilePath
                 if ([string]::IsNullOrWhiteSpace($csvFilePath)) {
-                    $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+                    $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
+                    $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
                 }
                 else {
                     $result = Import-Csv -Path $csvFilePath
@@ -2210,11 +2252,19 @@ function New-PodeWebTable {
         # table row click
         $clickPath = "$($routePath)/click"
         if (($null -ne $ClickScriptBlock) -and !(Test-PodeWebRoute -Path $clickPath)) {
+            # check for scoped vars
+            $ClickScriptBlock, $clickUsingVars = Convert-PodeScopedVariables -ScriptBlock $ClickScriptBlock -PSSession $PSCmdlet.SessionState
+            $clickLogic = @{
+                ScriptBlock    = $ClickScriptBlock
+                UsingVariables = $clickUsingVars
+            }
+
             Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
                 param($Data)
                 $global:ElementData = $using:element
 
-                $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Arguments $Data.Data -Splat -Return
+                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:clickLogic).UsingVariables)
+                $result = Invoke-PodeScriptBlock -ScriptBlock ($using:clickLogic).ScriptBlock -Arguments $_args -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
@@ -2325,6 +2375,13 @@ function Add-PodeWebTableButton {
 
     $routePath = "/elements/table/$($Table.ID)/button/$($Name)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$Table.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -2338,7 +2395,8 @@ function Add-PodeWebTableButton {
             param($Data)
             $global:ElementData = $using:Table
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2429,6 +2487,13 @@ function New-PodeWebCodeEditor {
     # upload route
     $routePath = "/elements/code-editor/$($Id)/upload"
     if ($uploadable -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $Upload, $uploadUsingVars = Convert-PodeScopedVariables -ScriptBlock $Upload -PSSession $PSCmdlet.SessionState
+        $uploadLogic = @{
+            ScriptBlock    = $Upload
+            UsingVariables = $uploadUsingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -2442,7 +2507,8 @@ function New-PodeWebCodeEditor {
             param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:Upload -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:uploadLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:uploadLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2549,6 +2615,13 @@ function New-PodeWebForm {
     }
 
     if (!(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -2562,7 +2635,8 @@ function New-PodeWebForm {
             param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2612,11 +2686,16 @@ function New-PodeWebTimer {
         $NoAuthentication
     )
 
+    # generate timer id
     $Id = Get-PodeWebElementId -Tag Timer -Id $Id -Name $Name
 
+    # check for min interval
     if ($Interval -lt 10) {
         $Interval = 10
     }
+
+    # check for scoped vars
+    $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
 
     $element = @{
         ComponentType    = 'Element'
@@ -2627,6 +2706,11 @@ function New-PodeWebTimer {
         Interval         = ($Interval * 1000)
         NoEvents         = $true
         NoAuthentication = $NoAuthentication.IsPresent
+    }
+
+    $elementLogic = @{
+        ScriptBlock    = $ScriptBlock
+        UsingVariables = $usingVars
     }
 
     $routePath = "/elements/timer/$($Id)"
@@ -2644,7 +2728,8 @@ function New-PodeWebTimer {
             param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2768,11 +2853,19 @@ function New-PodeWebTile {
     # main route to load tile value
     $routePath = "/elements/tile/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2789,11 +2882,19 @@ function New-PodeWebTile {
     # tile click route
     $clickPath = "$($routePath)/click"
     if (($null -ne $ClickScriptBlock) -and !(Test-PodeWebRoute -Path $clickPath)) {
+        # check for scoped vars
+        $ClickScriptBlock, $clickUsingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $clickLogic = @{
+            ScriptBlock    = $ClickScriptBlock
+            UsingVariables = $clickUsingVars
+        }
+
         Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:ElementData = $using:element
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ClickScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:clickLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:clickLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }

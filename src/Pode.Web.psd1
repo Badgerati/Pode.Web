@@ -28,13 +28,13 @@
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '5.0'
 
-    RequiredModules   = @(
-        @{
-            ModuleName    = 'Pode'
-            ModuleVersion = '2.6.0'
-            Guid          = 'e3ea217c-fc3d-406b-95d5-4304ab06c6af'
-        }
-    )
+    # RequiredModules   = @(
+    #     @{
+    #         ModuleName    = 'Pode'
+    #         ModuleVersion = '2.6.0'
+    #         Guid          = 'e3ea217c-fc3d-406b-95d5-4304ab06c6af'
+    #     }
+    # )
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData       = @{

@@ -42,7 +42,11 @@ function New-PodeWebNavLink {
         $NewTab
     )
 
+    # generate nav-link id
     $Id = (Get-PodeWebElementId -Tag 'Nav-Link' -Id $Id -Name $Name)
+
+    # check for scoped vars
+    $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
 
     $nav = @{
         ComponentType = 'Navigation'
@@ -56,6 +60,11 @@ function New-PodeWebNavLink {
         Disabled      = $Disabled.IsPresent
         InDropdown    = $false
         NewTab        = $NewTab.IsPresent
+    }
+
+    $navLogic = @{
+        ScriptBlock    = $ScriptBlock
+        UsingVariables = $usingVars
     }
 
     $routePath = "/elements/nav-link/$($Id)"
@@ -73,7 +82,8 @@ function New-PodeWebNavLink {
             param($Data)
             $global:NavData = $using:nav
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:navLogic).UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:navLogic).ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }

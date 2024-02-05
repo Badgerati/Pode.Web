@@ -340,6 +340,10 @@ function Add-PodeWebPage {
         $Title = $DisplayName
     }
 
+    # check for scoped vars
+    $ScriptBlock, $mainUsingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+    $HelpScriptBlock, $helpUsingVars = Convert-PodeScopedVariables -ScriptBlock $HelpScriptBlock -PSSession $PSCmdlet.SessionState
+
     # setup page meta
     $pageMeta = @{
         ComponentType    = 'Page'
@@ -363,8 +367,14 @@ function Add-PodeWebPage {
         NoSidebar        = $NoSidebar.IsPresent
         NoNavigation     = $NoNavigation.IsPresent
         Navigation       = $Navigation
-        ScriptBlock      = $ScriptBlock
-        HelpScriptBlock  = $HelpScriptBlock
+        Logic            = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $mainUsingVars
+        }
+        Help             = @{
+            ScriptBlock    = $HelpScriptBlock
+            UsingVariables = $helpUsingVars
+        }
         Content          = $Content
         Authentication   = $null
         NoAuthentication = $NoAuthentication.IsPresent
@@ -468,8 +478,9 @@ function Add-PodeWebPage {
         else {
             # if we have a scriptblock, invoke that to get dynamic elements
             $content = $null
-            if ($null -ne $global:PageData.ScriptBlock) {
-                $content = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -ne $global:PageData.Logic.ScriptBlock) {
+                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $global:PageData.Logic.UsingVariables)
+                $content = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.Logic.ScriptBlock -Arguments $_args -Splat -Return
             }
 
             if (($null -eq $content) -or ($content.Length -eq 0)) {
@@ -507,7 +518,8 @@ function Add-PodeWebPage {
                 Set-PodeResponseStatus -Code 403
             }
             else {
-                $result = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.HelpScriptBlock -Arguments $Data.Data -Splat -Return
+                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $global:PageData.Help.UsingVariables)
+                $result = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.Help.ScriptBlock -Arguments $_args -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
@@ -618,6 +630,9 @@ function Add-PodeWebPageLink {
         $DisplayName = $Name
     }
 
+    # check for scoped vars
+    $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+
     # setup page meta
     $pageMeta = @{
         ComponentType    = 'Page'
@@ -633,7 +648,10 @@ function Add-PodeWebPageLink {
         Url              = (Add-PodeWebAppPath -Url $Url)
         Hide             = $Hide.IsPresent
         IsDynamic        = ($null -ne $ScriptBlock)
-        ScriptBlock      = $ScriptBlock
+        Logic            = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
         Authentication   = $null
         NoAuthentication = $NoAuthentication.IsPresent
         Access           = @{
@@ -669,7 +687,8 @@ function Add-PodeWebPageLink {
             param($Data)
             $pageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $pageData.ScriptBlock -Arguments $Data.Data -Splat -Return
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $pageData.Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $pageData.Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
