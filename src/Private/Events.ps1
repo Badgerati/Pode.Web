@@ -61,13 +61,20 @@ function Register-PodeWebElementEventInternal {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $Element.EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:Element
-            $global:EventType = $using:Type
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $Element,
+            $Type,
+            $eventLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:eventLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:eventLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $Element.EndpointName -ScriptBlock {
+            param($Data, $Element, $Type, $Logic)
+            $global:ElementData = $Element
+            $global:EventType = $Type
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -150,13 +157,20 @@ function Register-PodeWebPageEventInternal {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $Page.EndpointName -ScriptBlock {
-            param($Data)
-            $global:PageData = $using:Page
-            $global:EventType = $using:Type
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $Page,
+            $Type,
+            $eventLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:eventLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:eventLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $Page.EndpointName -ScriptBlock {
+            param($Data, $Page, $Type, $Logic)
+            $global:PageData = $Page
+            $global:EventType = $Type
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }

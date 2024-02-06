@@ -121,10 +121,10 @@ function Set-PodeWebLoginPage {
 
     # setup page meta
     $pageMeta = @{
-        ComponentType = 'Page'
-        ObjectType    = 'Page'
-        ID            = $Id
-        Route         = @{
+        ComponentType   = 'Page'
+        ObjectType      = 'Page'
+        ID              = $Id
+        Route           = @{
             Login  = @{
                 Path = (Get-PodeWebPagePath -Name 'login' -Path $LoginPath -NoAppPath)
                 Url  = (Get-PodeWebPagePath -Name 'login' -Path $LoginPath)
@@ -134,10 +134,19 @@ function Set-PodeWebLoginPage {
                 Url  = (Get-PodeWebPagePath -Name 'logout' -Path $LogoutPath)
             }
         }
-        Name          = 'Login'
-        Content       = $Content
-        SignInMessage = (Protect-PodeWebValue -Value $SignInMessage -Default 'Please sign in' -Encode)
-        IsSystem      = $true
+        Name            = 'Login'
+        Content         = $Content
+        SignInMessage   = (Protect-PodeWebValue -Value $SignInMessage -Default 'Please sign in' -Encode)
+        Logo            = @{
+            IconUrl = $Logo
+            Url     = $LogoUrl
+        }
+        BackgroundImage = $BackgroundImage
+        CopyRight       = $Copyright
+        Authentication  = $Authentication
+        IsOAuth2        = $isOAuth2
+        GrantType       = $grantType
+        IsSystem        = $true
     }
 
     # set auth system urls
@@ -168,17 +177,17 @@ function Set-PodeWebLoginPage {
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Page          = $global:PageData
             Theme         = Get-PodeWebTheme
-            Logo          = $using:Logo
-            LogoUrl       = $using:LogoUrl
+            Logo          = $PageData.Logo.IconUrl
+            LogoUrl       = $PageData.Logo.Url
             Background    = @{
-                Image = $using:BackgroundImage
+                Image = $PageData.BackgroundImage
             }
-            SignInMessage = $global:PageData.SignInMessage
-            Copyright     = $using:Copyright
+            SignInMessage = $PageData.SignInMessage
+            Copyright     = $PageData.Copyright
             Auth          = @{
-                Name      = $using:Authentication
-                IsOAuth2  = $using:isOAuth2
-                GrantType = $using:grantType
+                Name      = $PageData.Authentication
+                IsOAuth2  = $PageData.IsOAuth2
+                GrantType = $PageData.GrantType
             }
         }
 

@@ -78,12 +78,18 @@ function New-PodeWebNavLink {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:NavData = $using:nav
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $nav,
+            $navLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:navLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:navLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Nav, $Logic)
+            $global:NavData = $Nav
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }

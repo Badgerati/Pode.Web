@@ -179,11 +179,17 @@ function New-PodeWebTextbox {
                 $EndpointName = Get-PodeWebState -Name 'endpoint-name'
             }
 
-            Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -EndpointName $EndpointName -ScriptBlock {
-                $global:ElementData = $using:element
+            $argList = @(
+                $element,
+                $autoLogic
+            )
 
-                $_args = @(Merge-PodeScriptblockArguments -UsingVariables ($using:autoLogic).UsingVariables)
-                $result = Invoke-PodeScriptBlock -ScriptBlock ($using:autoLogic).ScriptBlock -Arguments $_args -Splat -Return
+            Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+                param($Element, $Logic)
+                $global:ElementData = $Element
+
+                $_args = @(Merge-PodeScriptblockArguments -UsingVariables $Logic.UsingVariables)
+                $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
@@ -549,18 +555,24 @@ function New-PodeWebSelect {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:element
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $elementLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Logic)
+            $global:ElementData = $Element
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
 
             if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                $result = ($result | Update-PodeWebSelect -Id $using:Id)
+                $result = ($result | Update-PodeWebSelect -Id $ElementData.ID)
             }
 
             Write-PodeJsonResponse -Value $result
@@ -1416,8 +1428,6 @@ function New-PodeWebButton {
             UsingVariables = $usingVars
         }
 
-        $ScriptBlock | Out-Default
-
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -1427,12 +1437,18 @@ function New-PodeWebButton {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:element
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $elementLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Logic)
+            $global:ElementData = $Element
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -1914,18 +1930,24 @@ function New-PodeWebChart {
                 $EndpointName = Get-PodeWebState -Name 'endpoint-name'
             }
 
-            Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-                param($Data)
-                $global:ElementData = $using:element
+            $argList = @(
+                @{ Data = $ArgumentList },
+                $element,
+                $elementLogic
+            )
 
-                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
-                $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
+            Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+                param($Data, $Element, $Logic)
+                $global:ElementData = $Element
+
+                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+                $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
 
                 if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                    $result = ($result | Update-PodeWebChart -Id $using:Id)
+                    $result = ($result | Update-PodeWebChart -Id $ElementData.ID)
                 }
 
                 Write-PodeJsonResponse -Value $result
@@ -2216,14 +2238,23 @@ function New-PodeWebTable {
                 UsingVariables = $usingVars
             }
 
-            Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-                param($Data)
-                $global:ElementData = $using:element
+            $argList = @(
+                @{
+                    Data    = $ArgumentList
+                    CsvPath = $CsvFilePath
+                },
+                $element,
+                $elementLogic
+            )
 
-                $csvFilePath = $using:CsvFilePath
+            Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+                param($Data, $Element, $Logic)
+                $global:ElementData = $Element
+
+                $csvFilePath = $Data.CsvPath
                 if ([string]::IsNullOrWhiteSpace($csvFilePath)) {
-                    $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
-                    $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
+                    $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+                    $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
                 }
                 else {
                     $result = Import-Csv -Path $csvFilePath
@@ -2241,7 +2272,7 @@ function New-PodeWebTable {
 
                 if (!(Test-PodeWebOutputWrapped -Output $result)) {
                     $paginate = $ElementData.Paging.Enabled
-                    $result = ($result | Update-PodeWebTable -Id $using:Id -Columns $ElementData.Columns -Paginate:$paginate)
+                    $result = ($result | Update-PodeWebTable -Id $ElementData.ID -Columns $ElementData.Columns -Paginate:$paginate)
                 }
 
                 Write-PodeJsonResponse -Value $result
@@ -2259,12 +2290,18 @@ function New-PodeWebTable {
                 UsingVariables = $clickUsingVars
             }
 
-            Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-                param($Data)
-                $global:ElementData = $using:element
+            $argList = @(
+                @{ Data = $ArgumentList },
+                $element,
+                $clickLogic
+            )
 
-                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:clickLogic).UsingVariables)
-                $result = Invoke-PodeScriptBlock -ScriptBlock ($using:clickLogic).ScriptBlock -Arguments $_args -Splat -Return
+            Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+                param($Data, $Element, $Logic)
+                $global:ElementData = $Element
+
+                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+                $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
                 if ($null -eq $result) {
                     $result = @()
                 }
@@ -2391,12 +2428,18 @@ function Add-PodeWebTableButton {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:Table
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $Table,
+            $elementLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Logic)
+            $global:ElementData = $Element
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2503,12 +2546,18 @@ function New-PodeWebCodeEditor {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:element
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $uploadLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:uploadLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:uploadLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Logic)
+            $global:ElementData = $Element
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2631,12 +2680,18 @@ function New-PodeWebForm {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:element
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $elementLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Logic)
+            $global:ElementData = $Element
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2724,12 +2779,18 @@ function New-PodeWebTimer {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:element
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $elementLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Logic)
+            $global:ElementData = $Element
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
@@ -2860,18 +2921,24 @@ function New-PodeWebTile {
             UsingVariables = $usingVars
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:element
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $elementLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:elementLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:elementLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Logic)
+            $global:ElementData = $Element
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
 
             if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                $result = ($result | Update-PodeWebTile -Id $using:Id)
+                $result = ($result | Update-PodeWebTile -Id $ElementData.ID)
             }
 
             Write-PodeJsonResponse -Value $result
@@ -2889,12 +2956,18 @@ function New-PodeWebTile {
             UsingVariables = $clickUsingVars
         }
 
-        Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:element
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $clickLogic
+        )
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables ($using:clickLogic).UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock ($using:clickLogic).ScriptBlock -Arguments $_args -Splat -Return
+        Add-PodeRoute -Method Post -Path $clickPath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Logic)
+            $global:ElementData = $Element
+
+            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
+            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
             if ($null -eq $result) {
                 $result = @()
             }
