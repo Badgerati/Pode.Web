@@ -6,7 +6,7 @@ Pode.Web is a PowerShell module that works along side [Pode](https://github.com/
 
 Before installing Pode.Web, the minimum requirements must be met:
 
-* [Pode](https://github.com/Badgerati/Pode) v2.6.0+
+* [Pode](https://github.com/Badgerati/Pode) v2.10.0+
 
 Which also includes Pode's minimum requirements:
 * OS:

@@ -335,13 +335,7 @@ function New-PodeWebModal {
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
             param($Data, $Logic)
-
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
-
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             Write-PodeJsonResponse -Value $result
         }
     }
@@ -518,13 +512,7 @@ function New-PodeWebSteps {
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
             param($Data, $Logic)
-
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
-
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             Write-PodeJsonResponse -Value $result
         }
     }
@@ -607,13 +595,7 @@ function New-PodeWebStep {
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
             param($Data, $Logic)
-
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
-
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             Write-PodeJsonResponse -Value $result
         }
     }

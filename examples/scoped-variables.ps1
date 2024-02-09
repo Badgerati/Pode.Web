@@ -1,4 +1,4 @@
-Import-Module ..\..\Pode\src\Pode.psm1 -Force #-MaximumVersion 2.99.99 -Force
+Import-Module Pode -MaximumVersion 2.99.99 -Force
 Import-Module ..\src\Pode.Web.psm1 -Force
 
 

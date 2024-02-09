@@ -73,11 +73,7 @@ function Register-PodeWebElementEventInternal {
             $global:ElementData = $Element
             $global:EventType = $Type
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
@@ -169,11 +165,7 @@ function Register-PodeWebPageEventInternal {
             $global:PageData = $Page
             $global:EventType = $Type
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result

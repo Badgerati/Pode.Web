@@ -188,11 +188,7 @@ function New-PodeWebTextbox {
                 param($Element, $Logic)
                 $global:ElementData = $Element
 
-                $_args = @(Merge-PodeScriptblockArguments -UsingVariables $Logic.UsingVariables)
-                $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-                if ($null -eq $result) {
-                    $result = @()
-                }
+                $result = Invoke-PodeWebScriptBlock -Logic $Logic
 
                 Write-PodeJsonResponse -Value @{ Values = $result }
                 $global:ElementData = $null
@@ -565,11 +561,7 @@ function New-PodeWebSelect {
             param($Data, $Element, $Logic)
             $global:ElementData = $Element
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $result = ($result | Update-PodeWebSelect -Id $ElementData.ID)
@@ -1447,11 +1439,7 @@ function New-PodeWebButton {
             param($Data, $Element, $Logic)
             $global:ElementData = $Element
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
@@ -1940,11 +1928,7 @@ function New-PodeWebChart {
                 param($Data, $Element, $Logic)
                 $global:ElementData = $Element
 
-                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-                $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-                if ($null -eq $result) {
-                    $result = @()
-                }
+                $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
                 if (!(Test-PodeWebOutputWrapped -Output $result)) {
                     $result = ($result | Update-PodeWebChart -Id $ElementData.ID)
@@ -2253,8 +2237,7 @@ function New-PodeWebTable {
 
                 $csvFilePath = $Data.CsvPath
                 if ([string]::IsNullOrWhiteSpace($csvFilePath)) {
-                    $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-                    $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
+                    $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
                 }
                 else {
                     $result = Import-Csv -Path $csvFilePath
@@ -2300,11 +2283,7 @@ function New-PodeWebTable {
                 param($Data, $Element, $Logic)
                 $global:ElementData = $Element
 
-                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-                $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-                if ($null -eq $result) {
-                    $result = @()
-                }
+                $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
                 if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                     Write-PodeJsonResponse -Value $result
@@ -2438,11 +2417,7 @@ function Add-PodeWebTableButton {
             param($Data, $Element, $Logic)
             $global:ElementData = $Element
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
@@ -2556,11 +2531,7 @@ function New-PodeWebCodeEditor {
             param($Data, $Element, $Logic)
             $global:ElementData = $Element
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             Write-PodeJsonResponse -Value $result
             $global:ElementData = $null
@@ -2690,11 +2661,7 @@ function New-PodeWebForm {
             param($Data, $Element, $Logic)
             $global:ElementData = $Element
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             Write-PodeJsonResponse -Value $result
             $global:ElementData = $null
@@ -2789,11 +2756,7 @@ function New-PodeWebTimer {
             param($Data, $Element, $Logic)
             $global:ElementData = $Element
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             Write-PodeJsonResponse -Value $result
             $global:ElementData = $null
@@ -2931,11 +2894,7 @@ function New-PodeWebTile {
             param($Data, $Element, $Logic)
             $global:ElementData = $Element
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!(Test-PodeWebOutputWrapped -Output $result)) {
                 $result = ($result | Update-PodeWebTile -Id $ElementData.ID)
@@ -2966,11 +2925,7 @@ function New-PodeWebTile {
             param($Data, $Element, $Logic)
             $global:ElementData = $Element
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result

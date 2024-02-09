@@ -488,8 +488,7 @@ function Add-PodeWebPage {
             # if we have a scriptblock, invoke that to get dynamic elements
             $content = $null
             if ($null -ne $global:PageData.Logic.ScriptBlock) {
-                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $global:PageData.Logic.UsingVariables)
-                $content = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.Logic.ScriptBlock -Arguments $_args -Splat -Return
+                $content = Invoke-PodeWebScriptBlock -Logic $global:PageData.Logic -Arguments $Data.Data
             }
 
             if (($null -eq $content) -or ($content.Length -eq 0)) {
@@ -527,11 +526,7 @@ function Add-PodeWebPage {
                 Set-PodeResponseStatus -Code 403
             }
             else {
-                $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $global:PageData.Help.UsingVariables)
-                $result = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.Help.ScriptBlock -Arguments $_args -Splat -Return
-                if ($null -eq $result) {
-                    $result = @()
-                }
+                $result = Invoke-PodeWebScriptBlock -Logic $global:PageData.Help -Arguments $Data.Data
 
                 if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                     Write-PodeJsonResponse -Value $result
@@ -696,11 +691,7 @@ function Add-PodeWebPageLink {
             param($Data)
             $pageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
 
-            $_args = @(Merge-PodeScriptblockArguments -ArgumentList $Data.Data -UsingVariables $pageData.Logic.UsingVariables)
-            $result = Invoke-PodeScriptBlock -ScriptBlock $pageData.Logic.ScriptBlock -Arguments $_args -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $pageData.Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result

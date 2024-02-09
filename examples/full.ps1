@@ -1,5 +1,4 @@
-#Import-Module Pode -MaximumVersion 2.99.99 -Force
-Import-Module ..\..\Pode\src\Pode.psm1 -Force
+Import-Module Pode -MaximumVersion 2.99.99 -Force
 Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer -StatusPageExceptions Show {
@@ -248,20 +247,24 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebText -Value 'HELP!'
     )
 
+    $stopName = 'Stop'
+    $startName = 'Start'
+    $editName = 'Edit'
+
     $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -SimpleSort -Click -Paginate -ScriptBlock {
-        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
+        $stopBtn = New-PodeWebButton -Name $using:stopName -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
+        $startBtn = New-PodeWebButton -Name $using:startName -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
+        $editBtn = New-PodeWebButton -Name $using:editName -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
             $checked = ($svc.Status -ieq 'running')
 
