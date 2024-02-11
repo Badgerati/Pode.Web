@@ -1,7 +1,7 @@
 <!-- omit in toc -->
 # <img src="https://github.com/Badgerati/Pode/blob/develop/images/icon.png?raw=true" width="25" /> Pode.Web
 
-> This is still a work in progress, until v1.0.0 expect possible breaking changes in some releases.
+> This is the develop branch for Pode,Web v1.0.0, which is currently dependant on an unreleased version of Pode (v2.10.0). If you want the latest released Pode.Web code (v0.8.3), please view the master branch instead.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Badgerati/Pode.Web/master/LICENSE.txt)
 [![Documentation](https://img.shields.io/github/v/release/badgerati/pode.web?label=docs)](https://badgerati.github.io/Pode.Web)
