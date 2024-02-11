@@ -121,10 +121,10 @@ function Set-PodeWebLoginPage {
 
     # setup page meta
     $pageMeta = @{
-        ComponentType = 'Page'
-        ObjectType    = 'Page'
-        ID            = $Id
-        Route         = @{
+        ComponentType   = 'Page'
+        ObjectType      = 'Page'
+        ID              = $Id
+        Route           = @{
             Login  = @{
                 Path = (Get-PodeWebPagePath -Name 'login' -Path $LoginPath -NoAppPath)
                 Url  = (Get-PodeWebPagePath -Name 'login' -Path $LoginPath)
@@ -134,10 +134,19 @@ function Set-PodeWebLoginPage {
                 Url  = (Get-PodeWebPagePath -Name 'logout' -Path $LogoutPath)
             }
         }
-        Name          = 'Login'
-        Content       = $Content
-        SignInMessage = (Protect-PodeWebValue -Value $SignInMessage -Default 'Please sign in' -Encode)
-        IsSystem      = $true
+        Name            = 'Login'
+        Content         = $Content
+        SignInMessage   = (Protect-PodeWebValue -Value $SignInMessage -Default 'Please sign in' -Encode)
+        Logo            = @{
+            IconUrl = $Logo
+            Url     = $LogoUrl
+        }
+        BackgroundImage = $BackgroundImage
+        CopyRight       = $Copyright
+        Authentication  = $Authentication
+        IsOAuth2        = $isOAuth2
+        GrantType       = $grantType
+        IsSystem        = $true
     }
 
     # set auth system urls
@@ -168,17 +177,17 @@ function Set-PodeWebLoginPage {
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Page          = $global:PageData
             Theme         = Get-PodeWebTheme
-            Logo          = $using:Logo
-            LogoUrl       = $using:LogoUrl
+            Logo          = $PageData.Logo.IconUrl
+            LogoUrl       = $PageData.Logo.Url
             Background    = @{
-                Image = $using:BackgroundImage
+                Image = $PageData.BackgroundImage
             }
-            SignInMessage = $global:PageData.SignInMessage
-            Copyright     = $using:Copyright
+            SignInMessage = $PageData.SignInMessage
+            Copyright     = $PageData.Copyright
             Auth          = @{
-                Name      = $using:Authentication
-                IsOAuth2  = $using:isOAuth2
-                GrantType = $using:grantType
+                Name      = $PageData.Authentication
+                IsOAuth2  = $PageData.IsOAuth2
+                GrantType = $PageData.GrantType
             }
         }
 
@@ -340,6 +349,10 @@ function Add-PodeWebPage {
         $Title = $DisplayName
     }
 
+    # check for scoped vars
+    $ScriptBlock, $mainUsingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+    $HelpScriptBlock, $helpUsingVars = Convert-PodeScopedVariables -ScriptBlock $HelpScriptBlock -PSSession $PSCmdlet.SessionState
+
     # setup page meta
     $pageMeta = @{
         ComponentType    = 'Page'
@@ -363,8 +376,14 @@ function Add-PodeWebPage {
         NoSidebar        = $NoSidebar.IsPresent
         NoNavigation     = $NoNavigation.IsPresent
         Navigation       = $Navigation
-        ScriptBlock      = $ScriptBlock
-        HelpScriptBlock  = $HelpScriptBlock
+        Logic            = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $mainUsingVars
+        }
+        Help             = @{
+            ScriptBlock    = $HelpScriptBlock
+            UsingVariables = $helpUsingVars
+        }
         Content          = $Content
         Authentication   = $null
         NoAuthentication = $NoAuthentication.IsPresent
@@ -468,8 +487,8 @@ function Add-PodeWebPage {
         else {
             # if we have a scriptblock, invoke that to get dynamic elements
             $content = $null
-            if ($null -ne $global:PageData.ScriptBlock) {
-                $content = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.ScriptBlock -Arguments $Data.Data -Splat -Return
+            if ($null -ne $global:PageData.Logic.ScriptBlock) {
+                $content = Invoke-PodeWebScriptBlock -Logic $global:PageData.Logic -Arguments $Data.Data
             }
 
             if (($null -eq $content) -or ($content.Length -eq 0)) {
@@ -507,10 +526,7 @@ function Add-PodeWebPage {
                 Set-PodeResponseStatus -Code 403
             }
             else {
-                $result = Invoke-PodeScriptBlock -ScriptBlock $global:PageData.HelpScriptBlock -Arguments $Data.Data -Splat -Return
-                if ($null -eq $result) {
-                    $result = @()
-                }
+                $result = Invoke-PodeWebScriptBlock -Logic $global:PageData.Help -Arguments $Data.Data
 
                 if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                     Write-PodeJsonResponse -Value $result
@@ -618,6 +634,9 @@ function Add-PodeWebPageLink {
         $DisplayName = $Name
     }
 
+    # check for scoped vars
+    $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+
     # setup page meta
     $pageMeta = @{
         ComponentType    = 'Page'
@@ -633,7 +652,10 @@ function Add-PodeWebPageLink {
         Url              = (Add-PodeWebAppPath -Url $Url)
         Hide             = $Hide.IsPresent
         IsDynamic        = ($null -ne $ScriptBlock)
-        ScriptBlock      = $ScriptBlock
+        Logic            = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
         Authentication   = $null
         NoAuthentication = $NoAuthentication.IsPresent
         Access           = @{
@@ -669,10 +691,7 @@ function Add-PodeWebPageLink {
             param($Data)
             $pageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $pageData.ScriptBlock -Arguments $Data.Data -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+            $result = Invoke-PodeWebScriptBlock -Logic $pageData.Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result

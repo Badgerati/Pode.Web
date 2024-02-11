@@ -42,7 +42,11 @@ function New-PodeWebNavLink {
         $NewTab
     )
 
+    # generate nav-link id
     $Id = (Get-PodeWebElementId -Tag 'Nav-Link' -Id $Id -Name $Name)
+
+    # check for scoped vars
+    $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
 
     $nav = @{
         ComponentType = 'Navigation'
@@ -58,6 +62,11 @@ function New-PodeWebNavLink {
         NewTab        = $NewTab.IsPresent
     }
 
+    $navLogic = @{
+        ScriptBlock    = $ScriptBlock
+        UsingVariables = $usingVars
+    }
+
     $routePath = "/elements/nav-link/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
@@ -69,14 +78,17 @@ function New-PodeWebNavLink {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
-            $global:NavData = $using:nav
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $nav,
+            $navLogic
+        )
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Nav, $Logic)
+            $global:NavData = $Nav
+
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result

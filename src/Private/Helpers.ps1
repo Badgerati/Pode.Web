@@ -1085,3 +1085,21 @@ function Protect-PodeWebIconPreset {
 
     return $Preset
 }
+
+function Invoke-PodeWebScriptBlock {
+    param(
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $Logic,
+
+        [Parameter()]
+        $Arguments = $null
+    )
+
+    $result = Invoke-PodeScriptBlock -ScriptBlock $Logic.ScriptBlock -Arguments $Arguments -UsingVariables $Logic.UsingVariables -Splat -Return
+    if ($null -eq $result) {
+        $result = @()
+    }
+
+    return $result
+}

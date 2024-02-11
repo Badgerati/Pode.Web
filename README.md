@@ -1,7 +1,7 @@
 <!-- omit in toc -->
 # <img src="https://github.com/Badgerati/Pode/blob/develop/images/icon.png?raw=true" width="25" /> Pode.Web
 
-> This is still a work in progress, until v1.0.0 expect possible breaking changes in some releases.
+> This is the develop branch for Pode,Web v1.0.0, which is currently dependant on an unreleased version of Pode (v2.10.0). If you want the latest released Pode.Web code (v0.8.3), please view the master branch instead.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Badgerati/Pode.Web/master/LICENSE.txt)
 [![Documentation](https://img.shields.io/github/v/release/badgerati/pode.web?label=docs)](https://badgerati.github.io/Pode.Web)
@@ -25,9 +25,9 @@
 - [🔥 Quick Example](#-quick-example)
 - [🌎 Roadmap](#-roadmap)
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.6.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.10.0+).
 
-It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge required!
+It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge is required!
 
 You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, and terminal themes, and you can supply a custom CSS file.
 
@@ -39,7 +39,7 @@ The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [j
 
 All documentation and tutorials for Pode.Web can be [found here](https://badgerati.github.io/Pode.Web) - this documentation will be for the latest release.
 
-To see the docs for other releases, branches or tags, you can host the documentation locally. To do so you'll need to have the [`InvokeBuild`](https://github.com/nightroman/Invoke-Build) module installed; then:
+To see the docs for other releases, branches, or tags, you can host the documentation locally. To do so you'll need to have the [`InvokeBuild`](https://github.com/nightroman/Invoke-Build) module installed; then:
 
 ```powershell
 Invoke-Build Docs
@@ -116,6 +116,6 @@ Start-PodeServer {
 
 ## 🌎 Roadmap
 
-You can find a list of the features, enhancements and ideas that will hopefully one day make it into Pode.Web [here in the documentation](https://badgerati.github.io/Pode.Web/roadmap/).
+You can find a list of the features, enhancements, and ideas that will hopefully one day make it into Pode.Web [here in the documentation](https://badgerati.github.io/Pode.Web/roadmap/).
 
 There is also a [Project](https://github.com/users/Badgerati/projects/3) in the beginnings of being setup for Pode.Web, with milestone progression and current roadmap issues. Plus, there is a [Draft Board](https://github.com/users/Badgerati/projects/5) which contains a range of ideas for Pode.Web features/enhancements which are either brilliant, ludicrous, or down right insane! Draft Issues are purely ideas, and any in the design stage might one day make it in! If you see a Draft Issue you which to discuss, or have an idea for one, please dicuss it over on [Discord](https://discord.gg/fRqeGcbF6h) in the `#ideas` or `#pode-web` channel.

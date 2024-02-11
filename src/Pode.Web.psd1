@@ -31,7 +31,7 @@
     RequiredModules   = @(
         @{
             ModuleName    = 'Pode'
-            ModuleVersion = '2.6.0'
+            ModuleVersion = '2.10.0'
             Guid          = 'e3ea217c-fc3d-406b-95d5-4304ab06c6af'
         }
     )

@@ -31,6 +31,7 @@ function Register-PodeWebEvent {
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 
@@ -76,6 +77,7 @@ function Register-PodeWebMediaEvent {
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 
@@ -124,6 +126,7 @@ function Register-PodeWebPageEvent {
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 

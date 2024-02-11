@@ -312,6 +312,13 @@ function New-PodeWebModal {
 
     $routePath = "/elements/modal/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -321,14 +328,14 @@ function New-PodeWebModal {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $elementLogic
+        )
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
-
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Logic)
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             Write-PodeJsonResponse -Value $result
         }
     }
@@ -482,6 +489,13 @@ function New-PodeWebSteps {
     # add route
     $routePath = "/elements/steps/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -491,14 +505,14 @@ function New-PodeWebSteps {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $elementLogic
+        )
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
-
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Logic)
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             Write-PodeJsonResponse -Value $result
         }
     }
@@ -558,6 +572,13 @@ function New-PodeWebStep {
     # add route
     $routePath = "/elements/step/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
@@ -567,14 +588,14 @@ function New-PodeWebStep {
             $EndpointName = Get-PodeWebState -Name 'endpoint-name'
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $EndpointName -ScriptBlock {
-            param($Data)
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $elementLogic
+        )
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
-
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Logic)
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             Write-PodeJsonResponse -Value $result
         }
     }

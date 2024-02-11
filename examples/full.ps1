@@ -17,9 +17,9 @@ Start-PodeServer -StatusPageExceptions Show {
         if ($username -eq 'morty' -and $password -eq 'pickle') {
             return @{
                 User = @{
-                    ID ='M0R7Y302'
-                    Name = 'Morty'
-                    Type = 'Human'
+                    ID     = 'M0R7Y302'
+                    Name   = 'Morty'
+                    Type   = 'Human'
                     Groups = @('Developer')
                     #AvatarUrl = '/pode.web-static/images/icon.png'
                 }
@@ -33,7 +33,7 @@ Start-PodeServer -StatusPageExceptions Show {
     # set the use of templates
     Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
-    # set login page 
+    # set login page
     # -BackgroundImage '/images/galaxy.jpg'
     Set-PodeWebLoginPage -Authentication Example -LoginPath '/auth/login' -LogoutPath '/auth/logout' -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -NoAuth -ScriptBlock {
@@ -83,14 +83,14 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebParagraph -Content @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Id 'link_test' -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
-            New-PodeWebText -Value "! "
+            New-PodeWebText -Value '! '
             New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan |
                 Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
                     Show-PodeWebToast -Message 'Badge was clicked!'
                 }
         )
         New-PodeWebParagraph -Content @(
-            New-PodeWebCode -Id 'code_test' -Value "some code :o"
+            New-PodeWebCode -Id 'code_test' -Value 'some code :o'
         )
         $timer1
         New-PodeWebImage -Id 'pode-img' -Source '/pode.web-static/images/icon.png' -Height 70 -Alignment Right |
@@ -149,20 +149,20 @@ Start-PodeServer -StatusPageExceptions Show {
         }
 
         return (1..$count | ForEach-Object {
-            @{
-                Key = $_
-                Values = @(
-                    @{
-                        Key = 'Example1'
-                        Value = (Get-Random -Maximum 10)
-                    },
-                    @{
-                        Key = 'Example2'
-                        Value = (Get-Random -Maximum 10)
-                    }
-                )
-            }
-        })
+                @{
+                    Key    = $_
+                    Values = @(
+                        @{
+                            Key   = 'Example1'
+                            Value = (Get-Random -Maximum 10)
+                        },
+                        @{
+                            Key   = 'Example2'
+                            Value = (Get-Random -Maximum 10)
+                        }
+                    )
+                }
+            })
     }
 
     $processData = {
@@ -247,20 +247,24 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebText -Value 'HELP!'
     )
 
+    $stopName = 'Stop'
+    $startName = 'Start'
+    $editName = 'Edit'
+
     $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -SimpleSort -Click -Paginate -ScriptBlock {
-        $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
+        $stopBtn = New-PodeWebButton -Name $using:stopName -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
+        $startBtn = New-PodeWebButton -Name $using:startName -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
             Sync-PodeWebTable -Id $ElementData.Parent.ID
         }
 
-        $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
+        $editBtn = New-PodeWebButton -Name $using:editName -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
             $checked = ($svc.Status -ieq 'running')
 
@@ -285,13 +289,13 @@ Start-PodeServer -StatusPageExceptions Show {
             }
 
             [ordered]@{
-                Name = $svc.Name
-                Status = "$($svc.Status)"
+                Name    = $svc.Name
+                Status  = "$($svc.Status)"
                 Actions = $btns
             }
         }
     } `
-    -Columns @(
+        -Columns @(
         Initialize-PodeWebTableColumn -Key Actions -Alignment Center
     )
 
@@ -317,7 +321,7 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebCodeBlock -Value $svc -NoHighlight
         )
     } `
-    -HelpScriptBlock {
+        -HelpScriptBlock {
         Show-PodeWebModal -Name 'Help'
     }
 
