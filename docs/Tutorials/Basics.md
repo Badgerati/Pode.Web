@@ -10,6 +10,8 @@ Start-PodeServer {
 }
 ```
 
+## Cache Static Content
+
 To speed up the loading of pages, enable caching within your `server.psd1` file:
 
 ```powershell
@@ -19,6 +21,20 @@ To speed up the loading of pages, enable caching within your `server.psd1` file:
             Cache = @{
                 Enable = $true
             }
+        }
+    }
+}
+```
+
+## Timeout
+
+The default timeout in Pode is 30 seconds, so if you have elements/Routes you know that will run for longer than this then you'll need to increase the default timeout value. This can be done by adding the following to your `server.psd1` file, where the `Timeout` value is in seconds ([more info](https://badgerati.github.io/Pode/Tutorials/RequestLimits/#timeout)):
+
+```powershell
+@{
+    Server = @{
+        Request = @{
+            Timeout = 60
         }
     }
 }

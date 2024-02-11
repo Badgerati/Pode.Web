@@ -370,6 +370,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
         processData: opts.processData,
         contentType: opts.contentType,
         mimeType: opts.mimeType,
+        timeout: 0,
         xhrFields: {
             responseType: 'blob'
         },
