@@ -13,7 +13,7 @@
     "@mdi/font": "7.4.47",
     "chart.js": "4.4.1",
     "@highlightjs/cdn-assets": "11.9.0",
-    "monaco-editor": "0.45.0",
+    "monaco-editor": "0.46.0",
     "moment": "2.30.1"
   }
 }
