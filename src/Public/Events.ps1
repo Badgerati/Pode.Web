@@ -1,18 +1,17 @@
-function Register-PodeWebEvent
-{
+function Register-PodeWebEvent {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Change', 'Focus', 'FocusOut', 'Click', 'MouseOver', 'MouseOut', 'KeyDown', 'KeyUp')]
         [string[]]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
@@ -32,27 +31,27 @@ function Register-PodeWebEvent
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 
     return $Element
 }
 
-function Register-PodeWebMediaEvent
-{
+function Register-PodeWebMediaEvent {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('CanPlay', 'Pause', 'Play', 'Ended')]
         [string[]]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
@@ -78,27 +77,27 @@ function Register-PodeWebMediaEvent
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 
     return $Element
 }
 
-function Register-PodeWebPageEvent
-{
+function Register-PodeWebPageEvent {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [hashtable]
         $Page,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Load', 'Unload', 'BeforeUnload')]
         [string[]]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
@@ -127,6 +126,7 @@ function Register-PodeWebPageEvent
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 

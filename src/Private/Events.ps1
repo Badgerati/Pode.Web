@@ -1,23 +1,26 @@
-function Register-PodeWebElementEventInternal
-{
+function Register-PodeWebElementEventInternal {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNull()]
         [hashtable]
         $Element,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
         [Parameter()]
         [object[]]
         $ArgumentList,
+
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.SessionState]
+        $PSSession,
 
         [Parameter()]
         [Alias('NoAuth')]
@@ -46,20 +49,31 @@ function Register-PodeWebElementEventInternal
     # setup the route
     $routePath = "/elements/$($Element.ObjectType.ToLowerInvariant())/$($Element.ID)/events/$($Type.ToLowerInvariant())"
     if (!(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSSession
+        $eventLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$Element.NoAuthentication -and !$PageData.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $Element.EndpointName -ScriptBlock {
-            param($Data)
-            $global:ElementData = $using:Element
-            $global:EventType = $using:Type
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $Element,
+            $Type,
+            $eventLogic
+        )
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $Element.EndpointName -ScriptBlock {
+            param($Data, $Element, $Type, $Logic)
+            $global:ElementData = $Element
+            $global:EventType = $Type
+
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
@@ -70,26 +84,29 @@ function Register-PodeWebElementEventInternal
     }
 }
 
-function Register-PodeWebPageEventInternal
-{
+function Register-PodeWebPageEventInternal {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNull()]
         [hashtable]
         $Page,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
         [Parameter()]
         [object[]]
         $ArgumentList,
+
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.SessionState]
+        $PSSession,
 
         [Parameter()]
         [Alias('NoAuth')]
@@ -124,20 +141,31 @@ function Register-PodeWebPageEventInternal
     $routePath = "$($pagePath)/events/$($Type.ToLowerInvariant())"
 
     if (!(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSSession
+        $eventLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
         $auth = $null
         if (!$NoAuthentication -and !$Page.NoAuthentication) {
             $auth = (Get-PodeWebState -Name 'auth')
         }
 
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList @{ Data = $ArgumentList } -EndpointName $Page.EndpointName -ScriptBlock {
-            param($Data)
-            $global:PageData = $using:Page
-            $global:EventType = $using:Type
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $Page,
+            $Type,
+            $eventLogic
+        )
 
-            $result = Invoke-PodeScriptBlock -ScriptBlock $using:ScriptBlock -Arguments $Data.Data -Splat -Return
-            if ($null -eq $result) {
-                $result = @()
-            }
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $Page.EndpointName -ScriptBlock {
+            param($Data, $Page, $Type, $Logic)
+            $global:PageData = $Page
+            $global:EventType = $Type
+
+            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
             if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
