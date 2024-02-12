@@ -88,7 +88,10 @@ function New-PodeWebTabs
         $CycleInterval = 15,
 
         [switch]
-        $Cycle
+        $Cycle,
+
+        [string]
+        $activeTab
     )
 
     if (!(Test-PodeWebContent -Content $Tabs -ComponentType Layout -ObjectType Tab)) {
@@ -108,6 +111,7 @@ function New-PodeWebTabs
             Enabled = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
         }
+        ActiveElement = $activeTab
     }
 }
 

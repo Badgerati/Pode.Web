@@ -1092,7 +1092,7 @@ class PodeTextualElement extends PodeContentElement {
 class PodeCyclingElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
-
+        this.activeElement = data.ActiveElement
         this.cycling = {
             enabled: data.Cycle ? (data.Cycle.Enabled ?? false) : false,
             interval: data.Cycle ? (data.Cycle.Interval ?? 0) : 0,
@@ -1147,7 +1147,8 @@ class PodeCyclingElement extends PodeContentElement {
 class PodeCyclingChildElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.active = this.child.isFirst;
+        console.log("data.name:", data.Name)
+        this.active = (opts.parent.activeElement) ? (data.Name == opts.parent.activeElement) : this.child.isFirst;
     }
 
     open(data, sender, opts) {
@@ -3916,6 +3917,10 @@ class PodeTabs extends PodeCyclingElement {
 
     addChild(element, data, sender, opts) {
         super.addChild(element, data, sender, opts);
+        console.log("Tabs:")
+        console.log(element)
+        console.log(element.active)
+        console.log(data)
 
         // add new tab selector
         if (element.getType() !== 'tab') {
@@ -3924,17 +3929,22 @@ class PodeTabs extends PodeCyclingElement {
 
         var icon = element.setIcon(data.Icon, true);
 
+        var isActive = (this.activeElement) ? (element.name == this.activeElement) : (element.child.isFirst)
+        console.log("Active Element:",this.activeElement)
+        console.log("Name:", element.name)
+        console.log("isFirst:", element.child.isFirst)
+        console.log("isActive:", isActive)
         var html = `<li class='nav-item' role='presentation'>
             <a
                 id='${element.id}'
                 name='${element.name}'
-                class='nav-link ${element.child.isFirst ? 'active' : ''}'
+                class='nav-link ${isActive ? 'active' : ''}'
                 data-toggle='tab'
                 href='#${element.id}_content'
                 for='${element.uuid}'
                 role='tab'
                 aria-controls='${element.id}_content'
-                aria-selected='${element.child.isFirst}'>
+                aria-selected='${isActive}'>
                 ${icon}
                 ${data.DisplayName}
             </a>
@@ -3950,16 +3960,17 @@ class PodeTab extends PodeCyclingChildElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-
         if (!this.checkParentType('tabs')) {
             throw 'Tab element can only be used in Tabs'
         }
+        //this.active = (data.Name == opts.parent.activeTab)
     }
 
     new(data, sender, opts) {
+
         return `<div
             id='${this.id}_content'
-            class='tab-pane fade show ${this.child.isFirst ? 'active' : ''}'
+            class='tab-pane fade show ${this.active ? 'active' : ''}'
             pode-object="${this.getType()}"
             pode-id="${this.uuid}"
             role='tabpanel'
