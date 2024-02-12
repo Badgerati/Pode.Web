@@ -3955,7 +3955,6 @@ class PodeTab extends PodeCyclingChildElement {
         if (!this.checkParentType('tabs')) {
             throw 'Tab element can only be used in Tabs'
         }
-        //this.active = (data.Name == opts.parent.activeTab)
     }
 
     new(data, sender, opts) {
