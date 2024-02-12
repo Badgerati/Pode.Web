@@ -1147,7 +1147,6 @@ class PodeCyclingElement extends PodeContentElement {
 class PodeCyclingChildElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        console.log("data.name:", data.Name)
         this.active = (opts.parent.activeElement) ? (data.Name == opts.parent.activeElement) : this.child.isFirst;
     }
 
@@ -3917,10 +3916,6 @@ class PodeTabs extends PodeCyclingElement {
 
     addChild(element, data, sender, opts) {
         super.addChild(element, data, sender, opts);
-        console.log("Tabs:")
-        console.log(element)
-        console.log(element.active)
-        console.log(data)
 
         // add new tab selector
         if (element.getType() !== 'tab') {
@@ -3930,10 +3925,7 @@ class PodeTabs extends PodeCyclingElement {
         var icon = element.setIcon(data.Icon, true);
 
         var isActive = (this.activeElement) ? (element.name == this.activeElement) : (element.child.isFirst)
-        console.log("Active Element:",this.activeElement)
-        console.log("Name:", element.name)
-        console.log("isFirst:", element.child.isFirst)
-        console.log("isActive:", isActive)
+        
         var html = `<li class='nav-item' role='presentation'>
             <a
                 id='${element.id}'
