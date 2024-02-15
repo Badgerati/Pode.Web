@@ -754,6 +754,7 @@ function ConvertTo-PodeWebPage {
         'ErrorAction',
         'WarningAction',
         'InformationAction',
+        'ProgressAction',
         'ErrorVariable',
         'WarningVariable',
         'InformationVariable',
