@@ -177,6 +177,10 @@ function Set-PodeWebLoginPage {
         Write-PodeWebViewResponse -Path 'login' -Data @{
             Page          = $global:PageData
             Theme         = Get-PodeWebTheme
+            Sessions      = @{
+                Enabled = (Test-PodeSessionsEnabled)
+                Tabs    = !(Test-PodeSessionScopeIsBrowser)
+            }
             Logo          = $PageData.Logo.IconUrl
             LogoUrl       = $PageData.Logo.Url
             Background    = @{
@@ -419,31 +423,23 @@ function Add-PodeWebPage {
         param($Data)
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
 
-        # show a back arrow?
-        if (!$global:PageData.NoBackArrow) {
-            $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
-            if ($global:PageData.ShowBack -and ($WebEvent.Query.Count -eq 1) -and ($WebEvent.Query.ContainsKey(''))) {
-                $global:PageData.ShowBack = $false
-            }
-        }
-        else {
-            $global:PageData.ShowBack = $false
-        }
-
         # get auth details of a user
-        $authData = Get-PodeWebAuthData
-        $username = Get-PodeWebAuthUsername -AuthData $authData
-        $groups = Get-PodeWebAuthGroups -AuthData $authData
-        $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
-        $theme = Get-PodeWebTheme
+        $authEnabled = ![string]::IsNullOrEmpty((Get-PodeWebState -Name 'auth'))
+        $authMeta = $null
 
-        $authMeta = @{
-            Enabled       = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
-            Logout        = (Get-PodeWebState -Name 'auth-props').Logout
-            Authenticated = $authData.IsAuthenticated
-            Username      = $username
-            Groups        = $groups
-            Avatar        = $avatar
+        if ($authEnabled) {
+            $authData = Get-PodeAuthUser
+            $authMeta = @{
+                Enabled       = $true
+                Logout        = (Get-PodeWebState -Name 'auth-props').Logout
+                Authenticated = ($null -ne $authData)
+            }
+
+            if ($authMeta.Authenticated) {
+                $authMeta['Username'] = Get-PodeWebAuthUsername -User $authData
+                $authMeta['Groups'] = Get-PodeWebAuthGroups -User $authData
+                $authMeta['Avatar'] = Get-PodeWebAuthAvatarUrl -User $authData
+            }
         }
 
         # check access - 403 if denied
@@ -452,11 +448,27 @@ function Add-PodeWebPage {
         }
 
         else {
+            # show a back arrow?
+            if (!$global:PageData.NoBackArrow) {
+                $global:PageData.ShowBack = (($null -ne $WebEvent.Query) -and ($WebEvent.Query.Count -gt 0))
+                if ($global:PageData.ShowBack -and ($WebEvent.Query.Count -eq 1) -and ($WebEvent.Query.ContainsKey(''))) {
+                    $global:PageData.ShowBack = $false
+                }
+            }
+            else {
+                $global:PageData.ShowBack = $false
+            }
+
+            # render the page
             Write-PodeWebViewResponse -Path 'index' -Data @{
                 Page        = $global:PageData
                 Title       = $global:PageData.Title
                 DisplayName = $global:PageData.DisplayName
-                Theme       = $theme
+                Theme       = (Get-PodeWebTheme)
+                Sessions    = @{
+                    Enabled = (Test-PodeSessionsEnabled)
+                    Tabs    = !(Test-PodeSessionScopeIsBrowser)
+                }
                 Auth        = $authMeta
             }
         }
@@ -469,15 +481,17 @@ function Add-PodeWebPage {
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
 
         # get auth details of a user
-        $authData = Get-PodeWebAuthData
-        $username = Get-PodeWebAuthUsername -AuthData $authData
-        $groups = Get-PodeWebAuthGroups -AuthData $authData
+        $authEnabled = ![string]::IsNullOrEmpty((Get-PodeWebState -Name 'auth'))
+        $authMeta = $null
 
-        $authMeta = @{
-            Enabled       = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
-            Authenticated = $authData.IsAuthenticated
-            Username      = $username
-            Groups        = $groups
+        if ($authEnabled) {
+            $authData = Get-PodeAuthUser
+            if ($null -ne $authData) {
+                $authMeta = @{
+                    Username = (Get-PodeWebAuthUsername -User $authData)
+                    Groups   = (Get-PodeWebAuthGroups -User $authData)
+                }
+            }
         }
 
         # check access - 403 if denied
@@ -510,15 +524,17 @@ function Add-PodeWebPage {
             $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
 
             # get auth details of a user
-            $authData = Get-PodeWebAuthData
-            $username = Get-PodeWebAuthUsername -AuthData $authData
-            $groups = Get-PodeWebAuthGroups -AuthData $authData
+            $authEnabled = ![string]::IsNullOrEmpty((Get-PodeWebState -Name 'auth'))
+            $authMeta = $null
 
-            $authMeta = @{
-                Enabled       = ![string]::IsNullOrWhiteSpace((Get-PodeWebState -Name 'auth'))
-                Authenticated = $authData.IsAuthenticated
-                Username      = $username
-                Groups        = $groups
+            if ($authEnabled) {
+                $authData = Get-PodeAuthUser
+                if ($null -ne $authData) {
+                    $authMeta = @{
+                        Username = (Get-PodeWebAuthUsername -User $authData)
+                        Groups   = (Get-PodeWebAuthGroups -User $authData)
+                    }
+                }
             }
 
             # check access - 403 if denied

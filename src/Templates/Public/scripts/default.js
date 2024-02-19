@@ -5,24 +5,30 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
 });
 
 var MIN_INT32 = (1 << 31);
-var MAX_INT32 = ((2**31) - 1);
+var MAX_INT32 = ((2 ** 31) - 1);
 
-
-(function() {
+var tooltips = function() {
     $('[data-toggle="tooltip"]').tooltip();
-})();
+};
+tooltips();
 
 var pageLoaded = false;
 $(() => {
+    // don't load the page multiple time
     if (pageLoaded) {
         return;
     }
     pageLoaded = true;
 
+    // check theme
     if (checkAutoTheme()) {
         return;
     }
 
+    // sessions
+    setSessionTabId();
+
+    // load content
     sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, (res, sender) => {
         mapElementThemes();
 
@@ -39,6 +45,39 @@ $(() => {
         bindPageGroupCollapse();
     });
 });
+
+function setSessionTabId() {
+    if (!testSessionTabsEnabled()) {
+        return;
+    }
+
+    // set TabId
+    if (window.sessionStorage.TabId) {
+        window.TabId = window.sessionStorage.TabId;
+        window.sessionStorage.removeItem("TabId");
+    }
+    else {
+        window.TabId = generateUuid();
+    }
+
+    // binding to persist TabId on refresh
+    window.addEventListener("beforeunload", function(e) {
+        window.sessionStorage.TabId = window.TabId;
+        return null;
+    });
+}
+
+function getSessionTabId() {
+    if (!testSessionTabsEnabled()) {
+        return null;
+    }
+
+    return window.TabId;
+}
+
+function testSessionTabsEnabled() {
+    return ($('body').attr('pode-session-tabs') === 'True')
+}
 
 function getUrl(subpath) {
     subpath = subpath ?? '';
@@ -233,7 +272,7 @@ function newFormData(inputs) {
             continue;
         }
 
-        switch(input.type.toLowerCase()) {
+        switch (input.type.toLowerCase()) {
             case 'file':
                 if (input.files.length > 0) {
                     data.append(input.name, input.files[0], input.files[0].name);
@@ -361,6 +400,13 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     opts.method = opts.method ?? 'post';
     opts.successCallbackBefore = opts.successCallbackBefore ?? false;
 
+    // custom headers
+    var headers = {};
+
+    if (testSessionTabsEnabled()) {
+        headers['X-PODE-SESSION-TAB-ID'] = getSessionTabId();
+    }
+
     // make the call
     $.ajax({
         url: url,
@@ -371,6 +417,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
         contentType: opts.contentType,
         mimeType: opts.mimeType,
         timeout: 0,
+        headers: headers,
         xhrFields: {
             responseType: 'blob'
         },
@@ -550,7 +597,7 @@ function getCellValue(row, index) {
 }
 
 function isNumeric(value) {
-    return (typeof(value) == 'number' || (typeof(value) == 'string' && value.match(/^\d+$/) != null));
+    return (typeof (value) == 'number' || (typeof (value) == 'string' && value.match(/^\d+$/) != null));
 }
 
 function bindPageGroupCollapse() {
@@ -715,7 +762,7 @@ function delay(callback, ms) {
     return function() {
         var context = this, args = arguments;
         clearTimeout(timer);
-        timer = setTimeout(function () {
+        timer = setTimeout(function() {
             callback.apply(context, args);
         }, ms || 0);
     };
@@ -884,7 +931,7 @@ function convertToArray(element) {
     return Array.isArray(element) ? element : [element];
 }
 
-function searchArray(array, element, caseInsensitive) {;
+function searchArray(array, element, caseInsensitive) {
     return convertToArray(array).find((item) => {
         return caseInsensitive
             ? item.toLowerCase() === element.toLowerCase()
@@ -1015,7 +1062,7 @@ function hexToRgb(hex) {
 }
 
 function getTimeString() {
-    return (new Date()).toLocaleTimeString().split(':').slice(0,2).join(':');
+    return (new Date()).toLocaleTimeString().split(':').slice(0, 2).join(':');
 }
 
 function actionHref(action) {
@@ -1206,7 +1253,7 @@ function invokeEvent(type, sender) {
 }
 
 function generateUuid() {
-    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
 }
