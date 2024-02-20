@@ -5,7 +5,14 @@
         AppPath = $data.AppPath
     })
 
-    <body id="normal-page" pode-page-id="$($data.Page.ID)" pode-theme="$($data.Theme)" pode-app-path="$($data.AppPath)" $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
+    <body
+        id="normal-page"
+        pode-page-id="$($data.Page.ID)"
+        pode-theme="$($data.Theme)"
+        $(if ($data.Sessions.Enabled) { "pode-session-tabs='$($data.Sessions.Tabs)'" })
+        pode-app-path="$($data.AppPath)"
+        $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
+
         $(
             if (!$data.Page.NoNavigation) {
                 Use-PodeWebPartialView -Path 'shared/navbar' -Data @{

@@ -12,7 +12,6 @@ examples/issues/
 pkg/
 yarn.lock
 min-maps/
-.vscode/
 
 
 # Code Runner

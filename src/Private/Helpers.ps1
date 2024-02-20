@@ -15,40 +15,38 @@ function Get-PodeWebAuthData {
 function Get-PodeWebAuthUsername {
     param(
         [Parameter()]
-        $AuthData
+        $User
     )
 
-    # nothing if no auth data
-    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+    # nothing if no user
+    if ($null -eq $User) {
         return [string]::Empty
     }
 
-    $user = $AuthData.User
-
     # check username prop
     $prop = (Get-PodeWebState -Name 'auth-props').Username
-    if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
-        return $user.$prop
+    if (![string]::IsNullOrEmpty($prop) -and ![string]::IsNullOrEmpty($User.$prop)) {
+        return $User.$prop
     }
 
     # name
-    if (![string]::IsNullOrWhiteSpace($user.Name)) {
-        return $user.Name
+    if (![string]::IsNullOrEmpty($User.Name)) {
+        return $User.Name
     }
 
     # full name
-    if (![string]::IsNullOrWhiteSpace($user.FullName)) {
-        return $user.FullName
+    if (![string]::IsNullOrEmpty($User.FullName)) {
+        return $User.FullName
     }
 
     # username
-    if (![string]::IsNullOrWhiteSpace($user.Username)) {
-        return $user.Username
+    if (![string]::IsNullOrEmpty($User.Username)) {
+        return $User.Username
     }
 
     # email - split on @ though
-    if (![string]::IsNullOrWhiteSpace($user.Email)) {
-        return ($user.Email -split '@')[0]
+    if (![string]::IsNullOrEmpty($User.Email)) {
+        return ($User.Email -split '@')[0]
     }
 
     # nothing
@@ -58,35 +56,33 @@ function Get-PodeWebAuthUsername {
 function Get-PodeWebAuthGroups {
     param(
         [Parameter()]
-        $AuthData
+        $User
     )
 
     # nothing if no auth data
-    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+    if ($null -eq $User) {
         return @()
     }
 
-    $user = $AuthData.User
-
     # check group prop
     $prop = (Get-PodeWebState -Name 'auth-props').Group
-    if (![string]::IsNullOrWhiteSpace($prop) -and !(Test-PodeWebArrayEmpty -Array $user.$prop)) {
-        return @($user.$prop)
+    if (![string]::IsNullOrEmpty($prop) -and !(Test-PodeWebArrayEmpty -Array $User.$prop)) {
+        return @($User.$prop)
     }
 
     # groups
-    if (!(Test-PodeWebArrayEmpty -Array $user.Groups)) {
-        return @($user.Groups)
+    if (!(Test-PodeWebArrayEmpty -Array $User.Groups)) {
+        return @($User.Groups)
     }
 
     # roles
-    if (!(Test-PodeWebArrayEmpty -Array $user.Roles)) {
-        return @($user.Roles)
+    if (!(Test-PodeWebArrayEmpty -Array $User.Roles)) {
+        return @($User.Roles)
     }
 
     # scopes
-    if (!(Test-PodeWebArrayEmpty -Array $user.Scopes)) {
-        return @($user.Scopes)
+    if (!(Test-PodeWebArrayEmpty -Array $User.Scopes)) {
+        return @($User.Scopes)
     }
 
     # nothing
@@ -96,25 +92,23 @@ function Get-PodeWebAuthGroups {
 function Get-PodeWebAuthAvatarUrl {
     param(
         [Parameter()]
-        $AuthData
+        $User
     )
 
     # nothing if no auth data
-    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+    if ($null -eq $User) {
         return [string]::Empty
     }
 
-    $user = $AuthData.User
-
     # nothing if no property set
     $prop = (Get-PodeWebState -Name 'auth-props').Avatar
-    if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
-        return (Add-PodeWebAppPath -Url $user.$prop)
+    if (![string]::IsNullOrEmpty($prop) -and ![string]::IsNullOrEmpty($User.$prop)) {
+        return (Add-PodeWebAppPath -Url $User.$prop)
     }
 
     # avatar url
-    if (![string]::IsNullOrWhiteSpace($user.AvatarUrl)) {
-        return (Add-PodeWebAppPath -Url $user.AvatarUrl)
+    if (![string]::IsNullOrEmpty($User.AvatarUrl)) {
+        return (Add-PodeWebAppPath -Url $User.AvatarUrl)
     }
 
     return [string]::Empty
@@ -123,25 +117,23 @@ function Get-PodeWebAuthAvatarUrl {
 function Get-PodeWebAuthTheme {
     param(
         [Parameter()]
-        $AuthData
+        $User
     )
 
     # nothing if no auth data
-    if (($null -eq $AuthData) -or ($null -eq $AuthData.User)) {
+    if ($null -eq $User) {
         return $null
     }
 
-    $user = $AuthData.User
-
     # nothing if no property set
     $prop = (Get-PodeWebState -Name 'auth-props').Theme
-    if (![string]::IsNullOrWhiteSpace($prop) -and ![string]::IsNullOrWhiteSpace($user.$prop)) {
-        return $user.$prop
+    if (![string]::IsNullOrEmpty($prop) -and ![string]::IsNullOrEmpty($User.$prop)) {
+        return $User.$prop
     }
 
     # theme
-    if (![string]::IsNullOrWhiteSpace($user.Theme)) {
-        return $user.Theme
+    if (![string]::IsNullOrEmpty($User.Theme)) {
+        return $User.Theme
     }
 
     return [string]::Empty
@@ -197,6 +189,11 @@ function Test-PodeWebPageAccess {
     # if page has no access restriction, just return
     if (!$hasGroups -and !$hasUsers) {
         return $true
+    }
+
+    # if no auth object, just return
+    if ($null -eq $Auth) {
+        return $false
     }
 
     # check groups
