@@ -1,4 +1,5 @@
 Import-Module Pode -MaximumVersion 2.99.99 -Force
+# Import-Module ..\..\Pode\src\Pode.psm1 -Force
 Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer -StatusPageExceptions Show {

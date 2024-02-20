@@ -180,7 +180,7 @@ function Get-PodeWebTheme {
 
     # check auth data
     if ([string]::IsNullOrWhiteSpace($theme)) {
-        $theme = Get-PodeWebAuthTheme -AuthData (Get-PodeWebAuthData)
+        $theme = Get-PodeWebAuthTheme -User (Get-PodeAuthUser)
     }
 
     # check state

@@ -6,7 +6,7 @@ class PodeElementFactory {
     static classMap = new Map();
     static objMap = new Map();
 
-    constructor() {}
+    constructor() { }
 
     static setClass(clazz) {
         this.classMap.set(clazz.type.toLowerCase(), clazz);
@@ -231,7 +231,7 @@ class PodeElement {
         }
 
         // build data, or use new-icon data?
-        if (typeof(data) === 'string') {
+        if (typeof (data) === 'string') {
             data = {
                 ID: `${this.id}_icon`,
                 Name: data
@@ -281,11 +281,11 @@ class PodeElement {
             case 'style':
                 switch (action) {
                     case 'add':
-                        this.addStyle(data.Key, data.Value, sender, {...data, ...opts});
+                        this.addStyle(data.Key, data.Value, sender, { ...data, ...opts });
                         break;
 
                     case 'remove':
-                        this.removeStyle(data.Key, sender, {...data, ...opts});
+                        this.removeStyle(data.Key, sender, { ...data, ...opts });
                         break;
                 }
                 break;
@@ -293,19 +293,19 @@ class PodeElement {
             case 'class':
                 switch (action) {
                     case 'add':
-                        this.addClass(data.Value, sender, {...data, ...opts});
+                        this.addClass(data.Value, sender, { ...data, ...opts });
                         break;
 
                     case 'remove':
-                        this.removeClass(data.Value, sender, {...data, ...opts});
+                        this.removeClass(data.Value, sender, { ...data, ...opts });
                         break;
 
                     case 'rename':
-                        this.replaceClass(data.From, data.To, sender, {...data, ...opts});
+                        this.replaceClass(data.From, data.To, sender, { ...data, ...opts });
                         break;
 
                     case 'switch':
-                        this.toggleClass(data.Value, data.State, sender, {...data, ...opts})
+                        this.toggleClass(data.Value, data.State, sender, { ...data, ...opts })
                         break;
                 }
                 break;
@@ -313,7 +313,7 @@ class PodeElement {
             case 'validation':
                 switch (action) {
                     case 'show':
-                        this.showValidation(data.Message, sender, {...data, ...opts});
+                        this.showValidation(data.Message, sender, { ...data, ...opts });
                         break;
                 }
                 break;
@@ -321,11 +321,11 @@ class PodeElement {
             case 'attribute':
                 switch (action) {
                     case 'add':
-                        this.addAttribute(data.Key, data.Value, sender, {...data, ...opts})
+                        this.addAttribute(data.Key, data.Value, sender, { ...data, ...opts })
                         break;
 
                     case 'remove':
-                        this.removeAttribute(data.Key, sender, {...data, ...opts});
+                        this.removeAttribute(data.Key, sender, { ...data, ...opts });
                         break;
                 }
                 break;
@@ -926,7 +926,7 @@ class PodeElement {
     }
 
     toggleClass(clazz, state, sender, opts) {
-        if (typeof(state) === 'string') {
+        if (typeof (state) === 'string') {
             state = ({
                 toggle: null,
                 add: true,
@@ -1010,7 +1010,7 @@ class PodeElement {
     update(data, sender, opts) {
         // update icon
         if (this.icon && data.Icon) {
-            if (typeof(data.Icon) === 'string') {
+            if (typeof (data.Icon) === 'string') {
                 this.icon.replace(data.Icon);
             }
             else {
@@ -1109,7 +1109,7 @@ class PodeCyclingElement extends PodeContentElement {
             }
 
             this.cycling.action = setInterval(() => {
-                this.move({Direction: 'next'}, this);
+                this.move({ Direction: 'next' }, this);
             }, this.cycling.interval);
         }
     }
@@ -1292,7 +1292,7 @@ class PodeFormElement extends PodeContentElement {
 
                     html = `<${lblTag}
                         for='${this.id}'
-                        class='col-sm-2 col-form-label ${this.label.asLegend ? 'float-sm-left pt-0' : '' }'>
+                        class='col-sm-2 col-form-label ${this.label.asLegend ? 'float-sm-left pt-0' : ''}'>
                             ${data.DisplayName}
                     </${lblTag}>
                     ${html}`;
@@ -1870,7 +1870,7 @@ class PodeButton extends PodeFormElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.iconOnly =  data.IconOnly;
+        this.iconOnly = data.IconOnly;
         this.validation = false;
         this.label.enabled = false;
     }
@@ -2256,7 +2256,7 @@ class PodeCard extends PodeContentElement {
     bind(data, sender, opts) {
         super.bind(data, sender, opts);
 
-        this.listen(this.element.find('.pode-card-collapse'), 'click' , function(e, target) {
+        this.listen(this.element.find('.pode-card-collapse'), 'click', function(e, target) {
             toggleIcon(target, 'eye-outline', 'eye-off-outline', 'Hide', 'Show');
             target.closest('.card').find('.card-body').slideToggle();
             unfocus(target);
@@ -3324,7 +3324,7 @@ class PodeTextbox extends PodeFormElement {
                     ? JSON.stringify(data.Value)
                     : JSON.stringify(data.Value, null, 4);
             }
-        
+
             this.element.val(data.Value);
         }
 
@@ -3493,7 +3493,7 @@ class PodeCodeBlock extends PodeTextualElement {
     bind(data, sender, opts) {
         super.bind(data, sender, opts);
         var obj = this;
-        
+
         this.listen(this.element.find('.pode-code-copy'), 'click', function(e, target) {
             obj.tooltip(false, target);
             var value = obj.element.find('code').text().trim();
@@ -4119,12 +4119,12 @@ class PodeCodeEditor extends PodeContentElement {
         var obj = this;
 
         var src = $('script[role="monaco"]').attr('src');
-        require.config({ paths: { 'vs': src.substring(0, src.lastIndexOf('/')) }});
+        require.config({ paths: { 'vs': src.substring(0, src.lastIndexOf('/')) } });
 
         // create the editors
         require(["vs/editor/editor.main"], function() {
             if (!obj.theme) {
-                switch(getPodeTheme()) {
+                switch (getPodeTheme()) {
                     case 'dark':
                         obj.theme = 'vs-dark';
                         break;
@@ -4715,7 +4715,7 @@ class PodeSelect extends PodeFormElement {
 
             options += `<option
                 value='${opt}'
-                ${selectedValue.includes(opt) ? 'selected' : '' }>
+                ${selectedValue.includes(opt) ? 'selected' : ''}>
                     ${data.DisplayOptions[index]}
             </option>`;
         });
@@ -4765,7 +4765,7 @@ class PodeSelect extends PodeFormElement {
             data.Options.forEach((opt, index) => {
                 this.element.append(`<option
                     value="${opt}"
-                    ${data.SelectedValue.includes(opt) ? 'selected' : '' }>
+                    ${data.SelectedValue.includes(opt) ? 'selected' : ''}>
                         ${data.DisplayOptions[index]}
                 </option>`);
             });
