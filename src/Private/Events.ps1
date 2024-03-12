@@ -47,7 +47,7 @@ function Register-PodeWebElementEventInternal {
     $Element.Events += $Type.ToLowerInvariant()
 
     # setup the route
-    $routePath = "/elements/$($Element.ObjectType.ToLowerInvariant())/$($Element.ID)/events/$($Type.ToLowerInvariant())"
+    $routePath = "/pode.web-dynamic/elements/$($Element.ObjectType.ToLowerInvariant())/$($Element.ID)/events/$($Type.ToLowerInvariant())"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSSession
@@ -75,7 +75,7 @@ function Register-PodeWebElementEventInternal {
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
-            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+            if (($null -ne $result) -and !$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
 
@@ -133,12 +133,7 @@ function Register-PodeWebPageEventInternal {
     $Page.Events += $Type.ToLowerInvariant()
 
     # setup the route
-    $pagePath = $Page.Path
-    if ($pagePath -eq '/') {
-        $pagePath = '/home'
-    }
-
-    $routePath = "$($pagePath)/events/$($Type.ToLowerInvariant())"
+    $routePath = "/pode.web-dynamic/pages/$($Page.ID)/events/$($Type.ToLowerInvariant())"
 
     if (!(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
@@ -167,7 +162,7 @@ function Register-PodeWebPageEventInternal {
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
-            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+            if (($null -ne $result) -and !$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
 

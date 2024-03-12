@@ -10,7 +10,8 @@
         pode-page-id="$($data.Page.ID)"
         pode-theme="$($data.Theme)"
         $(if ($data.Sessions.Enabled) { "pode-session-tabs='$($data.Sessions.Tabs)'" })
-        pode-app-path="$($data.AppPath)"
+        $(if ($data.AppPath) { "pode-app-path='$($data.AppPath)'" })
+        pode-comm-type="$($data.Page.CommunicationType)"
         style="background-image: url('$($data.Background.Image)'); background-repeat: no-repeat; background-size: cover"
         $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
 

@@ -403,14 +403,17 @@ function Protect-PodeWebValues {
     )
 
     if (($null -eq $Value) -or ($Value.Length -eq 0)) {
-        if ($Encode -and ($null -ne $Default) -and ($Default.Length -gt 0)) {
+        if (($null -eq $Default) -or ($Default.Length -eq 0)) {
+            return
+        }
+
+        if ($Encode) {
             return @(foreach ($v in $Default) {
                     [System.Net.WebUtility]::HtmlEncode($v)
                 })
         }
-        else {
-            return $Default
-        }
+
+        return $Default
     }
 
     if ($EqualCount -and ($Value.Length -ne $Default.Length)) {
@@ -685,6 +688,7 @@ function Test-PodeWebContent {
         $Content,
 
         [Parameter()]
+        [ValidateSet('Element', 'Layout', 'Navigation', 'Page', 'Group')]
         [string[]]
         $ComponentType,
 
@@ -701,7 +705,7 @@ function Test-PodeWebContent {
     # ensure the content ComponentTypes are correct
     if (!(Test-PodeWebArrayEmpty -Array $ComponentType)) {
         foreach ($item in $Content) {
-            if ($item.ComponentType -inotin $ComponentType) {
+            if (($item.ComponentType -inotin $ComponentType) -and ($item.Reference.ComponentType -inotin $ComponentType)) {
                 return $false
             }
         }
@@ -710,7 +714,7 @@ function Test-PodeWebContent {
     # ensure the content elements are correct
     if (!(Test-PodeWebArrayEmpty -Array $ObjectType)) {
         foreach ($item in $Content) {
-            if ($item.ObjectType -inotin $ObjectType) {
+            if (($item.ObjectType -inotin $ObjectType) -and ($item.Reference.ObjectType -inotin $ObjectType)) {
                 return $false
             }
         }

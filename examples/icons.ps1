@@ -1,5 +1,5 @@
 Import-Module Pode -MaximumVersion 2.99.99 -Force
-Import-Module ..\src\Pode.Web.psm1 -Force
+Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer -Threads 2 {
     # add a simple endpoint
@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Inputs' -Theme Dark
+    Use-PodeWebTemplates -Title 'Icons' -Theme Dark
 
     # set the home page controls
     $card1 = New-PodeWebCard -Content @(
@@ -29,9 +29,9 @@ Start-PodeServer -Threads 2 {
         New-PodeWebTable -Name Example -ScriptBlock {
             return @{
                 Icon = (New-PodeWebIcon -Name 'refresh' -Spin -Colour Yellow |
-                    Register-PodeWebEvent -Type Click -ScriptBlock {
-                        Show-PodeWebToast -Message 'Spinning icon clicked!'
-                    })
+                        Register-PodeWebEvent -Type Click -ScriptBlock {
+                            Show-PodeWebToast -Message 'Spinning icon clicked!'
+                        })
             }
         }
     )

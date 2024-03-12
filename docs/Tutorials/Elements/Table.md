@@ -1,8 +1,8 @@
 # Table
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
 You can display data rendered in a table by using [`New-PodeWebTable`](../../../Functions/Elements/New-PodeWebTable), and you can also render certain other elements within a table such as:
 
@@ -70,12 +70,12 @@ New-PodeWebContainer -Content @(
                     New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
                         Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
                         Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
-                        Sync-PodeWebTable -Id $ElementData.Parent.ID
+                        Sync-PodeWebTable -Id $ParentData.ID
                     }
                     New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
                         Start-Service -Name $WebEvent.Data.Value -Force | Out-Null
                         Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
-                        Sync-PodeWebTable -Id $ElementData.Parent.ID
+                        Sync-PodeWebTable -Id $ParentData.ID
                     }
                 )
             }

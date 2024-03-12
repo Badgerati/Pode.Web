@@ -23,7 +23,7 @@ Start-PodeServer {
             $bgColour = (@('Green', 'Yellow', 'Blue', $null))[$index]
             $colour = (@('White', 'Black', 'White', $null))[$index]
 
-            $data | Update-PodeWebTableRow -Id $ElementData.Parent.ID -DataValue $WebEvent.Data['value'] -BackgroundColour $bgColour -Colour $colour
+            $data | Update-PodeWebTableRow -Id $ParentData.ID -DataValue $WebEvent.Data['value'] -BackgroundColour $bgColour -Colour $colour
         }
 
         # load all catfacts

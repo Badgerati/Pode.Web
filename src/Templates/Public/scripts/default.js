@@ -4,8 +4,11 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
-var MIN_INT32 = (1 << 31);
-var MAX_INT32 = ((2 ** 31) - 1);
+const MIN_INT32 = (1 << 31);
+const MAX_INT32 = ((2 ** 31) - 1);
+
+var CLIENT_ID = null;
+var CONNECTION_SENDER_MAP = {};
 
 var tooltips = function() {
     $('[data-toggle="tooltip"]').tooltip();
@@ -28,6 +31,9 @@ $(() => {
     // sessions
     setSessionTabId();
 
+    // setup sse connection
+    connectSse();
+
     // load content
     sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, (res, sender) => {
         mapElementThemes();
@@ -45,6 +51,50 @@ $(() => {
         bindPageGroupCollapse();
     });
 });
+
+function connectSse() {
+    if (!testConnectOverSse()) {
+        return;
+    }
+
+    // create sse connection
+    const sse = new EventSource(`${getPageUrl('sse-open')}`);
+
+    // wire up open event, to store clientId
+    sse.addEventListener('pode.open', (e) => {
+        CLIENT_ID = JSON.parse(e.data).clientId;
+    });
+
+    // wire up close event, to close sse connection
+    sse.addEventListener('pode.close', (e) => {
+        sse.close();
+    });
+
+    // wire up event for actions
+    sse.addEventListener('pode.web.action', (e) => {
+        invokeActions(JSON.parse(e.data));
+    });
+
+    // error event
+    sse.onerror = (e) => {
+        console.log(e);
+        sse.close();
+    };
+
+    // wire up beforeunload, to close connection server side
+    window.addEventListener("beforeunload", function(e) {
+        sendAjaxReq(`${getPageUrl('sse-close')}`, null, undefined, false);
+        return null;
+    });
+}
+
+function testConnectOverSse() {
+    return ($('body').attr('pode-comm-type') === 'sse');
+}
+
+function testCookie(name) {
+    return (document.cookie.match(`(;\s*)?${name}=`) != null);
+}
 
 function setSessionTabId() {
     if (!testSessionTabsEnabled()) {
@@ -76,7 +126,7 @@ function getSessionTabId() {
 }
 
 function testSessionTabsEnabled() {
-    return ($('body').attr('pode-session-tabs') === 'True')
+    return ($('body').attr('pode-session-tabs') === 'True');
 }
 
 function getUrl(subpath) {
@@ -386,7 +436,9 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
 
     // add app-path to url (for the likes of IIS)
     var appPath = $('body').attr('pode-app-path');
-    url = `${appPath}${url}`;
+    if (appPath) {
+        url = `${appPath}${url}`;
+    }
 
     // add current query string
     if (window.location.search) {
@@ -403,8 +455,22 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     // custom headers
     var headers = {};
 
+    // session tabId header
     if (testSessionTabsEnabled()) {
         headers['X-PODE-SESSION-TAB-ID'] = getSessionTabId();
+    }
+
+    // sse clientId header
+    if (CLIENT_ID != null) {
+        headers['X-PODE-CLIENTID'] = CLIENT_ID;
+    }
+
+    // generate connectionId if we have a sender
+    var connectionId = null;
+    if (sender != null) {
+        connectionId = generateUuid();
+        headers['X-PODE-WEB-CONNECTION-ID'] = connectionId;
+        CONNECTION_SENDER_MAP[connectionId] = sender
     }
 
     // make the call
@@ -436,7 +502,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
             // call success callback before actions
             if (successCallback && opts.successCallbackBefore) {
                 res.text().then((v) => {
-                    successCallback(JSON.parse(v), sender);
+                    successCallback(v ? JSON.parse(v) : null, sender);
                 });
             }
 
@@ -449,15 +515,20 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
             // run any actions, if we need to
             else if (useActions) {
                 res.text().then((v) => {
-                    invokeActions(JSON.parse(v), sender);
+                    invokeActions(v ? JSON.parse(v) : null, sender);
                 });
             }
 
             // call success callback after actions
             if (successCallback && !opts.successCallbackBefore) {
                 res.text().then((v) => {
-                    successCallback(JSON.parse(v), sender);
+                    successCallback(v ? JSON.parse(v) : null, sender);
                 });
+            }
+
+            // remove connection
+            if (connectionId != null) {
+                delete CONNECTION_SENDER_MAP[connectionId];
             }
         },
         error: function(err, msg, stack) {
@@ -479,6 +550,11 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
             // call error callback
             if (errorCallback) {
                 errorCallback(err, msg, stack, sender);
+            }
+
+            // remove connection
+            if (connectionId != null) {
+                delete CONNECTION_SENDER_MAP[connectionId];
             }
         }
     });
@@ -664,6 +740,10 @@ function invokeActions(actions, sender) {
     convertToArray(actions).forEach((action) => {
         if (!action) {
             return;
+        }
+
+        if (sender == null && action.ConnectionId != null) {
+            sender = CONNECTION_SENDER_MAP[action.ConnectionId];
         }
 
         var _type = (action.ObjectType ?? '').toLowerCase();
@@ -1244,8 +1324,8 @@ function invokeEvent(type, sender) {
     sender = $(sender);
 
     if (getTagName(sender) == null) {
-        var url = (window.location.pathname == '/' ? '/home' : window.location.pathname);
-        sendAjaxReq(`${url}/events/${type}`, null, sender, true);
+        var url = getPageUrl(`events/${type}`)
+        sendAjaxReq(url, null, sender, true);
     }
     else {
         PodeElementFactory.triggerObject(sender.attr('pode-id'), type);
@@ -1256,4 +1336,14 @@ function generateUuid() {
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
+}
+
+function mergeObjects(obj1, obj2, excludeProps) {
+    for (var key in obj2) {
+        if (!(key in obj1) && (excludeProps == null || excludeProps.length == 0 || excludeProps.indexOf(key) == -1)) {
+            obj1[key] = obj2[key];
+        }
+    }
+
+    return obj1;
 }

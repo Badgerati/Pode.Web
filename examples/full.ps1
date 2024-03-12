@@ -1,5 +1,4 @@
 Import-Module Pode -MaximumVersion 2.99.99 -Force
-# Import-Module ..\..\Pode\src\Pode.psm1 -Force
 Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer -StatusPageExceptions Show {
@@ -254,16 +253,18 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -SimpleSort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name $using:stopName -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
-            Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
+            # Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
+        $stopBtn | Out-PodeWebElement -AsReference
 
         $startBtn = New-PodeWebButton -Name $using:startName -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
-            Start-Service -Name $WebEvent.Data.Value | Out-Null
+            # Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
+        $startBtn | Out-PodeWebElement -AsReference
 
         $editBtn = New-PodeWebButton -Name $using:editName -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
@@ -273,6 +274,7 @@ Start-PodeServer -StatusPageExceptions Show {
                 Update-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
             )
         }
+        $editBtn | Out-PodeWebElement -AsReference
 
         $filter = "*$($WebEvent.Data.Filter)*"
 
@@ -281,12 +283,12 @@ Start-PodeServer -StatusPageExceptions Show {
                 continue
             }
 
-            $btns = @($editBtn)
+            $btns = @(Use-PodeWebElement -Element $editBtn)
             if ($svc.Status -ieq 'running') {
-                $btns += $stopBtn
+                $btns += (Use-PodeWebElement -Element $stopBtn)
             }
             else {
-                $btns += $startBtn
+                $btns += (Use-PodeWebElement -Element $startBtn)
             }
 
             [ordered]@{
@@ -310,7 +312,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -CommunicationType Http -Name Services -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return

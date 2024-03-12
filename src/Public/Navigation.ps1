@@ -49,6 +49,7 @@ function New-PodeWebNavLink {
     $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
 
     $nav = @{
+        Operation     = 'New'
         ComponentType = 'Navigation'
         ObjectType    = 'Nav-Link'
         Name          = $Name
@@ -67,7 +68,7 @@ function New-PodeWebNavLink {
         UsingVariables = $usingVars
     }
 
-    $routePath = "/elements/nav-link/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/nav-link/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
@@ -90,7 +91,7 @@ function New-PodeWebNavLink {
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
-            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+            if (($null -ne $result) -and !$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
 
@@ -136,6 +137,7 @@ function New-PodeWebNavDropdown {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Navigation'
         ObjectType    = 'Nav-Dropdown'
         Name          = $Name
@@ -154,6 +156,7 @@ function New-PodeWebNavDivider {
     param()
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Navigation'
         ObjectType    = 'Nav-Divider'
         InDropdown    = $false

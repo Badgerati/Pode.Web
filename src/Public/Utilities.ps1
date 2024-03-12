@@ -27,6 +27,11 @@ function Use-PodeWebTemplates {
         [string]
         $Security = 'Default',
 
+        [Parameter()]
+        [ValidateSet('SSE', 'Http')]
+        [string]
+        $CommunicationType = 'SSE',
+
         [switch]
         $NoPageFilter,
 
@@ -75,6 +80,7 @@ function Use-PodeWebTemplates {
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
+    Set-PodeWebState -Name 'comm-type' -Value $CommunicationType
 
     # themes
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()

@@ -5,6 +5,7 @@ const PODE_NAVIGATION = $('div#pode-nav-items ul.navbar-nav');
 class PodeElementFactory {
     static classMap = new Map();
     static objMap = new Map();
+    static referenceMap = new Map();
 
     constructor() { }
 
@@ -44,6 +45,23 @@ class PodeElementFactory {
         name = name.toLowerCase();
         action = action.toLowerCase();
 
+        // do we need to load a reference element's data?
+        if (action === 'use' && name === 'element' && data.Reference != null) {
+            name = data.Reference.ObjectType.toLowerCase();
+            action = 'new';
+
+            var refData = this.getReference(data.Reference.ID);
+            if (refData == null) {
+                throw `Reference element data not found for ${data.Reference.ID}`;
+            }
+
+            delete data['ObjectType'];
+            delete data['Operation'];
+            delete data['Reference'];
+
+            data = mergeObjects(data, refData);
+        }
+
         // invoke before base action event
         var detail = {
             action: action,
@@ -63,12 +81,22 @@ class PodeElementFactory {
         }));
         if (!process) { return; }
 
-        // invoke element action
-        var obj = this.findObject(name, action, data, sender, opts);
-        if (action === 'new' && obj.created) {
-            action = 'update';
+        // invoke the element action, or cache a reference
+        var asRef = ((data.Output ?? {}).AsReference ?? false);
+        var obj = null;
+        var html = null;
+
+        if (asRef) {
+            delete data['Output'];
+            this.setReference(data.ID, data);
         }
-        var html = obj.refresh(action).apply(action, data, sender, opts);
+        else {
+            obj = this.findObject(name, action, data, sender, opts);
+            if (action === 'new' && obj.created) {
+                action = 'update';
+            }
+            html = obj.refresh(action).apply(action, data, sender, opts);
+        }
 
         // invoke after element action event
         var process = document.body.dispatchEvent(new CustomEvent(`pode:element.${name.toLowerCase()}.action.after`, {
@@ -90,7 +118,7 @@ class PodeElementFactory {
     }
 
     static findObject(name, action, data, sender, opts) {
-        name = name === 'element' && data.Type ? data.Type : name;
+        name = (name === 'element' && data.Type ? data.Type : name).toLowerCase();
         var clazz = this.getClass(name) ?? PodeElement;
 
         var obj = clazz.findId(data, sender, null, opts);
@@ -116,6 +144,14 @@ class PodeElementFactory {
         return this.objMap.get(id);
     }
 
+    static setReference(id, data) {
+        this.referenceMap.set(id, data);
+    }
+
+    static getReference(id) {
+        return this.referenceMap.get(id);
+    }
+
     static triggerObject(id, evt) {
         return this.getObject(id).trigger(evt, true);
     }
@@ -134,6 +170,7 @@ class PodeElement {
         this.uuid = generateUuid();
         this.created = false;
         this.loading = false;
+        this.hasSpinner = false;
         this.ephemeral = (opts.ephemeral ?? false);
         this.dynamic = data.IsDynamic ?? false;
         this.autoRender = opts.autoRender ?? true;
@@ -143,7 +180,7 @@ class PodeElement {
         this.element = null;
         this.container = null;
         this.icon = null;
-        this.url = `/elements/${this.getType()}/${data.ID}`;
+        this.url = `/pode.web-dynamic/elements/${this.getType()}/${data.ID}`;
         this.disabled = data.Disabled ?? false;
         this.visible = data.Visible ?? true;
         this.title = data.Title ?? '';
@@ -580,7 +617,7 @@ class PodeElement {
             opts.child = opts.child ?? {};
             opts.child.isLast = () => { return index == content.length - 1; };
 
-            var result = PodeElementFactory.invokeClass(item.ObjectType, 'new', item, senderToUse, opts);
+            var result = PodeElementFactory.invokeClass(item.ObjectType, (item.Operation ?? 'new'), item, senderToUse, opts);
             created.push(result.element);
 
             // do we have any html?
@@ -677,7 +714,7 @@ class PodeElement {
     }
 
     spinner(show) {
-        if (!show && this.loading) {
+        if (!this.hasSpinner || (!show && this.loading)) {
             return;
         }
 
@@ -960,51 +997,51 @@ class PodeElement {
     }
 
     new(data, sender, opts) {
-        throw `${this.getType()} "new" method not implemented`
+        throw `${this.getType()} "new" method not implemented`;
     }
 
     move(data, sender, opts) {
-        throw `${this.getType()} "move" method not implemented`
+        throw `${this.getType()} "move" method not implemented`;
     }
 
     clear(data, sender, opts) {
-        throw `${this.getType()} "clear" method not implemented`
+        throw `${this.getType()} "clear" method not implemented`;
     }
 
     start(data, sender, opts) {
-        throw `${this.getType()} "start" method not implemented`
+        throw `${this.getType()} "start" method not implemented`;
     }
 
     stop(data, sender, opts) {
-        throw `${this.getType()} "stop" method not implemented`
+        throw `${this.getType()} "stop" method not implemented`;
     }
 
     restart(data, sender, opts) {
-        throw `${this.getType()} "restart" method not implemented`
+        throw `${this.getType()} "restart" method not implemented`;
     }
 
     set(data, sender, opts) {
-        throw `${this.getType()} "set" method not implemented`
+        throw `${this.getType()} "set" method not implemented`;
     }
 
     add(data, sender, opts) {
-        throw `${this.getType()} "add" method not implemented`
+        throw `${this.getType()} "add" method not implemented`;
     }
 
     remove(data, sender, opts) {
-        throw `${this.getType()} "remove" method not implemented`
+        throw `${this.getType()} "remove" method not implemented`;
     }
 
     open(data, sender, opts) {
-        throw `${this.getType()} "open" method not implemented`
+        throw `${this.getType()} "open" method not implemented`;
     }
 
     close(data, sender, opts) {
-        throw `${this.getType()} "close" method not implemented`
+        throw `${this.getType()} "close" method not implemented`;
     }
 
     switch(data, sender, opts) {
-        throw `${this.getType()} "switch" method not implemented`
+        throw `${this.getType()} "switch" method not implemented`;
     }
 
     update(data, sender, opts) {
@@ -1168,6 +1205,8 @@ class PodeCyclingChildElement extends PodeContentElement {
 class PodeRefreshableElement extends PodeTextualElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        this.hasSpinner = true;
+
         this.refreshable = {
             enabled: !(data.NoRefresh ?? false)
         };
@@ -2577,7 +2616,7 @@ class PodeTable extends PodeRefreshableElement {
         }
 
         // invoke and load table content
-        sendAjaxReq(url, query, this.element, true, () => { this.loading = false; }, null, { successCallbackBefore: true });
+        sendAjaxReq(url, query, this.element, true, () => { this.loading = false; this.spinner(false); }, null, { successCallbackBefore: true });
         this.loading = true;
     }
 
@@ -4259,7 +4298,7 @@ class PodeChart extends PodeRefreshableElement {
         }
 
         // invoke and load chart content
-        sendAjaxReq(url, data, this.element, true, () => { this.loading = false }, null, { successCallbackBefore: true });
+        sendAjaxReq(url, data, this.element, true, () => { this.loading = false; this.spinner(false); }, null, { successCallbackBefore: true });
         this.loading = true;
     }
 
@@ -4876,14 +4915,14 @@ class PodeProgress extends PodeContentElement {
                 </div>
         </div>`;
 
-        if (data.DisplayName) {
+        if (!data.HideName && data.DisplayName) {
             html = `<div class='form-group row'>
                 <label for='${this.id}' class='col-sm-2 col-form-label'>${data.DisplayName}</label>
                 <div class='col-sm-10 my-auto'>${html}</div>
             </div>`;
         }
 
-        return `<span pode-container-for='${this.uuid}'>${html}<span>`;
+        return html;
     }
 
     load(data, sender, opts) {
@@ -4908,19 +4947,39 @@ class PodeProgress extends PodeContentElement {
         super.update(data, sender, opts);
 
         // value
-        if (data.Value) {
-            this.element.attr('aria-valuenow', data.Value);
-
-            var max = this.element.attr('aria-valuemax');
-            var percentage = (data.Value / max) * 100.0;
-
-            this.element.css('width', `${percentage}%`);
-        }
+        this.updateValue(data.Value);
 
         // colour
         if (data.Colour) {
             this.replaceClass('bg-\\w+', `bg-${data.ColourType}`, null, { pattern: true });
         }
+    }
+
+    reset(data, sender, opts) {
+        this.updateValue(0);
+    }
+
+    updateValue(value) {
+        if (value == null || value < 0 || value > 100) {
+            return;
+        }
+
+        this.element.attr('aria-valuenow', value);
+
+        var max = this.element.attr('aria-valuemax');
+        var percentage = value == 0 ? 0 : (value / max) * 100.0;
+
+        this.element.css('width', `${percentage}%`);
+    }
+
+    show(data, sender, opts) {
+        this.element.parent().show();
+        this.visible = true;
+    }
+
+    hide(data, sender, opts) {
+        this.element.parent().hide();
+        this.visible = false;
     }
 }
 PodeElementFactory.setClass(PodeProgress);

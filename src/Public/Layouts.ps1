@@ -26,6 +26,7 @@ function New-PodeWebGrid {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Grid'
         Cells         = $Cells
@@ -60,6 +61,7 @@ function New-PodeWebCell {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Cell'
         Content       = $Content
@@ -97,6 +99,7 @@ function New-PodeWebTabs {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Tabs'
         ID            = (Get-PodeWebElementId -Tag Tabs -Id $Id)
@@ -137,6 +140,7 @@ function New-PodeWebTab {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Tab'
         Name          = $Name
@@ -190,6 +194,7 @@ function New-PodeWebCard {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Card'
         Name          = $Name
@@ -226,6 +231,7 @@ function New-PodeWebContainer {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Container'
         ID            = (Get-PodeWebElementId -Tag Container -Id $Id)
@@ -310,7 +316,7 @@ function New-PodeWebModal {
     # generate ID
     $Id = Get-PodeWebElementId -Tag Modal -Id $Id -Name $Name
 
-    $routePath = "/elements/modal/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/modal/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -341,6 +347,7 @@ function New-PodeWebModal {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Modal'
         Name          = $Name
@@ -383,6 +390,7 @@ function New-PodeWebHero {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Hero'
         ID            = (Get-PodeWebElementId -Tag Hero -Id $Id)
@@ -409,6 +417,7 @@ function New-PodeWebCarousel {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Carousel'
         ID            = (Get-PodeWebElementId -Tag Carousel -Id $Id)
@@ -437,6 +446,7 @@ function New-PodeWebSlide {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Slide'
         Content       = $Content
@@ -487,7 +497,7 @@ function New-PodeWebSteps {
     $Id = Get-PodeWebElementId -Tag Steps -Id $Id -Name $Name
 
     # add route
-    $routePath = "/elements/steps/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/steps/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -518,6 +528,7 @@ function New-PodeWebSteps {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Steps'
         ID            = $Id
@@ -570,7 +581,7 @@ function New-PodeWebStep {
     $Id = Get-PodeWebElementId -Tag Step -Name $Name
 
     # add route
-    $routePath = "/elements/step/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/step/$($Id)"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -601,6 +612,7 @@ function New-PodeWebStep {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Step'
         Name          = $Name
@@ -638,6 +650,7 @@ function Set-PodeWebBreadcrumb {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Breadcrumb'
         Items         = $Items
@@ -665,6 +678,7 @@ function New-PodeWebBreadcrumbItem {
     )
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Breadcrumb-Item'
         Name          = $Name
@@ -712,6 +726,7 @@ function New-PodeWebAccordion {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Accordion'
         ID            = (Get-PodeWebElementId -Tag Accordion -Id $Id -Name $Name)
@@ -754,6 +769,7 @@ function New-PodeWebBellow {
     }
 
     return @{
+        Operation     = 'New'
         ComponentType = 'Layout'
         ObjectType    = 'Bellow'
         Name          = $Name
