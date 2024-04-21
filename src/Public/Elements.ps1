@@ -189,6 +189,7 @@ function New-PodeWebTextbox {
                 param($Element, $Parent, $Logic)
                 $global:ElementData = $Element
                 $global:ParentData = $Parent
+                Set-PodeWebMetadata
 
                 Write-PodeJsonResponse -Value @{
                     Values = (Invoke-PodeWebScriptBlock -Logic $Logic)
@@ -566,25 +567,33 @@ function New-PodeWebSelect {
             param($Data, $Element, $Parent, $Logic)
             $global:ElementData = $Element
             $global:ParentData = $Parent
+            Set-PodeWebMetadata
 
-            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
+            $result = @(Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data)
 
-            if (Test-PodeWebAsyncActions) {
+            $wrapped = $null
+            if (Test-PodeWebActionsAsync) {
                 if ($result.Length -gt 0) {
                     if ($null -eq $result[0]) {
                         $result = @()
                     }
 
-                    if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                        $result = ($result | Update-PodeWebSelect -Id $ElementData.ID)
-                    }
+                    $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
                 }
             }
             else {
-                if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                    $result = ($result | Update-PodeWebSelect -Id $ElementData.ID)
+                if ($null -eq $result) {
+                    $result = @()
                 }
+
+                $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
             }
+
+            if ($result.Length -gt 0) {
+                $result = ($result | Update-PodeWebSelect -Id $ElementData.ID)
+            }
+
+            $result = Join-PodeWebDynamicOutput -Wrapped $wrapped -Output $result
 
             if (($null -ne $result) -and ($result.Length -gt 0)) {
                 Write-PodeJsonResponse -Value $result
@@ -1469,6 +1478,7 @@ function New-PodeWebButton {
             param($Data, $Element, $Parent, $Logic)
             $global:ElementData = $Element
             $global:ParentData = $Parent
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
@@ -1962,25 +1972,33 @@ function New-PodeWebChart {
                 param($Data, $Element, $Parent, $Logic)
                 $global:ElementData = $Element
                 $global:ParentData = $Parent
+                Set-PodeWebMetadata
 
-                $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
+                $result = @(Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data)
 
-                if (Test-PodeWebAsyncActions) {
+                $wrapped = $null
+                if (Test-PodeWebActionsAsync) {
                     if ($result.Length -gt 0) {
                         if ($null -eq $result[0]) {
                             $result = @()
                         }
 
-                        if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                            $result = ($result | Update-PodeWebChart -Id $ElementData.ID)
-                        }
+                        $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
                     }
                 }
                 else {
-                    if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                        $result = ($result | Update-PodeWebChart -Id $ElementData.ID)
+                    if ($null -eq $result) {
+                        $result = @()
                     }
+
+                    $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
                 }
+
+                if ($result.Length -gt 0) {
+                    $result = ($result | Update-PodeWebChart -Id $ElementData.ID)
+                }
+
+                $result = Join-PodeWebDynamicOutput -Wrapped $wrapped -Output $result
 
                 if (($null -ne $result) -and ($result.Length -gt 0)) {
                     Write-PodeJsonResponse -Value $result
@@ -2288,6 +2306,7 @@ function New-PodeWebTable {
                 param($Data, $Element, $Parent, $Logic)
                 $global:ElementData = $Element
                 $global:ParentData = $Parent
+                Set-PodeWebMetadata
 
                 $csvFilePath = $Data.CsvPath
                 if ([string]::IsNullOrWhiteSpace($csvFilePath)) {
@@ -2303,36 +2322,14 @@ function New-PodeWebTable {
                     }
                 }
 
-                if (Test-PodeWebAsyncActions) {
+                $wrapped = $null
+                if (Test-PodeWebActionsAsync) {
                     if ($result.Length -gt 0) {
                         if ($null -eq $result[0]) {
                             $result = @()
                         }
 
-                        for ($i = 0; $i -lt $result.Length; $i++) {
-                            if (!(Test-PodeWebOutputWrapped -Output $result[$i])) {
-                                break
-                            }
-                        }
-
-                        $wrapped = @()
-                        if ($i -gt 0) {
-                            $wrapped = $result[0..($i - 1)]
-
-                            if ($i -lt $result.Length) {
-                                $result = $result[$i..($result.Length - 1)]
-                            }
-                            else {
-                                $result = @()
-                            }
-                        }
-
-                        if ($result.Length -gt 0) {
-                            $paginate = $ElementData.Paging.Enabled
-                            $result = ($result | Update-PodeWebTable -Id $ElementData.ID -Columns $ElementData.Columns -Paginate:$paginate)
-                        }
-
-                        $result = $wrapped + $result
+                        $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
                     }
                 }
                 else {
@@ -2340,31 +2337,15 @@ function New-PodeWebTable {
                         $result = @()
                     }
 
-                    for ($i = 0; $i -lt $result.Length; $i++) {
-                        if (!(Test-PodeWebOutputWrapped -Output $result[$i])) {
-                            break
-                        }
-                    }
-
-                    $wrapped = @()
-                    if ($i -gt 0) {
-                        $wrapped = $result[0..($i - 1)]
-
-                        if ($i -lt $result.Length) {
-                            $result = $result[$i..($result.Length - 1)]
-                        }
-                        else {
-                            $result = @()
-                        }
-                    }
-
-                    if ($result.Length -gt 0) {
-                        $paginate = $ElementData.Paging.Enabled
-                        $result = ($result | Update-PodeWebTable -Id $ElementData.ID -Columns $ElementData.Columns -Paginate:$paginate)
-                    }
-
-                    $result = $wrapped + $result
+                    $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
                 }
+
+                if ($result.Length -gt 0) {
+                    $paginate = $ElementData.Paging.Enabled
+                    $result = ($result | Update-PodeWebTable -Id $ElementData.ID -Columns $ElementData.Columns -Paginate:$paginate)
+                }
+
+                $result = Join-PodeWebDynamicOutput -Wrapped $wrapped -Output $result
 
                 if (($null -ne $result) -and ($result.Length -gt 0)) {
                     Write-PodeJsonResponse -Value $result
@@ -2396,6 +2377,7 @@ function New-PodeWebTable {
                 param($Data, $Element, $Parent, $Logic)
                 $global:ElementData = $Element
                 $global:ParentData = $Parent
+                Set-PodeWebMetadata
 
                 $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
@@ -2533,6 +2515,7 @@ function Add-PodeWebTableButton {
             param($Data, $Element, $Parent, $Logic)
             $global:ElementData = $Element
             $global:ParentData = $Parent
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
@@ -2650,6 +2633,7 @@ function New-PodeWebCodeEditor {
             param($Data, $Element, $Parent, $Logic)
             $global:ElementData = $Element
             $global:ParentData = $Parent
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             if ($null -ne $result) {
@@ -2785,6 +2769,7 @@ function New-PodeWebForm {
             param($Data, $Element, $Parent, $Logic)
             $global:ElementData = $Element
             $global:ParentData = $Parent
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             if ($null -ne $result) {
@@ -2885,6 +2870,7 @@ function New-PodeWebTimer {
             param($Data, $Element, $Parent, $Logic)
             $global:ElementData = $Element
             $global:ParentData = $Parent
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
             if ($null -ne $result) {
@@ -3028,25 +3014,33 @@ function New-PodeWebTile {
             param($Data, $Element, $Parent, $Logic)
             $global:ElementData = $Element
             $global:ParentData = $Parent
+            Set-PodeWebMetadata
 
-            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
+            $result = @(Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data)
 
-            if (Test-PodeWebAsyncActions) {
+            $wrapped = $null
+            if (Test-PodeWebActionsAsync) {
                 if ($result.Length -gt 0) {
                     if ($null -eq $result[0]) {
                         $result = @()
                     }
 
-                    if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                        $result = ($result | Update-PodeWebTile -Id $ElementData.ID)
-                    }
+                    $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
                 }
             }
             else {
-                if (!(Test-PodeWebOutputWrapped -Output $result)) {
-                    $result = ($result | Update-PodeWebTile -Id $ElementData.ID)
+                if ($null -eq $result) {
+                    $result = @()
                 }
+
+                $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
             }
+
+            if ($result.Length -gt 0) {
+                $result = ($result | Update-PodeWebTile -Id $ElementData.ID)
+            }
+
+            $result = Join-PodeWebDynamicOutput -Wrapped $wrapped -Output $result
 
             if (($null -ne $result) -and ($result.Length -gt 0)) {
                 Write-PodeJsonResponse -Value $result
@@ -3078,6 +3072,7 @@ function New-PodeWebTile {
             param($Data, $Element, $Parent, $Logic)
             $global:ElementData = $Element
             $global:ParentData = $Parent
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
@@ -3446,5 +3441,24 @@ function New-PodeWebMediaTrack {
         Type          = $Type.ToLowerInvariant()
         Default       = $Default.IsPresent
         NoEvents      = $true
+    }
+}
+
+function Use-PodeWebElement {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [hashtable]
+        $Element
+    )
+
+    return @{
+        Operation  = 'Use'
+        ObjectType = 'Element'
+        Reference  = @{
+            ComponentType = $Element.ComponentType
+            ObjectType    = $Element.ObjectType
+            ID            = $Element.ID
+        }
     }
 }

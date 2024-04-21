@@ -248,8 +248,9 @@ function Add-PodeWebAppPath {
 function Set-PodeWebSystemUrlDefaults {
     Set-PodeWebState -Name 'system-urls' -Value @{
         Home     = @{
-            Path = '/'
-            Url  = (Add-PodeWebAppPath -Url '/')
+            Path     = '/'
+            Url      = (Add-PodeWebAppPath -Url '/')
+            IsCustom = $false
         }
         Register = @{
             Path = '/register'
@@ -456,8 +457,8 @@ function Register-PodeWebPage {
     # check home page
     if ($Metadata.IsHomePage) {
         $sysUrls = Get-PodeWebState -Name 'system-urls'
-        if (($null -ne $sysUrls.Home) -and ($sysUrls.Home.Path -ine $Metadata.Path)) {
-            throw "A home page has already been defined: $($sysUrls.Home.Path)"
+        if ($sysUrls.Home.IsCustom) {
+            throw "A home page has already been defined at '$($sysUrls.Home.Path)'"
         }
 
         # update auth success url to home page
@@ -469,8 +470,9 @@ function Register-PodeWebPage {
         }
 
         $sysUrls.Home = @{
-            Path = $Metadata.Path
-            Url  = $Metadata.Url
+            Path     = $Metadata.Path
+            Url      = $Metadata.Url
+            IsCustom = $true
         }
     }
 
@@ -763,6 +765,60 @@ function Test-PodeWebOutputWrapped {
     }
 
     return (($Output -is [hashtable]) -and ![string]::IsNullOrWhiteSpace($Output.Operation) -and ![string]::IsNullOrWhiteSpace($Output.ObjectType))
+}
+
+function Split-PodeWebDynamicOutput {
+    param(
+        [Parameter()]
+        [object[]]
+        $Output
+    )
+
+    if (($null -eq $Output) -or ($Output.Length -eq 0)) {
+        return $null, $null
+    }
+
+    for ($i = 0; $i -lt $Output.Length; $i++) {
+        if (!(Test-PodeWebOutputWrapped -Output $Output[$i])) {
+            break
+        }
+    }
+
+    $wrapped = @()
+    if ($i -gt 0) {
+        $wrapped = $Output[0..($i - 1)]
+
+        if ($i -lt $Output.Length) {
+            $Output = $Output[$i..($Output.Length - 1)]
+        }
+        else {
+            $Output = @()
+        }
+    }
+
+    return $wrapped, $Output
+}
+
+function Join-PodeWebDynamicOutput {
+    param(
+        [Parameter()]
+        [object[]]
+        $Wrapped,
+
+        [Parameter()]
+        [object[]]
+        $Output
+    )
+
+    if (($null -eq $Wrapped) -or ($Wrapped.Length -eq 0)) {
+        return $Output
+    }
+
+    if (($null -eq $Output) -or ($Output.Length -eq 0)) {
+        return $Wrapped
+    }
+
+    return $Wrapped + $Output
 }
 
 function Get-PodeWebFirstPublicPage {
@@ -1103,4 +1159,23 @@ function Invoke-PodeWebScriptBlock {
     }
 
     return $result
+}
+
+function Set-PodeWebMetadata {
+    $WebEvent.Metadata.SenderId = Get-PodeHeader -Name 'X-PODE-WEB-SENDER-ID'
+}
+
+function Test-PodeWebResponseType {
+    param(
+        [Parameter()]
+        [ValidateSet('Http', 'Sse')]
+        [string]
+        $Type
+    )
+
+    return ((Get-PodeWebState -Name 'resp-type') -ieq $Type)
+}
+
+function Get-PodeWebResponseType {
+    return (Get-PodeWebState -Name 'resp-type')
 }

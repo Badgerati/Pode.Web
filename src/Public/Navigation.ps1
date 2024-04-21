@@ -88,6 +88,7 @@ function New-PodeWebNavLink {
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
             param($Data, $Nav, $Logic)
             $global:NavData = $Nav
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 

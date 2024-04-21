@@ -8,38 +8,71 @@ function Send-PodeWebAction {
         $PassThru
     )
 
-    # check for clientId header
-    #TODO: how to do this for actions called within an async Task or Timer?
-    $clientId = Get-PodeHeader -Name 'X-PODE-CLIENTID'
-
-    # if no clientId, just return, otherwise we're using sse
-    if ([string]::IsNullOrEmpty($clientId)) {
+    # for http, just return
+    if (Test-PodeWebResponseType -Type Http) {
         return $Value
     }
 
-    #TODO: how to get "ConnectionId" header? similar problem to Tasks above
+    # otherwise, we're dealing with SSE; get clientId/group
+    $ClientId = Get-PodeWebSseClientId
+    $Group = Get-PodeWebSseGroup
 
-    # inject connectionId
-    $connId = Get-PodeHeader -Name 'X-PODE-WEB-CONNECTION-ID'
-    if (![string]::IsNullOrEmpty($connId)) {
-        $Value['ConnectionId'] = Get-PodeHeader -Name 'X-PODE-WEB-CONNECTION-ID'
+    # inject senderId
+    $SenderId = Get-PodeWebSenderId
+    if (![string]::IsNullOrEmpty($SenderId)) {
+        $Value['SenderId'] = $SenderId
     }
 
     # send over sse to client
-    Send-PodeSseMessage `
+    Send-PodeSseEvent `
         -Name 'Pode.Web.Actions' `
-        -ClientId $clientId `
+        -ClientId $ClientId `
+        -Group $Group `
         -EventType 'pode.web.action' `
         -Data $Value
 
+    # return the value if required
     if ($PassThru) {
         return $Value
     }
 }
 
-function Test-PodeWebAsyncActions {
-    [CmdletBinding()]
+function Test-PodeWebActionsAsync {
+    [OutputType([bool])]
     param()
 
-    return ![string]::IsNullOrEmpty((Get-PodeHeader -Name 'X-PODE-CLIENTID'))
+    return !(Test-PodeWebResponseType -Type Http)
+}
+
+function Get-PodeWebSseClientId {
+    [OutputType([string[]])]
+    param()
+
+    if (![string]::IsNullOrEmpty($WebEvent.Sse.ClientId)) {
+        return $WebEvent.Sse.ClientId
+    }
+
+    return $Script:AsyncEvent.ClientId
+}
+
+function Get-PodeWebSseGroup {
+    [OutputType([string[]])]
+    param()
+
+    if (![string]::IsNullOrEmpty($WebEvent.Sse.Group)) {
+        return $WebEvent.Sse.Group
+    }
+
+    return $Script:AsyncEvent.Group
+}
+
+function Get-PodeWebSenderId {
+    [OutputType([string])]
+    param()
+
+    if (![string]::IsNullOrEmpty($WebEvent.Metadata.SenderId)) {
+        return $WebEvent.Metadata.SenderId
+    }
+
+    return $Script:AsyncEvent.SenderId
 }

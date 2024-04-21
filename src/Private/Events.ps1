@@ -72,6 +72,7 @@ function Register-PodeWebElementEventInternal {
             param($Data, $Element, $Type, $Logic)
             $global:ElementData = $Element
             $global:EventType = $Type
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 
@@ -159,6 +160,7 @@ function Register-PodeWebPageEventInternal {
             param($Data, $Page, $Type, $Logic)
             $global:PageData = $Page
             $global:EventType = $Type
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
 

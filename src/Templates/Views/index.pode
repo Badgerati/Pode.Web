@@ -11,7 +11,7 @@
         pode-theme="$($data.Theme)"
         $(if ($data.Sessions.Enabled) { "pode-session-tabs='$($data.Sessions.Tabs)'" })
         $(if ($data.AppPath) { "pode-app-path='$($data.AppPath)'" })
-        pode-comm-type="$($data.Page.CommunicationType)"
+        pode-resp-type="$($data.Page.ResponseType)"
         $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
 
         $(

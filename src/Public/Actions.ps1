@@ -736,14 +736,12 @@ function Update-PodeWebBadge {
         $Colour = ''
     )
 
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
-
     Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Badge'
         ID         = $Id
         Colour     = $Colour
-        ColourType = $ColourType
+        ColourType = (Convert-PodeWebColourToClass -Colour $Colour)
         Value      = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
@@ -893,7 +891,7 @@ function Out-PodeWebError {
     )
 
     Send-PodeWebAction -Value @{
-        Operation  = 'Output'
+        Operation  = 'Out'
         ObjectType = 'Error'
         Message    = $Message
     }
@@ -1197,8 +1195,6 @@ function Update-PodeWebTile {
         $Icon
     )
 
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
-
     Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Tile'
@@ -1206,7 +1202,7 @@ function Update-PodeWebTile {
         ID         = $Id
         Name       = $Name
         Colour     = $Colour
-        ColourType = $ColourType
+        ColourType = (Convert-PodeWebColourToClass -Colour $Colour)
         Icon       = (Protect-PodeWebIconType -Icon $Icon -Element 'Tile')
     }
 }
@@ -1335,6 +1331,38 @@ function Hide-PodeWebElement {
             Type       = $ObjectType
             Name       = $Name
         }
+    }
+}
+
+function Show-PodeWebSpinner {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation     = 'Show'
+        ObjectType    = 'Element'
+        SubObjectType = 'Spinner'
+        ID            = $Id
+    }
+}
+
+function Hide-PodeWebSpinner {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation     = 'Hide'
+        ObjectType    = 'Element'
+        SubObjectType = 'Spinner'
+        ID            = $Id
     }
 }
 
@@ -1576,9 +1604,9 @@ function Rename-PodeWebClass {
 
     # update element
     if ($null -ne $Element) {
-        return ($Element |
-                Remove-PodeWebClass -Value $From |
-                Add-PodeWebClass -Value $To)
+        return $Element |
+            Remove-PodeWebClass -Value $From |
+            Add-PodeWebClass -Value $To
     }
 
     # send frontend action
@@ -1801,25 +1829,6 @@ function Out-PodeWebElement {
     }
 
     Send-PodeWebAction -Value $Element -PassThru:$PassThru
-}
-
-function Use-PodeWebElement {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [hashtable]
-        $Element
-    )
-
-    return @{
-        Operation  = 'Use'
-        ObjectType = 'Element'
-        Reference  = @{
-            ComponentType = $Element.ComponentType
-            ObjectType    = $Element.ObjectType
-            ID            = $Element.ID
-        }
-    }
 }
 
 function Start-PodeWebFileStream {
@@ -2495,5 +2504,28 @@ function Switch-PodeWebIcon {
         ObjectType = 'Icon'
         ID         = $Id
         State      = $State
+    }
+}
+
+function Set-PodeWebAsyncHeader {
+    [CmdletBinding()]
+    param()
+
+    Set-PodeHeader -Name 'X-PODE-WEB-PROCESSING-ASYNC' -Value '1'
+}
+
+function Hide-PodeWebSenderSpinner {
+    [CmdletBinding()]
+    param()
+
+    if ([string]::IsNullOrEmpty($WebEvent.Metadata.SenderId)) {
+        return
+    }
+
+    Send-PodeWebAction -Value @{
+        Operation     = 'Hide'
+        ObjectType    = 'Element'
+        SubObjectType = 'Spinner'
+        UUID          = $WebEvent.Metadata.SenderId
     }
 }

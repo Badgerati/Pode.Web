@@ -341,8 +341,12 @@ function New-PodeWebModal {
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
             param($Data, $Logic)
+            Set-PodeWebMetadata
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
-            Write-PodeJsonResponse -Value $result
+
+            if ($null -ne $result) {
+                Write-PodeJsonResponse -Value $result
+            }
         }
     }
 
@@ -522,8 +526,12 @@ function New-PodeWebSteps {
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
             param($Data, $Logic)
+            Set-PodeWebMetadata
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
-            Write-PodeJsonResponse -Value $result
+
+            if ($null -ne $result) {
+                Write-PodeJsonResponse -Value $result
+            }
         }
     }
 
@@ -606,8 +614,12 @@ function New-PodeWebStep {
 
         Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
             param($Data, $Logic)
+            Set-PodeWebMetadata
             $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
-            Write-PodeJsonResponse -Value $result
+
+            if ($null -ne $result) {
+                Write-PodeJsonResponse -Value $result
+            }
         }
     }
 

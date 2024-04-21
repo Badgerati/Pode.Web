@@ -4,11 +4,12 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
+const PAGE_ID = $('body').attr('pode-page-id');
 const MIN_INT32 = (1 << 31);
 const MAX_INT32 = ((2 ** 31) - 1);
 
-var CLIENT_ID = null;
-var CONNECTION_SENDER_MAP = {};
+const SSE_CLIENT_NAME = 'Pode.Web.Actions';
+var SSE_CLIENT_ID = null;
 
 var tooltips = function() {
     $('[data-toggle="tooltip"]').tooltip();
@@ -28,6 +29,15 @@ $(() => {
         return;
     }
 
+    // base mappings
+    mapElementThemes();
+    bindSidebarFilter();
+    bindSidebarToggle();
+    toggleSidebar();
+    bindPageLinks();
+    bindPageHelp();
+    bindPageGroupCollapse();
+
     // sessions
     setSessionTabId();
 
@@ -35,39 +45,36 @@ $(() => {
     connectSse();
 
     // load content
-    sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, (res, sender) => {
-        mapElementThemes();
-
-        loadBreadcrumb();
-
-        bindSidebarFilter();
-        bindSidebarToggle();
-        toggleSidebar();
-        bindPageLinks();
-        bindPageHelp();
-
-        bindFormSubmits();
-
-        bindPageGroupCollapse();
-    });
+    loadContent();
 });
 
+function loadContent() {
+    sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, () => {
+        mapElementThemes();
+        loadBreadcrumb();
+        bindFormSubmits();
+    });
+}
+
 function connectSse() {
+    // http responses?
     if (!testConnectOverSse()) {
+        loadContent();
         return;
     }
 
     // create sse connection
     const sse = new EventSource(`${getPageUrl('sse-open')}`);
 
-    // wire up open event, to store clientId
+    // wire up open event, to store clientId and load content
     sse.addEventListener('pode.open', (e) => {
-        CLIENT_ID = JSON.parse(e.data).clientId;
+        SSE_CLIENT_ID = JSON.parse(e.data).clientId;
+        loadContent();
     });
 
     // wire up close event, to close sse connection
     sse.addEventListener('pode.close', (e) => {
-        sse.close();
+        SSE_CLIENT_ID = null;
     });
 
     // wire up event for actions
@@ -78,7 +85,6 @@ function connectSse() {
     // error event
     sse.onerror = (e) => {
         console.log(e);
-        sse.close();
     };
 
     // wire up beforeunload, to close connection server side
@@ -89,7 +95,7 @@ function connectSse() {
 }
 
 function testConnectOverSse() {
-    return ($('body').attr('pode-comm-type') === 'sse');
+    return ($('body').attr('pode-resp-type') === 'sse');
 }
 
 function testCookie(name) {
@@ -145,8 +151,7 @@ function getPageUrl(subpath) {
         subpath = `/${subpath}`;
     }
 
-    var pageId = $('body').attr('pode-page-id');
-    if (!pageId) {
+    if (!PAGE_ID) {
         return getUrl(subpath);
     }
 
@@ -157,7 +162,7 @@ function getPageUrl(subpath) {
         base += `/${appPath}`;
     }
 
-    return `${base}/pode.web-dynamic/pages/${pageId}${subpath}`;
+    return `${base}/pode.web-dynamic/pages/${PAGE_ID}${subpath}`;
 }
 
 function loadBreadcrumb() {
@@ -420,8 +425,11 @@ function setValidationError(element) {
 }
 
 function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallback, opts, button) {
+    // get sender element
+    var senderElement = sender?.getElement();
+
     // show the spinner
-    showSpinner(sender);
+    sender?.spinner(true);
     $('.alert.pode-error').remove();
 
     // disable the button
@@ -432,7 +440,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     disable(button);
 
     // remove validation errors
-    removeValidationErrors(sender);
+    removeValidationErrors(senderElement);
 
     // add app-path to url (for the likes of IIS)
     var appPath = $('body').attr('pode-app-path');
@@ -461,16 +469,15 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     }
 
     // sse clientId header
-    if (CLIENT_ID != null) {
-        headers['X-PODE-CLIENTID'] = CLIENT_ID;
+    if (SSE_CLIENT_ID != null) {
+        headers['X-PODE-SSE-CLIENT-ID'] = SSE_CLIENT_ID;
+        headers['X-PODE-SSE-NAME'] = SSE_CLIENT_NAME;
+        headers['X-PODE-SSE-GROUP'] = PAGE_ID;
     }
 
-    // generate connectionId if we have a sender
-    var connectionId = null;
+    // set senderId if we have a sender
     if (sender != null) {
-        connectionId = generateUuid();
-        headers['X-PODE-WEB-CONNECTION-ID'] = connectionId;
-        CONNECTION_SENDER_MAP[connectionId] = sender
+        headers['X-PODE-WEB-SENDER-ID'] = sender.uuid;
     }
 
     // make the call
@@ -488,22 +495,22 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
             responseType: 'blob'
         },
         success: function(res, status, xhr) {
+            // call success callback before actions
+            if (successCallback && opts.successCallbackBefore) {
+                successCallback(senderElement);
+            }
+
             // attempt to hide any spinners
-            hideSpinner(sender);
+            if (xhr.getResponseHeader('X-PODE-WEB-PROCESSING-ASYNC') !== '1') {
+                sender?.spinner(false);
+            }
 
             // re-enable the button
             enable(button);
 
             // re-gain focus, or lose focus?
             if (!opts.keepFocus) {
-                unfocus(sender);
-            }
-
-            // call success callback before actions
-            if (successCallback && opts.successCallbackBefore) {
-                res.text().then((v) => {
-                    successCallback(v ? JSON.parse(v) : null, sender);
-                });
+                unfocus(senderElement);
             }
 
             // do we have a file to download?
@@ -518,29 +525,27 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
                     invokeActions(v ? JSON.parse(v) : null, sender);
                 });
             }
-
-            // call success callback after actions
-            if (successCallback && !opts.successCallbackBefore) {
+            else if (opts.customActionCallback) {
                 res.text().then((v) => {
-                    successCallback(v ? JSON.parse(v) : null, sender);
+                    opts.customActionCallback(v ? JSON.parse(v) : null, senderElement);
                 });
             }
 
-            // remove connection
-            if (connectionId != null) {
-                delete CONNECTION_SENDER_MAP[connectionId];
+            // call success callback after actions
+            if (successCallback && !opts.successCallbackBefore) {
+                successCallback(senderElement);
             }
         },
         error: function(err, msg, stack) {
             // attempt to hide any spinners
-            hideSpinner(sender);
+            sender?.spinner(false);
 
             // re-enable the button
             enable(button);
 
             // re-gain focus, or lose focus?
             if (!opts.keepFocus) {
-                unfocus(sender);
+                unfocus(senderElement);
             }
 
             // log the error/stack
@@ -549,12 +554,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
 
             // call error callback
             if (errorCallback) {
-                errorCallback(err, msg, stack, sender);
-            }
-
-            // remove connection
-            if (connectionId != null) {
-                delete CONNECTION_SENDER_MAP[connectionId];
+                errorCallback(err, msg, stack, senderElement);
             }
         }
     });
@@ -618,28 +618,28 @@ function getAjaxFileName(xhr) {
     return filename;
 }
 
-function showSpinner(sender) {
-    if (!sender) {
+function showSpinner(element) {
+    if (!element) {
         return;
     }
 
-    show(sender.find('span.spinner-border'));
+    show(element.find('span.spinner-border'));
 }
 
-function hideSpinner(sender) {
-    if (!sender) {
+function hideSpinner(element) {
+    if (!element) {
         return;
     }
 
-    hide(sender.find('span.spinner-border'));
+    hide(element.find('span.spinner-border'));
 }
 
-function unfocus(sender) {
-    if (!sender) {
+function unfocus(element) {
+    if (!element) {
         return;
     }
 
-    sender.blur();
+    element.blur();
 }
 
 function bindSidebarToggle() {
@@ -742,8 +742,8 @@ function invokeActions(actions, sender) {
             return;
         }
 
-        if (sender == null && action.ConnectionId != null) {
-            sender = CONNECTION_SENDER_MAP[action.ConnectionId];
+        if (sender == null && action.SenderId != null) {
+            sender = PodeElementFactory.getObject(action.SenderId);
         }
 
         var _type = (action.ObjectType ?? '').toLowerCase();
@@ -759,8 +759,10 @@ function invokeActions(actions, sender) {
                 actionPage(action);
                 break;
 
+            //TODO: for error, rewrite the object to be
+            // what the sender type is, and call invokeClass directly?
             case 'error':
-                actionError(action, sender);
+                actionError(action, sender?.getElement());
                 break;
 
             case 'theme':
@@ -768,7 +770,7 @@ function invokeActions(actions, sender) {
                 break;
 
             default:
-                PodeElementFactory.invokeClass(_type, _operation, action, sender, {
+                PodeElementFactory.invokeClass(_type, _operation, action, sender?.getElement(), {
                     type: _type,
                     subType: _subType
                 });
@@ -1288,15 +1290,15 @@ function refreshPage() {
     window.location.reload();
 }
 
-function actionError(action, sender) {
-    if (!action || !sender) {
+function actionError(action, element) {
+    if (!action || !element) {
         return;
     }
 
-    showError(action.Message, sender);
+    showError(action.Message, element);
 }
 
-function showError(message, sender, prepend) {
+function showError(message, element, prepend) {
     var error = `<div class="alert alert-danger pode-error mTop1" role="alert">
         <h6 class='pode-alert-header'>
             <span class="alert-circle"></span>
@@ -1309,10 +1311,10 @@ function showError(message, sender, prepend) {
     </div>`;
 
     if (prepend) {
-        sender.prepend(error);
+        element.prepend(error);
     }
     else {
-        sender.append(error);
+        element.append(error);
     }
 }
 
@@ -1320,15 +1322,14 @@ function getPageTitle() {
     return $('#pode-page-title h1').text().trim();
 }
 
-function invokeEvent(type, sender) {
-    sender = $(sender);
+function invokeEvent(type, element) {
+    element = $(element);
 
-    if (getTagName(sender) == null) {
-        var url = getPageUrl(`events/${type}`)
-        sendAjaxReq(url, null, sender, true);
+    if (getTagName(element) == null) {
+        sendAjaxReq(getPageUrl(`events/${type}`), null, null, true);
     }
     else {
-        PodeElementFactory.triggerObject(sender.attr('pode-id'), type);
+        PodeElementFactory.triggerObject(element.attr('pode-id'), type);
     }
 }
 
