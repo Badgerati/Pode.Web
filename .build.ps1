@@ -1,6 +1,6 @@
 param (
     [string]
-    $Version = ''
+    $Version = '0.0.0'
 )
 
 $dest_path = './src/Templates/Public'
@@ -121,11 +121,13 @@ task MoveLibs {
     # jquery
     New-Item -Path "$($libs_path)/jquery" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/jquery/dist/jquery.min.js" -Destination "$($libs_path)/jquery/" -Force
+    Copy-Item -Path "$($src_path)/jquery/LICENSE.txt" -Destination "$($libs_path)/jquery/" -Force
 
     # jquery-ui
     New-Item -Path "$($libs_path)/jquery-ui" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/jquery-ui-dist/jquery-ui.min.js" -Destination "$($libs_path)/jquery-ui/" -Force
     Copy-Item -Path "$($src_path)/jquery-ui-dist/jquery-ui.min.css" -Destination "$($libs_path)/jquery-ui/" -Force
+    Copy-Item -Path "$($src_path)/jquery-ui-dist/LICENSE.txt" -Destination "$($libs_path)/jquery-ui/" -Force
 
     # popper.js
     New-Item -Path "$($libs_path)/popperjs" -ItemType Directory -Force | Out-Null
@@ -136,24 +138,34 @@ task MoveLibs {
     New-Item -Path "$($libs_path)/bootstrap" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/bootstrap/dist/js/bootstrap.bundle.min.js*" -Destination "$($libs_path)/bootstrap/" -Force
     Copy-Item -Path "$($src_path)/bootstrap/dist/css/bootstrap.min.css*" -Destination "$($libs_path)/bootstrap/" -Force
+    Copy-Item -Path "$($src_path)/bootstrap/LICENSE" -Destination "$($libs_path)/bootstrap/" -Force
 
     # bs-stepper
     New-Item -Path "$($libs_path)/bs-stepper" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/bs-stepper/dist/js/bs-stepper.min.js*" -Destination "$($libs_path)/bs-stepper/" -Force
     Copy-Item -Path "$($src_path)/bs-stepper/dist/css/bs-stepper.min.css*" -Destination "$($libs_path)/bs-stepper/" -Force
+    Copy-Item -Path "$($src_path)/bs-stepper/LICENSE" -Destination "$($libs_path)/bs-stepper/" -Force
 
     # moment
     New-Item -Path "$($libs_path)/moment" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/moment/min/moment.min.js*" -Destination "$($libs_path)/moment/" -Force
+    Copy-Item -Path "$($src_path)/moment/LICENSE" -Destination "$($libs_path)/moment/" -Force
 
     # chart.js
     New-Item -Path "$($libs_path)/chartjs" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/chart.js/dist/chart.umd.js*" -Destination "$($libs_path)/chartjs/" -Force
+    Copy-Item -Path "$($src_path)/chart.js/LICENSE.md" -Destination "$($libs_path)/chartjs/" -Force
+
+    # kurkle (used by chart.js)
+    New-Item -Path "$($libs_path)/kurkle" -ItemType Directory -Force | Out-Null
+    Copy-Item -Path "$($src_path)/@kurkle/color/dist/color.min.js*" -Destination "$($libs_path)/kurkle/" -Force
+    Copy-Item -Path "$($src_path)/@kurkle/color/LICENSE.md" -Destination "$($libs_path)/kurkle/" -Force
 
     # mdi fonts - icons
     New-Item -Path "$($libs_path)/mdi-font/css" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/@mdi/font/css/materialdesignicons.min.css*" -Destination "$($libs_path)/mdi-font/css/" -Force
     Copy-Item -Path "$($src_path)/@mdi/font/css/materialdesignicons.css.map" -Destination "$($libs_path)/mdi-font/css/" -Force
+    Copy-Item -Path "$($src_path)/@mdi/font/LICENSE" -Destination "$($libs_path)/mdi-font/css/" -Force
 
     New-Item -Path "$($libs_path)/mdi-font/fonts" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/@mdi/font/fonts/materialdesignicons-webfont*" -Destination "$($libs_path)/mdi-font/fonts/" -Force
@@ -161,6 +173,7 @@ task MoveLibs {
     # highlight.js
     New-Item -Path "$($libs_path)/highlightjs" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/highlight.min.js" -Destination "$($libs_path)/highlightjs/" -Force
+    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/LICENSE" -Destination "$($libs_path)/highlightjs/" -Force
 
     New-Item -Path "$($libs_path)/highlightjs/languages" -ItemType Directory -Force | Out-Null
 
@@ -205,6 +218,7 @@ task MoveLibs {
 
     Copy-Item -Path "$($src_path)/monaco-editor/min/vs/loader.js" -Destination "$($libs_path)/monaco/" -Force
     Copy-Item -Path "$($src_path)/monaco-editor/min/vs/editor/*.*" -Destination "$($libs_path)/monaco/editor/" -Force
+    Copy-Item -Path "$($src_path)/monaco-editor/LICENSE" -Destination "$($libs_path)/monaco/editor/" -Force
 
     New-Item -Path "$($libs_path)/monaco/base/worker" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/worker/*.*" -Destination "$($libs_path)/monaco/base/worker/" -Force
