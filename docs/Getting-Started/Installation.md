@@ -34,7 +34,7 @@ Install-Module -Name Pode.Web
 [![Docker](https://img.shields.io/docker/stars/badgerati/pode.web.svg?label=Stars)](https://hub.docker.com/r/badgerati/pode.web/)
 [![Docker](https://img.shields.io/docker/pulls/badgerati/pode.web.svg?label=Pulls)](https://hub.docker.com/r/badgerati/pode.web/)
 
-Like Pode, Pode.Web also has Docker images available. The images use Pode v2.8.0 on either an Ubuntu Focal image (default), an Alpine image, or an ARM32 image (for Raspberry Pis).
+Like Pode, Pode.Web also has Docker images available. The images use Pode v2.10.0 on either an Ubuntu Focal image (default), an Alpine image, or an ARM32 image (for Raspberry Pis).
 
 * To pull down the latest Pode.Web image you can do:
 

@@ -1,6 +1,6 @@
 # Basics
 
-The first thing to note is that to use Pode.Web, you do need to first import the module:
+To use Pode.Web you'll first need to import the module:
 
 ```powershell
 Import-Module -Name Pode.Web
@@ -42,15 +42,16 @@ The default timeout in Pode is 30 seconds, so if you have elements/Routes you kn
 
 ## Use the Templates
 
-Pode.Web contains extension functions that can be used within your [Pode](https://github.com/Badgerati/Pode) server. To set up the templates, and start using them, you will always first need to call [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates); this will let you define the title of your website, the default theme, and the logo/favicon.
+Pode.Web contains extension functions that can be used within your [Pode](https://github.com/Badgerati/Pode) server. To initialise Pode.Web and start using its functions you'll first need to call [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates) as one of the first functions within your `Start-PodeServer` scriptblock. This will let you define the title of your website, the default theme, and the logo/favicon.
 
 !!! important
-    You **must** call [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates) before you can start using any other function within the Pode.Web module.
+    You **must** call [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates) before you can start using any other function within the Pode.Web module. Ideally, you should make this the first function call within `Start-PodeServer` after you have called `Add-PodeEndpoint`.
 
 ```powershell
 Import-Module -Name Pode.Web
 
 Start-PodeServer {
+    Add-PodeEndpoint -Address localhost -Port 8080 -Protocol Http
     Use-PodeWebTemplates -Title 'Example' -Theme Dark
 }
 ```
@@ -66,6 +67,21 @@ Start-PodeServer {
 
     # this will bind the site to the Admin endpoint
     Use-PodeWebTemplates -Title 'Example' -Theme Dark -EndpointName Admin
+}
+```
+
+### Response Type
+
+By default Pode.Web will use SSE to send data back to any connected clients, this allows feedback from Pode.Web's actions to be done asynchronously - if you have a button click that does some lengthy processing, you can update a client on the current progress.
+
+However, if required, you can switch Pode.Web's response type back to HTTP via the `-ResponseType` parameter on [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates).
+
+```powershell
+Import-Module -Name Pode.Web
+
+Start-PodeServer {
+    Add-PodeEndpoint -Address localhost -Port 8080 -Protocol Http
+    Use-PodeWebTemplates -Title 'Example' -ResponseType Http
 }
 ```
 

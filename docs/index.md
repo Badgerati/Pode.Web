@@ -24,11 +24,11 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 * Create line, bar, pie, and doughnut charts
 * Support for forms, with all kinds of input elements
 * Show toast messages on the page, or send desktop notifications
-* Display data in tables, with pagination, sorting and filtering
+* Display data in tables, with pagination, sorting, and filtering
 * Use a stepper for a more controlled flow of form input
 * Or, use a tabs layout for your pages!
 * Show or write code via the Monaco editor (still WIP)
-* Render code in code-blocks with code highlighting!
+* Render code in code blocks with code highlighting!
 * Support for Light, Dark, Terminal, and custom themes
 
 ## 📦 Libraries
@@ -62,7 +62,7 @@ Start-PodeServer {
 }
 ```
 
-And this will render a page that looks as follows:
+This will render a page that looks as follows:
 
 ![quick_look](./images/quick_look.png)
 

@@ -1,8 +1,8 @@
 # Icons
 
-All icons rendered in Pode.Web are done using [Material Design Icons](https://materialdesignicons.com), this applies to all `-Icon` parameters.
+All icons are rendered in Pode.Web using [Material Design Icons](https://materialdesignicons.com), this applies to all `-Icon` parameters.
 
-A list of searchable icons can be [found here](https://pictogrammers.github.io/@mdi/font/7.2.96/). When you've found the one you need, you only have to supply the partof the name after `mdi-`. For example let's say you need the `mdi-github` icon, then you only need to supply the `github` part of the name:
+A list of searchable icons can be [found here](https://pictogrammers.github.io/@mdi/font/7.2.96/). When you've found the one you need, you only have to supply the part of the name after `mdi-`. For example, let's say you need the `mdi-github` icon, then you only need to supply the `github` part of the name:
 
 ```powershell
 New-PodeWebButton -Name 'Repository' -Icon 'github' -Url 'https://github.com/Badgerati/Pode.Web'
