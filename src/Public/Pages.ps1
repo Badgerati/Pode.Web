@@ -62,8 +62,8 @@ function Set-PodeWebLoginPage {
     )
 
     # check content
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
-        throw 'The Login page can only contain layouts and/or elements'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Element)) {
+        throw 'The Login page can only contain other elements'
     }
 
     # retrieve the auth from pode
@@ -348,9 +348,9 @@ function Add-PodeWebPage {
         $PassThru
     )
 
-    # ensure layouts are correct
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
-        throw 'A Page can only contain layouts/elements'
+    # ensure elements are correct
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Element)) {
+        throw 'A Page can only contain elements'
     }
 
     # test if group exists - otherwise create a basic group entry

@@ -2507,13 +2507,6 @@ function Switch-PodeWebIcon {
     }
 }
 
-function Set-PodeWebAsyncHeader {
-    [CmdletBinding()]
-    param()
-
-    Set-PodeHeader -Name 'X-PODE-WEB-PROCESSING-ASYNC' -Value '1'
-}
-
 function Hide-PodeWebSenderSpinner {
     [CmdletBinding()]
     param()

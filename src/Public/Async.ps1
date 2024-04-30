@@ -1,42 +1,15 @@
 function Set-PodeWebAsyncEvent {
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    [CmdletBinding()]
     param(
-        [Parameter(ParameterSetName = 'AsyncEvent', ValueFromPipeline = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [hashtable]
-        $InputObject = $null,
-
-        [Parameter(ParameterSetName = 'Default')]
-        [string[]]
-        $ClientId = $null,
-
-        [Parameter(ParameterSetName = 'Default')]
-        [string[]]
-        $Group = $null,
-
-        [Parameter(ParameterSetName = 'Default')]
-        [string]
-        $SenderId = $null,
-
-        [Parameter(ParameterSetName = 'All')]
-        [switch]
-        $All
+        $InputObject
     )
 
-    if ($All) {
-        $ClientId = $null
-        $Group = $null
-        $SenderId = $null
-    }
-    elseif ($null -ne $InputObject) {
-        $ClientId = $InputObject.ClientId
-        $Group = $InputObject.Group
-        $SenderId = $InputObject.SenderId
-    }
-
     $Script:AsyncEvent = @{
-        ClientId = $ClientId
-        Group    = $Group
-        SenderId = $SenderId
+        ClientId = $InputObject.ClientId
+        Group    = $InputObject.Group
+        SenderId = $InputObject.SenderId
     }
 }
 
@@ -92,4 +65,11 @@ function Export-PodeWebAsyncEvent {
         Group    = $WebEvent.Sse.Group
         SenderId = $WebEvent.Metadata.SenderId
     }
+}
+
+function Set-PodeWebAsyncHeader {
+    [CmdletBinding()]
+    param()
+
+    Set-PodeHeader -Name 'X-PODE-WEB-PROCESSING-ASYNC' -Value '1'
 }

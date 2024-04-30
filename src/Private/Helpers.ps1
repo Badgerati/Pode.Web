@@ -690,7 +690,7 @@ function Test-PodeWebContent {
         $Content,
 
         [Parameter()]
-        [ValidateSet('Element', 'Layout', 'Navigation', 'Page', 'Group')]
+        [ValidateSet('Element', 'Navigation', 'Page', 'Group')]
         [string[]]
         $ComponentType,
 

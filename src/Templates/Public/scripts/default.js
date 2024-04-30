@@ -17,6 +17,8 @@ var tooltips = function() {
 tooltips();
 
 var pageLoaded = false;
+var contentLoaded = false;
+
 $(() => {
     // don't load the page multiple time
     if (pageLoaded) {
@@ -43,16 +45,18 @@ $(() => {
 
     // setup sse connection
     connectSse();
-
-    // load content
-    loadContent();
 });
 
 function loadContent() {
+    if (contentLoaded) {
+        return;
+    }
+
     sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, () => {
         mapElementThemes();
         loadBreadcrumb();
         bindFormSubmits();
+        contentLoaded = true;
     });
 }
 
@@ -517,23 +521,33 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
             var filename = getAjaxFileName(xhr);
             if (filename) {
                 downloadBlob(filename, res, xhr);
+
+                // call success callback after actions
+                if (successCallback && !opts.successCallbackBefore) {
+                    successCallback(senderElement);
+                }
             }
 
             // run any actions, if we need to
             else if (useActions) {
                 res.text().then((v) => {
                     invokeActions(v ? JSON.parse(v) : null, sender);
+
+                    // call success callback after actions
+                    if (successCallback && !opts.successCallbackBefore) {
+                        successCallback(senderElement);
+                    }
                 });
             }
             else if (opts.customActionCallback) {
                 res.text().then((v) => {
                     opts.customActionCallback(v ? JSON.parse(v) : null, senderElement);
-                });
-            }
 
-            // call success callback after actions
-            if (successCallback && !opts.successCallbackBefore) {
-                successCallback(senderElement);
+                    // call success callback after actions
+                    if (successCallback && !opts.successCallbackBefore) {
+                        successCallback(senderElement);
+                    }
+                });
             }
         },
         error: function(err, msg, stack) {

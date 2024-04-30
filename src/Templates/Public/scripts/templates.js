@@ -41,24 +41,30 @@ class PodeElementFactory {
             return;
         }
 
+        data = data ?? {};
         opts = opts ?? {};
         name = name.toLowerCase();
         action = action.toLowerCase();
 
         // do we need to load a reference element's data?
-        if (action === 'use' && name === 'element' && data.Reference != null) {
-            name = data.Reference.ObjectType.toLowerCase();
-            action = 'new';
-
+        if (data.Reference != null && action === 'use' && name === 'element') {
+            // get reference element by ID
             var refData = this.getReference(data.Reference.ID);
             if (refData == null) {
                 throw `Reference element data not found for ${data.Reference.ID}`;
             }
 
+            // clean up data object
             delete data['ObjectType'];
+            delete data['ComponentType'];
             delete data['Operation'];
             delete data['Reference'];
 
+            // update name/action
+            name = refData.ObjectType.toLowerCase();
+            action = 'new';
+
+            // create new data object
             data = mergeObjects(data, refData);
         }
 
@@ -157,7 +163,7 @@ class PodeElementFactory {
     }
 }
 
-// base elements and layouts
+// base element class
 class PodeElement {
     static type = 'element';
     static tag = '';

@@ -18,3 +18,17 @@ New-PodeWebContainer -NoBackground -Content @(
     }
 )
 ```
+
+## Reset
+
+To reset the value of a progress bar back to 0, you can use [`Reset-PodeWebProgress`](../../../Functions/Actions/Reset-PodeWebProgress):
+
+```powershell
+New-PodeWebContainer -NoBackground -Content @(
+    New-PodeWebProgress -Name 'Download' -Value 25 -Colour Green -Striped -Animated
+
+    New-PodeWebButton -Name 'Reset Progress' -ScriptBlock {
+        Reset-PodeWebProgress -Name 'Download'
+    }
+)
+```

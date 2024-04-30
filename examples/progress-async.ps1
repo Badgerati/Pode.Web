@@ -10,11 +10,11 @@ Start-PodeServer {
     Use-PodeWebTemplates -Title 'Progress Async' -Theme Dark
 
     # set the controls
-    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Title 'Long Form' -ScriptBlock {
+    Add-PodeWebPage -Name 'Example' -ScriptBlock {
         New-PodeWebContainer -Content @(
-            New-PodeWebForm -Name 'Test' -ScriptBlock {
-                # Update-PodeWebProgress -Name 'FormProgress' -Value 0 -Colour Blue
-                Reset-PodeWebProgress -Name 'FormProgress'
+            New-PodeWebForm -Name 'Long Running Form' -ScriptBlock {
+                Update-PodeWebProgress -Name 'FormProgress' -Value 0 -Colour Blue
+                # Reset-PodeWebProgress -Name 'FormProgress'
                 Show-PodeWebElement -Name 'FormProgress' -ObjectType 'Progress'
 
                 1..10 | ForEach-Object {

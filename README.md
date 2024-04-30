@@ -50,7 +50,7 @@ Then navigate to `http://127.0.0.1:8000` in your browser.
 ## 🚀 Features
 
 * Like [Pode](https://github.com/Badgerati/Pode), this is already cross-platform! (with support for PS5)
-* Easily add pages, with different layouts and elements
+* Easily add pages, with different elements
 * Support for authentication with a login page!
 * Create line, bar, pie, and doughnut charts
 * Support for forms, with all kinds of input elements

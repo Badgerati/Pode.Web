@@ -1,14 +1,12 @@
 # Tabs
 
-A tabs layout is an array of tabs with content.
-
-The tabs take an array of layouts, that can only be other layouts and *not* raw elements.
+A tabs element is an array of tabs with content, where the content of those tabs is just an array of other elements.
 
 ## Usage
 
-To create a tabs layout you use [`New-PodeWebTabs`](../../../Functions/Layouts/New-PodeWebTabs), and supply it an array of `-Tabs` using [`New-PodeWebTab`](../../../Functions/Layouts/New-PodeWebTab). The tabs themselves accept an array of other `-Content`.
+To create a tabs element you use [`New-PodeWebTabs`](../../../Functions/Elements/New-PodeWebTabs), and supply it an array of `-Tabs` using [`New-PodeWebTab`](../../../Functions/Elements/New-PodeWebTab). The tabs themselves accept an array of other `-Content`.
 
-For example, the below renders a layout with 3 tabs each containing an image:
+For example, the below renders an element with 3 tabs each containing an image:
 
 ```powershell
 New-PodeWebTabs -Tabs @(
