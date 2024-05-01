@@ -3452,7 +3452,7 @@ function Use-PodeWebElement {
         $Element,
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ID')]
-        [hashtable]
+        [string]
         $Id
     )
 
@@ -4267,5 +4267,52 @@ function New-PodeWebBellow {
         ID            = (Get-PodeWebElementId -Tag Bellow -Id $Id -Name $Name)
         Content       = $Content
         Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Bellow')
+    }
+}
+
+function New-PodeWebElementGroup {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string]
+        $SubmitButtonId
+    )
+
+    return @{
+        Operation     = 'New'
+        ComponentType = 'Element'
+        ObjectType    = 'Element-Group'
+        Content       = $Content
+        ID            = (Get-PodeWebElementId -Tag 'ElementGroup' -Id $Id)
+        SubmitId      = $SubmitButtonId
+    }
+}
+
+function New-PodeWebSpan {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable[]]
+        $Content
+    )
+
+    return @{
+        Operation     = 'New'
+        ComponentType = 'Element'
+        ObjectType    = 'Span'
+        Content       = $Content
+        ID            = (Get-PodeWebElementId -Tag 'Span' -Id $Id)
     }
 }

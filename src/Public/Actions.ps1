@@ -1295,6 +1295,252 @@ function Show-PodeWebElement {
     }
 }
 
+function Set-PodeWebDisplay {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Element', ValueFromPipeline = $true)]
+        [hashtable]
+        $Element,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
+        [string]
+        $ObjectType,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Block', 'Inline', 'Inline-Block', 'Flex', 'Inline-Flex', 'None')]
+        [string]
+        $Value
+    )
+
+    # update element
+    if ($null -ne $Element) {
+        if ($null -eq $Element.Css) {
+            $Element.Css = @{}
+        }
+
+        $Element.Css.Display = $Value
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        Send-PodeWebAction -Value @{
+            Operation     = 'Set'
+            ObjectType    = 'Element'
+            SubObjectType = 'Display'
+            ID            = $Id
+            Type          = $ObjectType
+            Name          = $Name
+            Value         = $Value
+        }
+    }
+}
+
+function Set-PodeWebMargin {
+    [CmdletBinding(DefaultParameterSetName = 'IdAll')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'ElementAll', ValueFromPipeline = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ElementSplit', ValueFromPipeline = $true)]
+        [hashtable]
+        $Element,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'IdAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'IdSplit')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameSplit')]
+        [Alias('Type')]
+        [string]
+        $ObjectType,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameSplit')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'ElementAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'IdAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameAll')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Value,
+
+        [Parameter(ParameterSetName = 'ElementSplit')]
+        [Parameter(ParameterSetName = 'IdSplit')]
+        [Parameter(ParameterSetName = 'NameSplit')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Top,
+
+        [Parameter(ParameterSetName = 'ElementSplit')]
+        [Parameter(ParameterSetName = 'IdSplit')]
+        [Parameter(ParameterSetName = 'NameSplit')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Bottom,
+
+        [Parameter(ParameterSetName = 'ElementSplit')]
+        [Parameter(ParameterSetName = 'IdSplit')]
+        [Parameter(ParameterSetName = 'NameSplit')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Left,
+
+        [Parameter(ParameterSetName = 'ElementSplit')]
+        [Parameter(ParameterSetName = 'IdSplit')]
+        [Parameter(ParameterSetName = 'NameSplit')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Right
+    )
+
+    if ($Value) {
+        $margin = @{
+            All = $Value
+        }
+    }
+    else {
+        $margin = @{
+            Top    = $Top
+            Bottom = $Bottom
+            Left   = $Left
+            Right  = $Right
+        }
+    }
+
+    # update element
+    if ($null -ne $Element) {
+        if ($null -eq $Element.Css) {
+            $Element.Css = @{}
+        }
+
+        $Element.Css.Margin = $margin
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        Send-PodeWebAction -Value @{
+            Operation     = 'Set'
+            ObjectType    = 'Element'
+            SubObjectType = 'Margin'
+            ID            = $Id
+            Type          = $ObjectType
+            Name          = $Name
+            Value         = $margin
+        }
+    }
+}
+
+function Set-PodeWebPadding {
+    [CmdletBinding(DefaultParameterSetName = 'IdAll')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'ElementAll', ValueFromPipeline = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ElementSplit', ValueFromPipeline = $true)]
+        [hashtable]
+        $Element,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'IdAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'IdSplit')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameSplit')]
+        [Alias('Type')]
+        [string]
+        $ObjectType,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameSplit')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'ElementAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'IdAll')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'NameAll')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Value,
+
+        [Parameter(ParameterSetName = 'ElementSplit')]
+        [Parameter(ParameterSetName = 'IdSplit')]
+        [Parameter(ParameterSetName = 'NameSplit')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Top,
+
+        [Parameter(ParameterSetName = 'ElementSplit')]
+        [Parameter(ParameterSetName = 'IdSplit')]
+        [Parameter(ParameterSetName = 'NameSplit')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Bottom,
+
+        [Parameter(ParameterSetName = 'ElementSplit')]
+        [Parameter(ParameterSetName = 'IdSplit')]
+        [Parameter(ParameterSetName = 'NameSplit')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Left,
+
+        [Parameter(ParameterSetName = 'ElementSplit')]
+        [Parameter(ParameterSetName = 'IdSplit')]
+        [Parameter(ParameterSetName = 'NameSplit')]
+        [ValidateSet(1, 2, 3, 4, 5)]
+        [int]
+        $Right
+    )
+
+    if ($Value) {
+        $padding = @{
+            All = $Value
+        }
+    }
+    else {
+        $padding = @{
+            Top    = $Top
+            Bottom = $Bottom
+            Left   = $Left
+            Right  = $Right
+        }
+    }
+
+    # update element
+    if ($null -ne $Element) {
+        if ($null -eq $Element.Css) {
+            $Element.Css = @{}
+        }
+
+        $Element.Css.Padding = $padding
+        return $Element
+    }
+
+    # send frontend action
+    else {
+        Send-PodeWebAction -Value @{
+            Operation     = 'Set'
+            ObjectType    = 'Element'
+            SubObjectType = 'Padding'
+            ID            = $Id
+            Type          = $ObjectType
+            Name          = $Name
+            Value         = $padding
+        }
+    }
+}
+
 function Hide-PodeWebElement {
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
