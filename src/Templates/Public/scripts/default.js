@@ -4,8 +4,12 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
-var MIN_INT32 = (1 << 31);
-var MAX_INT32 = ((2 ** 31) - 1);
+const PAGE_ID = $('body').attr('pode-page-id');
+const MIN_INT32 = (1 << 31);
+const MAX_INT32 = ((2 ** 31) - 1);
+
+const SSE_CLIENT_NAME = 'Pode.Web.Actions';
+var SSE_CLIENT_ID = null;
 
 var tooltips = function() {
     $('[data-toggle="tooltip"]').tooltip();
@@ -13,6 +17,8 @@ var tooltips = function() {
 tooltips();
 
 var pageLoaded = false;
+var contentLoaded = false;
+
 $(() => {
     // don't load the page multiple time
     if (pageLoaded) {
@@ -25,26 +31,80 @@ $(() => {
         return;
     }
 
+    // base mappings
+    mapElementThemes();
+    bindSidebarFilter();
+    bindSidebarToggle();
+    toggleSidebar();
+    bindPageLinks();
+    bindPageHelp();
+    bindPageGroupCollapse();
+
     // sessions
     setSessionTabId();
 
-    // load content
-    sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, (res, sender) => {
-        mapElementThemes();
-
-        loadBreadcrumb();
-
-        bindSidebarFilter();
-        bindSidebarToggle();
-        toggleSidebar();
-        bindPageLinks();
-        bindPageHelp();
-
-        bindFormSubmits();
-
-        bindPageGroupCollapse();
-    });
+    // setup sse connection
+    connectSse();
 });
+
+function loadContent() {
+    if (contentLoaded) {
+        return;
+    }
+
+    sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, () => {
+        mapElementThemes();
+        loadBreadcrumb();
+        bindFormSubmits();
+        contentLoaded = true;
+    });
+}
+
+function connectSse() {
+    // http responses?
+    if (!testConnectOverSse()) {
+        loadContent();
+        return;
+    }
+
+    // create sse connection
+    const sse = new EventSource(`${getPageUrl('sse-open')}`);
+
+    // wire up open event, to store clientId and load content
+    sse.addEventListener('pode.open', (e) => {
+        SSE_CLIENT_ID = JSON.parse(e.data).clientId;
+        loadContent();
+    });
+
+    // wire up close event, to close sse connection
+    sse.addEventListener('pode.close', (e) => {
+        SSE_CLIENT_ID = null;
+    });
+
+    // wire up event for actions
+    sse.addEventListener('pode.web.action', (e) => {
+        invokeActions(JSON.parse(e.data));
+    });
+
+    // error event
+    sse.onerror = (e) => {
+        console.log(e);
+    };
+
+    // wire up beforeunload, to close connection server side
+    window.addEventListener("beforeunload", function(e) {
+        sendAjaxReq(`${getPageUrl('sse-close')}`, null, undefined, false);
+        return null;
+    });
+}
+
+function testConnectOverSse() {
+    return ($('body').attr('pode-resp-type') === 'sse');
+}
+
+function testCookie(name) {
+    return (document.cookie.match(`(;\s*)?${name}=`) != null);
+}
 
 function setSessionTabId() {
     if (!testSessionTabsEnabled()) {
@@ -76,7 +136,7 @@ function getSessionTabId() {
 }
 
 function testSessionTabsEnabled() {
-    return ($('body').attr('pode-session-tabs') === 'True')
+    return ($('body').attr('pode-session-tabs') === 'True');
 }
 
 function getUrl(subpath) {
@@ -95,8 +155,7 @@ function getPageUrl(subpath) {
         subpath = `/${subpath}`;
     }
 
-    var pageId = $('body').attr('pode-page-id');
-    if (!pageId) {
+    if (!PAGE_ID) {
         return getUrl(subpath);
     }
 
@@ -107,7 +166,7 @@ function getPageUrl(subpath) {
         base += `/${appPath}`;
     }
 
-    return `${base}/pode.web-dynamic/pages/${pageId}${subpath}`;
+    return `${base}/pode.web-dynamic/pages/${PAGE_ID}${subpath}`;
 }
 
 function loadBreadcrumb() {
@@ -370,8 +429,11 @@ function setValidationError(element) {
 }
 
 function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallback, opts, button) {
+    // get sender element
+    var senderElement = sender?.getElement();
+
     // show the spinner
-    showSpinner(sender);
+    sender?.spinner(true);
     $('.alert.pode-error').remove();
 
     // disable the button
@@ -382,11 +444,13 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     disable(button);
 
     // remove validation errors
-    removeValidationErrors(sender);
+    removeValidationErrors(senderElement);
 
     // add app-path to url (for the likes of IIS)
     var appPath = $('body').attr('pode-app-path');
-    url = `${appPath}${url}`;
+    if (appPath) {
+        url = `${appPath}${url}`;
+    }
 
     // add current query string
     if (window.location.search) {
@@ -403,8 +467,21 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     // custom headers
     var headers = {};
 
+    // session tabId header
     if (testSessionTabsEnabled()) {
         headers['X-PODE-SESSION-TAB-ID'] = getSessionTabId();
+    }
+
+    // sse clientId header
+    if (SSE_CLIENT_ID != null) {
+        headers['X-PODE-SSE-CLIENT-ID'] = SSE_CLIENT_ID;
+        headers['X-PODE-SSE-NAME'] = SSE_CLIENT_NAME;
+        headers['X-PODE-SSE-GROUP'] = PAGE_ID;
+    }
+
+    // set senderId if we have a sender
+    if (sender != null) {
+        headers['X-PODE-WEB-SENDER-ID'] = sender.uuid;
     }
 
     // make the call
@@ -422,54 +499,67 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
             responseType: 'blob'
         },
         success: function(res, status, xhr) {
+            // call success callback before actions
+            if (successCallback && opts.successCallbackBefore) {
+                successCallback(senderElement);
+            }
+
             // attempt to hide any spinners
-            hideSpinner(sender);
+            if (xhr.getResponseHeader('X-PODE-WEB-PROCESSING-ASYNC') !== '1') {
+                sender?.spinner(false);
+            }
 
             // re-enable the button
             enable(button);
 
             // re-gain focus, or lose focus?
             if (!opts.keepFocus) {
-                unfocus(sender);
-            }
-
-            // call success callback before actions
-            if (successCallback && opts.successCallbackBefore) {
-                res.text().then((v) => {
-                    successCallback(JSON.parse(v), sender);
-                });
+                unfocus(senderElement);
             }
 
             // do we have a file to download?
             var filename = getAjaxFileName(xhr);
             if (filename) {
                 downloadBlob(filename, res, xhr);
+
+                // call success callback after actions
+                if (successCallback && !opts.successCallbackBefore) {
+                    successCallback(senderElement);
+                }
             }
 
             // run any actions, if we need to
             else if (useActions) {
                 res.text().then((v) => {
-                    invokeActions(JSON.parse(v), sender);
+                    invokeActions(v ? JSON.parse(v) : null, sender);
+
+                    // call success callback after actions
+                    if (successCallback && !opts.successCallbackBefore) {
+                        successCallback(senderElement);
+                    }
                 });
             }
-
-            // call success callback after actions
-            if (successCallback && !opts.successCallbackBefore) {
+            else if (opts.customActionCallback) {
                 res.text().then((v) => {
-                    successCallback(JSON.parse(v), sender);
+                    opts.customActionCallback(v ? JSON.parse(v) : null, senderElement);
+
+                    // call success callback after actions
+                    if (successCallback && !opts.successCallbackBefore) {
+                        successCallback(senderElement);
+                    }
                 });
             }
         },
         error: function(err, msg, stack) {
             // attempt to hide any spinners
-            hideSpinner(sender);
+            sender?.spinner(false);
 
             // re-enable the button
             enable(button);
 
             // re-gain focus, or lose focus?
             if (!opts.keepFocus) {
-                unfocus(sender);
+                unfocus(senderElement);
             }
 
             // log the error/stack
@@ -478,7 +568,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
 
             // call error callback
             if (errorCallback) {
-                errorCallback(err, msg, stack, sender);
+                errorCallback(err, msg, stack, senderElement);
             }
         }
     });
@@ -542,28 +632,28 @@ function getAjaxFileName(xhr) {
     return filename;
 }
 
-function showSpinner(sender) {
-    if (!sender) {
+function showSpinner(element) {
+    if (!element) {
         return;
     }
 
-    show(sender.find('span.spinner-border'));
+    show(element.find('span.spinner-border'));
 }
 
-function hideSpinner(sender) {
-    if (!sender) {
+function hideSpinner(element) {
+    if (!element) {
         return;
     }
 
-    hide(sender.find('span.spinner-border'));
+    hide(element.find('span.spinner-border'));
 }
 
-function unfocus(sender) {
-    if (!sender) {
+function unfocus(element) {
+    if (!element) {
         return;
     }
 
-    sender.blur();
+    element.blur();
 }
 
 function bindSidebarToggle() {
@@ -666,6 +756,10 @@ function invokeActions(actions, sender) {
             return;
         }
 
+        if (sender == null && action.SenderId != null) {
+            sender = PodeElementFactory.getObject(action.SenderId);
+        }
+
         var _type = (action.ObjectType ?? '').toLowerCase();
         var _subType = (action.SubObjectType ?? '').toLowerCase()
         var _operation = (action.Operation ?? 'new').toLowerCase();
@@ -679,8 +773,10 @@ function invokeActions(actions, sender) {
                 actionPage(action);
                 break;
 
+            //TODO: for error, rewrite the object to be
+            // what the sender type is, and call invokeClass directly?
             case 'error':
-                actionError(action, sender);
+                actionError(action, sender?.getElement());
                 break;
 
             case 'theme':
@@ -688,7 +784,7 @@ function invokeActions(actions, sender) {
                 break;
 
             default:
-                PodeElementFactory.invokeClass(_type, _operation, action, sender, {
+                PodeElementFactory.invokeClass(_type, _operation, action, sender?.getElement(), {
                     type: _type,
                     subType: _subType
                 });
@@ -1208,15 +1304,15 @@ function refreshPage() {
     window.location.reload();
 }
 
-function actionError(action, sender) {
-    if (!action || !sender) {
+function actionError(action, element) {
+    if (!action || !element) {
         return;
     }
 
-    showError(action.Message, sender);
+    showError(action.Message, element);
 }
 
-function showError(message, sender, prepend) {
+function showError(message, element, prepend) {
     var error = `<div class="alert alert-danger pode-error mTop1" role="alert">
         <h6 class='pode-alert-header'>
             <span class="alert-circle"></span>
@@ -1229,10 +1325,10 @@ function showError(message, sender, prepend) {
     </div>`;
 
     if (prepend) {
-        sender.prepend(error);
+        element.prepend(error);
     }
     else {
-        sender.append(error);
+        element.append(error);
     }
 }
 
@@ -1240,15 +1336,14 @@ function getPageTitle() {
     return $('#pode-page-title h1').text().trim();
 }
 
-function invokeEvent(type, sender) {
-    sender = $(sender);
+function invokeEvent(type, element) {
+    element = $(element);
 
-    if (getTagName(sender) == null) {
-        var url = (window.location.pathname == '/' ? '/home' : window.location.pathname);
-        sendAjaxReq(`${url}/events/${type}`, null, sender, true);
+    if (getTagName(element) == null) {
+        sendAjaxReq(getPageUrl(`events/${type}`), null, null, true);
     }
     else {
-        PodeElementFactory.triggerObject(sender.attr('pode-id'), type);
+        PodeElementFactory.triggerObject(element.attr('pode-id'), type);
     }
 }
 
@@ -1256,4 +1351,14 @@ function generateUuid() {
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
+}
+
+function mergeObjects(obj1, obj2, excludeProps) {
+    for (var key in obj2) {
+        if (!(key in obj1) && (excludeProps == null || excludeProps.length == 0 || excludeProps.indexOf(key) == -1)) {
+            obj1[key] = obj2[key];
+        }
+    }
+
+    return obj1;
 }

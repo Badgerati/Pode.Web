@@ -5,6 +5,7 @@ const PODE_NAVIGATION = $('div#pode-nav-items ul.navbar-nav');
 class PodeElementFactory {
     static classMap = new Map();
     static objMap = new Map();
+    static referenceMap = new Map();
 
     constructor() { }
 
@@ -40,9 +41,32 @@ class PodeElementFactory {
             return;
         }
 
+        data = data ?? {};
         opts = opts ?? {};
         name = name.toLowerCase();
         action = action.toLowerCase();
+
+        // do we need to load a reference element's data?
+        if (data.Reference != null && action === 'use' && name === 'element') {
+            // get reference element by ID
+            var refData = this.getReference(data.Reference.ID);
+            if (refData == null) {
+                throw `Reference element data not found for ${data.Reference.ID}`;
+            }
+
+            // clean up data object
+            delete data['ObjectType'];
+            delete data['ComponentType'];
+            delete data['Operation'];
+            delete data['Reference'];
+
+            // update name/action
+            name = refData.ObjectType.toLowerCase();
+            action = 'new';
+
+            // create new data object
+            data = mergeObjects(data, refData);
+        }
 
         // invoke before base action event
         var detail = {
@@ -63,12 +87,22 @@ class PodeElementFactory {
         }));
         if (!process) { return; }
 
-        // invoke element action
-        var obj = this.findObject(name, action, data, sender, opts);
-        if (action === 'new' && obj.created) {
-            action = 'update';
+        // invoke the element action, or cache a reference
+        var asRef = ((data.Output ?? {}).AsReference ?? false);
+        var obj = null;
+        var html = null;
+
+        if (asRef) {
+            delete data['Output'];
+            this.setReference(data.ID, data);
         }
-        var html = obj.refresh(action).apply(action, data, sender, opts);
+        else {
+            obj = this.findObject(name, action, data, sender, opts);
+            if (action === 'new' && obj.created) {
+                action = 'update';
+            }
+            html = obj.refresh(action).apply(action, data, sender, opts);
+        }
 
         // invoke after element action event
         var process = document.body.dispatchEvent(new CustomEvent(`pode:element.${name.toLowerCase()}.action.after`, {
@@ -90,7 +124,7 @@ class PodeElementFactory {
     }
 
     static findObject(name, action, data, sender, opts) {
-        name = name === 'element' && data.Type ? data.Type : name;
+        name = (name === 'element' && data.Type ? data.Type : name).toLowerCase();
         var clazz = this.getClass(name) ?? PodeElement;
 
         var obj = clazz.findId(data, sender, null, opts);
@@ -116,12 +150,20 @@ class PodeElementFactory {
         return this.objMap.get(id);
     }
 
+    static setReference(id, data) {
+        this.referenceMap.set(id, data);
+    }
+
+    static getReference(id) {
+        return this.referenceMap.get(id);
+    }
+
     static triggerObject(id, evt) {
         return this.getObject(id).trigger(evt, true);
     }
 }
 
-// base elements and layouts
+// base element class
 class PodeElement {
     static type = 'element';
     static tag = '';
@@ -134,6 +176,7 @@ class PodeElement {
         this.uuid = generateUuid();
         this.created = false;
         this.loading = false;
+        this.hasSpinner = false;
         this.ephemeral = (opts.ephemeral ?? false);
         this.dynamic = data.IsDynamic ?? false;
         this.autoRender = opts.autoRender ?? true;
@@ -143,7 +186,7 @@ class PodeElement {
         this.element = null;
         this.container = null;
         this.icon = null;
-        this.url = `/elements/${this.getType()}/${data.ID}`;
+        this.url = `/pode.web-dynamic/elements/${this.getType()}/${data.ID}`;
         this.disabled = data.Disabled ?? false;
         this.visible = data.Visible ?? true;
         this.title = data.Title ?? '';
@@ -328,6 +371,10 @@ class PodeElement {
                         this.removeAttribute(data.Key, sender, { ...data, ...opts });
                         break;
                 }
+                break;
+
+            case 'spinner':
+                this.spinner(action === 'show');
                 break;
         }
 
@@ -580,7 +627,7 @@ class PodeElement {
             opts.child = opts.child ?? {};
             opts.child.isLast = () => { return index == content.length - 1; };
 
-            var result = PodeElementFactory.invokeClass(item.ObjectType, 'new', item, senderToUse, opts);
+            var result = PodeElementFactory.invokeClass(item.ObjectType, (item.Operation ?? 'new'), item, senderToUse, opts);
             created.push(result.element);
 
             // do we have any html?
@@ -643,7 +690,7 @@ class PodeElement {
         if (asAjax) {
             var inputs = this.serialize();
             inputs.opts.keepFocus = true;
-            sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this.element, true, null, null, inputs.opts);
+            sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this, true, null, null, inputs.opts);
         }
         else {
             this.element.trigger(evt);
@@ -677,20 +724,20 @@ class PodeElement {
     }
 
     spinner(show) {
-        if (!show && this.loading) {
+        if (!this.hasSpinner || (!show && this.loading)) {
             return;
         }
 
-        var spin = $(`span#${this.id}_spinner`);
-        if (!spin) {
+        var spinnerElement = $(`span.pode-spinner[for="${this.uuid}"]`);
+        if (!spinnerElement) {
             return;
         }
 
         if (show) {
-            spin.show();
+            spinnerElement.show();
         }
         else {
-            spin.hide();
+            spinnerElement.hide();
         }
     }
 
@@ -748,6 +795,10 @@ class PodeElement {
     }
 
     static findId(data, sender, filter, opts) {
+        if (data.UUID) {
+            return data.UUID;
+        }
+
         var obj = this.find(data, sender, filter, opts);
         if (!obj) {
             return;
@@ -793,6 +844,10 @@ class PodeElement {
 
     get() {
         return $(`[pode-id="${this.uuid}"]`);
+    }
+
+    getElement() {
+        return this.element;
     }
 
     getContainer() {
@@ -960,51 +1015,51 @@ class PodeElement {
     }
 
     new(data, sender, opts) {
-        throw `${this.getType()} "new" method not implemented`
+        throw `${this.getType()} "new" method not implemented`;
     }
 
     move(data, sender, opts) {
-        throw `${this.getType()} "move" method not implemented`
+        throw `${this.getType()} "move" method not implemented`;
     }
 
     clear(data, sender, opts) {
-        throw `${this.getType()} "clear" method not implemented`
+        throw `${this.getType()} "clear" method not implemented`;
     }
 
     start(data, sender, opts) {
-        throw `${this.getType()} "start" method not implemented`
+        throw `${this.getType()} "start" method not implemented`;
     }
 
     stop(data, sender, opts) {
-        throw `${this.getType()} "stop" method not implemented`
+        throw `${this.getType()} "stop" method not implemented`;
     }
 
     restart(data, sender, opts) {
-        throw `${this.getType()} "restart" method not implemented`
+        throw `${this.getType()} "restart" method not implemented`;
     }
 
     set(data, sender, opts) {
-        throw `${this.getType()} "set" method not implemented`
+        throw `${this.getType()} "set" method not implemented`;
     }
 
     add(data, sender, opts) {
-        throw `${this.getType()} "add" method not implemented`
+        throw `${this.getType()} "add" method not implemented`;
     }
 
     remove(data, sender, opts) {
-        throw `${this.getType()} "remove" method not implemented`
+        throw `${this.getType()} "remove" method not implemented`;
     }
 
     open(data, sender, opts) {
-        throw `${this.getType()} "open" method not implemented`
+        throw `${this.getType()} "open" method not implemented`;
     }
 
     close(data, sender, opts) {
-        throw `${this.getType()} "close" method not implemented`
+        throw `${this.getType()} "close" method not implemented`;
     }
 
     switch(data, sender, opts) {
-        throw `${this.getType()} "switch" method not implemented`
+        throw `${this.getType()} "switch" method not implemented`;
     }
 
     update(data, sender, opts) {
@@ -1168,6 +1223,8 @@ class PodeCyclingChildElement extends PodeContentElement {
 class PodeRefreshableElement extends PodeTextualElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        this.hasSpinner = true;
+
         this.refreshable = {
             enabled: !(data.NoRefresh ?? false)
         };
@@ -1583,6 +1640,7 @@ class PodeSpinner extends PodeContentElement {
 
     constructor(...args) {
         super(...args);
+        this.hasSpinner = true;
     }
 
     new(data, sender, opts) {
@@ -1598,7 +1656,7 @@ class PodeSpinner extends PodeContentElement {
 
         return `<span
             id='${this.id}'
-            class="spinner-border spinner-border-sm"
+            class="pode-spinner spinner-border spinner-border-sm"
             style="${colour}"
             role="status"
             pode-object='${this.getType()}'
@@ -1873,6 +1931,7 @@ class PodeButton extends PodeFormElement {
         this.iconOnly = data.IconOnly;
         this.validation = false;
         this.label.enabled = false;
+        this.hasSpinner = true;
     }
 
     new(data, sender, opts) {
@@ -1929,7 +1988,7 @@ class PodeButton extends PodeFormElement {
                     pode-object='${this.getType()}'
                     pode-colour='${data.ColourType}'
                     pode-id='${this.uuid}'>
-                        <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                        <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                         ${icon}
                         <span class='pode-text'>${data.DisplayName}</span>
                 </button>`;
@@ -1980,7 +2039,7 @@ class PodeButton extends PodeFormElement {
                 inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
             }
 
-            sendAjaxReq(sender.url, inputs.data, sender.element, true, null, null, inputs.opts, $(e.currentTarget));
+            sendAjaxReq(sender.url, inputs.data, sender, true, null, null, inputs.opts, $(e.currentTarget));
         });
     }
 
@@ -2066,6 +2125,7 @@ class PodeForm extends PodeContentElement {
         this.showReset = data.ShowReset ?? false;
         this.action = data.Action ?? '';
         this.method = data.Method ?? 'POST';
+        this.hasSpinner = true;
     }
 
     new(data, sender, opts) {
@@ -2087,7 +2147,7 @@ class PodeForm extends PodeContentElement {
                 <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
 
                 <button class="btn btn-inbuilt-theme" type="submit">
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
+                    <span for='${this.uuid}' class="pode-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                     ${data.SubmitText}
                 </button>
 
@@ -2108,7 +2168,7 @@ class PodeForm extends PodeContentElement {
         // submit form
         this.listen(this.element, 'submit', function(e, target) {
             var result = obj.serialize();
-            sendAjaxReq(obj.action, result.data, obj.element, true, null, null, result.opts, obj.getSubmitButton());
+            sendAjaxReq(obj.action, result.data, obj, true, null, null, result.opts, obj.getSubmitButton());
         });
 
         // reset form
@@ -2368,7 +2428,7 @@ class PodeTable extends PodeRefreshableElement {
                                 <tbody></tbody>
                         </table>
                         <div class='text-center'>
-                            <span id='${this.id}_spinner' class='spinner-grow text-inbuilt-sec-theme' role='status' style='display: none'></span>
+                            <span for='${this.uuid}' class='pode-spinner spinner-grow text-inbuilt-sec-theme' role='status' style='display: none'></span>
                         </div>
                     </div>
                     <div role='controls'>
@@ -2577,7 +2637,7 @@ class PodeTable extends PodeRefreshableElement {
         }
 
         // invoke and load table content
-        sendAjaxReq(url, query, this.element, true, () => { this.loading = false; }, null, { successCallbackBefore: true });
+        sendAjaxReq(url, query, this, true, () => { this.loading = false; }, null, { successCallbackBefore: true });
         this.loading = true;
     }
 
@@ -2746,7 +2806,7 @@ class PodeTable extends PodeRefreshableElement {
         this.listen(this.element.find('.pode-table-button'), 'click', function(e, target) {
             obj.tooltip(false, target);
             var url = `${obj.url}/button/${target.attr('name')}`;
-            sendAjaxReq(url, obj.export(), obj.element, true, null, null, { contentType: 'text/csv' }, $(e.currentTarget));
+            sendAjaxReq(url, obj.export(), obj, true, null, null, { contentType: 'text/csv' }, $(e.currentTarget));
         });
     }
 
@@ -2874,7 +2934,6 @@ class PodeTable extends PodeRefreshableElement {
         var value = '';
         var direction = 'none';
         var columnHidden = false;
-
         var columnKeys = Object.keys(columns);
 
         if (head.find('th').length == 0 && columnKeys.length > 0) {
@@ -3308,8 +3367,10 @@ class PodeTextbox extends PodeFormElement {
         var obj = this;
 
         if (this.autoComplete) {
-            sendAjaxReq(`${this.url}/autocomplete`, null, null, false, (res) => {
-                obj.element.autocomplete({ source: res.Values });
+            sendAjaxReq(`${this.url}/autocomplete`, null, null, false, null, null, {
+                customActionCallback: (res) => {
+                    obj.element.autocomplete({ source: res.Values });
+                }
             });
         }
     }
@@ -3786,7 +3847,7 @@ class PodeTile extends PodeRefreshableElement {
 
         // call url for dynamic tiles
         if (this.dynamic) {
-            sendAjaxReq(this.url, null, this.element, true);
+            sendAjaxReq(this.url, null, this, true);
         }
 
         // if not dynamic, and fully created, click refresh buttons of sub-elements
@@ -3804,7 +3865,7 @@ class PodeTile extends PodeRefreshableElement {
         // is the tile clickable?
         if (this.clickable) {
             this.listen(this.element, 'click', function(e, target) {
-                sendAjaxReq(`${obj.url}/click`, null, obj.element, true);
+                sendAjaxReq(`${obj.url}/click`, null, obj, true);
             });
         }
 
@@ -4225,7 +4286,7 @@ class PodeChart extends PodeRefreshableElement {
                 </div>
                 <canvas class="my-4 w-100" style="${height}"></canvas>
                 <div class="text-center">
-                    <span id="${this.id}_spinner" class="spinner-grow text-inbuilt-sec-theme canvas-spinner" role="status"></span>
+                    <span for='${this.uuid}' class="pode-spinner spinner-grow text-inbuilt-sec-theme canvas-spinner" role="status"></span>
                 </div>
         </div>`;
     }
@@ -4259,7 +4320,7 @@ class PodeChart extends PodeRefreshableElement {
         }
 
         // invoke and load chart content
-        sendAjaxReq(url, data, this.element, true, () => { this.loading = false }, null, { successCallbackBefore: true });
+        sendAjaxReq(url, data, this, true, () => { this.loading = false; }, null, { successCallbackBefore: true });
         this.loading = true;
     }
 
@@ -4482,7 +4543,7 @@ class PodeModal extends PodeContentElement {
         </button>`;
 
         var contentArea = this.asForm
-            ? `<form class='pode-form' method='${data.Method}' action='${data.Action}' pode-content-for='${this.uuid}' pode-content-order='0'>`
+            ? `<form class='pode-form' method='${data.Method}' action='${data.Action}' for='${this.uuid}' pode-content-for='${this.uuid}' pode-content-order='0'>`
             : `<div pode-content-for='${this.uuid}' pode-content-order='0'></div>`;
 
         return `<div
@@ -4542,11 +4603,11 @@ class PodeModal extends PodeContentElement {
 
                 // find a form
                 var inputs = {};
-                var form = null;
+                // var form = null;
                 var method = 'post';
 
                 if (obj.asForm) {
-                    form = obj.element.find('div.modal-body form');
+                    var form = obj.getElement(); // .element.find('div.modal-body form');
 
                     var action = form.attr('action');
                     if (action) {
@@ -4578,7 +4639,7 @@ class PodeModal extends PodeContentElement {
                 inputs.opts.method = method;
 
                 // invoke url
-                sendAjaxReq(url, inputs.data, (form ?? obj.element), true, null, null, inputs.opts, $(e.currentTarget));
+                sendAjaxReq(url, inputs.data, obj, true, null, null, inputs.opts, $(e.currentTarget));
             });
         }
     }
@@ -4599,6 +4660,13 @@ class PodeModal extends PodeContentElement {
         resetForm(this.element);
         removeValidationErrors(this.element);
         this.element.modal('hide');
+    }
+
+    getElement() {
+        var ele = super.getElement();
+        return this.asForm
+            ? ele.find('div.modal-body form')
+            : ele;
     }
 
     static find(data, sender, filter, opts) {
@@ -4739,7 +4807,7 @@ class PodeSelect extends PodeFormElement {
     load(data, sender, opts) {
         super.load(data, sender, opts);
         if (this.dynamic) {
-            sendAjaxReq(this.url, null, this.element, true);
+            sendAjaxReq(this.url, null, this, true);
         }
     }
 
@@ -4876,14 +4944,14 @@ class PodeProgress extends PodeContentElement {
                 </div>
         </div>`;
 
-        if (data.DisplayName) {
+        if (!data.HideName && data.DisplayName) {
             html = `<div class='form-group row'>
                 <label for='${this.id}' class='col-sm-2 col-form-label'>${data.DisplayName}</label>
                 <div class='col-sm-10 my-auto'>${html}</div>
             </div>`;
         }
 
-        return `<span pode-container-for='${this.uuid}'>${html}<span>`;
+        return html;
     }
 
     load(data, sender, opts) {
@@ -4908,19 +4976,39 @@ class PodeProgress extends PodeContentElement {
         super.update(data, sender, opts);
 
         // value
-        if (data.Value) {
-            this.element.attr('aria-valuenow', data.Value);
-
-            var max = this.element.attr('aria-valuemax');
-            var percentage = (data.Value / max) * 100.0;
-
-            this.element.css('width', `${percentage}%`);
-        }
+        this.updateValue(data.Value);
 
         // colour
         if (data.Colour) {
             this.replaceClass('bg-\\w+', `bg-${data.ColourType}`, null, { pattern: true });
         }
+    }
+
+    reset(data, sender, opts) {
+        this.updateValue(0);
+    }
+
+    updateValue(value) {
+        if (value == null || value < 0 || value > 100) {
+            return;
+        }
+
+        this.element.attr('aria-valuenow', value);
+
+        var max = this.element.attr('aria-valuemax');
+        var percentage = value == 0 ? 0 : (value / max) * 100.0;
+
+        this.element.css('width', `${percentage}%`);
+    }
+
+    show(data, sender, opts) {
+        this.element.parent().show();
+        this.visible = true;
+    }
+
+    hide(data, sender, opts) {
+        this.element.parent().hide();
+        this.visible = false;
     }
 }
 PodeElementFactory.setClass(PodeProgress);
@@ -5213,6 +5301,7 @@ class PodeFileStream extends PodeContentElement {
     //TODO: could we build this entire element with pure Card, Button, and Textarea New- func calls?
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        this.hasSpinner = true;
         this.file = {
             url: data.Url,
             length: 0,
@@ -5234,7 +5323,7 @@ class PodeFileStream extends PodeContentElement {
                 <div class='btn-toolbar mb-2 mb-md-0 mTop-05'>
                     <div class='icon-group mr-2'>
                         <span class='mdi mdi-alert-circle-outline stream-error' style='display:none;'></span>
-                        <span id='${this.id}_spinner' class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                        <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                     </div>
                     <div class='btn-group mr-2 mLeft05'>
                         <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-download' for='${this.id}'>
@@ -5432,7 +5521,7 @@ class PodeSteps extends PodeContentElement {
 
     submit() {
         var result = this.serialize();
-        sendAjaxReq(this.url, result.data, this.element, true, null, null, result.opts);
+        sendAjaxReq(this.url, result.data, this, true, null, null, result.opts);
     }
 
     addChild(element, data, sender, opts) {
@@ -5463,6 +5552,7 @@ class PodeStep extends PodeContentElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        this.hasSpinner = true;
 
         if (!this.checkParentType('steps')) {
             throw 'Step element can only be used in Steps'
@@ -5474,11 +5564,11 @@ class PodeStep extends PodeContentElement {
         var prevBtn = this.child.isFirst ? '' : `<button class='btn btn-inbuilt-theme step-previous float-left' for='${this.id}'>
             <span class='mdi mdi-chevron-left mRight02'></span>
             Previous
-            <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+            <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         </button>`;
 
         var nextBtn = `<button class='btn btn-inbuilt-theme step-${this.child.isLast ? 'submit' : 'next'} float-right' for='${this.id}'>
-            <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+            <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
             ${this.child.isLast ? 'Submit' : 'Next'}
             <span class='mdi ${this.child.isLast ? 'mdi-checkbox-marked-circle-outline' : 'mdi-chevron-right'} mLeft02'></span>
         </button>`;
@@ -5529,7 +5619,7 @@ class PodeStep extends PodeContentElement {
 
             if (obj.dynamic) {
                 var result = obj.serialize();
-                sendAjaxReq(obj.url, result.data, obj.element, true, (_, sender) => {
+                sendAjaxReq(obj.url, result.data, obj, true, (_, sender) => {
                     if (!hasValidationErrors(sender)) {
                         obj.parent.next();
                     }
@@ -5548,7 +5638,7 @@ class PodeStep extends PodeContentElement {
 
             if (obj.dynamic) {
                 var result = obj.serialize();
-                sendAjaxReq(obj.url, result.data, obj.element, true, (_, sender) => {
+                sendAjaxReq(obj.url, result.data, obj, true, (_, sender) => {
                     if (!hasValidationErrors(sender)) {
                         obj.parent.submit();
                     }

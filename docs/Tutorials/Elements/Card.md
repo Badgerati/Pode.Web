@@ -1,12 +1,12 @@
 # Card
 
-A card is a layout that renders with an optional title, and can be collapsed by the end-user.
+A card is an element that renders with an optional title, and can be collapsed by the end-user.
 
 A card takes an array of elements via `-Content`.
 
 ## Usage
 
-To create a card layout you use [`New-PodeWebCard`](../../../Functions/Layouts/New-PodeWebCard), and supply it an array of `-Content`.
+To create a card element you use [`New-PodeWebCard`](../../../Functions/Elements/New-PodeWebCard), and supply it an array of `-Content`.
 
 For example, the below renders a card with a quote:
 
@@ -34,7 +34,7 @@ Which would look like below:
 
 ## Buttons
 
-By default the only button in a Card's header is the visibility toggle - to hide or show the Card's contents. You can add custom buttons to a Card's header by supplying `New-PodeWebButton` or `New-PodeWebButtonGroup` elements to the `-Buttons` parameter:
+By default, the only button in a Card's header is the visibility toggle - to hide or show the Card's contents. You can add custom buttons to a Card's header by supplying `New-PodeWebButton` or `New-PodeWebButtonGroup` elements to the `-Buttons` parameter:
 
 ```powershell
 New-PodeWebCard -Name 'Example' -Content @(

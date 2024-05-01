@@ -1,6 +1,10 @@
 function Set-PodeWebLoginPage {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [string]
+        $Id,
+
         [Parameter(Mandatory = $true)]
         [string]
         $Authentication,
@@ -58,8 +62,8 @@ function Set-PodeWebLoginPage {
     )
 
     # check content
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
-        throw 'The Login page can only contain layouts and/or elements'
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Element)) {
+        throw 'The Login page can only contain other elements'
     }
 
     # retrieve the auth from pode
@@ -108,7 +112,7 @@ function Set-PodeWebLoginPage {
     }
 
     # generate page ID
-    $Id = Get-PodeWebPageId -Name 'login' -System
+    $Id = Get-PodeWebPageId -Id $Id -Name 'login' -System
 
     # login / logout paths
     if ([string]::IsNullOrEmpty($LoginPath)) {
@@ -121,6 +125,7 @@ function Set-PodeWebLoginPage {
 
     # setup page meta
     $pageMeta = @{
+        Operation       = 'New'
         ComponentType   = 'Page'
         ObjectType      = 'Page'
         ID              = $Id
@@ -147,6 +152,7 @@ function Set-PodeWebLoginPage {
         IsOAuth2        = $isOAuth2
         GrantType       = $grantType
         IsSystem        = $true
+        ResponseType    = (Get-PodeWebResponseType)
     }
 
     # set auth system urls
@@ -209,6 +215,22 @@ function Set-PodeWebLoginPage {
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
         Write-PodeJsonResponse -Value $global:PageData.Content
         $global:PageData = $null
+    }
+
+    # add sse open route
+    if (Test-PodeWebResponseType -Type Sse) {
+        Add-PodeRoute -Method Get -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/sse-open" -ArgumentList @{ ID = $Id } -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+            ConvertTo-PodeSseConnection -Name 'Pode.Web.Actions' -Group $Data.ID
+        }
+
+        # add sse close route
+        Add-PodeRoute -Method Post -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/sse-close" -EndpointName $EndpointName -ScriptBlock {
+            $clientId = Get-PodeHeader -Name 'X-PODE-SSE-CLIENT-ID'
+            if (![string]::IsNullOrEmpty($clientId)) {
+                Close-PodeSseConnection -Name 'Pode.Web.Actions' -ClientId $clientId
+            }
+        }
     }
 
     if ($PassThru) {
@@ -326,9 +348,9 @@ function Add-PodeWebPage {
         $PassThru
     )
 
-    # ensure layouts are correct
-    if (!(Test-PodeWebContent -Content $Content -ComponentType Layout, Element)) {
-        throw 'A Page can only contain layouts/elements'
+    # ensure elements are correct
+    if (!(Test-PodeWebContent -Content $Content -ComponentType Element)) {
+        throw 'A Page can only contain elements'
     }
 
     # test if group exists - otherwise create a basic group entry
@@ -359,6 +381,7 @@ function Add-PodeWebPage {
 
     # setup page meta
     $pageMeta = @{
+        Operation        = 'New'
         ComponentType    = 'Page'
         ObjectType       = 'Page'
         ID               = $Id
@@ -396,6 +419,7 @@ function Add-PodeWebPage {
             Groups = @($AccessGroups)
             Users  = @($AccessUsers)
         }
+        ResponseType     = (Get-PodeWebResponseType)
     }
 
     # does the page need auth?
@@ -479,6 +503,7 @@ function Add-PodeWebPage {
     Add-PodeRoute -Method Post -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/content" -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
         param($Data)
         $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
+        Set-PodeWebMetadata
 
         # get auth details of a user
         $authEnabled = ![string]::IsNullOrEmpty((Get-PodeWebState -Name 'auth'))
@@ -516,10 +541,9 @@ function Add-PodeWebPage {
         $global:PageData = $null
     }
 
-    # add the page help route
-    $helpPath = "/pode.web-dynamic/pages/$($pageMeta.ID)/help"
-    if (($null -ne $HelpScriptBlock) -and !(Test-PodeWebRoute -Path $helpPath)) {
-        Add-PodeRoute -Method Post -Path $helpPath -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
+    # add sse open route
+    if (Test-PodeWebResponseType -Type Sse) {
+        Add-PodeRoute -Method Get -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/sse-open" -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
 
@@ -542,9 +566,78 @@ function Add-PodeWebPage {
                 Set-PodeResponseStatus -Code 403
             }
             else {
+                # open new sse connection
+                ConvertTo-PodeSseConnection -Name 'Pode.Web.Actions' -Group $Data.ID
+            }
+
+            $global:PageData = $null
+        }
+
+        # add sse close route
+        Add-PodeRoute -Method Post -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/sse-close" -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+            $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
+
+            # get auth details of a user
+            $authEnabled = ![string]::IsNullOrEmpty((Get-PodeWebState -Name 'auth'))
+            $authMeta = $null
+
+            if ($authEnabled) {
+                $authData = Get-PodeAuthUser
+                if ($null -ne $authData) {
+                    $authMeta = @{
+                        Username = (Get-PodeWebAuthUsername -User $authData)
+                        Groups   = (Get-PodeWebAuthGroups -User $authData)
+                    }
+                }
+            }
+
+            # check access - 403 if denied
+            if (!(Test-PodeWebPageAccess -PageAccess $global:PageData.Access -Auth $authMeta)) {
+                Set-PodeResponseStatus -Code 403
+            }
+            else {
+                # if a connection in header, close connection
+                $clientId = Get-PodeHeader -Name 'X-PODE-SSE-CLIENT-ID'
+                if (![string]::IsNullOrEmpty($clientId)) {
+                    Close-PodeSseConnection -Name 'Pode.Web.Actions' -ClientId $clientId
+                }
+            }
+
+            $global:PageData = $null
+        }
+    }
+
+    # add the page help route
+    $helpPath = "/pode.web-dynamic/pages/$($pageMeta.ID)/help"
+    if (($null -ne $HelpScriptBlock) -and !(Test-PodeWebRoute -Path $helpPath)) {
+        Add-PodeRoute -Method Post -Path $helpPath -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
+            param($Data)
+            $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
+            Set-PodeWebMetadata
+
+            # get auth details of a user
+            $authEnabled = ![string]::IsNullOrEmpty((Get-PodeWebState -Name 'auth'))
+            $authMeta = $null
+
+            if ($authEnabled) {
+                $authData = Get-PodeAuthUser
+                if ($null -ne $authData) {
+                    $authMeta = @{
+                        Username = (Get-PodeWebAuthUsername -User $authData)
+                        Groups   = (Get-PodeWebAuthGroups -User $authData)
+                    }
+                }
+            }
+
+            # check access - 403 if denied
+            if (!(Test-PodeWebPageAccess -PageAccess $global:PageData.Access -Auth $authMeta)) {
+                Set-PodeResponseStatus -Code 403
+            }
+            else {
                 $result = Invoke-PodeWebScriptBlock -Logic $global:PageData.Help -Arguments $Data.Data
 
-                if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                if (($null -ne $result) -and !$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                     Write-PodeJsonResponse -Value $result
                 }
             }
@@ -655,6 +748,7 @@ function Add-PodeWebPageLink {
 
     # setup page meta
     $pageMeta = @{
+        Operation        = 'New'
         ComponentType    = 'Page'
         ObjectType       = 'Link'
         ID               = $Id
@@ -706,10 +800,11 @@ function Add-PodeWebPageLink {
         Add-PodeRoute -Method Post -Path $pageMeta.Path -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -Middleware $Middleware -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $pageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
+            Set-PodeWebMetadata
 
             $result = Invoke-PodeWebScriptBlock -Logic $pageData.Logic -Arguments $Data.Data
 
-            if (!$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+            if (($null -ne $result) -and !$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
                 Write-PodeJsonResponse -Value $result
             }
         }
@@ -901,7 +996,12 @@ function ConvertTo-PodeWebPage {
             }
         }
 
-        Add-PodeWebPage -Name $cmd -Icon Settings -Content $tabs -Group $group -NoAuthentication:$NoAuthentication
+        Add-PodeWebPage `
+            -Name $cmd `
+            -Icon Settings `
+            -Content $tabs `
+            -Group $group `
+            -NoAuthentication:$NoAuthentication
     }
 }
 
@@ -1071,6 +1171,7 @@ function New-PodeWebPageGroup {
 
     # setup group meta
     $groupMeta = @{
+        Operation     = 'New'
         ComponentType = 'Group'
         ObjectType    = 'Group'
         ID            = Get-PodeWebRandomName

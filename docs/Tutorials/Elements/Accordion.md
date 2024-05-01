@@ -1,12 +1,12 @@
 # Accordion
 
-An accordion layout is an array of accordion bellows with content. They are displayed in a collapsible manner, with the first bellow being expanded. When another bellow is expanded, all other bellows are collapsed.
+An accordion element is an array of accordion bellows with content. They are displayed in a collapsible manner, with the first bellow being expanded. When another bellow is expanded, all other bellows are collapsed.
 
 The bellows take an array of elements via `-Content`.
 
 ## Usage
 
-To create an accordion layout you use [`New-PodeWebAccordion`](../../../Functions/Layouts/New-PodeWebAccordion), and supply it an array of `-Bellows` using [`New-PodeWebBellow`](../../../Functions/Layouts/New-PodeWebBellow). The bellows themselves accept an array of other elements/layouts as `-Content`.
+To create an accordion element you use [`New-PodeWebAccordion`](../../../Functions/Elements/New-PodeWebAccordion), and supply it an array of `-Bellows` using [`New-PodeWebBellow`](../../../Functions/Elements/New-PodeWebBellow). The bellows themselves accept an array of other elements as `-Content`.
 
 For example, the following renders an accordion with 3 bellows each containing an image:
 

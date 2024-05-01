@@ -60,14 +60,14 @@ Start-PodeServer -StatusPageExceptions Show {
         New-PodeWebParagraph -Content @(
             New-PodeWebText -Value "Look, here's a "
             New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
-            New-PodeWebText -Value "! "
+            New-PodeWebText -Value '! '
             New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan |
                 Register-PodeWebEvent -Type Click -ScriptBlock {
                     Show-PodeWebToast -Message 'Badge was clicked!'
                 }
         )
         New-PodeWebParagraph -Content @(
-            New-PodeWebCode -Id 'code_test' -Value "some code :o"
+            New-PodeWebCode -Id 'code_test' -Value 'some code :o'
         )
         $timer1
         New-PodeWebImage -Source '/pode.web-static/images/icon.png' -Height 70 -Alignment Right
@@ -120,20 +120,20 @@ Start-PodeServer -StatusPageExceptions Show {
         }
 
         return (1..$count | ForEach-Object {
-            @{
-                Key = $_
-                Values = @(
-                    @{
-                        Key = 'Example1'
-                        Value = (Get-Random -Maximum 10)
-                    },
-                    @{
-                        Key = 'Example2'
-                        Value = (Get-Random -Maximum 10)
-                    }
-                )
-            }
-        })
+                @{
+                    Key    = $_
+                    Values = @(
+                        @{
+                            Key   = 'Example1'
+                            Value = (Get-Random -Maximum 10)
+                        },
+                        @{
+                            Key   = 'Example2'
+                            Value = (Get-Random -Maximum 10)
+                        }
+                    )
+                }
+            })
     }
 
     $processData = {
@@ -222,13 +222,13 @@ Start-PodeServer -StatusPageExceptions Show {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
 
         $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
 
         $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
@@ -256,8 +256,8 @@ Start-PodeServer -StatusPageExceptions Show {
             }
 
             [ordered]@{
-                Name = $svc.Name
-                Status = "$($svc.Status)"
+                Name    = $svc.Name
+                Status  = "$($svc.Status)"
                 Actions = $btns
             }
         }
@@ -285,7 +285,7 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebCodeBlock -Value $svc -NoHighlight
         )
     } `
-    -HelpScriptBlock {
+        -HelpScriptBlock {
         Show-PodeWebModal -Name 'Help'
     }
 

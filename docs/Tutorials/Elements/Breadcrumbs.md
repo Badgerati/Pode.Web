@@ -1,6 +1,6 @@
 # Breadcrumbs
 
-You can control optional breadcrumbs that appear at the top of each page using [`Set-PodeWebBreadcrumb`](../../../Functions/Layouts/Set-PodeWebBreadcrumb) and [`New-PodeWebBreadcrumbItem`](../../../Functions/Layouts/New-PodeWebBreadcrumbItem). By default, pages will show breadcrumbs if the appropriate query string parameters are set (`base` and `value`).
+You can control optional breadcrumbs that appear at the top of each page using [`Set-PodeWebBreadcrumb`](../../../Functions/Elements/Set-PodeWebBreadcrumb) and [`New-PodeWebBreadcrumbItem`](../../../Functions/Elements/New-PodeWebBreadcrumbItem). By default, pages will show breadcrumbs if the appropriate query string parameters are set (`base` and `value`).
 
 Or, you can control the breadcrumbs yourself, by creating breadcrumb items and then setting them on the page. Only one item can be active, and each item can have a URL that clicking the item takes it back to:
 
