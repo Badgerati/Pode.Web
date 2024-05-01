@@ -1335,11 +1335,20 @@ function Hide-PodeWebElement {
 }
 
 function Show-PodeWebSpinner {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
-        $Id
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
+        [string]
+        $ObjectType,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name
     )
 
     Send-PodeWebAction -Value @{
@@ -1347,15 +1356,26 @@ function Show-PodeWebSpinner {
         ObjectType    = 'Element'
         SubObjectType = 'Spinner'
         ID            = $Id
+        Type          = $ObjectType
+        Name          = $Name
     }
 }
 
 function Hide-PodeWebSpinner {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
         [string]
-        $Id
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
+        [string]
+        $ObjectType,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name
     )
 
     Send-PodeWebAction -Value @{
@@ -1363,6 +1383,8 @@ function Hide-PodeWebSpinner {
         ObjectType    = 'Element'
         SubObjectType = 'Spinner'
         ID            = $Id
+        Type          = $ObjectType
+        Name          = $Name
     }
 }
 

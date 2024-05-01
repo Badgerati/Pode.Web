@@ -1,7 +1,7 @@
 Import-Module Pode -MaximumVersion 2.99.99 -Force
 Import-Module ..\src\Pode.Web.psd1 -Force
 
-Start-PodeServer {
+Start-PodeServer -Threads 2 {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
