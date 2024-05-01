@@ -1,8 +1,8 @@
 # Tile
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
 A tile is a small coloured container, that contains either a static value or more elements. There purpose is to display quick informational data like: CPU, counters, charts, etc.
 
@@ -26,7 +26,7 @@ Which looks like below:
 
 > If you click the refresh icon, the scriptblock will be re-called, and the value updated.
 
-Or, if you want to display the current CPU but change the colour if it goes above 50%, then you can use [`Update-PodeWebTile`](../../../Functions/Outputs/Update-PodeWebTile) instead:
+Or, if you want to display the current CPU but change the colour if it goes above 50%, then you can use [`Update-PodeWebTile`](../../../Functions/Actions/Update-PodeWebTile) instead:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -84,7 +84,7 @@ Which looks like below:
 
 ## Clickable
 
-You can make a whole tile clickable by supplying a `-ClickScriptBlock`. When clicked the scriptblock will be called, and you can use any output action within the scriptblock.
+You can make a whole tile clickable by supplying a `-ClickScriptBlock`. When clicked the scriptblock will be called, and you can use any action within the scriptblock.
 
 For example, the following will show a tile with a random number, but when clicked it will display a toast message:
 
@@ -109,4 +109,4 @@ To set a tile to automatically refresh once a minute, you can supply the `-AutoR
 
 Tiles will be displayed inline, and to display one on a new line you can supply the `-NewLine` switch.
 
-If you want to display the tiles more neatly in a line, it's recommended to display them using a [Grid](../../Layouts/Grid).
+If you want to display the tiles more neatly in a line, it's recommended to display them using a [Grid](../../Elements/Grid).

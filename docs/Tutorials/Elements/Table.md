@@ -1,8 +1,8 @@
 # Table
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
 You can display data rendered in a table by using [`New-PodeWebTable`](../../../Functions/Elements/New-PodeWebTable), and you can also render certain other elements within a table such as:
 
@@ -12,7 +12,7 @@ You can display data rendered in a table by using [`New-PodeWebTable`](../../../
 * Icons
 * Links
 
-A table gets its data from a supplied `-ScriptBlock`, more information below, and you can also `-AutoRefresh` a table to fetch new data every minute. Tables also support being sorted, paginated, clickable and filtered.
+A table gets its data from a supplied `-ScriptBlock`, more information below, and you can also `-AutoRefresh` a table to fetch new data every minute. Tables also support being sorted, paginated, clickable, and filtered.
 
 ## Data
 
@@ -70,12 +70,12 @@ New-PodeWebContainer -Content @(
                     New-PodeWebButton -Name 'Stop' -Icon 'Stop-Circle' -IconOnly -ScriptBlock {
                         Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
                         Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
-                        Sync-PodeWebTable -Id $ElementData.Parent.ID
+                        Sync-PodeWebTable -Id $ParentData.ID
                     }
                     New-PodeWebButton -Name 'Start' -Icon 'Play-Circle' -IconOnly -ScriptBlock {
                         Start-Service -Name $WebEvent.Data.Value -Force | Out-Null
                         Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
-                        Sync-PodeWebTable -Id $ElementData.Parent.ID
+                        Sync-PodeWebTable -Id $ParentData.ID
                     }
                 )
             }
@@ -98,6 +98,22 @@ New-PodeWebContainer -Content @(
 )
 ```
 
+### Data
+
+You can pass static data to a Table to be rendered by using the `-Data` parameter. This parameter can be used in general but is more appropriate to be used when rendering a new Table as an action from another element - such as a Form to search for processes.
+
+!!! important
+    If you render a main Table using `-Data` on your page the data will be static and unchanging on page loads - unless you render the Table inside a `-ScriptBlock` of `Add-PodeWebPage`, but you'd be re-fetching the data on every page load which might impact the performance of loading the page as it will be synchronous, not asynchronous.
+
+```powershell
+New-PodeWebContainer -Content @(
+    Get-Process |
+        Sort-Object -Property CPU -Descending |
+        Select-Object -First 10 -Property Name, ID, WorkingSet, CPU |
+        New-PodeWebTable -Name 'TopX' -AsCard
+)
+```
+
 ## Options
 
 ### Compact
@@ -108,7 +124,7 @@ If you have a lot of data that needs to be displayed, and you need to see more o
 
 You can set a table's rows to be clickable by passing `-Click`. This by default will set it so that when a row is clicked the page is reloaded, and the `-DataColumn` value for that row will be set in the query string as `?value=<value>` - available in `$WebEvent.Query.Value`.
 
-You can set a dynamic click action by supplying the `-ClickScriptBlock` parameter. Now when a row is clicked the scriptblock is called instead, and the `-DataColumn` value will now be available via `$WebEvent.Data.Value` within the scriptblock. The scriptblock expects the normal output actions to be returned.
+You can set a dynamic click action by supplying the `-ClickScriptBlock` parameter. Now when a row is clicked the scriptblock is called instead, and the `-DataColumn` value will now be available via `$WebEvent.Data.Value` within the scriptblock. The scriptblock expects the normal actions to be returned.
 
 Any values specified to `-ArgumentList` will also be passed to the `-ClickScriptBlock` as well.
 
@@ -134,7 +150,7 @@ New-PodeWebTable -Name 'Example' -Filter -AsCard -ScriptBlock {
 }
 ```
 
-There's also a `-SimpleFilter` switch available, if you supply this instead of `-Filter` then a textbox is still displayed, however the filter is done directly via javascript and only applied to the current page. (useful for small tables displaying all data).
+There's also a `-SimpleFilter` switch available, if you supply this instead of `-Filter` then a textbox is still displayed however, the filter is done directly via javascript and only applied to the current page. (useful for small tables displaying all data).
 
 ### Paginate
 
@@ -151,7 +167,7 @@ New-PodeWebTable -Name 'Example' -Paginate -AsCard -ScriptBlock {
 }
 ```
 
-You can take control of the paging yourself, useful for querying databases, by using the values from `$WebEvent.Data.PageIndex` and `$WebEvent.Data.PageSize`. Once you have the pre-paged data, you will need to directly pass this into [`Update-PodeWebTable`](../../../Functions/Outputs/Update-PodeWebTable) along with the `-PageIndex` and the `-TotalItemCount`:
+You can take control of the paging yourself, useful for querying databases, by using the values from `$WebEvent.Data.PageIndex` and `$WebEvent.Data.PageSize`. Once you have the pre-paged data, you will need to directly pass this into [`Update-PodeWebTable`](../../../Functions/Actions/Update-PodeWebTable) along with the `-PageIndex` and the `-TotalItemCount`:
 
 ```powershell
 New-PodeWebTable -Name 'Example' -Paginate -AsCard -ScriptBlock {
@@ -171,7 +187,7 @@ New-PodeWebTable -Name 'Example' -Paginate -AsCard -ScriptBlock {
 ```
 
 !!! important
-    If you don't pass the data into the `Update-PodeWebTable` output action, then Pode.Web will do this automatically and use the auto-paging - which won't have the desired results!
+    If you don't pass the data into the `Update-PodeWebTable` action, then Pode.Web will do this automatically and use the auto-paging - which won't have the desired results!
 
 ### Sort
 
@@ -199,7 +215,7 @@ There's also a `-SimpleSort` switch available, if you supply this instead of `-S
 
 ## Columns
 
-You can set how certain columns in a table behave, such as: width, alignment, display name, and header icon. You can do this via [`Initialize-PodeWebTableColumn`](../../../Functions/Elements/Initialize-PodeWebTableColumn), and by passing these columns into `-Columns` of [`New-PodeWebTable`](../../../Functions/Elements/New-PodeWebTable).
+You can set how certain columns in a table behave, such as width, alignment, display name, and header icon. You can do this via [`Initialize-PodeWebTableColumn`](../../../Functions/Elements/Initialize-PodeWebTableColumn), and by passing these columns into `-Columns` of [`New-PodeWebTable`](../../../Functions/Elements/New-PodeWebTable).
 
 For example, using the services examples above, you can centrally align the Status/StartType columns and give them icons:
 

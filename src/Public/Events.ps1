@@ -1,18 +1,17 @@
-function Register-PodeWebEvent
-{
+function Register-PodeWebEvent {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [hashtable]
-        $Component,
+        $Element,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Change', 'Focus', 'FocusOut', 'Click', 'MouseOver', 'MouseOut', 'KeyDown', 'KeyUp')]
         [string[]]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
@@ -27,32 +26,32 @@ function Register-PodeWebEvent
     )
 
     foreach ($t in $Type) {
-        Register-PodeWebComponentEventInternal `
-            -Component $Component `
+        Register-PodeWebElementEventInternal `
+            -Element $Element `
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 
-    return $Component
+    return $Element
 }
 
-function Register-PodeWebMediaEvent
-{
+function Register-PodeWebMediaEvent {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [hashtable]
-        $Component,
+        $Element,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('CanPlay', 'Pause', 'Play', 'Ended')]
         [string[]]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
@@ -67,38 +66,38 @@ function Register-PodeWebMediaEvent
     )
 
     # ensure component is Audio or Video only
-    if (!(Test-PodeWebContent -Content $Component -ComponentType Element -ObjectType Audio, Video)) {
+    if (!(Test-PodeWebContent -Content $Element -ComponentType Element -ObjectType Audio, Video)) {
         throw 'Media events can only be registered on Audio/Video elements'
     }
 
     # register event
     foreach ($t in $Type) {
-        Register-PodeWebComponentEventInternal `
-            -Component $Component `
+        Register-PodeWebElementEventInternal `
+            -Element $Element `
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 
-    return $Component
+    return $Element
 }
 
-function Register-PodeWebPageEvent
-{
+function Register-PodeWebPageEvent {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [hashtable]
         $Page,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Load', 'Unload', 'BeforeUnload')]
         [string[]]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [scriptblock]
         $ScriptBlock,
 
@@ -127,6 +126,7 @@ function Register-PodeWebPageEvent
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
+            -PSSession $PSCmdlet.SessionState `
             -NoAuthentication:$NoAuthentication | Out-Null
     }
 

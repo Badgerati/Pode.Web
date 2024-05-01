@@ -1,3 +1,7 @@
+html {
+    color-scheme: dark;
+}
+
 nav#sidebarMenu {
     background-color: #121d2f !important;
     border-color: #214981 !important;
@@ -30,7 +34,10 @@ nav#sidebarMenu {
     border-bottom-color: dodgerblue;
 }
 
-body, main[role="main"], body#login-page, body#normal-page {
+body,
+main[role="main"],
+body#login-page,
+body#normal-page {
     background-color: #161b22;
     color: #aaa;
 }
@@ -114,6 +121,7 @@ a.navbar-brand {
     background-color: #142440 !important;
     color: #ccc !important;
 }
+
 .accordion .card .card-header button:hover {
     color: #ccc !important;
 }
@@ -137,7 +145,8 @@ a:hover {
     color: #bbb;
 }
 
-.btn-outline-secondary:hover, .btn-outline-secondary:active {
+.btn-outline-secondary:hover,
+.btn-outline-secondary:active {
     border-color: dodgerblue !important;
     color: dodgerblue !important;
 }
@@ -173,7 +182,11 @@ a:hover {
     color: #ccc !important
 }
 
-input, textarea, select, .progress {
+input,
+textarea,
+select,
+.progress,
+.custom-file-label {
     background-color: #090d13 !important;
     border-color: #214981 !important;
     color: #999 !important;
@@ -225,10 +238,16 @@ pre code {
 }
 
 .input-group-prepend .input-group-text,
-.input-group-append .input-group-text {
+.input-group-append .input-group-text,
+.custom-file-label::after {
     background-color: #121d2f !important;
     border-color: #214981 !important;
     color: #999 !important
+}
+
+.custom-file-input:hover+.custom-file-label::after {
+    background-color: #214981 !important;
+    color: #ccc !important
 }
 
 #pode-page-title {
@@ -279,7 +298,8 @@ nav .pagination .page-link {
     color: #ccc !important;
 }
 
-nav .pagination .page-link.active, nav .pagination .page-link:hover {
+nav .pagination .page-link.active,
+nav .pagination .page-link:hover {
     background-color: #214981 !important;
 }
 

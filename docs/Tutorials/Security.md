@@ -1,6 +1,6 @@
 # Security
 
-In Pode v2.6.0 support was added for HTTP [security headers](https://badgerati.github.io/Pode/Tutorials/Middleware/Types/Security/) to be automatically added to requests, such as: Access Control, Cross-Origin, Content Security Policy, and more.
+Support was implemented into Pode for HTTP [security headers](https://badgerati.github.io/Pode/Tutorials/Middleware/Types/Security/) to be automatically added to requests, such as: Access Control, Cross-Origin, Content Security Policy, and more.
 
 Pode.Web uses this feature to automatically set some default headers on requests, to make your site more secure.
 

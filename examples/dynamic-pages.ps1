@@ -10,17 +10,18 @@ Start-PodeServer {
     Use-PodeWebTemplates -Title 'Dynamic Pages' -Theme Dark
 
     # set the home page controls (just a simple paragraph)
-    $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
-        New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
-        New-PodeWebParagraph -Value 'Using some example paragraphs'
-    )
-    Set-PodeWebHomePage -Layouts $section -Title 'Awesome Homepage'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Title 'Awesome Homepage' -Icon 'cat' -ScriptBlock {
+        New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(
+            New-PodeWebParagraph -Value 'This is an example homepage, with some example text'
+            New-PodeWebParagraph -Value 'Using some example paragraphs'
+        )
+    }
 
     Add-PodeWebPage -Name Example -ArgumentList 'Title', 'BodyText' -ScriptBlock {
         param($title, $text)
 
         New-PodeWebContainer -Content @(
-            New-PodeWebHeader -Size 2 -Value $title
+            New-PodeWebHeader -Size 2 -Value $title -Icon 'folder'
             New-PodeWebText -Value $text
         )
     }

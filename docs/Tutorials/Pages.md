@@ -1,13 +1,16 @@
 # Pages
 
-There are 3 different kinds of pages in Pode.Web, which are defined below. Other than the Login page, the Home and normal Webpages can be populated with custom Layout/Element components. When you add pages to your site, they appear on the sidebar for navigation - unless they are specified to be hidden from the sidebar.
+There are 2 different kinds of pages in Pode.Web which are defined below. Other than the Login page, normal pages can be populated with custom elements. When you add pages to your site they appear on the sidebar for navigation - unless they are specified to be hidden from the sidebar.
 
 ## Login
 
-To enable the use of a login page, and lock your site behind authentication is simple! First, just setup sessions and define the authentication method you want via the usual `Enable-PodeSessionMiddleware`, `New-PodeAuthScheme` and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
+To enable the use of a login page, and lock your site behind authentication, is simple! First, just set up sessions and define the authentication method you want via the usual `Enable-PodeSessionMiddleware`, `New-PodeAuthScheme`, and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
 
 !!! note
-    Since the login page uses a form to logging a user in, the best scheme to use is Forms: `New-PodeAuthScheme -Form`. OAuth also works, as the login page will automatically trigger the relevant redirects.
+    Since the login page uses a form to log a user in, the best scheme to use is Forms: `New-PodeAuthScheme -Form`. OAuth2 also works, as the login page will automatically trigger the relevant redirects to your OAuth2 provider.
+
+!!! important
+    If you require a login page, then you **must** call [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) before you make any calls to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
 
 ```powershell
 Enable-PodeSessionMiddleware -Duration 120 -Extend
@@ -27,11 +30,21 @@ New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
 Set-PodeWebLoginPage -Authentication Example
 ```
 
-By default the Pode icon is displayed as the logo, but you can change this by using the `-Logo` parameter; this takes a literal or relative URL to an image file.
+By default, the Pode icon is displayed as the logo but you can change this by using the `-Logo` parameter, this takes a literal or relative URL to an image file. If a relative URL is used then the image should be available as [public/static content](https://badgerati.github.io/Pode/Tutorials/Routes/Utilities/StaticContent/#public-directory).
+
+### Paths
+
+When a login page is configured, Pode will automatically set up the Routes for you at `/login` and `/logout`. You can customise these paths to meet your needs by supplying `-LoginPath` and/or `-LogoutPath` - when not supplied the default paths mentioned previously will be used.
+
+For example, the following will configure a Login path but with the paths being `/auth/login` and `/auth/logout` instead.
+
+```powershell
+Set-PodeWebLoginPath -Authentication ExampleAuth -LoginPath '/auth/login' -LogoutPath '/auth/logout'
+```
 
 ### IIS
 
-If you're hosting the site using IIS, and want to use Windows Authentication within IIS, then you can setup authentication in Pode.Web via [`Set-PodeWebAuth`](../../Functions/Utilities/Set-PodeWebAuth). This works similar to `Set-PodeWebLoginPage`, and sets up authentication on the pages, but it doesn't cause a login page or the sign-in/out buttons to appear. Instead, Pode.Web gets the session from IIS, and then displays the logged in user at the top - similar to how the login page would after a successful login.
+If you're hosting the site using IIS, and want to use Windows Authentication within IIS, then you can set up authentication in Pode.Web via [`Set-PodeWebAuth`](../../Functions/Utilities/Set-PodeWebAuth). This works similarly to `Set-PodeWebLoginPage` and sets up authentication on the pages, but it doesn't cause a login page or the sign-in/out buttons to appear. Instead, Pode.Web gets the session from IIS, and then displays the logged-in user at the top - similar to how the login page would after a successful login.
 
 ```powershell
 Enable-PodeSessionMiddleware -Duration 120 -Extend
@@ -41,7 +54,7 @@ Set-PodeWebAuth -Authentication Example
 
 ### Custom Fields
 
-By default the Login page will display a login form with Username and Password inputs. This can be overridden by supplying custom Layouts and Elements to the `-Content` parameter of [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage). Any custom content will be placed between the "Please sign in" message and the "Sign In" button.
+By default the Login page will display a login form with Username and Password inputs. This can be overridden by supplying custom Elements to the `-Content` parameter of [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage). Any custom content will be placed between the "Please sign in" message and the "Sign In" button.
 
 ```powershell
 # setup sessions
@@ -89,33 +102,17 @@ Which would look like below:
 
 ![login_custom](../../images/login_custom.png)
 
-## Home
+## Page
 
-Every site is setup with a default empty home page. If you choose not to add anything to your home page, then Pode.Web will automatically redirect to the first Webpage.
-
-To setup the home page with content, you use [`Set-PodeWebHomePage`](../../Functions/Pages/Set-PodeWebHomePage). At its simplest this just takes an array of `-Layouts` to render on the page. For example, if you wanted to add a quick Hero element to your home page:
-
-```powershell
-Set-PodeWebHomePage -Layouts @(
-    New-PodeWebHero -Title 'Welcome!' -Message 'This is the home page' -Content @(
-        New-PodeWebText -Value 'Here is some text!' -InParagraph -Alignment Center
-    )
-)
-```
-
-If you want to hide the title on the home page, you can pass `-NoTitle`.
-
-## Webpage
-
-By adding a page to your site, Pode.Web will add a link to it on your site's sidebar navigation. You can also group pages together so you can collapse groups of them. To add a page to your site you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), and you can give your page a `-Name` and an `-Icon` to display on the sidebar. Pages can either be [static](#static) or [dynamic](#dynamic).
+By adding a page to your site Pode.Web will add a link to it on your site's sidebar navigation. You can also group pages so you can collapse groups of them. To add a page to your site you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), and you can give your page a `-Name` and an `-Icon` to display on the sidebar. Pages can either be [static](#static) or [dynamic](#dynamic).
 
 !!! note
-    The `-Icon` is the name of a [Material Design Icon](https://materialdesignicons.com), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplyig the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
+    The `-Icon` is the name of a [Material Design Icon](https://materialdesignicons.com), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplying the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
 
 For example, to add a simple Charts page to your site, to show a Windows counter:
 
 ```powershell
-Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts @(
+Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Content @(
     New-PodeWebCard -Content @(
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
     )
@@ -124,9 +121,27 @@ Add-PodeWebPage -Name Charts -Icon 'bar-chart-2' -Layouts @(
 
 You can split up your pages into different .ps1 files, if you do and you place them within a `/pages` directory, then [`Use-PodeWebPages`](../../Functions/Pages/Use-PodeWebPages) will auto-load them all for you.
 
+### Path
+
+A created Page will by default have a generated URL path of `/groups/<group-name>/pages/<page-name>`. You can customise this URL path you be whatever you want by supplying the `-Path` parameter to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
+
+For example, the following page will be accessible at `/my-services` rather than `/pages/Services`:
+
+```powershell
+Add-PodeWebPage -Name Services -Path '/my-services' -ScriptBlock { ... }
+```
+
+### Home
+
+If you have a Page created that you would like to be your Home page, where users are directed to by default on Login (or by clicking the site's Navigation bar icon), then you can supply the `-HomePage` switch to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This will inform Pode.Web that you want this Page to be your Home page.
+
+```powershell
+Add-PodeWebPage -Name 'Home' -Path '/' -Content $section -Title 'Awesome Homepage' -HomePage
+```
+
 ### Link
 
-If you just need to place a redirect link into the sidebar, then use [`Add-PodeWebPageLink`](../../Functions/Pages/Add-PodeWebPageLink). This works in a similar way to `Add-PodeWebPage`, but takes either a flat `-Url` to redirect to, or a `-ScriptBlock` that you can return output actions from - *not* layout/element components. Page links can also be grouped, like normal pages.
+If you just need to place a redirect link into the sidebar, then use [`Add-PodeWebPageLink`](../../Functions/Pages/Add-PodeWebPageLink). This works similarly to `Add-PodeWebPage`, but takes either a flat `-Url` to redirect to, or a `-ScriptBlock` that you can return actions from. Page links can also be grouped, like normal pages.
 
 Flat URLs:
 
@@ -144,25 +159,42 @@ Add-PodeWebPageLink -Name Twitter -Icon Twitter -ScriptBlock {
 
 ### Group
 
-You can group multiple pages together on the sidebar by using the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This will group pages together into a collapsible container.
+You can group multiple pages on the sidebar by using the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This will group pages into a collapsible container.
+
+By just supplying the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage) Pode.Web will configure a default Group for you. However, you can pre-create groups by using [`New-PodeWebPageGroup`](../../Functions/Pages/New-PodeWebPageGroup), this will allow you to customise the Display Name, Icons, whether the page counter should be visible or not, and whether the Group itself should be visible or not in the sidebar. To place a Page into a pre-created Group, just use the name of the Group in the `-Group` parameter as normal.
+
+```powershell
+# pre-create a Tools group, with an icon and show no counter
+New-PodeWebGroup -Name Tools -Icon Settings -NoCounter
+
+# create a page that uses the above Tools group
+Add-PodeWebPage -Name Services -Group Tools -ScriptBlock { ... }
+```
+
+### Index
+
+Pages within the sidebar are automatically sorted into alphabetical order, within the scope of the Group they're contained in. You can change the ordering of a Page by using the `-Index` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), any Pages with the same index value will still be sorted alphabetically.
+
+All Pages by default have an index of `[int]::MaxValue`, creating a Page with an index lower than this (say, 0) will cause that Page to be sorted to the top of the list of Pages in the sidebar (within the scope of the Group they're in).
 
 ### Help Icon
 
-A help icon can be displayed to the right of the page's title by supplying a `-HelpScriptBlock` to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This scriptblock is used to return output actions such as: displaying a modal when the help icon is clicked; redirect the user to a help page; or any other possible actions to help a user out.
+A help icon can be displayed to the right of the page's title by supplying a `-HelpScriptBlock` to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This scriptblock is used to return actions such as: displaying a modal when the help icon is clicked; redirecting the user to a help page; or any other possible actions to help a user out.
 
 ### Static
 
-A static page is one that uses just `-Layouts`; this is a page that will render the same layout/element components on every page load, regardless of payload or query parameters supplied to the page.
+A static page uses just the `-Content` parameter; this is a page that will render the same elements on every page load, regardless of payload or query parameters supplied to the page.
 
 For example, this page will always render a form to search for processes:
 
 ```powershell
-Add-PodeWebPage -Name Processes -Icon Activity -Layouts @(
+Add-PodeWebPage -Name Processes -Icon Activity -Content @(
     New-PodeWebCard -Content @(
         New-PodeWebForm -Name 'Search' -ScriptBlock {
             Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
                 Select-Object Name, ID, WorkingSet, CPU |
-                Out-PodeWebTextbox -Multiline -Preformat -ReadOnly
+                New-PodeWebTextbox -Name 'Output' -Multiline -Preformat -ReadOnly |
+                Out-PodeWebElement
         } -Content @(
             New-PodeWebTextbox -Name 'Name'
         )
@@ -172,9 +204,9 @@ Add-PodeWebPage -Name Processes -Icon Activity -Layouts @(
 
 ### Dynamic
 
-Add dynamic page uses a `-ScriptBlock` instead of `-Layouts`, the scriptblock lets you render different layout/element components depending on query/payload data in the `$WebEvent`. The scriptblock also has access to a `$PageData` object, containing information about the current page - such as Name, Group, Access, etc.
+Add dynamic page uses a `-ScriptBlock` instead of `-Content`, the scriptblock lets you render different elements depending on query/payload data in the `$WebEvent`. The scriptblock also has access to a `$PageData` object, containing information about the current page - such as Name, Group, Access, etc.
 
-For example, the below page will render a table of services if a `value` query parameter is not present. Otherwise, if it is present, then a page with a code-block showing information about the service is displayed:
+For example, the below page will render a table of services if a `value` query parameter is not present. Otherwise, if it is present, then a page with a code block showing information about the service is displayed:
 
 ```powershell
 Add-PodeWebPage -Name Services -Icon Settings -ScriptBlock {
@@ -205,9 +237,9 @@ Add-PodeWebPage -Name Services -Icon Settings -ScriptBlock {
 }
 ```
 
-You can also supply `-Layouts` while using `-ScriptBlock`. If the scriptblock returns no data, then whatever is supplied to `-Layouts` is treated as the default content for the page.
+You can also supply `-Content` while using `-ScriptBlock`. If the scriptblock returns no data, then whatever is supplied to `-Content` is treated as the default content for the page.
 
-For example, the below is the same as the above example, but this time the table is set using `-Layouts`:
+For example, the below is the same as the above example, but this time the table is set using `-Content`:
 
 ```powershell
 $servicesTable = New-PodeWebCard -Content @(
@@ -221,7 +253,7 @@ $servicesTable = New-PodeWebCard -Content @(
     }
 )
 
-Add-PodeWebPage -Name Services -Icon Settings -Layouts $servicesTable -ScriptBlock {
+Add-PodeWebPage -Name Services -Icon Settings -Content $servicesTable -ScriptBlock {
     $value = $WebEvent.Query['value']
 
     # use default layouts - in this case, the services table
@@ -254,31 +286,35 @@ Add-PodeWebPage -Name Services -Icon Settings -ArgumentList 'Value1', 2, $false 
 
 If you add a page when you've enabled authentication, you can set a page to be accessible without authentication by supplying the `-NoAuth` switch to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
 
-If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`), then there's no further action needed.
+If you do this and you add all elements dynamically (via `-ScriptBlock`), then there's no further action needed.
 
-If however you're added the elements/layouts using the `-Layouts` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise data/actions will fail with a 401 response.
+If however you're added the elements using the `-Content` parameter, then certain elements will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise, data/actions will fail with a 401 response.
 
 ### Sidebar
 
 When you add a page by default it will show in the sidebar. You can stop pages/links from appearing in the sidebar by using the `-Hide` switch:
 
 ```powershell
-Add-PodeWebPage -Name Charts -Hide -Layouts @(
+Add-PodeWebPage -Name Charts -Hide -Content @(
     New-PodeWebCard -Content @(
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
     )
 )
 ```
 
-Alternatively, you can also hide the sidebar on a page by using the `-NoSidebar` switch; useful for dashboard pages:
+## Hide Navigations
+
+You can hide the sidebar on a page (home or webpage) by using the `-NoSidebar` switch; useful for dashboard pages:
 
 ```powershell
-Add-PodeWebPage -Name Charts -NoSidebar -Layouts @(
+Add-PodeWebPage -Name Charts -NoSidebar -Content @(
     New-PodeWebCard -Content @(
         New-PodeWebCounterChart -Counter '\Processor(_Total)\% Processor Time'
     )
 )
 ```
+
+Conversely, you can also hide the top navigation bar by using the `-NoNavigation` switch as well.
 
 ## Convert Module
 
@@ -303,24 +339,23 @@ Start-PodeServer {
 
 ## Events
 
-The Login, Home and Webpages support registering the following events, and they can be registered via [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent):
+The Login and normal Pages support registering the following events, and they can be registered via [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent):
 
-| Name | Description |
-| ---- | ----------- |
-| Load | Fires when the page has fully loaded, including js/css/etc. |
-| Unload | Fires when the has fully unloaded/closed |
-| BeforeUnload | Fires just before the page is about to unload/close |
+| Name         | Description                                                 |
+| ------------ | ----------------------------------------------------------- |
+| Load         | Fires when the page has fully loaded, including js/css/etc. |
+| Unload       | Fires when the has fully unloaded/closed                    |
+| BeforeUnload | Fires just before the page is about to unload/close         |
 
 To register an event for each page type:
 
 * `Login`: you'll need to use `-PassThru` on [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
-* `Home`: you'll need to use `-PassThru` on [`Set-PodeWebHomePage`](../../Functions/Pages/Set-PodeWebHomePage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
 * `Webpage`: you'll need to use `-PassThru` on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage) and pipe the result in [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent).
 
-For example, if you want to show a message on a Webpage just before it closes:
+For example, if you want to show a message on a Page just before it closes:
 
 ```powershell
-Add-PodeWebPage -Name Example -Layouts $some_layouts -PassThru |
+Add-PodeWebPage -Name Example -Content $some_layouts -PassThru |
     Register-PodeWebPageEvent -Type BeforeUnload -ScriptBlock {
         Show-PodeWebToast -Message "Bye!"
     }

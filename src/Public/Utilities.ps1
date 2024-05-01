@@ -1,8 +1,7 @@
-function Use-PodeWebTemplates
-{
+function Use-PodeWebTemplates {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Title,
 
@@ -28,6 +27,15 @@ function Use-PodeWebTemplates
         [string]
         $Security = 'Default',
 
+        [Parameter()]
+        [ValidateSet('Sse', 'Http')]
+        [string]
+        $ResponseType = 'Sse',
+
+        [Parameter()]
+        [string]
+        $SseSecret,
+
         [switch]
         $NoPageFilter,
 
@@ -35,69 +43,96 @@ function Use-PodeWebTemplates
         $HideSidebar,
 
         [switch]
-        $UseHsts
+        $UseHsts,
+
+        [switch]
+        $RootRedirect
     )
 
-    if ([string]::IsNullOrWhiteSpace($FavIcon)) {
-        $FavIcon = '/pode.web/images/favicon.ico'
+    # has Pode.Web already been initialised?
+    if (Get-PodeWebState -Name 'enabled') {
+        throw 'Pode.Web templates have already been enabled.'
     }
 
+    # get a favicon path
+    if ([string]::IsNullOrWhiteSpace($FavIcon)) {
+        $FavIcon = '/pode.web-static/images/favicon.ico'
+    }
+
+    # tell Pode to export the module for auto-loading
     Export-PodeModule -Name Pode.Web
 
+    # if available, do we need an IIS sub-path?
     $appPath = Get-PodeIISApplicationPath
     if ([string]::IsNullOrWhiteSpace($appPath) -or ($appPath -eq '/')) {
         $appPath = [string]::Empty
     }
     Set-PodeWebState -Name 'app-path' -Value ($appPath.ToLowerInvariant())
 
+    # setup settings
+    Set-PodeWebState -Name 'enabled' -Value $true
     Set-PodeWebState -Name 'title' -Value ([System.Net.WebUtility]::HtmlEncode($Title))
     Set-PodeWebState -Name 'logo' -Value (Add-PodeWebAppPath -Url $Logo)
     Set-PodeWebState -Name 'favicon' -Value (Add-PodeWebAppPath -Url $FavIcon)
     Set-PodeWebState -Name 'no-page-filter' -Value $NoPageFilter.IsPresent
     Set-PodeWebState -Name 'hide-sidebar' -Value $HideSidebar.IsPresent
+    Set-PodeWebState -Name 'root-redirect' -Value $RootRedirect.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
     Set-PodeWebState -Name 'pages' -Value @{}
+    Set-PodeWebState -Name 'groups' -Value @{}
     Set-PodeWebState -Name 'default-nav' -Value $null
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
+    Set-PodeWebState -Name 'resp-type' -Value $ResponseType.ToLowerInvariant()
 
+    # themes
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
     Set-PodeWebState -Name 'custom-themes' -Value @{
         Default = $null
-        Themes = [ordered]@{}
+        Themes  = [ordered]@{}
     }
 
-    $templatePath = Get-PodeWebTemplatePath
+    # system urls
+    Set-PodeWebSystemUrlDefaults
 
-    Add-PodeStaticRoute -Path '/pode.web' -Source (Join-PodeWebPath $templatePath 'Public')
+    # public and view folders
+    $templatePath = Get-PodeWebTemplatePath
+    Add-PodeStaticRoute -Path '/pode.web-static' -Source (Join-PodeWebPath $templatePath 'Public')
     Add-PodeViewFolder -Name 'pode.web.views' -Source (Join-PodeWebPath $templatePath 'Views')
 
-    Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
-        $page = Get-PodeWebFirstPublicPage
-        if ($null -ne $page) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
+    # setup default security headers
+    Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
+
+    # initialise SSE connections
+    if (Test-PodeWebResponseType -Type Sse) {
+        if ([string]::IsNullOrEmpty($SseSecret)) {
+            $SseSecret = Get-PodeServerDefaultSecret
         }
 
-        Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = @{
-                Name = 'Home'
-                Path = '/'
-                TItle = 'Home'
-                DisplayName = 'Home'
-                IsSystem = $true
-            }
-        }
+        Enable-PodeSseSigning -Strict -Secret $SseSecret
     }
 
-    Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
+    # add an empty root route, which simply redirects to the first available page
+    if ($RootRedirect) {
+        Add-PodeRoute -Method Get -Path '/' -EndpointName $EndpointName -ScriptBlock {
+            # get first page and redirect
+            $page = Get-PodeWebFirstPublicPage
+            if ($null -ne $page) {
+                Move-PodeResponseUrl -Url $page.Url
+                return
+            }
+
+            # fail if no pages found
+            Set-PodeResponseStatus -Code 421
+        }
+    }
 }
 
-function Import-PodeWebStylesheet
-{
+function Import-PodeWebStylesheet {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url
     )
@@ -105,11 +140,10 @@ function Import-PodeWebStylesheet
     Set-PodeWebState -Name 'custom-css' -Value  (@(Get-PodeWebState -Name 'custom-css') + (Add-PodeWebAppPath -Url $Url))
 }
 
-function Import-PodeWebJavaScript
-{
+function Import-PodeWebJavaScript {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url
     )
@@ -117,17 +151,16 @@ function Import-PodeWebJavaScript
     Set-PodeWebState -Name 'custom-js' -Value  (@(Get-PodeWebState -Name 'custom-js') + (Add-PodeWebAppPath -Url $Url))
 }
 
-function Set-PodeWebSocial
-{
+function Set-PodeWebSocial {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('GitHub', 'Twitter', 'Facebook', 'LinkedIn', 'Twitch', 'GitLab', 'Instagram', 'Telegram',
             'Pinterest', 'Slack', 'Discord', 'BitBucket', 'Jira', 'YouTube')]
         [string]
         $Type,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url,
 
@@ -142,13 +175,12 @@ function Set-PodeWebSocial
 
     $socials = Get-PodeWebState -Name 'social'
     $socials[$Type] = @{
-        Url = $Url
+        Url     = $Url
         Tooltip = $Tooltip
     }
 }
 
-function Get-PodeWebTheme
-{
+function Get-PodeWebTheme {
     [CmdletBinding()]
     param(
         [switch]
@@ -167,7 +199,7 @@ function Get-PodeWebTheme
 
     # check auth data
     if ([string]::IsNullOrWhiteSpace($theme)) {
-        $theme = Get-PodeWebAuthTheme -AuthData (Get-PodeWebAuthData)
+        $theme = Get-PodeWebAuthTheme -User (Get-PodeAuthUser)
     }
 
     # check state
@@ -187,8 +219,7 @@ function Get-PodeWebTheme
     return $theme.ToLowerInvariant()
 }
 
-function Test-PodeWebTheme
-{
+function Test-PodeWebTheme {
     [CmdletBinding()]
     param(
         [Parameter()]
@@ -199,8 +230,7 @@ function Test-PodeWebTheme
     return ((Test-PodeWebThemeInbuilt -Name $Name) -or (Test-PodeWebThemeCustom -Name $Name))
 }
 
-function Get-PodeWebUsername
-{
+function Get-PodeWebUsername {
     [CmdletBinding()]
     param()
 
@@ -208,15 +238,14 @@ function Get-PodeWebUsername
     return (Get-PodeWebAuthUsername -AuthData $authData)
 }
 
-function Add-PodeWebCustomTheme
-{
+function Add-PodeWebCustomTheme {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Url
     )
@@ -251,8 +280,7 @@ function Add-PodeWebCustomTheme
     }
 }
 
-function Join-PodeWebPath
-{
+function Join-PodeWebPath {
     param(
         [Parameter()]
         [string]
@@ -283,11 +311,10 @@ function Join-PodeWebPath
     return $result
 }
 
-function Set-PodeWebAuth
-{
+function Set-PodeWebAuth {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Authentication,
 
@@ -311,53 +338,21 @@ function Set-PodeWebAuth
     Set-PodeWebState -Name 'auth' -Value $Authentication
     Set-PodeWebState -Name 'auth-props' -Value @{
         Username = $UsernameProperty
-        Group = $GroupProperty
-        Avatar = $AvatarProperty
-        Theme = $ThemeProperty
-        Logout = $false
+        Group    = $GroupProperty
+        Avatar   = $AvatarProperty
+        Theme    = $ThemeProperty
+        Logout   = $false
     }
 
     # set default failure/success urls
     $auth = Get-PodeAuth -Name $Authentication
-    $auth.Failure.Url = (Add-PodeWebAppPath -Url '/')
-    $auth.Success.Url = (Add-PodeWebAppPath -Url '/')
 
-    # get the endpoints to bind
-    $endpointNames = Get-PodeWebState -Name 'endpoint-name'
+    if ([string]::IsNullOrWhiteSpace($auth.Failure.Url)) {
+        $auth.Failure.Url = (Add-PodeWebAppPath -Url '/')
+    }
 
-    # add an authenticated home route
-    Remove-PodeWebRoute -Method Get -Path '/' -EndpointName $endpointNames
-
-    Add-PodeRoute -Method Get -Path '/' -Authentication $Authentication -EndpointName $endpointNames -ScriptBlock {
-        $page = Get-PodeWebFirstPublicPage
-        if ($null -ne $page) {
-            Move-PodeResponseUrl -Url (Get-PodeWebPagePath -Page $page)
-        }
-
-        $authData = Get-PodeWebAuthData
-        $username = Get-PodeWebAuthUsername -AuthData $authData
-        $groups = Get-PodeWebAuthGroups -AuthData $authData
-        $avatar = Get-PodeWebAuthAvatarUrl -AuthData $authData
-        $theme = Get-PodeWebTheme
-        $navigation = Get-PodeWebNavDefault
-
-        Write-PodeWebViewResponse -Path 'index' -Data @{
-            Page = @{
-                Name = 'Home'
-                Path = '/'
-                IsSystem = $true
-            }
-            Theme = $theme
-            Navigation = $navigation
-            Auth = @{
-                Enabled = $true
-                Logout = (Get-PodeWebState -Name 'auth-props').Logout
-                Authenticated = $authData.IsAuthenticated
-                Username = $username
-                Groups = $groups
-                Avatar = $avatar
-            }
-        }
+    if ([string]::IsNullOrWhiteSpace($auth.Success.Url)) {
+        $auth.Success.Url = (Add-PodeWebAppPath -Url '/')
     }
 
     if ($PassThru) {

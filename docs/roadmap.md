@@ -16,9 +16,9 @@ Pode.Web is still in it's infancy, once it's matured more a v1.0 will be looked 
 
 ## 🚢 Releases
 
-Under normal circumstanes Pode.Web releases approximately once every 2 months, where the following month is usually a Pode release.
+Under normal circumstances Pode.Web releases approximately once every 2 months, where the following month is usually a Pode release.
 
-Sometimes there could be more, if patch releases are needed. But sometimes there could be fewer if peronsal time constraints prevent releases.
+Sometimes there could be more, if patch releases are needed. But sometimes there could be fewer if personal time constraints prevent releases.
 
 ## 📃 Plan
 
@@ -28,10 +28,10 @@ Sometimes there could be more, if patch releases are needed. But sometimes there
 - [ ] Looking into using React for the templates, so make building elements dynamically more possible
 - [ ] We have a login page, so why not a registration page! [#90](https://github.com/Badgerati/Pode.Web/issues/90)
 - [ ] Everything uses AJAX at present, if we move to using WebSockets then Output actions can happen on the fly
-- [ ] Support for custom element/layout templates, rather than Pode.Web's inbuilt ones
+- [ ] Support for custom element templates, rather than Pode.Web's inbuilt ones
 - [ ] If the session cookie expires, then redirect to a session expired page
 - [ ] Add proper footer support - where socials, links, and other items can go (and move the "Powered By" as well)
-- [ ] Language templating system, to more easily support different langauges 
+- [ ] Language templating system, to more easily support different languages
 
 ## ⏩ Future
 

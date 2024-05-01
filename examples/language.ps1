@@ -8,7 +8,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web/images/icon.png' -Theme Dark
+    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
     $chartData = {
         $count = 1
@@ -17,20 +17,20 @@ Start-PodeServer -StatusPageExceptions Show {
         }
 
         return (1..$count | ForEach-Object {
-            @{
-                Key = $_
-                Values = @(
-                    @{
-                        Key = 'Example1'
-                        Value = (Get-Random -Maximum 10)
-                    },
-                    @{
-                        Key = 'Example2'
-                        Value = (Get-Random -Maximum 10)
-                    }
-                )
-            }
-        })
+                @{
+                    Key    = $_
+                    Values = @(
+                        @{
+                            Key   = 'Example1'
+                            Value = (Get-Random -Maximum 10)
+                        },
+                        @{
+                            Key   = 'Example2'
+                            Value = (Get-Random -Maximum 10)
+                        }
+                    )
+                }
+            })
     }
 
     $processData = {
@@ -52,7 +52,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
     )
 
-    Set-PodeWebHomePage -Layouts $grid1 -DisplayName '家'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $grid1 -DisplayName '家'
 
 
     # add a page to search and filter services (output in a new table element) [note: requires auth]
@@ -72,13 +72,13 @@ Start-PodeServer -StatusPageExceptions Show {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
 
         $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
 
         $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
@@ -106,14 +106,14 @@ Start-PodeServer -StatusPageExceptions Show {
             }
 
             [ordered]@{
-                Name = $svc.Name
-                Status = "$($svc.Status)"
+                Name    = $svc.Name
+                Status  = "$($svc.Status)"
                 Actions = $btns
             }
         }
     }
 
-    Add-PodeWebPage -Name Services -DisplayName 'サービス' -Icon 'cogs' -Group Tools -Layouts $editModal, $helpModal, $table -ScriptBlock {
+    Add-PodeWebPage -Name Services -DisplayName 'サービス' -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -125,7 +125,7 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebCodeBlock -Value $svc -NoHighlight
         )
     } `
-    -HelpScriptBlock {
+        -HelpScriptBlock {
         Show-PodeWebModal -Name 'Help'
     }
 

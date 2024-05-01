@@ -1,5 +1,5 @@
 Import-Module Pode -MaximumVersion 2.99.99 -Force
-Import-Module ..\src\Pode.Web.psm1 -Force
+Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer -Threads 2 {
     # add a simple endpoint
@@ -15,11 +15,11 @@ Start-PodeServer -Threads 2 {
         -ScriptBlock {} `
         -AsCard `
         -Columns @(
-            Initialize-PodeWebTableColumn -Key 'Name'
-            Initialize-PodeWebTableColumn -Key 'ID'
-            Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory'
-            Initialize-PodeWebTableColumn -Key 'CPU'
-        )
+        Initialize-PodeWebTableColumn -Key 'Name'
+        Initialize-PodeWebTableColumn -Key 'ID'
+        Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory'
+        Initialize-PodeWebTableColumn -Key 'CPU'
+    )
 
     $card2 = New-PodeWebCard -Name 'Processes' -Content @(
         New-PodeWebButton -Name 'HideCPU' -ScriptBlock {
@@ -32,27 +32,30 @@ Start-PodeServer -Threads 2 {
 
         New-PodeWebTable `
             -Name 'Processes' `
+            -PageSize 4 `
             -Paginate `
+            -Filter `
+            -SimpleFilter `
             -Compact `
             -ScriptBlock {
-                $processes = Get-Process | Select-Object -Property Name, ID, WorkingSet, CPU
+            $processes = Get-Process | Select-Object -Property Name, ID, WorkingSet, CPU
 
-                $totalCount = $processes.Length
-                $pageIndex = [int]$WebEvent.Data.PageIndex
-                $pageSize = [int]$WebEvent.Data.PageSize
-                $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
+            $totalCount = $processes.Length
+            $pageIndex = [int]$WebEvent.Data.PageIndex
+            $pageSize = [int]$WebEvent.Data.PageSize
+            $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
 
-                Start-Sleep -Seconds 5
+            Start-Sleep -Seconds 2
 
-                $processes | Update-PodeWebTable -Name $ElementData.Name -PageIndex $pageIndex -TotalItemCount $totalCount
-            } `
+            $processes | Update-PodeWebTable -Name $ElementData.Name -PageIndex $pageIndex -TotalItemCount $totalCount
+        } `
             -Columns @(
-                Initialize-PodeWebTableColumn -Key 'Name'
-                Initialize-PodeWebTableColumn -Key 'ID'
-                Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory' -Alignment Center -Width 10
-                Initialize-PodeWebTableColumn -Key 'CPU' -Hide
-            )
+            Initialize-PodeWebTableColumn -Key 'Name'
+            Initialize-PodeWebTableColumn -Key 'ID'
+            Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory' -Alignment Center -Width 10
+            Initialize-PodeWebTableColumn -Key 'CPU' -Hide
+        )
     )
 
-    Set-PodeWebHomePage -Layouts $card1, $card2 -Title 'Tables'
+    Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $card1, $card2 -Title 'Tables'
 }

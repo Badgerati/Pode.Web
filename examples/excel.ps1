@@ -12,7 +12,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title Test -Logo '/pode.web/images/icon.png' -Theme Dark
+    Use-PodeWebTemplates -Title Test -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
 
     # add a page to search and filter services (output in a new table element)
@@ -28,13 +28,13 @@ Start-PodeServer -StatusPageExceptions Show {
         $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle' -IconOnly -ScriptBlock {
             Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
 
         $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle' -IconOnly -ScriptBlock {
             Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
 
         $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
@@ -56,8 +56,8 @@ Start-PodeServer -StatusPageExceptions Show {
             }
 
             [ordered]@{
-                Name = $svc.Name
-                Status = "$($svc.Status)"
+                Name    = $svc.Name
+                Status  = "$($svc.Status)"
                 Actions = $btns
             }
         }
@@ -71,7 +71,7 @@ Start-PodeServer -StatusPageExceptions Show {
         Set-PodeResponseAttachment -Path '/download/test.xlsx'
     }
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Layouts $modal, $table -ScriptBlock {
+    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $modal, $table -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
