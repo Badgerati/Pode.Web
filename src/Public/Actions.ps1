@@ -109,7 +109,7 @@ function Update-PodeWebTable {
         }
 
         # table output
-        return @{
+        Send-PodeWebAction -Value @{
             Operation  = 'Update'
             ObjectType = 'Table'
             Data       = $items
@@ -138,7 +138,7 @@ function Sync-PodeWebTable {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Sync'
         ObjectType = 'Table'
         ID         = $Id
@@ -158,7 +158,7 @@ function Clear-PodeWebTable {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Clear'
         ObjectType = 'Table'
         ID         = $Id
@@ -182,7 +182,7 @@ function Hide-PodeWebTableColumn {
         $Key
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation     = 'Hide'
         ObjectType    = 'Table'
         SubObjectType = 'Column'
@@ -208,7 +208,7 @@ function Show-PodeWebTableColumn {
         $Key
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation     = 'Show'
         ObjectType    = 'Table'
         SubObjectType = 'Column'
@@ -253,7 +253,7 @@ function Update-PodeWebTableRow {
         $Colour
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation        = 'Update'
         ObjectType       = 'Table'
         SubObjectType    = 'Row'
@@ -306,7 +306,7 @@ function Update-PodeWebChart {
     }
 
     end {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation  = 'Update'
             ObjectType = 'Chart'
             Data       = $items
@@ -368,7 +368,7 @@ function Sync-PodeWebChart {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Sync'
         ObjectType = 'Chart'
         ID         = $Id
@@ -388,7 +388,7 @@ function Clear-PodeWebChart {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Clear'
         ObjectType = 'Chart'
         ID         = $Id
@@ -443,7 +443,7 @@ function Update-PodeWebTextbox {
             $items = ($items | Out-String).Trim()
         }
 
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Update'
             ObjectType    = 'Textbox'
             Value         = $items
@@ -473,7 +473,7 @@ function Clear-PodeWebTextbox {
         $Multiline
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Clear'
         ObjectType = 'Textbox'
         ID         = $Id
@@ -507,7 +507,7 @@ function Show-PodeWebToast {
         $Duration = 3000
     }
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Show'
         ObjectType = 'Toast'
         Message    = [System.Net.WebUtility]::HtmlEncode($Message)
@@ -533,7 +533,7 @@ function Show-PodeWebValidation {
         $Message
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation     = 'Show'
         ObjectType    = 'Element'
         SubObjectType = 'Validation'
@@ -555,7 +555,7 @@ function Reset-PodeWebForm {
         $Id
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Reset'
         ObjectType = 'Form'
         ID         = $Id
@@ -575,7 +575,7 @@ function Submit-PodeWebForm {
         $Id
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Submit'
         ObjectType = 'Form'
         ID         = $Id
@@ -595,7 +595,7 @@ function Update-PodeWebText {
         $Value
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Text'
         ID         = $Id
@@ -619,7 +619,7 @@ function Set-PodeWebSelect {
         $Value
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Set'
         ObjectType = 'Select'
         Name       = $Name
@@ -666,7 +666,7 @@ function Update-PodeWebSelect {
     }
 
     end {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation      = 'Update'
             ObjectType     = 'Select'
             Name           = $Name
@@ -691,7 +691,7 @@ function Clear-PodeWebSelect {
         $Id
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Clear'
         ObjectType = 'Select'
         Name       = $Name
@@ -711,7 +711,7 @@ function Sync-PodeWebSelect {
         $Id
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Sync'
         ObjectType = 'Select'
         Name       = $Name
@@ -736,14 +736,12 @@ function Update-PodeWebBadge {
         $Colour = ''
     )
 
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
-
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Badge'
         ID         = $Id
         Colour     = $Colour
-        ColourType = $ColourType
+        ColourType = (Convert-PodeWebColourToClass -Colour $Colour)
         Value      = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
@@ -773,7 +771,7 @@ function Update-PodeWebCheckbox {
         $Checked
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Checkbox'
         ID         = $Id
@@ -800,7 +798,7 @@ function Enable-PodeWebCheckbox {
         $OptionId = 0
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Enable'
         ObjectType = 'Checkbox'
         ID         = $Id
@@ -825,7 +823,7 @@ function Disable-PodeWebCheckbox {
         $OptionId = 0
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Disable'
         ObjectType = 'Checkbox'
         ID         = $Id
@@ -854,7 +852,7 @@ function Show-PodeWebModal {
         $Actions
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Show'
         ObjectType = 'Modal'
         ID         = $Id
@@ -876,7 +874,7 @@ function Hide-PodeWebModal {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Hide'
         ObjectType = 'Modal'
         ID         = $Id
@@ -892,8 +890,8 @@ function Out-PodeWebError {
         $Message
     )
 
-    return @{
-        Operation  = 'Output'
+    Send-PodeWebAction -Value @{
+        Operation  = 'Out'
         ObjectType = 'Error'
         Message    = $Message
     }
@@ -915,7 +913,7 @@ function Show-PodeWebNotification {
         $IconUrl
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Show'
         ObjectType = 'Notification'
         Title      = $Title
@@ -949,7 +947,7 @@ function Move-PodeWebPage {
         $page += "?Value=$($DataValue)"
     }
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Move'
         ObjectType = 'Href'
         Url        = $page
@@ -968,7 +966,7 @@ function Move-PodeWebUrl {
         $NewTab
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Move'
         ObjectType = 'Href'
         Url        = (Add-PodeWebAppPath -Url $Url)
@@ -993,7 +991,7 @@ function Move-PodeWebTabs {
         $Direction = 'Next'
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Move'
         ObjectType = 'Tabs'
         ID         = $Id
@@ -1014,7 +1012,7 @@ function Open-PodeWebTab {
         $Id
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Open'
         ObjectType = 'Tab'
         ID         = $Id
@@ -1039,7 +1037,7 @@ function Move-PodeWebAccordion {
         $Direction = 'Next'
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Move'
         ObjectType = 'Accordion'
         ID         = $Id
@@ -1060,7 +1058,7 @@ function Close-PodeWebAccordion {
         $Id
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Close'
         ObjectType = 'Accordion'
         ID         = $Id
@@ -1080,7 +1078,7 @@ function Open-PodeWebBellow {
         $Id
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Open'
         ObjectType = 'Bellow'
         ID         = $Id
@@ -1100,7 +1098,7 @@ function Close-PodeWebBellow {
         $Id
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Close'
         ObjectType = 'Bellow'
         ID         = $Id
@@ -1112,7 +1110,7 @@ function Reset-PodeWebPage {
     [CmdletBinding()]
     param()
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Reset'
         ObjectType = 'Page'
     }
@@ -1141,7 +1139,7 @@ function Update-PodeWebProgress {
 
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Progress'
         ID         = $Id
@@ -1149,6 +1147,26 @@ function Update-PodeWebProgress {
         Colour     = $Colour
         ColourType = $ColourType
         Value      = $Value
+    }
+}
+
+function Reset-PodeWebProgress {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Reset'
+        ObjectType = 'Progress'
+        ID         = $Id
+        Name       = $Name
     }
 }
 
@@ -1177,16 +1195,14 @@ function Update-PodeWebTile {
         $Icon
     )
 
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
-
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Tile'
         Value      = [System.Net.WebUtility]::HtmlEncode($Value)
         ID         = $Id
         Name       = $Name
         Colour     = $Colour
-        ColourType = $ColourType
+        ColourType = (Convert-PodeWebColourToClass -Colour $Colour)
         Icon       = (Protect-PodeWebIconType -Icon $Icon -Element 'Tile')
     }
 }
@@ -1203,7 +1219,7 @@ function Sync-PodeWebTile {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Sync'
         ObjectType = 'Tile'
         ID         = $Id
@@ -1223,7 +1239,7 @@ function Update-PodeWebTheme {
         throw "Theme does not exist: $($Name)"
     }
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Theme'
         Name       = $Name.ToLowerInvariant()
@@ -1234,7 +1250,7 @@ function Reset-PodeWebTheme {
     [CmdletBinding()]
     param()
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Reset'
         ObjectType = 'Theme'
     }
@@ -1252,8 +1268,9 @@ function Show-PodeWebElement {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1268,11 +1285,11 @@ function Show-PodeWebElement {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation  = 'Show'
             ObjectType = 'Element'
             ID         = $Id
-            Type       = $Type
+            Type       = $ObjectType
             Name       = $Name
         }
     }
@@ -1290,8 +1307,9 @@ function Hide-PodeWebElement {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1306,13 +1324,67 @@ function Hide-PodeWebElement {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation  = 'Hide'
             ObjectType = 'Element'
             ID         = $Id
-            Type       = $Type
+            Type       = $ObjectType
             Name       = $Name
         }
+    }
+}
+
+function Show-PodeWebSpinner {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
+        [string]
+        $ObjectType,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation     = 'Show'
+        ObjectType    = 'Element'
+        SubObjectType = 'Spinner'
+        ID            = $Id
+        Type          = $ObjectType
+        Name          = $Name
+    }
+}
+
+function Hide-PodeWebSpinner {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
+        [string]
+        $ObjectType,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation     = 'Hide'
+        ObjectType    = 'Element'
+        SubObjectType = 'Spinner'
+        ID            = $Id
+        Type          = $ObjectType
+        Name          = $Name
     }
 }
 
@@ -1328,8 +1400,9 @@ function Add-PodeWebStyle {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1360,12 +1433,12 @@ function Add-PodeWebStyle {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Set'
             ObjectType    = 'Element'
             SubObjectType = 'Style'
             ID            = $Id
-            Type          = $Type
+            Type          = $ObjectType
             Name          = $Name
             Key           = $Key
             Value         = $Value
@@ -1385,8 +1458,9 @@ function Remove-PodeWebStyle {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1408,12 +1482,12 @@ function Remove-PodeWebStyle {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Remove'
             ObjectType    = 'Element'
             SubObjectType = 'Style'
             ID            = $Id
-            Type          = $Type
+            Type          = $ObjectType
             Name          = $Name
             Key           = $Key
         }
@@ -1432,8 +1506,9 @@ function Add-PodeWebClass {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1460,12 +1535,12 @@ function Add-PodeWebClass {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Add'
             ObjectType    = 'Element'
             SubObjectType = 'Class'
             ID            = $Id
-            Type          = $Type
+            Type          = $ObjectType
             Name          = $Name
             Value         = $Value
         }
@@ -1484,8 +1559,9 @@ function Remove-PodeWebClass {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1507,12 +1583,12 @@ function Remove-PodeWebClass {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Remove'
             ObjectType    = 'Element'
             SubObjectType = 'Class'
             ID            = $Id
-            Type          = $Type
+            Type          = $ObjectType
             Name          = $Name
             Value         = $Value
         }
@@ -1531,8 +1607,9 @@ function Rename-PodeWebClass {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1549,19 +1626,19 @@ function Rename-PodeWebClass {
 
     # update element
     if ($null -ne $Element) {
-        return ($Element |
-                Remove-PodeWebClass -Value $From |
-                Add-PodeWebClass -Value $To)
+        return $Element |
+            Remove-PodeWebClass -Value $From |
+            Add-PodeWebClass -Value $To
     }
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Rename'
             ObjectType    = 'Element'
             SubObjectType = 'Class'
             ID            = $Id
-            Type          = $Type
+            Type          = $ObjectType
             Name          = $Name
             From          = $From
             To            = $To
@@ -1581,8 +1658,9 @@ function Switch-PodeWebClass {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1624,12 +1702,12 @@ function Switch-PodeWebClass {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Switch'
             ObjectType    = 'Element'
             SubObjectType = 'Class'
             ID            = $Id
-            Type          = $Type
+            Type          = $ObjectType
             Name          = $Name
             Value         = $Value
             State         = $State
@@ -1649,8 +1727,9 @@ function Add-PodeWebAttribute {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1677,12 +1756,12 @@ function Add-PodeWebAttribute {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Add'
             ObjectType    = 'Element'
             SubObjectType = 'Attribute'
             ID            = $Id
-            Type          = $Type
+            Type          = $ObjectType
             Name          = $Name
             Key           = $Key
             Value         = $Value
@@ -1702,8 +1781,9 @@ function Remove-PodeWebAttribute {
         $Id,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [Alias('Type')]
         [string]
-        $Type,
+        $ObjectType,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
         [string]
@@ -1725,16 +1805,52 @@ function Remove-PodeWebAttribute {
 
     # send frontend action
     else {
-        return @{
+        Send-PodeWebAction -Value @{
             Operation     = 'Remove'
             ObjectType    = 'Element'
             SubObjectType = 'Attribute'
             ID            = $Id
-            Type          = $Type
+            Type          = $ObjectType
             Name          = $Name
             Key           = $Key
         }
     }
+}
+
+function Out-PodeWebElement {
+    [CmdletBinding(DefaultParameterSetName = 'Render')]
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [hashtable]
+        $Element,
+
+        [Parameter(ParameterSetName = 'Render')]
+        [ValidateSet('Append', 'After', 'Before')]
+        [string]
+        $AppendType = 'After',
+
+        [Parameter(ParameterSetName = 'Reference')]
+        [switch]
+        $AsReference,
+
+        [switch]
+        $PassThru
+    )
+
+    if ($Element.Operation -inotin @('new', 'use')) {
+        throw 'Out-PodeWebElement can only be used for creating new elements, or element references'
+    }
+
+    if ($AsReference -and [string]::IsNullOrEmpty($Element.ID)) {
+        throw 'An ID is required for an element to be created as a reference'
+    }
+
+    $Element.Output = @{
+        AppendType  = $AppendType
+        AsReference = $AsReference.IsPresent
+    }
+
+    Send-PodeWebAction -Value $Element -PassThru:$PassThru
 }
 
 function Start-PodeWebFileStream {
@@ -1749,7 +1865,7 @@ function Start-PodeWebFileStream {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Start'
         ObjectType = 'File-Stream'
         ID         = $Id
@@ -1769,7 +1885,7 @@ function Stop-PodeWebFileStream {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Stop'
         ObjectType = 'File-Stream'
         ID         = $Id
@@ -1789,7 +1905,7 @@ function Restart-PodeWebFileStream {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Restart'
         ObjectType = 'File-Stream'
         ID         = $Id
@@ -1809,7 +1925,7 @@ function Clear-PodeWebFileStream {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Clear'
         ObjectType = 'File-Stream'
         ID         = $Id
@@ -1833,7 +1949,7 @@ function Update-PodeWebFileStream {
         $Url
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'File-Stream'
         ID         = $Id
@@ -1854,7 +1970,7 @@ function Start-PodeWebAudio {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Start'
         ObjectType = 'Audio'
         ID         = $Id
@@ -1874,7 +1990,7 @@ function Stop-PodeWebAudio {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Stop'
         ObjectType = 'Audio'
         ID         = $Id
@@ -1894,7 +2010,7 @@ function Reset-PodeWebAudio {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Reset'
         ObjectType = 'Audio'
         ID         = $Id
@@ -1930,7 +2046,7 @@ function Update-PodeWebAudio {
         throw 'Audio tracks can only contain MediaTrack elements'
     }
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Audio'
         ID         = $Id
@@ -1952,7 +2068,7 @@ function Start-PodeWebVideo {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Start'
         ObjectType = 'Video'
         ID         = $Id
@@ -1972,7 +2088,7 @@ function Stop-PodeWebVideo {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Stop'
         ObjectType = 'Video'
         ID         = $Id
@@ -1992,7 +2108,7 @@ function Reset-PodeWebVideo {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Reset'
         ObjectType = 'Video'
         ID         = $Id
@@ -2032,7 +2148,7 @@ function Update-PodeWebVideo {
         throw 'Video tracks can only contain MediaTrack elements'
     }
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Video'
         ID         = $Id
@@ -2063,7 +2179,7 @@ function Update-PodeWebCodeEditor {
         $Language
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Code-Editor'
         ID         = $Id
@@ -2085,7 +2201,7 @@ function Clear-PodeWebCodeEditor {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Clear'
         ObjectType = 'Code-Editor'
         ID         = $Id
@@ -2113,7 +2229,7 @@ function Update-PodeWebIFrame {
         $Title
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'IFrame'
         ID         = $Id
@@ -2135,7 +2251,7 @@ function Enable-PodeWebButton {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Enable'
         ObjectType = 'Button'
         ID         = $Id
@@ -2155,7 +2271,7 @@ function Disable-PodeWebButton {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Disable'
         ObjectType = 'Button'
         ID         = $Id
@@ -2206,7 +2322,7 @@ function Update-PodeWebButton {
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
     $sizeType = Convert-PodeWebButtonSizeToClass -Size $Size
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation   = 'Update'
         ObjectType  = 'Button'
         ID          = $Id
@@ -2234,32 +2350,12 @@ function Invoke-PodeWebButton {
         $Name
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Invoke'
         ObjectType = 'Button'
         ID         = $Id
         Name       = $Name
     }
-}
-
-function Out-PodeWebElement {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [hashtable]
-        $Element,
-
-        [Parameter()]
-        [ValidateSet('Append', 'After', 'Before')]
-        [string]
-        $AppendType = 'After'
-    )
-
-    $Element.Output = @{
-        AppendType = $AppendType
-    }
-
-    return $Element
 }
 
 function Update-PodeWebRaw {
@@ -2274,7 +2370,7 @@ function Update-PodeWebRaw {
         $Value
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Raw'
         ID         = $Id
@@ -2303,7 +2399,7 @@ function Update-PodeWebHeader {
         $Size = 0
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Header'
         ID         = $Id
@@ -2337,7 +2433,7 @@ function Update-PodeWebImage {
         $Width
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Image'
         ID         = $Id
@@ -2394,7 +2490,7 @@ function Update-PodeWebIcon {
         $Spin
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Icon'
         ID         = $Id
@@ -2425,10 +2521,26 @@ function Switch-PodeWebIcon {
         $State = 'Default'
     )
 
-    return @{
+    Send-PodeWebAction -Value @{
         Operation  = 'Switch'
         ObjectType = 'Icon'
         ID         = $Id
         State      = $State
+    }
+}
+
+function Hide-PodeWebSenderSpinner {
+    [CmdletBinding()]
+    param()
+
+    if ([string]::IsNullOrEmpty($WebEvent.Metadata.SenderId)) {
+        return
+    }
+
+    Send-PodeWebAction -Value @{
+        Operation     = 'Hide'
+        ObjectType    = 'Element'
+        SubObjectType = 'Spinner'
+        UUID          = $WebEvent.Metadata.SenderId
     }
 }

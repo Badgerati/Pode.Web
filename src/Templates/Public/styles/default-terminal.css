@@ -1,3 +1,7 @@
+html {
+    color-scheme: dark;
+}
+
 nav#sidebarMenu {
     background-color: #111 !important;
     border-color: #33ff00 !important;
@@ -30,7 +34,10 @@ nav#sidebarMenu {
     border-bottom-color: #33ff00;
 }
 
-body, main[role="main"], body#login-page, body#normal-page {
+body,
+main[role="main"],
+body#login-page,
+body#normal-page {
     background-color: #111;
     color: #33ff00;
     font-family: consolas;
@@ -131,6 +138,7 @@ a.navbar-brand {
     background-color: #33ff00 !important;
     color: #111 !important;
 }
+
 .accordion .card .card-header button:hover {
     color: #111 !important;
 }
@@ -154,7 +162,8 @@ a:hover {
     color: #33ff00;
 }
 
-.btn-outline-secondary:hover, .btn-outline-secondary:active {
+.btn-outline-secondary:hover,
+.btn-outline-secondary:active {
     border-color: #ffb000 !important;
     color: #ffb000 !important;
 }
@@ -190,13 +199,19 @@ a:hover {
     color: #33ff00 !important
 }
 
-input, textarea, select, .progress, .custom-file-label {
+input,
+textarea,
+select,
+.progress,
+.custom-file-label {
     background-color: #111 !important;
     border-color: #33ff00 !important;
     color: #33ff00 !important;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
     border-color: #ffb000 !important;
     color: #ffb000 !important;
 }
@@ -212,13 +227,14 @@ pre code {
 }
 
 .input-group-prepend .input-group-text,
-.input-group-append .input-group-text, .custom-file-label::after {
+.input-group-append .input-group-text,
+.custom-file-label::after {
     background-color: #111 !important;
     border-color: #33ff00 !important;
     color: #33ff00 !important
 }
 
-.custom-file-input:hover + .custom-file-label::after {
+.custom-file-input:hover+.custom-file-label::after {
     background-color: #33ff00 !important;
     color: #111 !important
 }

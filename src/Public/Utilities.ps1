@@ -27,6 +27,15 @@ function Use-PodeWebTemplates {
         [string]
         $Security = 'Default',
 
+        [Parameter()]
+        [ValidateSet('Sse', 'Http')]
+        [string]
+        $ResponseType = 'Sse',
+
+        [Parameter()]
+        [string]
+        $SseSecret,
+
         [switch]
         $NoPageFilter,
 
@@ -75,6 +84,7 @@ function Use-PodeWebTemplates {
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
+    Set-PodeWebState -Name 'resp-type' -Value $ResponseType.ToLowerInvariant()
 
     # themes
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
@@ -93,6 +103,15 @@ function Use-PodeWebTemplates {
 
     # setup default security headers
     Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
+
+    # initialise SSE connections
+    if (Test-PodeWebResponseType -Type Sse) {
+        if ([string]::IsNullOrEmpty($SseSecret)) {
+            $SseSecret = Get-PodeServerDefaultSecret
+        }
+
+        Enable-PodeSseSigning -Strict -Secret $SseSecret
+    }
 
     # add an empty root route, which simply redirects to the first available page
     if ($RootRedirect) {

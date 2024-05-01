@@ -1,19 +1,19 @@
 # Steps
 
-A steps layout is an array of steps with content. You can use them to step through multiple parts of a setup process.
+A steps element is an array of steps with content. You can use them to step through multiple parts of a setup process.
 
 The steps take an array of elements via `-Content`.
 
 ## Usage
 
-To create a steps layout you use [`New-PodeWebSteps`](../../../Functions/Layouts/New-PodeWebSteps), and supply it an array of `-Steps` using [`New-PodeWebStep`](../../../Functions/Layouts/New-PodeWebStep). The [`New-PodeWebSteps`](../../../Functions/Layouts/New-PodeWebSteps),also takes a `-ScriptBlock`, this is the final scriptblock that is invoked after every other step's optional `-ScriptBlock`; the one where any main logic should be performed.
+To create a steps element you use [`New-PodeWebSteps`](../../../Functions/Elements/New-PodeWebSteps), and supply it an array of `-Steps` using [`New-PodeWebStep`](../../../Functions/Elements/New-PodeWebStep). The [`New-PodeWebSteps`](../../../Functions/Elements/New-PodeWebSteps), also takes a `-ScriptBlock`, this is the final scriptblock that is invoked after every other step's optional `-ScriptBlock`; the one where any main logic should be performed.
 
 !!! note
-    If you have multiple steps layouts on one page, make sure the Name/IDs are unique, including the Name/IDs of all form input elements as well.
+    If you have multiple steps elements on one page, make sure the Name/IDs are unique, including the Name/IDs of all form input elements as well.
 
-Each step you create via [`New-PodeWebStep`](../../../Functions/Layouts/New-PodeWebStep) has a `-Name`, `-Content`, and an optional `-ScriptBlock`. This scriptblock lets you run validation, or other logic, on a per-step basis. If any [`Show-PodeWebValidation`](../../../Functions/Actions/Show-PodeWebValidation) calls are used, then the step will be prevented from moving forward.
+Each step you create via [`New-PodeWebStep`](../../../Functions/Elements/New-PodeWebStep) has a `-Name`, `-Content`, and an optional `-ScriptBlock`. This scriptblock lets you run validation, or other logic, on a per-step basis. If any [`Show-PodeWebValidation`](../../../Functions/Actions/Show-PodeWebValidation) calls are used, then the step will be prevented from moving forward.
 
-For example, the below renders a layout with 3 steps to set up a very basic user. The email/password performs validation in their steps, with the user being created in the main final scriptblock:
+For example, the below renders an element with 3 steps to set up a very basic user. The email/password performs validation in their steps, with the user being created in the main final scriptblock:
 
 ```powershell
 New-PodeWebSteps -Name 'AddUser' -Steps @(

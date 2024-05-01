@@ -2,6 +2,20 @@
 
 This page details the actions available to Progress Bars.
 
+## Reset
+
+To reset the value of a progress bar back to 0, you can use [`Reset-PodeWebProgress`](../../../Functions/Actions/Reset-PodeWebProgress):
+
+```powershell
+New-PodeWebContainer -NoBackground -Content @(
+    New-PodeWebProgress -Name 'Download' -Value 25 -Colour Green -Striped -Animated
+
+    New-PodeWebButton -Name 'Reset Progress' -ScriptBlock {
+        Reset-PodeWebProgress -Name 'Download'
+    }
+)
+```
+
 ## Update
 
 To update the value or the colour of a progress bar on the page, you can use [`Update-PodeWebProgress`](../../../Functions/Actions/Update-PodeWebProgress):

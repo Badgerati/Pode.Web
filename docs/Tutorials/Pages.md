@@ -10,7 +10,7 @@ To enable the use of a login page, and lock your site behind authentication, is 
     Since the login page uses a form to log a user in, the best scheme to use is Forms: `New-PodeAuthScheme -Form`. OAuth2 also works, as the login page will automatically trigger the relevant redirects to your OAuth2 provider.
 
 !!! important
-    If you require a login page, then you **must** call [`Set-PodeWebLoginPage`] before you make any calls to [`Add-PodeWebPage`].
+    If you require a login page, then you **must** call [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) before you make any calls to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
 
 ```powershell
 Enable-PodeSessionMiddleware -Duration 120 -Extend
@@ -54,7 +54,7 @@ Set-PodeWebAuth -Authentication Example
 
 ### Custom Fields
 
-By default the Login page will display a login form with Username and Password inputs. This can be overridden by supplying custom Layouts and Elements to the `-Content` parameter of [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage). Any custom content will be placed between the "Please sign in" message and the "Sign In" button.
+By default the Login page will display a login form with Username and Password inputs. This can be overridden by supplying custom Elements to the `-Content` parameter of [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage). Any custom content will be placed between the "Please sign in" message and the "Sign In" button.
 
 ```powershell
 # setup sessions
@@ -286,9 +286,9 @@ Add-PodeWebPage -Name Services -Icon Settings -ArgumentList 'Value1', 2, $false 
 
 If you add a page when you've enabled authentication, you can set a page to be accessible without authentication by supplying the `-NoAuth` switch to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
 
-If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`), then there's no further action needed.
+If you do this and you add all elements dynamically (via `-ScriptBlock`), then there's no further action needed.
 
-If however you're added the elements/layouts using the `-Content` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise, data/actions will fail with a 401 response.
+If however you're added the elements using the `-Content` parameter, then certain elements will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise, data/actions will fail with a 401 response.
 
 ### Sidebar
 
@@ -341,11 +341,11 @@ Start-PodeServer {
 
 The Login and normal Pages support registering the following events, and they can be registered via [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent):
 
-| Name | Description |
-| ---- | ----------- |
-| Load | Fires when the page has fully loaded, including js/css/etc. |
-| Unload | Fires when the has fully unloaded/closed |
-| BeforeUnload | Fires just before the page is about to unload/close |
+| Name         | Description                                                 |
+| ------------ | ----------------------------------------------------------- |
+| Load         | Fires when the page has fully loaded, including js/css/etc. |
+| Unload       | Fires when the has fully unloaded/closed                    |
+| BeforeUnload | Fires just before the page is about to unload/close         |
 
 To register an event for each page type:
 
