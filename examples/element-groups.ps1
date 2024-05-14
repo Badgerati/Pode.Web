@@ -12,7 +12,7 @@ Start-PodeServer {
     # set the controls
     Add-PodeWebPage -Name 'Example' -HomePage -ScriptBlock {
         New-PodeWebContainer -Content @(
-            New-PodeWebElementGroup -SubmitButtonId 'click_me' -Content @(
+            New-PodeWebElementGroup -Id 'ele_grp' -SubmitButtonId 'click_me' -Content @(
                 New-PodeWebSpan -Content @(
                     New-PodeWebText -Value 'Name:'
                     New-PodeWebTextbox -Name 'Name' -Type Text | Set-PodeWebMargin -Left 1
@@ -26,9 +26,15 @@ Start-PodeServer {
                     Set-PodeWebDisplay -Value Flex |
                     Set-PodeWebMargin -Top 1
 
-                New-PodeWebButton -Name 'Click Me' -Id 'click_me' -ScriptBlock {
-                    Show-PodeWebToast -Message "$($WebEvent.Data.Name) from $($WebEvent.Data.City)"
-                } |
+                New-PodeWebSpan -Content @(
+                    New-PodeWebButton -Name 'Click Me' -Id 'click_me' -ScriptBlock {
+                        Show-PodeWebToast -Message "$($WebEvent.Data.Name) from $($WebEvent.Data.City)"
+                    }
+                    New-PodeWebButton -Name 'Reset' -ScriptBlock {
+                        Reset-PodeWebElementGroup -Id 'ele_grp'
+                    } | Set-PodeWebMargin -Left 1
+                ) |
+                    Set-PodeWebDisplay -Value Block |
                     Set-PodeWebMargin -Top 1
             )
         )

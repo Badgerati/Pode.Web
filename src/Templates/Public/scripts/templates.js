@@ -218,18 +218,18 @@ class PodeElement {
             styles: data.Css.Styles ?? {},
             display: data.Css.Display ?? '',
             margin: {
-                all: data.Css.Margin.All ?? 0,
-                top: data.Css.Margin.Top ?? 0,
-                bottom: data.Css.Margin.Bottom ?? 0,
-                left: data.Css.Margin.Left ?? 0,
-                right: data.Css.Margin.Right ?? 0
+                all: data.Css.Margin.All ?? -1,
+                top: data.Css.Margin.Top ?? -1,
+                bottom: data.Css.Margin.Bottom ?? -1,
+                left: data.Css.Margin.Left ?? -1,
+                right: data.Css.Margin.Right ?? -1
             },
             padding: {
-                all: data.Css.Padding.All ?? 0,
-                top: data.Css.Padding.Top ?? 0,
-                bottom: data.Css.Padding.Bottom ?? 0,
-                left: data.Css.Padding.Left ?? 0,
-                right: data.Css.Padding.Right ?? 0
+                all: data.Css.Padding.All ?? -1,
+                top: data.Css.Padding.Top ?? -1,
+                bottom: data.Css.Padding.Bottom ?? -1,
+                left: data.Css.Padding.Left ?? -1,
+                right: data.Css.Padding.Right ?? -1
             }
         };
 
@@ -1040,46 +1040,46 @@ class PodeElement {
     }
 
     setMargin(value, sender, opts) {
-        if (value.all) {
+        if (value.all >= 0) {
             this.addClass(`m-${value.all}`, sender, opts);
         }
         else {
-            if (value.top) {
+            if (value.top >= 0) {
                 this.addClass(`mt-${value.top}`, sender, opts);
             }
 
-            if (value.bottom) {
+            if (value.bottom >= 0) {
                 this.addClass(`mb-${value.bottom}`, sender, opts);
             }
 
-            if (value.left) {
+            if (value.left >= 0) {
                 this.addClass(`ml-${value.left}`, sender, opts);
             }
 
-            if (value.right) {
+            if (value.right >= 0) {
                 this.addClass(`mr-${value.right}`, sender, opts);
             }
         }
     }
 
     setPadding(value, sender, opts) {
-        if (value.all) {
+        if (value.all >= 0) {
             this.addClass(`p-${value.all}`, sender, opts);
         }
         else {
-            if (value.top) {
+            if (value.top >= 0) {
                 this.addClass(`pt-${value.top}`, sender, opts);
             }
 
-            if (value.bottom) {
+            if (value.bottom >= 0) {
                 this.addClass(`pb-${value.bottom}`, sender, opts);
             }
 
-            if (value.left) {
+            if (value.left >= 0) {
                 this.addClass(`pl-${value.left}`, sender, opts);
             }
 
-            if (value.right) {
+            if (value.right >= 0) {
                 this.addClass(`pr-${value.right}`, sender, opts);
             }
         }
@@ -5971,11 +5971,51 @@ class PodeElementGroup extends PodeElement {
                 return;
             }
 
-            var btn = obj.element.find(`#${obj.submitId}`);
-            if (btn) {
-                btn.trigger('click');
-            }
+            obj.clickSubmitButton();
         }, true);
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        if (data.SubmitId) {
+            this.submitId = data.SubmitId
+        }
+    }
+
+    submit(data, sender, opts) {
+        this.clickSubmitButton();
+    }
+
+    clickSubmitButton() {
+        var btn = this.element.find(`#${this.submitId}`);
+        if (btn && btn.length > 0) {
+            btn.trigger('click');
+        }
+    }
+
+    reset(data, sender, opts) {
+        // reset textboxes
+        this.element.find('input:not(:checkbox, :radio)').each((_, item) => {
+            item.value = item.defaultValue;
+        });
+
+        // reset radio and checkboxes
+        this.element.find('input[type="checkbox"], input[type="radio"]').each((_, item) => {
+            item.checked = item.defaultChecked;
+        });
+
+        // reset select options
+        this.element.find('select').each((_, item) => {
+            $(item).find('option').each((_, opt) => {
+                opt.selected = opt.defaultSelected;
+            });
+        });
+
+        // reset textareas
+        this.element.find('textarea').each((_, item) => {
+            item.value = item.defaultValue;
+        });
     }
 }
 PodeElementFactory.setClass(PodeElementGroup);

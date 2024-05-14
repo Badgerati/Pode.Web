@@ -1,5 +1,9 @@
 # Grid
 
+| Support |     |
+| ------- | --- |
+| Events  | No  |
+
 A grid element is an array of cells with content, equally spaced in size, that can be either horizontal or vertical in orientation.
 
 The cells take an array of elements via `-Content`.

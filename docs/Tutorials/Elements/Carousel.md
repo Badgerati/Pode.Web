@@ -1,5 +1,9 @@
 # Carousel
 
+| Support |     |
+| ------- | --- |
+| Events  | No  |
+
 A carousel element is an array of slides with content, each slide can also have a title and a message. The slides will periodically move between one another, with arrows on either side to manually move to the next slide.
 
 The slides take an array of elements via `-Content`.

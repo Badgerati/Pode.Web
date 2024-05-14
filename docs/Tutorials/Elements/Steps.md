@@ -1,5 +1,9 @@
 # Steps
 
+| Support |     |
+| ------- | --- |
+| Events  | No  |
+
 A steps element is an array of steps with content. You can use them to step through multiple parts of a setup process.
 
 The steps take an array of elements via `-Content`.
