@@ -172,7 +172,7 @@ class PodeElement {
         opts.child = opts.child ?? {};
 
         this.id = PodeElement.makeId(data, opts);
-        this.name = data.Name ?? '';
+        this.name = encodeAttribute(data.Name ?? '');
         this.uuid = generateUuid();
         this.created = false;
         this.loading = false;
@@ -189,7 +189,7 @@ class PodeElement {
         this.url = `/pode.web-dynamic/elements/${this.getType()}/${data.ID}`;
         this.disabled = data.Disabled ?? false;
         this.visible = data.Visible ?? true;
-        this.title = data.Title ?? '';
+        this.title = encodeAttribute(data.Title ?? '');
         this.readonly = data.ReadOnly ?? false;
         this.required = data.Required ?? false;
         this.width = data.Width ?? '';
@@ -980,7 +980,7 @@ class PodeElement {
             this.element.attr('data-original-title', value);
         }
 
-        this.title = value;
+        this.title = encodeAttribute(value);
     }
 
     reset(data, sender, opts) {
@@ -1849,7 +1849,8 @@ class PodeIcon extends PodeContentElement {
         }
 
         name = name.toLowerCase();
-        this.name = name.startsWith('mdi-') ? name : `mdi-${name}`;
+        name = name.startsWith('mdi-') ? name : `mdi-${name}`
+        this.name = encodeAttribute(name);
     }
 
     new(data, sender, opts) {
@@ -3424,7 +3425,7 @@ class PodeTextbox extends PodeFormElement {
         var autofocus = this.autofocus ? 'autofocus' : '';
         var maxLength = data.MaxLength ? `maxlength='${data.MaxLength}'` : '';
         var width = `width:${this.width};`;
-        var placeholder = data.Placeholder ? `placeholder='${data.Placeholder}'` : '';
+        var placeholder = data.Placeholder ? `placeholder='${encodeAttribute(data.Placeholder)}'` : '';
         var events = this.events(data.Events);
 
         // multiline textbox
@@ -3466,7 +3467,7 @@ class PodeTextbox extends PodeFormElement {
                 pode-object='${this.getType()}'
                 pode-id='${this.uuid}'
                 style='${width}'
-                placeholder='${data.Placeholder ?? ''}'
+                ${placeholder}
                 ${autofocus}
                 ${events}
                 ${maxLength}>`;
