@@ -1003,6 +1003,10 @@ function encodeHTML(value) {
     return $('<div/>').text(value).html();
 }
 
+function encodeAttribute(value) {
+    return value.replace('&', '&amp;').replace('<', '&lt;').replace('"', '&quot;').replace("'", '&#39;');
+}
+
 function truncateArray(array, maxItems) {
     if (maxItems <= 0) {
         return array;
