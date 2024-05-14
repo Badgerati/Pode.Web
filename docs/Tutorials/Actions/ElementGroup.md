@@ -33,3 +33,21 @@ New-PodeWebElementGroup -Id 'ele_grp' -SubmitButtonId 'click_me' -Content @(
     }
 )
 ```
+
+## Update
+
+You can update the submit ButtonId being used by an Element Group with [`Update-PodeWebElementGroup`](../../../Functions/Actions/Update-PodeWebElementGroup):
+
+```powershell
+New-PodeWebElementGroup -Id 'ele_grp' -SubmitButtonId 'submit1' -Content @(
+    New-PodeWebTextbox -Name 'Name' -Type Text -Placeholder 'Name'
+
+    New-PodeWebButton -Name 'Submit1' -Id 'submit1' -ScriptBlock {
+        Update-PodeWebElementGroup -Id 'ele_grp' -SubmitButtonId 'submit2'
+    }
+
+    New-PodeWebButton -Name 'Submit2' -Id 'submit2' -ScriptBlock {
+        Show-PodeWebToast -Message "Hi, $($WebEvent.Data.Name)!"
+    }
+)
+```
