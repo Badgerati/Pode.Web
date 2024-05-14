@@ -1,5 +1,9 @@
 # Modal
 
+| Support |     |
+| ------- | --- |
+| Events  | No  |
+
 A modal is an element that renders on top of all other content on your web page - such as prompts to confirm information before performing an action, or a quick edit dialog.
 
 A modal takes an array of elements via `-Content`.

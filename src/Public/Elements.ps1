@@ -3452,7 +3452,7 @@ function Use-PodeWebElement {
         $Element,
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ID')]
-        [hashtable]
+        [string]
         $Id
     )
 
@@ -3510,6 +3510,7 @@ function New-PodeWebGrid {
         Cells         = $Cells
         Width         = $Width
         ID            = (Get-PodeWebElementId -Tag Grid -Id $Id)
+        NoEvents      = $true
     }
 }
 
@@ -3546,6 +3547,7 @@ function New-PodeWebCell {
         Width         = (Protect-PodeWebRange -Value $Width -Min 1 -Max 12)
         ID            = (Get-PodeWebElementId -Tag Cell -Id $Id)
         Alignment     = $Alignment.ToLowerInvariant()
+        NoEvents      = $true
     }
 }
 
@@ -3586,6 +3588,7 @@ function New-PodeWebTabs {
             Enabled  = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
         }
+        NoEvents      = $true
     }
 }
 
@@ -3626,6 +3629,7 @@ function New-PodeWebTab {
         ID            = (Get-PodeWebElementId -Tag Tab -Id $Id -Name $Name)
         Content       = $Content
         Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Tab')
+        NoEvents      = $true
     }
 }
 
@@ -3683,6 +3687,7 @@ function New-PodeWebCard {
         NoTitle       = $NoTitle.IsPresent
         NoHide        = $NoHide.IsPresent
         Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Card')
+        NoEvents      = $true
     }
 }
 
@@ -3716,6 +3721,7 @@ function New-PodeWebContainer {
         Content       = $Content
         NoBackground  = $NoBackground.IsPresent
         Hide          = $Hide.IsPresent
+        NoEvents      = $true
     }
 }
 
@@ -3844,6 +3850,7 @@ function New-PodeWebModal {
         ShowSubmit    = ($null -ne $ScriptBlock)
         Method        = $Method
         Action        = (Protect-PodeWebValue -Value $Action -Default $routePath)
+        NoEvents      = $true
     }
 }
 
@@ -3879,6 +3886,7 @@ function New-PodeWebHero {
         Title         = [System.Net.WebUtility]::HtmlEncode($Title)
         Message       = [System.Net.WebUtility]::HtmlEncode($Message)
         Content       = $Content
+        NoEvents      = $true
     }
 }
 
@@ -3904,6 +3912,7 @@ function New-PodeWebCarousel {
         ObjectType    = 'Carousel'
         ID            = (Get-PodeWebElementId -Tag Carousel -Id $Id)
         Slides        = $Slides
+        NoEvents      = $true
     }
 }
 
@@ -3935,6 +3944,7 @@ function New-PodeWebSlide {
         ID            = (Get-PodeWebElementId -Tag Slide)
         Title         = [System.Net.WebUtility]::HtmlEncode($Title)
         Message       = [System.Net.WebUtility]::HtmlEncode($Message)
+        NoEvents      = $true
     }
 }
 
@@ -4019,6 +4029,7 @@ function New-PodeWebSteps {
         ObjectType    = 'Steps'
         ID            = $Id
         Steps         = $Steps
+        NoEvents      = $true
     }
 }
 
@@ -4111,6 +4122,7 @@ function New-PodeWebStep {
         Content       = $Content
         Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Step')
         IsDynamic     = ($null -ne $ScriptBlock)
+        NoEvents      = $true
     }
 }
 
@@ -4227,6 +4239,7 @@ function New-PodeWebAccordion {
             Enabled  = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
         }
+        NoEvents      = $true
     }
 }
 
@@ -4267,5 +4280,55 @@ function New-PodeWebBellow {
         ID            = (Get-PodeWebElementId -Tag Bellow -Id $Id -Name $Name)
         Content       = $Content
         Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Bellow')
+        NoEvents      = $true
+    }
+}
+
+function New-PodeWebElementGroup {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable[]]
+        $Content,
+
+        [Parameter()]
+        [string]
+        $SubmitButtonId
+    )
+
+    return @{
+        Operation     = 'New'
+        ComponentType = 'Element'
+        ObjectType    = 'Element-Group'
+        Content       = $Content
+        ID            = (Get-PodeWebElementId -Tag 'ElementGroup' -Id $Id)
+        SubmitId      = $SubmitButtonId
+        NoEvents      = $true
+    }
+}
+
+function New-PodeWebSpan {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable[]]
+        $Content
+    )
+
+    return @{
+        Operation     = 'New'
+        ComponentType = 'Element'
+        ObjectType    = 'Span'
+        Content       = $Content
+        ID            = (Get-PodeWebElementId -Tag 'Span' -Id $Id)
+        NoEvents      = $true
     }
 }

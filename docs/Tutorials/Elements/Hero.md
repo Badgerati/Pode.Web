@@ -1,5 +1,9 @@
 # Hero
 
+| Support |     |
+| ------- | --- |
+| Events  | No  |
+
 A hero is an element that renders with a title, message, and extra optional content. They're the big display messages that are normally seen at the top of websites with buttons like "Download Now!" etc.
 
 A hero can take an array of elements via `-Content`.

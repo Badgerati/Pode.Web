@@ -1,5 +1,9 @@
 # Tabs
 
+| Support |     |
+| ------- | --- |
+| Events  | No  |
+
 A tabs element is an array of tabs with content, where the content of those tabs is just an array of other elements.
 
 ## Usage

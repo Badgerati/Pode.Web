@@ -210,9 +210,27 @@ class PodeElement {
             previous: null
         };
 
+        data.Css = data.Css ?? {};
+        data.Css.Margin = data.Css.Margin ?? {};
+        data.Css.Padding = data.Css.Padding ?? {};
         this.css = {
-            classes: (data.Css ?? {}).Classes ?? [],
-            styles: (data.Css ?? {}).Styles ?? {}
+            classes: data.Css.Classes ?? [],
+            styles: data.Css.Styles ?? {},
+            display: data.Css.Display ?? '',
+            margin: {
+                all: data.Css.Margin.All ?? -1,
+                top: data.Css.Margin.Top ?? -1,
+                bottom: data.Css.Margin.Bottom ?? -1,
+                left: data.Css.Margin.Left ?? -1,
+                right: data.Css.Margin.Right ?? -1
+            },
+            padding: {
+                all: data.Css.Padding.All ?? -1,
+                top: data.Css.Padding.Top ?? -1,
+                bottom: data.Css.Padding.Bottom ?? -1,
+                left: data.Css.Padding.Left ?? -1,
+                right: data.Css.Padding.Right ?? -1
+            }
         };
 
         this.attributes = data.Attributes ?? {};
@@ -349,6 +367,46 @@ class PodeElement {
 
                     case 'switch':
                         this.toggleClass(data.Value, data.State, sender, { ...data, ...opts })
+                        break;
+                }
+                break;
+
+            case 'display':
+                switch (action) {
+                    case 'set':
+                        this.setDisplay(data.Value, sender, { ...data, ...opts });
+                        break;
+                }
+                break;
+
+            case 'margin':
+                switch (action) {
+                    case 'set':
+                        var margin = {
+                            all: data.Value.All ?? 0,
+                            top: data.Value.Top ?? 0,
+                            bottom: data.Value.Bottom ?? 0,
+                            left: data.Value.Left ?? 0,
+                            right: data.Value.Right ?? 0
+                        };
+
+                        this.setMargin(margin, sender, { ...data, ...opts });
+                        break;
+                }
+                break;
+
+            case 'padding':
+                switch (action) {
+                    case 'set':
+                        var padding = {
+                            all: data.Value.All ?? 0,
+                            top: data.Value.Top ?? 0,
+                            bottom: data.Value.Bottom ?? 0,
+                            left: data.Value.Left ?? 0,
+                            right: data.Value.Right ?? 0
+                        };
+
+                        this.setPadding(padding, sender, { ...data, ...opts });
                         break;
                 }
                 break;
@@ -559,6 +617,21 @@ class PodeElement {
             });
         }
 
+        // add display
+        if (this.css.display) {
+            this.setDisplay(this.css.display);
+        }
+
+        // add margin
+        if (this.css.margin) {
+            this.setMargin(this.css.margin);
+        }
+
+        // add padding
+        if (this.css.padding) {
+            this.setPadding(this.css.padding);
+        }
+
         // hide element
         if (!this.visible) {
             this.hide();
@@ -642,8 +715,15 @@ class PodeElement {
         };
     }
 
-    serialize(element) {
+    serialize(element, checkGroup) {
         element = element ?? this.element;
+
+        if (checkGroup) {
+            var group = element.closest('.pode-element-group');
+            if (group) {
+                element = group;
+            }
+        }
 
         var data = null;
         var opts = {
@@ -652,17 +732,17 @@ class PodeElement {
             processData: false
         };
 
-        if (this.element.find('input[type=file]').length > 0) {
-            data = newFormData(this.element.find('input, textarea, select'));
+        if (element.find('input[type=file]').length > 0) {
+            data = newFormData(element.find('input, textarea, select'));
         }
         else {
             opts = {};
 
             if (this.checkParentType('form')) {
-                data = this.element.serialize();
+                data = element.serialize();
             }
             else {
-                data = this.element.find('input, textarea, select').serialize();
+                data = element.find('input, textarea, select').serialize();
             }
         }
 
@@ -688,7 +768,7 @@ class PodeElement {
 
     trigger(evt, asAjax) {
         if (asAjax) {
-            var inputs = this.serialize();
+            var inputs = this.serialize(null, true);
             inputs.opts.keepFocus = true;
             sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this, true, null, null, inputs.opts);
         }
@@ -953,6 +1033,56 @@ class PodeElement {
 
     removeAttribute(name, sender, opts) {
         this.element.attr(name, null);
+    }
+
+    setDisplay(value, sender, opts) {
+        this.addClass(`d-${value.toLowerCase()}`, sender, opts);
+    }
+
+    setMargin(value, sender, opts) {
+        if (value.all >= 0) {
+            this.addClass(`m-${value.all}`, sender, opts);
+        }
+        else {
+            if (value.top >= 0) {
+                this.addClass(`mt-${value.top}`, sender, opts);
+            }
+
+            if (value.bottom >= 0) {
+                this.addClass(`mb-${value.bottom}`, sender, opts);
+            }
+
+            if (value.left >= 0) {
+                this.addClass(`ml-${value.left}`, sender, opts);
+            }
+
+            if (value.right >= 0) {
+                this.addClass(`mr-${value.right}`, sender, opts);
+            }
+        }
+    }
+
+    setPadding(value, sender, opts) {
+        if (value.all >= 0) {
+            this.addClass(`p-${value.all}`, sender, opts);
+        }
+        else {
+            if (value.top >= 0) {
+                this.addClass(`pt-${value.top}`, sender, opts);
+            }
+
+            if (value.bottom >= 0) {
+                this.addClass(`pb-${value.bottom}`, sender, opts);
+            }
+
+            if (value.left >= 0) {
+                this.addClass(`pl-${value.left}`, sender, opts);
+            }
+
+            if (value.right >= 0) {
+                this.addClass(`pr-${value.right}`, sender, opts);
+            }
+        }
     }
 
     addStyle(name, value, sender, opts) {
@@ -1372,7 +1502,7 @@ class PodeFormElement extends PodeContentElement {
                 }
 
                 // overload html from super
-                if (!(this.parent instanceof PodeButtonGroup)) {
+                if (!(this instanceof PodeButton) && !(this.parent instanceof PodeButtonGroup)) {
                     html = `<span pode-container-for='${this.uuid}'>${html}</span>`;
                 }
 
@@ -2025,12 +2155,20 @@ class PodeButton extends PodeFormElement {
         this.listen(this.element, 'click', function(e, target, sender) {
             // hide tooltip
             sender.tooltip(false);
-
-            // find a form
             var inputs = {};
-            var form = sender.element.closest('form');
-            if (form) {
-                inputs = sender.serialize(form);
+
+            // find group
+            var group = sender.element.closest('.pode-element-group');
+            if (group && group.length > 0) {
+                inputs = sender.serialize(group);
+            }
+
+            // find a form, if no group found
+            if (!group || group.length == 0) {
+                var form = sender.element.closest('form');
+                if (form && form.length > 0) {
+                    inputs = sender.serialize(form);
+                }
             }
 
             // get a data value
@@ -5801,3 +5939,103 @@ class PodeNavLink extends PodeNavElement {
     }
 }
 PodeElementFactory.setClass(PodeNavLink);
+
+class PodeElementGroup extends PodeElement {
+    static type = 'element-group'
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.submitId = data.SubmitId;
+    }
+
+    new(data, sender, opts) {
+        return `<span
+            id="${this.id}"
+            class="pode-element-group"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'
+            pode-content-for='${this.uuid}'
+            pode-content-order='0'>
+        </span>`;
+    }
+
+    bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+        if (!this.submitId) {
+            return;
+        }
+
+        var obj = this;
+        this.listen(this.element, 'keypress', function(e, target) {
+            if (!isEnterKey(e)) {
+                return;
+            }
+
+            obj.clickSubmitButton();
+        }, true);
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        if (data.SubmitId) {
+            this.submitId = data.SubmitId
+        }
+    }
+
+    submit(data, sender, opts) {
+        this.clickSubmitButton();
+    }
+
+    clickSubmitButton() {
+        var btn = this.element.find(`#${this.submitId}`);
+        if (btn && btn.length > 0) {
+            btn.trigger('click');
+        }
+    }
+
+    reset(data, sender, opts) {
+        // reset textboxes
+        this.element.find('input:not(:checkbox, :radio)').each((_, item) => {
+            item.value = item.defaultValue;
+        });
+
+        // reset radio and checkboxes
+        this.element.find('input[type="checkbox"], input[type="radio"]').each((_, item) => {
+            item.checked = item.defaultChecked;
+        });
+
+        // reset select options
+        this.element.find('select').each((_, item) => {
+            $(item).find('option').each((_, opt) => {
+                opt.selected = opt.defaultSelected;
+            });
+        });
+
+        // reset textareas
+        this.element.find('textarea').each((_, item) => {
+            item.value = item.defaultValue;
+        });
+    }
+}
+PodeElementFactory.setClass(PodeElementGroup);
+
+class PodeSpan extends PodeElement {
+    static type = 'span'
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        return `<span
+            id="${this.id}"
+            class="pode-span"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'
+            pode-content-for='${this.uuid}'
+            pode-content-order='0'>
+        </span>`;
+    }
+}
+PodeElementFactory.setClass(PodeSpan);

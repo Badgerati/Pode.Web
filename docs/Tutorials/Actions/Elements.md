@@ -191,3 +191,62 @@ Remove-PodeWebAttribute -Type 'Textbox' -Name 'SomeTextboxName' -Key 'hx-confirm
 
 Remove-PodeWebAttribute -Id 'textbox_somename' -Key 'hx-confirm'
 ```
+
+## Padding
+
+### Set
+
+You can set the padding of an element using [`Set-PodeWebPadding`](../../../Functions/Actions/Set-PodeWebPadding). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`; you can also control the individual padding values for `-Left`, `-Right`, `-Top`, and `-Bottom`, or you can set them all at once via `-Value`.
+
+Padding values can be supplied in a range of 0 to 5, with 0 being no padding and 5 being the most padding.
+
+```powershell
+Set-PodeWebPadding -Type 'Textbox' -Name 'SomeTextboxName' -Value 3
+Set-PodeWebPadding -Type 'Textbox' -Name 'SomeTextboxName' -Right 3 -Left 4
+
+# or
+
+Set-PodeWebPadding -Id 'textbox_somename' -Value 3
+Set-PodeWebPadding -Id 'textbox_somename' -Right 3 -Left 4
+```
+
+## Margin
+
+### Set
+
+You can set the margin of an element using [`Set-PodeWebMargin`](../../../Functions/Actions/Set-PodeWebMargin). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`; you can also control the individual margin values for `-Left`, `-Right`, `-Top`, and `-Bottom`, or you can set them all at once via `-Value`.
+
+Margin values can be supplied in a range of 0 to 5, with 0 being no margin and 5 being the largest margin.
+
+```powershell
+Set-PodeWebMargin -Type 'Textbox' -Name 'SomeTextboxName' -Value 3
+Set-PodeWebMargin -Type 'Textbox' -Name 'SomeTextboxName' -Right 3 -Left 4
+
+# or
+
+Set-PodeWebMargin -Id 'textbox_somename' -Value 3
+Set-PodeWebMargin -Id 'textbox_somename' -Right 3 -Left 4
+```
+
+## Display
+
+### Set
+
+You can set the display mode of an element using [`Set-PodeWebDisplay`](../../../Functions/Actions/Set-PodeWebDisplay). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`
+
+Display values allowed are:
+
+* Block
+* Inline
+* Inline-Block
+* Flex
+* Inline-Flex
+* None
+
+```powershell
+Set-PodeWebDisplay -Type 'Textbox' -Name 'SomeTextboxName' -Value 'Inline-Block'
+
+# or
+
+Set-PodeWebDisplay -Id 'textbox_somename' -Value 'Flex'
+```

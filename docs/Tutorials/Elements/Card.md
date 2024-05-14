@@ -1,5 +1,9 @@
 # Card
 
+| Support |     |
+| ------- | --- |
+| Events  | No  |
+
 A card is an element that renders with an optional title, and can be collapsed by the end-user.
 
 A card takes an array of elements via `-Content`.
