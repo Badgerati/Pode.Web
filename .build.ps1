@@ -15,8 +15,8 @@ $src_path = './pode_modules'
 #>
 
 $Versions = @{
-    MkDocs      = '1.5.3'
-    MkDocsTheme = '9.5.17'
+    MkDocs      = '1.6.0'
+    MkDocsTheme = '9.5.23'
     Mike        = '2.1.1'
     PlatyPS     = '0.14.2'
 }
@@ -376,6 +376,9 @@ task DocsHelpBuild DocsDeps, {
     # build the function docs
     $path = './docs/Functions'
     $map = @{}
+
+    Remove-Item -Path $path -Recurse -Force -ErrorAction Ignore | Out-Null
+    New-Item -Path $path -ItemType Directory -Force | Out-Null
 
     (Get-Module Pode.Web).ExportedFunctions.Keys | ForEach-Object {
         $type = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path -Leaf -Path (Get-Command $_ -Module Pode.Web).ScriptBlock.File))
