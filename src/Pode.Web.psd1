@@ -40,17 +40,25 @@
     PrivateData       = @{
         PSData = @{
 
+            Prerelease   = 'preview1'
+
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags       = @('powershell', 'web', 'server', 'pode', 'framework', 'templates', 'pages', 'charts', 'dashboard')
+            Tags         = @('powershell', 'web', 'server', 'pode', 'framework', 'templates', 'pages', 'charts', 'dashboard')
 
             # A URL to the license for this module.
-            LicenseUri = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/LICENSE.txt'
+            LicenseUri   = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/LICENSE.txt'
 
             # A URL to the main website for this project.
-            ProjectUri = 'https://github.com/Badgerati/Pode.Web'
+            ProjectUri   = 'https://github.com/Badgerati/Pode.Web'
 
             # A URL to an icon representing this module.
-            IconUri    = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/images/icon.png'
+            IconUri      = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/images/icon.png'
+
+            # Release notes for this version of the module.
+            ReleaseNotes = 'https://badgerati.github.io/Pode.Web/release-notes/'
+
+            # Documentation to refer to for this module.
+            HelpInfoURI  = 'https://badgerati.github.io/Pode.Web/'
 
         }
     }

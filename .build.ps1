@@ -1,6 +1,5 @@
-param (
-    [string]
-    $Version = '0.0.0'
+param(
+    $ReleaseNoteVersion
 )
 
 $dest_path = './src/Templates/Public'
@@ -14,6 +13,7 @@ $src_path = './pode_modules'
 $Versions = @{
     MkDocs      = '1.5.3'
     MkDocsTheme = '9.5.17'
+    Mike        = '2.1.1'
     PlatyPS     = '0.14.2'
 }
 
@@ -70,6 +70,29 @@ function Install-PodeBuildModule($name) {
     Install-Module -Name "$($name)" -Scope CurrentUser -RequiredVersion "$($Versions[$name])" -Force -SkipPublisherCheck
 }
 
+function Get-PodeBuildVersion {
+    return (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').ModuleVersion
+}
+
+function Get-PodeBuildCurrentBranch {
+    $branch = git branch --show-current
+    if ([string]::IsNullOrWhiteSpace($branch)) {
+        $branch = git rev-parse --abbrev-ref HEAD
+    }
+
+    return $branch
+}
+
+function Test-PodeBuildDevBranch {
+    $branch = Get-PodeBuildCurrentBranch
+    return ($branch -ieq 'develop')
+}
+
+function Test-PodeBuildLiveBranch {
+    $branch = Get-PodeBuildCurrentBranch
+    return ($branch -ieq 'master')
+}
+
 
 <#
 # Dependencies
@@ -90,9 +113,15 @@ task DocsDeps ChocoDeps, {
         Invoke-PodeBuildInstall 'mkdocs' $Versions.MkDocs
     }
 
+    # install mkdocs-material theme
     $_installed = (pip list --format json --disable-pip-version-check | ConvertFrom-Json)
     if (($_installed | Where-Object { $_.name -ieq 'mkdocs-material' -and $_.version -ieq $Versions.MkDocsTheme } | Measure-Object).Count -eq 0) {
         pip install "mkdocs-material==$($Versions.MkDocsTheme)" --force-reinstall --disable-pip-version-check
+    }
+
+    # install mike
+    if (($_installed | Where-Object { $_.name -ieq 'mike' -and $_.version -ieq $Versions.Mike } | Measure-Object).Count -eq 0) {
+        pip install "mike==$($Versions.Mike)" --force-reinstall --disable-pip-version-check
     }
 
     # install platyps
@@ -291,27 +320,36 @@ task MoveLibs {
 #>
 
 # Synopsis: Package up the Module
-task Pack -If (Test-PodeBuildIsWindows) Build, {
-    if (!$Version) {
-        $Version = (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').ModuleVersion
-    }
-}, DockerPack
+task Pack -If (Test-PodeBuildIsWindows) Build, PowershellPack, DockerPack
+
+# Synopsis: Package up the Module
+task PowershellPack {
+    $Name = 'Pode.Web'
+    Copy-Item './src' "./$($Name)" -Recurse -Force
+}
 
 # Synopsis: Create docker tags
 task DockerPack {
-    docker build -t badgerati/pode.web:$Version -f ./Dockerfile .
+    if (Test-PodeBuildDevBranch) {
+        Write-Host 'Skipping docker pack for develop branch...' -ForegroundColor Yellow
+        return
+    }
+
+    $version = Get-PodeBuildVersion
+
+    docker build -t badgerati/pode.web:$version -f ./Dockerfile .
     docker build -t badgerati/pode.web:latest -f ./Dockerfile .
-    docker build -t badgerati/pode.web:$Version-alpine -f ./alpine.dockerfile .
+    docker build -t badgerati/pode.web:$version-alpine -f ./alpine.dockerfile .
     docker build -t badgerati/pode.web:latest-alpine -f ./alpine.dockerfile .
-    docker build -t badgerati/pode.web:$Version-arm32 -f ./arm32.dockerfile .
+    docker build -t badgerati/pode.web:$version-arm32 -f ./arm32.dockerfile .
     docker build -t badgerati/pode.web:latest-arm32 -f ./arm32.dockerfile .
 
     docker tag badgerati/pode.web:latest docker.pkg.github.com/badgerati/pode.web/pode.web:latest
-    docker tag badgerati/pode.web:$Version docker.pkg.github.com/badgerati/pode.web/pode.web:$Version
+    docker tag badgerati/pode.web:$version docker.pkg.github.com/badgerati/pode.web/pode.web:$version
     docker tag badgerati/pode.web:latest-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:latest-alpine
-    docker tag badgerati/pode.web:$Version-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$Version-alpine
+    docker tag badgerati/pode.web:$version-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$version-alpine
     docker tag badgerati/pode.web:latest-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:latest-arm32
-    docker tag badgerati/pode.web:$Version-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$Version-arm32
+    docker tag badgerati/pode.web:$version-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$version-arm32
 }
 
 
@@ -319,10 +357,10 @@ task DockerPack {
 # Docs
 #>
 
-# Synopsis: Run the documentation locally
+# Synopsis: Build and run the documentation locally
 task Docs DocsDeps, DocsHelpBuild, {
     Write-Host 'Documentation available at 127:0.0.1:8000...' -ForegroundColor Yellow
-    mkdocs serve --quiet
+    mkdocs serve --quiet --open
 }
 
 # Synopsis: Build the function help documentation
@@ -369,7 +407,118 @@ task DocsHelpBuild DocsDeps, {
     Remove-Module Pode.Web -Force -ErrorAction Ignore | Out-Null
 }
 
-# Synopsis: Build the documentation
-task DocsBuild DocsDeps, DocsHelpBuild, {
-    mkdocs build --quiet
+# Synopsis: Deploy the documentation
+task DocsDeploy DocsDeps, DocsHelpBuild, {
+    $version = Get-PodeBuildVersion
+
+    if (!(Test-PodeBuildDevBranch) -and !(Test-PodeBuildLiveBranch)) {
+        Write-Host 'Skipping documentation deploy for non-master/dev branch...' -ForegroundColor Yellow
+        return
+    }
+
+    $alias = 'latest'
+    if (Test-PodeBuildDevBranch) {
+        $alias = 'dev'
+    }
+
+    git fetch origin gh-pages --depth=1
+    mike deploy --push --update-aliases $version $alias
+}
+
+# Synopsis: Build the Release Notes
+task ReleaseNotes {
+    if ([string]::IsNullOrWhiteSpace($ReleaseNoteVersion)) {
+        Write-Host 'Please provide a ReleaseNoteVersion' -ForegroundColor Red
+        return
+    }
+
+    # get the PRs for the ReleaseNoteVersion
+    $prs = gh search prs --milestone $ReleaseNoteVersion --repo badgerati/pode.web --merged --limit 200 --json 'number,title,labels,author' | ConvertFrom-Json
+
+    # group PRs into categories, filtering out some internal PRs
+    $categories = [ordered]@{
+        Features      = @()
+        Enhancements  = @()
+        Bugs          = @()
+        Documentation = @()
+    }
+
+    $dependabot = @{}
+
+    foreach ($pr in $prs) {
+        $label = ($pr.labels[0].name -split ' ')[0]
+        if ($label -iin @('new-release', 'internal-code')) {
+            continue
+        }
+
+        if ([string]::IsNullOrWhiteSpace($label)) {
+            $label = 'misc'
+        }
+
+        switch ($label.ToLowerInvariant()) {
+            'feature' { $label = 'Features' }
+            'enhancement' { $label = 'Enhancements' }
+            'bug' { $label = 'Bugs' }
+        }
+
+        if (!$categories.Contains($label)) {
+            $categories[$label] = @()
+        }
+
+        if ($pr.author.login -ilike '*dependabot*') {
+            if ($pr.title -imatch 'Bump (?<name>\S+) from (?<from>[0-9\.]+) to (?<to>[0-9\.]+)') {
+                if (!$dependabot.ContainsKey($Matches['name'])) {
+                    $dependabot[$Matches['name']] = @{
+                        Name   = $Matches['name']
+                        Number = $pr.number
+                        From   = [version]$Matches['from']
+                        To     = [version]$Matches['to']
+                    }
+                }
+                else {
+                    $item = $dependabot[$Matches['name']]
+                    if ([int]$pr.number -gt [int]$item.Number) {
+                        $item.Number = $pr.number
+                    }
+                    if ([version]$Matches['from'] -lt $item.From) {
+                        $item.From = [version]$Matches['from']
+                    }
+                    if ([version]$Matches['to'] -gt $item.To) {
+                        $item.To = [version]$Matches['to']
+                    }
+                }
+
+                continue
+            }
+        }
+
+        $str = "* #$($pr.number): $($pr.title)"
+        if (($pr.author.login -ine 'badgerati') -and ($pr.author.login -inotlike '*dependabot*')) {
+            $str += " (thanks @$($pr.author.login)!)"
+        }
+
+        $categories[$label] += $str
+    }
+
+    # add dependabot aggregated PRs
+    if ($dependabot.Count -gt 0) {
+        $label = 'dependencies'
+        if (!$categories.Contains($label)) {
+            $categories[$label] = @()
+        }
+
+        foreach ($dep in $dependabot.Values) {
+            $categories[$label] += "* #$($dep.Number) Bump $($dep.Name) from $($dep.From) to $($dep.To)"
+        }
+    }
+
+    # output the release notes
+    Write-Host "# v$($ReleaseNoteVersion)`n"
+
+    $culture = (Get-Culture).TextInfo
+    foreach ($category in $categories.Keys) {
+        Write-Host "### $($culture.ToTitleCase($category))"
+        $categories[$category] | Sort-Object | ForEach-Object { Write-Host $_ }
+        Write-Host ''
+    }
 }
