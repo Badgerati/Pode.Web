@@ -1,5 +1,59 @@
 # Release Notes
 
+## v1.0.0
+
+```plain
+### Features
+* #468: Add Button Groups element, and support for Buttons in Card headers
+* #551: Adds built-in support for handing session Tab scope
+* #568: Add support for SSE and Async Updates
+* #571: Add support for logically grouping element together
+
+### Enhancements
+* #412: Added Update-PodeWebTextbox ReadOnly parameter (thanks @RobinBeismann!)
+* #455: Migrate element rending to JavaScript
+* #458: Add Update-PodeWebRaw support
+* #459: Add support for initial Date/Time values on the DateTime element
+* #460: Add -Icon to New-PodeWebHeader
+* #462: Add -ScriptBlock and -Icon support for Home pages, plus -NoNavigation support for all Pages
+* #465: Add icon support to Update-PodeWebTile, and Update-PodeWebHeader
+* #467: Centralise class/styles, add custom attribute support, and enable hiding element on creation
+* #469: Add Update-PodeWebImage support
+* #478: Add actions for Icons, Toggle/Hover support, and -Icon parameter can now accept New-PodeWebIcon
+* #531: Adds functions to customise Groups, enables custom Paths for Pages, and Remove Home Page function
+* #547: Enables support to use scoped variables in Pages, Elements, etc.
+
+### Bugs
+* #466: Throw and error if Use-PodeWebTemplates is called more than once
+* #481: Remove use of -NoNewLine, and fix JSON rendering
+* #528: Changed random name generation to use Get-Random rather than System.Random (thanks @Staples1887!)
+* #533: Add errorCallback and stop double-clicks
+* #534: Set Ajax to have no timeout for long requests
+* #550: Update Pages.ps1 (thanks @Szeraax!)
+* #572: Fix encoding for Name, Placeholder, and Title when they contain certain special chars
+
+### Documentation
+* #486: Update Accordion.md (thanks @fatherofinvention!)
+* #487: Update index.md (thanks @fatherofinvention!)
+* #488: Update Button.md (thanks @fatherofinvention!)
+* #490: Update Events.md (thanks @fatherofinvention!)
+* #500: fix: README.md example (thanks @Szeraax!)
+* #530: Update Image.md (thanks @Szeraax!)
+* #561: Fix typo in CommentBlock.md (thanks @KeithALane!)
+
+### Dependencies
+* #515 Bump jquery from 3.6.3 to 3.7.1
+* #537 Bump moment from 2.29.4 to 2.30.1
+* #539 Bump @mdi/font from 7.1.96 to 7.4.47
+* #540 Bump @highlightjs/cdn-assets from 11.7.0 to 11.9.0
+* #557 Bump chart.js from 4.2.1 to 4.4.2
+* #566 Bump monaco-editor from 0.36.0 to 0.48.0
+* #569: Bump bootstrap to v4.6.2
+
+### Packaging
+* #536: Adds vscode pwsh formatter, and updates src files
+```
+
 ## v0.8.3
 
 ```plain
@@ -350,7 +404,7 @@ Important: This release contains vast breaking changes to v0.2.0 - Layouts and E
 * Multiple datasets on charts
 * Spinner, Comment Box, and Line elements
 * Monaco editor
-* Hero and Timer components 
+* Hero and Timer components
 ```
 
 ## v0.1.0

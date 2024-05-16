@@ -1,4 +1,9 @@
 site_name: Pode.Web
+site_author: Badgerati
+repo_name: badgerati/pode.web
+repo_url: https://github.com/Badgerati/Pode.Web
+site_url: https://badgerati.github.io/Pode.Web/
+edit_uri: edit/master/docs
 
 theme:
   name: material
@@ -38,11 +43,11 @@ markdown_extensions:
   - admonition
   - meta
 
-repo_name: badgerati/pode.web
-repo_url: https://github.com/Badgerati/Pode.Web
-edit_uri: edit/master/docs
-
 extra:
+  version:
+    provider: mike
+    default: latest
+
   social:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/fRqeGcbF6h

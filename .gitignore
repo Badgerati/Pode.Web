@@ -12,6 +12,7 @@ examples/issues/
 pkg/
 yarn.lock
 min-maps/
+Pode.Web/
 
 
 # Code Runner
