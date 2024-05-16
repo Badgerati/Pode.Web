@@ -1,6 +1,9 @@
 param(
     [string]
-    $ReleaseNoteVersion
+    $ReleaseNoteVersion,
+
+    [switch]
+    $SkipDockerPack
 )
 
 $dest_path = './src/Templates/Public'
@@ -331,8 +334,8 @@ task PowershellPack {
 
 # Synopsis: Create docker tags
 task DockerPack {
-    if (Test-PodeBuildDevBranch) {
-        Write-Host 'Skipping docker pack for develop branch...' -ForegroundColor Yellow
+    if ($SkipDockerPack) {
+        Write-Host 'Skipping docker pack...' -ForegroundColor Yellow
         return
     }
 
