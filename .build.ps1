@@ -1,4 +1,5 @@
 param(
+    [string]
     $ReleaseNoteVersion
 )
 
