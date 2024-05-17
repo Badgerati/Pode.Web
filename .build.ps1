@@ -499,12 +499,24 @@ task ReleaseNotes {
             }
         }
 
-        $str = "* #$($pr.number): $($pr.title)"
-        if (($pr.author.login -ine 'badgerati') -and ($pr.author.login -inotlike '*dependabot*')) {
-            $str += " (thanks @$($pr.author.login)!)"
+        $titles = @($pr.title)
+        if ($pr.title.Contains(';')) {
+            $titles = ($pr.title -split ';').Trim()
         }
 
-        $categories[$label] += $str
+        $author = $null
+        if (($pr.author.login -ine 'badgerati') -and ($pr.author.login -inotlike '*dependabot*')) {
+            $author = $pr.author.login
+        }
+
+        foreach ($title in $titles) {
+            $str = "* #$($pr.number): $($title)"
+            if (![string]::IsNullOrWhiteSpace($author)) {
+                $str += " (thanks @$($author)!)"
+            }
+
+            $categories[$label] += $str
+        }
     }
 
     # add dependabot aggregated PRs
