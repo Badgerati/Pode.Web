@@ -23,10 +23,12 @@ Start-PodeServer -Browse {
                 New-PodeWebButton -Name 'Update to DuckDuckGo' -ScriptBlock {
                     Update-PodeWebLink -Id 'link' -Value 'DuckDuckGo' -Url 'https://www.duckduckgo.com'
                 }
-                New-PodeWebButton -Name 'Disable Link' -ScriptBlock {
+                New-PodeWebButton -Name 'Disable Link' -ClickName 'Disabling...' -ScriptBlock {
+                    Start-Sleep -Seconds 2
                     Disable-PodeWebLink -Id 'link'
                 }
-                New-PodeWebButton -Name 'Enable Link' -ScriptBlock {
+                New-PodeWebButton -Name 'Enable Link' -ClickName 'Enabling...' -ScriptBlock {
+                    Start-Sleep -Seconds 2
                     Enable-PodeWebLink -Id 'link'
                 }
             )

@@ -2541,6 +2541,10 @@ function Update-PodeWebButton {
         $DisplayName,
 
         [Parameter()]
+        [string]
+        $ClickName,
+
+        [Parameter()]
         [object]
         $Icon,
 
@@ -2562,7 +2566,19 @@ function Update-PodeWebButton {
         [Parameter()]
         [ValidateSet('Unchanged', 'Normal', 'Full')]
         [string]
-        $SizeState = 'Unchanged'
+        $SizeState = 'Unchanged',
+
+        [Parameter()]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $DataValue,
+
+        [Parameter()]
+        [ValidateSet('Unchanged', 'SameTab', 'NewTab')]
+        $TabState = 'Unchanged'
     )
 
     $colourType = Convert-PodeWebColourToClass -Colour $Colour
@@ -2580,7 +2596,11 @@ function Update-PodeWebButton {
         SizeType    = $sizeType
         SizeState   = $SizeState.ToLowerInvariant()
         DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
+        ClickName   = [System.Net.WebUtility]::HtmlEncode($ClickName)
         Icon        = (Protect-PodeWebIconType -Icon $Icon -Element 'Button')
+        Url         = $Url
+        DataValue   = $DataValue
+        TabState    = $TabState.ToLowerInvariant()
     }
 }
 

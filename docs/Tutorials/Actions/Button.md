@@ -52,7 +52,7 @@ New-PodeWebCard -Content @(
 
 ## Update
 
-You can update a button's Icon, DisplayName, Colour, and Size using [`Update-PodeWebButton`](../../../Functions/Actions/Update-PodeWebButton).
+You can update a button's Icon, DisplayName, Colour, Url, Size, and various other properties using [`Update-PodeWebButton`](../../../Functions/Actions/Update-PodeWebButton).
 
 For example, to change a solid button to be yellow and outlined:
 

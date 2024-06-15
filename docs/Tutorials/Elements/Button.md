@@ -38,6 +38,19 @@ New-PodeWebButton -Name 'Click Me' -ArgumentList 'Value1', 2, $false -ScriptBloc
 }
 ```
 
+### Display/Click Name
+
+For dynamic buttons, alongside `-DisplayName` to customise the rendered value, there is also a `-ClickName` parameter. This `-ClickName` parameter will be shown when the button is clicked, and for the duration in which the spinner is visible. Once the button's action has been completed, the original value is shown again - this will be either `-Name` or `-DisplayName`.
+
+For example, the following will display "Disable Link" originally but when clicked will show "Disabling..." for 2 seconds, and will then revert to "Disable Link" again.
+
+```powershell
+New-PodeWebButton -Name 'Disable Link' -ClickName 'Disabling...' -ScriptBlock {
+    Start-Sleep -Seconds 2
+    Disable-PodeWebLink -Id 'link'
+}
+```
+
 ## URL
 
 To have a button that simply redirects to another URL, all you have to do is supply `-Url`:

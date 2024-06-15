@@ -2077,6 +2077,8 @@ class PodeButton extends PodeFormElement {
         this.validation = false;
         this.label.enabled = false;
         this.hasSpinner = true;
+        this.displayName = data.DisplayName ?? '';
+        this.clickName = data.ClickName ?? '';
     }
 
     new(data, sender, opts) {
@@ -2093,7 +2095,7 @@ class PodeButton extends PodeFormElement {
                     id='${this.id}'
                     name='${this.name}'
                     pode-data-value='${data.DataValue}'
-                    title='${data.DisplayName}'
+                    title='${this.displayName}'
                     data-toggle='tooltip'
                     pode-object='${this.getType()}'
                     pode-id='${this.uuid}'>
@@ -2107,7 +2109,7 @@ class PodeButton extends PodeFormElement {
                     id='${this.id}'
                     name='${this.name}'
                     pode-data-value='${data.DataValue}'
-                    title='${data.DisplayName}'
+                    title='${this.displayName}'
                     href='${data.Url}'
                     target='${data.NewTab ? '_blank' : '_self'}'
                     data-toggle='tooltip'
@@ -2135,7 +2137,7 @@ class PodeButton extends PodeFormElement {
                     pode-id='${this.uuid}'>
                         <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                         ${icon}
-                        <span class='pode-text'>${data.DisplayName}</span>
+                        <span class='pode-text'>${this.displayName}</span>
                 </button>`;
             }
             else {
@@ -2151,7 +2153,7 @@ class PodeButton extends PodeFormElement {
                     pode-colour='${data.ColourType}'
                     pode-id='${this.uuid}'>
                         ${icon}
-                        <span class='pode-text'>${data.DisplayName}</span>
+                        <span class='pode-text'>${this.displayName}</span>
                 </a>`;
             }
         }
@@ -2192,8 +2194,29 @@ class PodeButton extends PodeFormElement {
                 inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
             }
 
+            // invoke url
             sendAjaxReq(sender.url, inputs.data, sender, true, null, null, inputs.opts, $(e.currentTarget));
         });
+    }
+
+    spinner(show) {
+        super.spinner(show);
+
+        // skip if no click name
+        if (!this.clickName) {
+            return;
+        }
+
+        // display name, or click name?
+        var name = show ? this.clickName : this.displayName;
+
+        // render name
+        if (this.iconOnly) {
+            this.setTitle(name);
+        }
+        else {
+            this.element.find('span.pode-text').text(decodeHTML(name));
+        }
     }
 
     update(data, sender, opts) {
@@ -2201,12 +2224,19 @@ class PodeButton extends PodeFormElement {
 
         // update display name
         if (data.DisplayName) {
+            this.displayName = data.DisplayName;
+
             if (this.iconOnly) {
-                this.setTitle(data.DisplayName);
+                this.setTitle(this.displayName);
             }
             else {
-                this.element.find('span.pode-text').text(decodeHTML(data.DisplayName));
+                this.element.find('span.pode-text').text(decodeHTML(this.displayName));
             }
+        }
+
+        // update click name
+        if (data.ClickName) {
+            this.clickName = data.ClickName;
         }
 
         // change colour
@@ -2244,6 +2274,21 @@ class PodeButton extends PodeFormElement {
             if (data.Size) {
                 this.replaceClass('btn-(sm|lg)', data.SizeType, null, { pattern: true });
             }
+        }
+
+        // change url
+        if (!this.dynamic && data.Url) {
+            this.element.attr('href', data.Url);
+        }
+
+        // change data value
+        if (data.DataValue) {
+            this.element.attr('pode-data-value', data.DataValue);
+        }
+
+        // change tab state
+        if (!this.dynamic && data.TabState != 'unchanged') {
+            this.element.attr('target', data.TabState == 'newtab' ? '_blank' : '_self');
         }
     }
 }
