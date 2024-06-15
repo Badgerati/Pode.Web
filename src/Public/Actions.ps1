@@ -2840,3 +2840,64 @@ function Submit-PodeWebElementGroup {
         ID         = $Id
     }
 }
+
+function Enable-PodeWebLink {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Enable'
+        ObjectType = 'Link'
+        ID         = $Id
+    }
+}
+
+function Disable-PodeWebLink {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Disable'
+        ObjectType = 'Link'
+        ID         = $Id
+    }
+}
+
+function Update-PodeWebLink {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Url,
+
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Unchanged', 'SameTab', 'NewTab')]
+        [string]
+        $TabState = 'Unchanged'
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Update'
+        ObjectType = 'Link'
+        ID         = $Id
+        Url        = (Add-PodeWebAppPath -Url $Url)
+        Value      = [System.Net.WebUtility]::HtmlEncode($Value)
+        TabState   = $TabState.ToLowerInvariant()
+    }
+}

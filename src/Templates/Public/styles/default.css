@@ -203,6 +203,11 @@ a.nav-link[pode-dynamic='true'] {
     cursor: pointer;
 }
 
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+}
+
 .dropdown-submenu {
     position: relative;
 }
@@ -214,7 +219,8 @@ a.nav-link[pode-dynamic='true'] {
     top: 44% !important;
 }
 
-.dropdown-submenu:hover .dropdown-menu, .dropdown-submenu:focus .dropdown-menu {
+.dropdown-submenu:hover .dropdown-menu,
+.dropdown-submenu:focus .dropdown-menu {
     display: flex;
     flex-direction: column;
     position: absolute !important;
@@ -226,16 +232,17 @@ a.nav-link[pode-dynamic='true'] {
     .dropdown-menu {
         width: 50%;
     }
+
     .dropdown-menu .dropdown-submenu {
         width: auto;
     }
 }
 
-.dropdown[pode-hover='True']:hover > .dropdown-menu {
+.dropdown[pode-hover='True']:hover>.dropdown-menu {
     display: block;
 }
 
-.dropdown[pode-hover='True'] > .dropdown-toggle:active {
+.dropdown[pode-hover='True']>.dropdown-toggle:active {
     pointer-events: none;
 }
 
@@ -263,9 +270,11 @@ a.nav-link[pode-dynamic='true'] {
 .modal-dialog.pode-modal-small {
     max-width: 600px;
 }
+
 .modal-dialog.pode-modal-medium {
     max-width: 800px;
 }
+
 .modal-dialog.pode-modal-large {
     max-width: 1000px;
 }
@@ -394,7 +403,7 @@ div.pode-grid {
     padding-right: 0 !important;
 }
 
-[pode-object="Cell"] > * {
+[pode-object="Cell"]>* {
     text-align: left;
 }
 
@@ -614,21 +623,21 @@ table tbody td {
     padding-bottom: .25rem;
 }
 
-.form-label-group input:not(:-moz-placeholder-shown) ~ label {
+.form-label-group input:not(:-moz-placeholder-shown)~label {
     padding-top: .25rem;
     padding-bottom: .25rem;
     font-size: 12px;
     color: #777;
 }
 
-.form-label-group input:not(:-ms-input-placeholder) ~ label {
+.form-label-group input:not(:-ms-input-placeholder)~label {
     padding-top: .25rem;
     padding-bottom: .25rem;
     font-size: 12px;
     color: #777;
 }
 
-.form-label-group input:not(:placeholder-shown) ~ label {
+.form-label-group input:not(:placeholder-shown)~label {
     padding-top: .25rem;
     padding-bottom: .25rem;
     font-size: 12px;
@@ -727,7 +736,7 @@ div.no-form {
     padding-top: 48px;
 }
 
-.nav-item.nav-page-item a.nav-link:hover > div {
+.nav-item.nav-page-item a.nav-link:hover>div {
     width: fit-content !important;
     background-color: rgba(29, 161, 242, 0.1) !important;
     padding-right: 2em !important;
@@ -757,7 +766,7 @@ div.no-form {
     top: .25rem;
     right: 1rem;
 }
-  
+
 .navbar .form-control {
     padding: .75rem 1rem;
     border-width: 0;
