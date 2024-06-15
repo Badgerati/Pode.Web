@@ -1364,6 +1364,10 @@ function New-PodeWebButton {
 
         [Parameter()]
         [string]
+        $ClickName,
+
+        [Parameter()]
+        [string]
         $Id,
 
         [Parameter(ParameterSetName = 'ScriptBlock')]
@@ -1436,6 +1440,7 @@ function New-PodeWebButton {
         ObjectType       = 'Button'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        ClickName        = [System.Net.WebUtility]::HtmlEncode($ClickName)
         ID               = $Id
         DataValue        = $DataValue
         Icon             = (Protect-PodeWebIconType -Icon $Icon -Element 'Button')
