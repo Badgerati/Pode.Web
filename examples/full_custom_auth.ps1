@@ -101,7 +101,7 @@ Start-PodeServer -StatusPageExceptions Show {
         )
         New-PodeWebParagraph -Content @(
             New-PodeWebText -Value "Look, here's a "
-            New-PodeWebLink -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
+            New-PodeWebLink -Url 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value '! '
             New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan |
                 Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {

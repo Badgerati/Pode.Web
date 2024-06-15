@@ -1,14 +1,14 @@
 # Button
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
 To display a button on your page you use [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton); a button can either be dynamic and run custom logic via a `-ScriptBlock`, or it can redirect a user to a `-Url`.
 
 ## Dynamic
 
-A dynamic button is one that takes a custom `-ScriptBlock`, and when clicked will invoke that logic. You can run whatever you like, including actions for Pode.Web to action against.
+A dynamic button takes a custom `-ScriptBlock`, and when clicked will invoke that logic. You can run whatever you like, including actions for Pode.Web to action against.
 
 When using a dynamic button you can also supply a `-DataValue`, which is a way of supplying a special value/identity when the button is clicked. If supplied, this value is available in your scriptblock via `$WebEvent.Data['Value']`.
 
@@ -58,7 +58,7 @@ New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgera
 
 ## Outlined
 
-By default a button will be displayed as a block colour, but you can show a button as an outline by using the `-Outline` switch:
+By default, a button will be displayed as a block colour, but you can show a button as an outline by using the `-Outline` switch:
 
 ```powershell
 New-PodeWebButton -Name 'Example' -Colour Cyan -Outline -ScriptBlock {
@@ -72,4 +72,4 @@ Which looks like below:
 
 ## Grouping
 
-You can group a series of Buttons together by using a [Button Group](../ButtonGroup).
+You can group a series of Buttons by using a [Button Group](../ButtonGroup).

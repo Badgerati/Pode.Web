@@ -1807,7 +1807,7 @@ class PodeLink extends PodeTextualElement {
 
     new(data, sender, opts) {
         return `<a
-            href='${data.Source}'
+            href='${data.Url}'
             id='${this.id}'
             class="pode-text"
             target='${data.NewTab ? '_blank' : '_self'}'
@@ -1816,6 +1816,20 @@ class PodeLink extends PodeTextualElement {
             ${this.events(data.Events)}>
                 ${data.Value}
         </a>`;
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update the url
+        if (data.Url) {
+            this.element.attr('href', data.Url);
+        }
+
+        // update target
+        if (data.TabState != 'unchanged') {
+            this.element.attr('target', data.TabState == 'newtab' ? '_blank' : '_self');
+        }
     }
 }
 PodeElementFactory.setClass(PodeLink);

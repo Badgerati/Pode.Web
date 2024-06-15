@@ -36,7 +36,7 @@ New-PodeWebCard -Content @(
 
 ## Disable
 
-To disable a enabled button on the page, you can use [`Disable-PodeWebButton`](../../../Functions/Actions/Disable-PodeWebButton):
+To disable an enabled button on the page, you can use [`Disable-PodeWebButton`](../../../Functions/Actions/Disable-PodeWebButton):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -54,7 +54,7 @@ New-PodeWebCard -Content @(
 
 You can update a button's Icon, DisplayName, Colour, and Size using [`Update-PodeWebButton`](../../../Functions/Actions/Update-PodeWebButton).
 
-For example, just change a solid button to be yellow and outlined:
+For example, to change a solid button to be yellow and outlined:
 
 ```powershell
 New-PodeWebCard -Content @(

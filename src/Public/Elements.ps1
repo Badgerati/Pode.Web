@@ -941,14 +941,17 @@ function New-PodeWebLink {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $Source,
+        $Url,
 
         [Parameter(Mandatory = $true)]
         [string]
         $Value,
 
         [switch]
-        $NewTab
+        $NewTab,
+
+        [switch]
+        $Disabled
     )
 
     $Id = Get-PodeWebElementId -Tag A -Id $Id
@@ -958,9 +961,10 @@ function New-PodeWebLink {
         ComponentType = 'Element'
         ObjectType    = 'Link'
         ID            = $Id
-        Source        = (Add-PodeWebAppPath -Url $Source)
+        Url           = (Add-PodeWebAppPath -Url $Url)
         Value         = [System.Net.WebUtility]::HtmlEncode($Value)
         NewTab        = $NewTab.IsPresent
+        Disabled      = $Disabled.IsPresent
     }
 }
 
