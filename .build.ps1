@@ -454,7 +454,7 @@ task ReleaseNotes {
 
     foreach ($pr in $prs) {
         $label = ($pr.labels[0].name -split ' ')[0]
-        if ($label -iin @('new-release', 'internal-code')) {
+        if ($label -ieq 'new-release') {
             continue
         }
 
@@ -515,7 +515,12 @@ task ReleaseNotes {
                 $str += " (thanks @$($author)!)"
             }
 
-            $categories[$label] += $str
+            if ($str -imatch '\s+(docs|documentation)\s+') {
+                $categories['Documentation'] += $str
+            }
+            else {
+                $categories[$label] += $str
+            }
         }
     }
 
@@ -527,7 +532,7 @@ task ReleaseNotes {
         }
 
         foreach ($dep in $dependabot.Values) {
-            $categories[$label] += "* #$($dep.Number) Bump $($dep.Name) from $($dep.From) to $($dep.To)"
+            $categories[$label] += "* #$($dep.Number): Bump $($dep.Name) from $($dep.From) to $($dep.To)"
         }
     }
 
@@ -536,6 +541,10 @@ task ReleaseNotes {
 
     $culture = (Get-Culture).TextInfo
     foreach ($category in $categories.Keys) {
+        if ($categories[$category].Length -eq 0) {
+            continue
+        }
+
         Write-Host "### $($culture.ToTitleCase($category))"
         $categories[$category] | Sort-Object | ForEach-Object { Write-Host $_ }
         Write-Host ''

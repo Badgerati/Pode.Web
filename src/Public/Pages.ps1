@@ -859,7 +859,7 @@ function ConvertTo-PodeWebPage {
         throw 'No commands supplied to convert to Pages'
     }
 
-    $sysParams = [System.Management.Automation.PSCmdlet]::CommonParameters.GetEnumerator() | Foreach-Object {$_}
+    $sysParams = [System.Management.Automation.PSCmdlet]::CommonParameters.GetEnumerator() | Foreach-Object { $_ }
 
     # create the pages for each of the commands
     foreach ($cmd in $Commands) {
