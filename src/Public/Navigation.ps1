@@ -68,7 +68,7 @@ function New-PodeWebNavLink {
         UsingVariables = $usingVars
     }
 
-    $routePath = "/pode.web-dynamic/elements/nav-link/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/nav-link/$($Id)/click"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication) {
