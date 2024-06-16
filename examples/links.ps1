@@ -17,7 +17,7 @@ Start-PodeServer -Browse {
 
         New-PodeWebCard -Name 'Update Link' -Content @(
             New-PodeWebButtonGroup -Buttons @(
-                New-PodeWebButton -Name 'Update to Goole' -ScriptBlock {
+                New-PodeWebButton -Name 'Update to Google' -ScriptBlock {
                     Update-PodeWebLink -Id 'link' -Value 'Google' -Url 'https://www.google.com'
                 }
                 New-PodeWebButton -Name 'Update to DuckDuckGo' -ScriptBlock {

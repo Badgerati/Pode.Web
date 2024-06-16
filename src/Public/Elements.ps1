@@ -538,7 +538,7 @@ function New-PodeWebSelect {
         Disabled         = $Disabled.IsPresent
     }
 
-    $routePath = "/pode.web-dynamic/elements/select/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/select/$($Id)/options"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -1458,7 +1458,7 @@ function New-PodeWebButton {
         Disabled         = $Disabled.IsPresent
     }
 
-    $routePath = "/pode.web-dynamic/elements/button/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/button/$($Id)/click"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -1952,7 +1952,7 @@ function New-PodeWebChart {
             Colours          = $Colours
         }
 
-        $routePath = "/pode.web-dynamic/elements/chart/$($Id)"
+        $routePath = "/pode.web-dynamic/elements/chart/$($Id)/data"
         if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
             # check for scoped vars
             $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -2290,7 +2290,7 @@ function New-PodeWebTable {
         }
 
         # main table data script
-        $routePath = "/pode.web-dynamic/elements/table/$($Id)"
+        $routePath = "/pode.web-dynamic/elements/table/$($Id)/data"
         $buildRoute = (($null -ne $ScriptBlock) -or ![string]::IsNullOrWhiteSpace($CsvFilePath))
 
         if ($buildRoute -and !(Test-PodeWebRoute -Path $routePath)) {
@@ -2730,7 +2730,7 @@ function New-PodeWebForm {
 
     # generate ID
     $Id = Get-PodeWebElementId -Tag Form -Id $Id -Name $Name
-    $routePath = "/pode.web-dynamic/elements/form/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/form/$($Id)/submit"
 
     $element = @{
         Operation        = 'New'
@@ -2857,7 +2857,7 @@ function New-PodeWebTimer {
         UsingVariables = $usingVars
     }
 
-    $routePath = "/pode.web-dynamic/elements/timer/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/timer/$($Id)/trigger"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         $auth = $null
         if (!$NoAuthentication -and !$PageData.NoAuthentication) {
@@ -3003,7 +3003,7 @@ function New-PodeWebTile {
     }
 
     # main route to load tile value
-    $routePath = "/pode.web-dynamic/elements/tile/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/tile/$($Id)/data"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -3809,7 +3809,7 @@ function New-PodeWebModal {
     # generate ID
     $Id = Get-PodeWebElementId -Tag Modal -Id $Id -Name $Name
 
-    $routePath = "/pode.web-dynamic/elements/modal/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/modal/$($Id)/submit"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -3998,7 +3998,7 @@ function New-PodeWebSteps {
     $Id = Get-PodeWebElementId -Tag Steps -Id $Id -Name $Name
 
     # add route
-    $routePath = "/pode.web-dynamic/elements/steps/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/steps/$($Id)/submit"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -4087,7 +4087,7 @@ function New-PodeWebStep {
     $Id = Get-PodeWebElementId -Tag Step -Name $Name
 
     # add route
-    $routePath = "/pode.web-dynamic/elements/step/$($Id)"
+    $routePath = "/pode.web-dynamic/elements/step/$($Id)/submit"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState

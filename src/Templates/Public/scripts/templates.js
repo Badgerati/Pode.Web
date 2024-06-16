@@ -2168,35 +2168,37 @@ class PodeButton extends PodeFormElement {
     bind(data, sender, opts) {
         super.bind(data, sender, opts);
 
-        // bind click
-        this.listen(this.element, 'click', function(e, target, sender) {
-            // hide tooltip
-            sender.tooltip(false);
-            var inputs = {};
+        // bind click if dynamic
+        if (this.dynamic) {
+            this.listen(this.element, 'click', function(e, target, sender) {
+                // hide tooltip
+                sender.tooltip(false);
+                var inputs = {};
 
-            // find group
-            var group = sender.element.closest('.pode-element-group');
-            if (group && group.length > 0) {
-                inputs = sender.serialize(group);
-            }
-
-            // find a form, if no group found
-            if (!group || group.length == 0) {
-                var form = sender.element.closest('form');
-                if (form && form.length > 0) {
-                    inputs = sender.serialize(form);
+                // find group
+                var group = sender.element.closest('.pode-element-group');
+                if (group && group.length > 0) {
+                    inputs = sender.serialize(group);
                 }
-            }
 
-            // get a data value
-            var dataValue = getDataValue(sender.element);
-            if (dataValue) {
-                inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
-            }
+                // find a form, if no group found
+                if (!group || group.length == 0) {
+                    var form = sender.element.closest('form');
+                    if (form && form.length > 0) {
+                        inputs = sender.serialize(form);
+                    }
+                }
 
-            // invoke url
-            sendAjaxReq(sender.url, inputs.data, sender, true, null, null, inputs.opts, $(e.currentTarget));
-        });
+                // get a data value
+                var dataValue = getDataValue(sender.element);
+                if (dataValue) {
+                    inputs.data = addFormDataValue(inputs.data, 'Value', dataValue);
+                }
+
+                // invoke url
+                sendAjaxReq(`${sender.url}/click`, inputs.data, sender, true, null, null, inputs.opts, $(e.currentTarget));
+            });
+        }
     }
 
     spinner(show) {
@@ -2822,7 +2824,7 @@ class PodeTable extends PodeRefreshableElement {
 
         // things get funky here if we have a table with a 'for' attr
         // if so, we need to serialize the form, and then send the request to the form instead
-        var url = this.url;
+        var url = `${this.url}/data`;
 
         if (this.element.attr('for')) {
             var form = $(`#${this.element.attr('for')}`);
@@ -3903,7 +3905,7 @@ class PodeTimer extends PodeContentElement {
     }
 
     invoke(data, sender, opts) {
-        sendAjaxReq(this.url, null, null, true);
+        sendAjaxReq(`${this.url}/trigger`, null, null, true);
     }
 }
 PodeElementFactory.setClass(PodeTimer);
@@ -4045,7 +4047,7 @@ class PodeTile extends PodeRefreshableElement {
 
         // call url for dynamic tiles
         if (this.dynamic) {
-            sendAjaxReq(this.url, null, this, true);
+            sendAjaxReq(`${this.url}/data`, null, this, true);
         }
 
         // if not dynamic, and fully created, click refresh buttons of sub-elements
@@ -4505,7 +4507,7 @@ class PodeChart extends PodeRefreshableElement {
 
         // things get funky here if we have a chart with a 'for' attr
         // if so, we need to serialize the form, and then send the request to the form instead
-        var url = this.url;
+        var url = `${this.url}/data`;
 
         if (this.element.attr('for')) {
             var form = $(`#${this.element.attr('for')}`);
@@ -4786,11 +4788,14 @@ class PodeModal extends PodeContentElement {
                     return;
                 }
 
+                e.preventDefault();
+                e.stopPropagation();
+
                 var btn = obj.element.find('div.modal-footer button.pode-modal-submit')
                 if (btn) {
                     btn.trigger('click');
                 }
-            });
+            }, true);
 
             this.listen(this.element.find("div.modal-footer button.pode-modal-submit"), 'click', function(e, target) {
                 // get url
@@ -4801,11 +4806,10 @@ class PodeModal extends PodeContentElement {
 
                 // find a form
                 var inputs = {};
-                // var form = null;
                 var method = 'post';
 
                 if (obj.asForm) {
-                    var form = obj.getElement(); // .element.find('div.modal-body form');
+                    var form = obj.getElement();
 
                     var action = form.attr('action');
                     if (action) {
@@ -5005,7 +5009,7 @@ class PodeSelect extends PodeFormElement {
     load(data, sender, opts) {
         super.load(data, sender, opts);
         if (this.dynamic) {
-            sendAjaxReq(this.url, null, this, true);
+            sendAjaxReq(`${this.url}/options`, null, this, true);
         }
     }
 
@@ -5719,7 +5723,7 @@ class PodeSteps extends PodeContentElement {
 
     submit() {
         var result = this.serialize();
-        sendAjaxReq(this.url, result.data, this, true, null, null, result.opts);
+        sendAjaxReq(`${this.url}/submit`, result.data, this, true, null, null, result.opts);
     }
 
     addChild(element, data, sender, opts) {
@@ -5817,7 +5821,7 @@ class PodeStep extends PodeContentElement {
 
             if (obj.dynamic) {
                 var result = obj.serialize();
-                sendAjaxReq(obj.url, result.data, obj, true, (_, sender) => {
+                sendAjaxReq(`${obj.url}/submit`, result.data, obj, true, (_, sender) => {
                     if (!hasValidationErrors(sender)) {
                         obj.parent.next();
                     }
@@ -5836,7 +5840,7 @@ class PodeStep extends PodeContentElement {
 
             if (obj.dynamic) {
                 var result = obj.serialize();
-                sendAjaxReq(obj.url, result.data, obj, true, (_, sender) => {
+                sendAjaxReq(`${obj.url}/submit`, result.data, obj, true, (_, sender) => {
                     if (!hasValidationErrors(sender)) {
                         obj.parent.submit();
                     }
@@ -5993,7 +5997,7 @@ class PodeNavLink extends PodeNavElement {
 
         if (this.dynamic) {
             this.listen(this.element, 'click', function(e, target) {
-                sendAjaxReq(obj.url, null, null, true);
+                sendAjaxReq(`${obj.url}/click`, null, null, true);
             });
         }
     }
