@@ -10,24 +10,20 @@
     <link rel="stylesheet" href="$($data.AppPath)/pode.web-static/libs/mdi-font/css/materialdesignicons.min.css">
 
     $(
-        # highlight theme
-        if ($data.Theme -iin @('dark', 'terminal')) {
-            "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/libs/highlightjs/styles/tomorrow-night-blue.min.css'>"
-        }
-        else {
-            "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/libs/highlightjs/styles/default.min.css'>"
-        }
-
         # main pode.web base styles
         "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/default.css'>"
 
         # pode.web theme
         if (Test-PodeWebThemeCustom -Name $data.Theme) {
-            "<link rel='stylesheet' href='$((Get-PodeWebState -Name 'custom-themes').Themes[$data.Theme].Url)'>"
+            $theme = (Get-PodeWebState -Name 'custom-themes').Themes[$data.Theme]
+            if ($theme.Base -ine 'none') {
+                "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/themes/$($theme.Base).css'>"
+            }
+            "<link rel='stylesheet' href='$($theme.Url)'>"
         }
         else {
             if ($data.Theme -inotin @('auto', 'custom')) {
-                "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/default-$($data.Theme).css'>"
+                "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/themes/$($data.Theme).css'>"
             }
         }
 

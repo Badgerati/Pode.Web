@@ -1,0 +1,53 @@
+:root {
+    --podeweb-color-scheme: dark;
+    --podeweb-font-family: 'Consolas', 'Courier New', monospace;
+
+    --podeweb-page-background-color: #111;
+    --podeweb-primary-background-color: #111;
+    --podeweb-secondary-background-color: #181818;
+    --podeweb-tertiary-background-color: #000;
+    --podeweb-nav-background-color: #111;
+    --podeweb-hero-background-color: #33ff00;
+    --podeweb-toast-primary-background-color: #181818;
+    --podeweb-toast-secondary-background-color: #000;
+
+    --podeweb-primary-border-color: #33ff00;
+    --podeweb-secondary-border-color: #ffb000;
+    --podeweb-tertiary-border-color: darkgreen;
+    --podeweb-nav-border-color: #33ff00;
+    --podeweb-toast-border-color: #33ff00;
+
+    --podeweb-primary-text-color: #33ff00;
+    --podeweb-secondary-text-color: #33ff00;
+    --podeweb-tertiary-text-color: #111;
+    --podeweb-link-text-color: #ffb000;
+    --podeweb-hover-primary-text-color: #ffb000;
+    --podeweb-hover-secondary-text-color: #111;
+    --podeweb-toast-primary-text-color: #33ff00;
+    --podeweb-toast-secondary-text-color: #33ff00;
+    --podeweb-disabled-text-color: darkgreen;
+    --podeweb-enabled-text-color: #fff;
+    --podeweb-nav-text-color: #33ff00;
+    --podeweb-nav-hover-text-color: #ffb000;
+
+    --podeweb-input-calendar-indicator-color: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(60deg);
+    --podeweb-input-calendar-indicator-hover-color: invert(100%) sepia() brightness(60%) saturate(10000%) hue-rotate(300deg);
+
+    --podeweb-code-editor-theme: highcontrast;
+    --podeweb-code-theme: dark;
+
+    --podeweb-chart-point-color: #00FF00, #FFA500, #0087FF, #FF0000, #FFFF00, #00FFFF, #FF00FF, #800080, #87CEEB, #D3D3D3, #A9A9A9, #90EE90, #FFFACD, #008B8B, #8B008B;
+    --podeweb-chart-grid-color: darkgreen;
+    --podeweb-chart-tick-color: #33ff00;
+    --podeweb-chart-border-color: darkgreen;
+
+    --podeweb-inbuilt-primary-theme-color: var(--podeweb-base-success-color);
+    --podeweb-inbuilt-primary-theme-text-color: var(--podeweb-base-success-text-color);
+    --podeweb-inbuilt-primary-theme-hover-color: var(--podeweb-base-success-hover-color);
+    --podeweb-inbuilt-primary-theme-shadow-color: var(--podeweb-base-success-shadow-color);
+
+    --podeweb-inbuilt-secondary-theme-color: var(--podeweb-base-success-color);
+    --podeweb-inbuilt-secondary-theme-text-color: var(--podeweb-base-success-text-color);
+    --podeweb-inbuilt-secondary-theme-hover-color: var(--podeweb-base-success-hover-color);
+    --podeweb-inbuilt-secondary-theme-shadow-color: var(--podeweb-base-success-shadow-color);
+}

@@ -11,7 +11,7 @@ This is a web template framework for use with the [Pode](https://github.com/Badg
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge is required!
 
-You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, and terminal themes, and you can supply a custom CSS file.
+You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, terminal, and more themes available, and you can supply custom CSS files or build your own in PowerShell.
 
 [![GetStarted](https://img.shields.io/badge/-Get%20Started!-green.svg?longCache=true&style=for-the-badge)](./Getting-Started/Installation)
 [![QuickLook](https://img.shields.io/badge/-Quick%20Look!-blue.svg?longCache=true&style=for-the-badge)](#quick-look)
@@ -29,7 +29,7 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 * Or, use a tabs layout for your pages!
 * Show or write code via the Monaco editor (still WIP)
 * Render code in code blocks with code highlighting!
-* Support for Light, Dark, Terminal, and custom themes
+* Support for Light, Dark, Terminal, custom themes, and more
 
 ## 📦 Libraries
 
@@ -45,7 +45,7 @@ Import-Module Pode.Web
 Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8080 -Protocol Http
 
-    Use-PodeWebTemplates -Title 'Example' -Theme Dark
+    Use-PodeWebTemplates -Title 'Example' -Theme Midnight
 
     Add-PodeWebPage -Name 'Services' -Icon 'Settings' -ScriptBlock {
         New-PodeWebCard -Content @(

@@ -1,0 +1,43 @@
+:root {
+    --podeweb-color-scheme: light;
+    --podeweb-font-family: 'Helvetica', 'Arial', sans-serif;
+
+    --podeweb-page-background-color: #f5e6d8;
+    --podeweb-primary-background-color: #f5e6d8;
+    --podeweb-secondary-background-color: #e8d9c9;
+    --podeweb-tertiary-background-color: #d2bfae;
+    --podeweb-nav-background-color: #c5b09e;
+    --podeweb-hero-background-color: #e8d9c9;
+    --podeweb-toast-primary-background-color: #d2bfae;
+    --podeweb-toast-secondary-background-color: #bfae9e;
+
+    --podeweb-primary-border-color: #a68b6f;
+    --podeweb-secondary-border-color: #8c7359;
+    --podeweb-tertiary-border-color: #7a624f;
+    --podeweb-nav-border-color: #6d5746;
+    --podeweb-toast-border-color: #7a624f;
+
+    --podeweb-primary-text-color: #5c4a3b;
+    --podeweb-secondary-text-color: #5c4a3b;
+    --podeweb-tertiary-text-color: #4a3b2d;
+    --podeweb-link-text-color: #8c7359;
+    --podeweb-hover-primary-text-color: #8c7359;
+    --podeweb-hover-secondary-text-color: #5c4a3b;
+    --podeweb-toast-primary-text-color: #4a3b2d;
+    --podeweb-toast-secondary-text-color: #5c4a3b;
+    --podeweb-disabled-text-color: #7a624f;
+    --podeweb-enabled-text-color: #5c4a3b;
+    --podeweb-nav-text-color: #4a3b2d;
+    --podeweb-nav-hover-text-color: #8c7359;
+
+    --podeweb-input-calendar-indicator-color: invert(0%) sepia(100%) brightness(90%) saturate(10000%) hue-rotate(45deg);
+    --podeweb-input-calendar-indicator-hover-color: invert(100%) sepia(100%) brightness(30%) saturate(10000%) hue-rotate(120deg);
+
+    --podeweb-code-editor-theme: light;
+    --podeweb-code-theme: light;
+
+    --podeweb-chart-point-color: #704214, #5C4033, #8B4513, #CD853F, #DEB887, #BC8F8F, #F5DEB3, #F4A460, #D2B48C, #DAA520, #D2691E, #A0522D, #B8860B, #BDB76B, #6B8E23;
+    --podeweb-chart-grid-color: #7a624f;
+    --podeweb-chart-tick-color: #5c4a3b;
+    --podeweb-chart-border-color: #7a624f;
+}

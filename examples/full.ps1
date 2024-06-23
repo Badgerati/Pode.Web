@@ -103,15 +103,22 @@ Start-PodeServer -StatusPageExceptions Show {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
         }
-        New-PodeWebButton -Name 'Click Me Outlined' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -Outline -ScriptBlock {
+        New-PodeWebButton -Name 'Click Me Outlined' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Grey -Outline -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
+        }
+        New-PodeWebButton -Name 'Click Me IconOnly' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Grey -IconOnly -ScriptBlock {
+            Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)" -Duration 15000
         }
         New-PodeWebContainer -Content @(
             New-PodeWebButtonGroup -Buttons @(
                 New-PodeWebButton -Name 'Dark Theme' -NoAuth -Icon 'moon-new' -Colour Dark -ScriptBlock { Update-PodeWebTheme -Name Dark }
                 New-PodeWebButton -Name 'Light Theme' -NoAuth -Icon 'weather-sunny' -Colour Light -ScriptBlock { Update-PodeWebTheme -Name Light }
-                New-PodeWebButton -Name 'Reset Theme' -NoAuth -Icon 'refresh' -ScriptBlock { Reset-PodeWebTheme }
+                New-PodeWebButton -Name 'Midnight Theme' -NoAuth -Icon 'weather-night' -Colour Blue -ScriptBlock { Update-PodeWebTheme -Name Midnight }
+                New-PodeWebButton -Name 'Sepia Theme' -NoAuth -Icon 'camera' -Colour Yellow -ScriptBlock { Update-PodeWebTheme -Name Sepia }
+                New-PodeWebButton -Name 'Forest Theme' -NoAuth -Icon 'tree' -Colour Green -ScriptBlock { Update-PodeWebTheme -Name Forest }
+                New-PodeWebButton -Name 'Terminal Theme' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock { Update-PodeWebTheme -Name Terminal }
+                New-PodeWebButton -Name 'Reset Theme' -NoAuth -Icon 'refresh' -Colour Cyan -ScriptBlock { Reset-PodeWebTheme }
             )
         )
         New-PodeWebAlert -Type Note -Value 'Hello, world'

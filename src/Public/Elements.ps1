@@ -1913,13 +1913,7 @@ function New-PodeWebChart {
             $RefreshInterval = 60
         }
 
-        if (($null -ne $Colours) -and ($Colours.Length -gt 0)) {
-            foreach ($clr in $Colours) {
-                if ($clr -inotmatch '^\s*#(([a-f\d])([a-f\d])([a-f\d])){1,2}\s*$') {
-                    throw "Invalid colour supplied, should be hex format: $($clr)"
-                }
-            }
-        }
+        $null = Test-PodeWebColour -Colour $Colours -HexOnly
 
         $element = @{
             Operation        = 'New'
@@ -2563,7 +2557,7 @@ function New-PodeWebCodeEditor {
         $Language = 'plaintext',
 
         [Parameter()]
-        [ValidateSet('', 'vs', 'vs-dark', 'hc-black')]
+        [ValidateSet('', 'Light', 'Dark', 'HighContrast')]
         [string]
         $Theme,
 
