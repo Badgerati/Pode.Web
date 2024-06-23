@@ -239,8 +239,8 @@ task MoveLibs {
     }
 
     New-Item -Path "$($libs_path)/highlightjs/styles" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/styles/tomorrow-night-blue.min.css" -Destination "$($libs_path)/highlightjs/styles/" -Force
-    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/styles/default.min.css" -Destination "$($libs_path)/highlightjs/styles/" -Force
+    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/styles/a11y-dark.min.css" -Destination "$($libs_path)/highlightjs/styles/" -Force
+    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/styles/a11y-light.min.css" -Destination "$($libs_path)/highlightjs/styles/" -Force
 
     # monaco
     New-Item -Path "$($libs_path)/monaco" -ItemType Directory -Force | Out-Null

@@ -1383,7 +1383,7 @@ class PodeRefreshableElement extends PodeTextualElement {
         // button
         return `<button
             type='button'
-            class='btn btn-no-text btn-outline-secondary pode-${this.getType()}-refresh pode-refresh-btn'
+            class='btn btn-no-text btn-outline-secondary pode-action-btn pode-${this.getType()}-refresh pode-refresh-btn'
             for='${this.uuid}'
             title='Refresh'
             data-toggle='tooltip'>
@@ -2330,7 +2330,7 @@ class PodeForm extends PodeContentElement {
 
     new(data, sender, opts) {
         var resetBtn = !this.showReset ? '' : `<button
-            class='btn btn-inbuilt-sec-theme form-reset'
+            class='btn pode-inbuilt-secondary-theme form-reset'
             for='${this.id}'
             type='button'>
                 ${data.ResetText}
@@ -2346,7 +2346,7 @@ class PodeForm extends PodeContentElement {
             pode-id='${this.uuid}'>
                 <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
 
-                <button class="btn btn-inbuilt-theme" type="submit">
+                <button class="btn pode-inbuilt-primary-theme" type="submit">
                     <span for='${this.uuid}' class="pode-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                     ${data.SubmitText}
                 </button>
@@ -2485,7 +2485,7 @@ class PodeCard extends PodeContentElement {
             var title = data.NoTitle ? `${icon}` : `${icon}${data.DisplayName}`;
 
             var hideBtn = data.NoHide ? '' : `<div class='btn-group ml-2'>
-                <button type='button' class='btn btn-no-text btn-outline-secondary pode-card-collapse'>
+                <button type='button' class='btn btn-no-text btn-outline-secondary pode-action-btn pode-card-collapse'>
                     <span class='mdi mdi-eye-outline mdi-size-20' title='Hide' data-toggle='tooltip'></span>
                 </button>
             </div>`;
@@ -2598,13 +2598,13 @@ class PodeTable extends PodeRefreshableElement {
             </ul>
         </nav>`;
 
-        var exportBtn = !this.exportable.enabled ? '' : `<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-export' for='${this.id}' title='Export' data-toggle='tooltip'>
+        var exportBtn = !this.exportable.enabled ? '' : `<button type='button' class='btn btn-no-text btn-outline-secondary pode-action-btn pode-table-export' for='${this.id}' title='Export' data-toggle='tooltip'>
             <span class='mdi mdi-download mdi-size-20'></span>
         </button>`;
 
         var customBtns = '';
         convertToArray(data.Buttons).forEach((btn) => {
-            customBtns += `<button type='button' class='btn btn-no-text btn-outline-secondary pode-table-button' for='${this.id}' title='${btn.Name}' data-toggle='tooltip' name='${btn.Name}'>
+            customBtns += `<button type='button' class='btn btn-no-text btn-outline-secondary pode-action-btn pode-table-button' for='${this.id}' title='${btn.Name}' data-toggle='tooltip' name='${btn.Name}'>
                 <span class='mdi mdi-${btn.Icon.toLowerCase()} mdi-size-20 ${btn.WithText ? "mRight02" : ''}'></span>
                 ${btn.WithText ? btn.DisplayName : ''}
             </button>`;
@@ -2628,7 +2628,7 @@ class PodeTable extends PodeRefreshableElement {
                                 <tbody></tbody>
                         </table>
                         <div class='text-center'>
-                            <span for='${this.uuid}' class='pode-spinner spinner-grow text-inbuilt-sec-theme' role='status' style='display: none'></span>
+                            <span for='${this.uuid}' class='pode-spinner spinner-grow pode-inbuilt-secondary-theme' role='status' style='display: none'></span>
                         </div>
                     </div>
                     <div role='controls'>
@@ -4355,7 +4355,7 @@ class PodeCodeEditor extends PodeContentElement {
 
     new(data, sender, opts) {
         var upload = !this.uploadable ? '' : `<button
-            class='btn btn-inbuilt-theme pode-upload mBottom1'
+            class='btn pode-inbuilt-primary-theme pode-upload mBottom1'
             type='button'
             title='Upload'
             data-toggle='tooltip'
@@ -4385,25 +4385,19 @@ class PodeCodeEditor extends PodeContentElement {
         // create the editors
         require(["vs/editor/editor.main"], function() {
             if (!obj.theme) {
-                switch (getPodeTheme()) {
-                    case 'dark':
-                        obj.theme = 'vs-dark';
-                        break;
-
-                    case 'terminal':
-                        obj.theme = 'hc-black';
-                        break;
-
-                    default:
-                        obj.theme = 'vs';
-                        break;
-                }
+                obj.theme = getCssVariable('--podeweb-code-editor-theme');
             }
+
+            var theme = ({
+                dark: 'vs-dark',
+                light: 'vs',
+                highcontrast: 'hc-black'
+            })[obj.theme] ?? 'vs';
 
             obj.editor = monaco.editor.create(obj.element.find('.code-editor')[0], {
                 value: obj.value,
                 language: obj.language,
-                theme: obj.theme,
+                theme: theme,
                 readOnly: obj.readonly,
                 automaticLayout: true
             });
@@ -4486,7 +4480,7 @@ class PodeChart extends PodeRefreshableElement {
                 </div>
                 <canvas class="my-4 w-100" style="${height}"></canvas>
                 <div class="text-center">
-                    <span for='${this.uuid}' class="pode-spinner spinner-grow text-inbuilt-sec-theme canvas-spinner" role="status"></span>
+                    <span for='${this.uuid}' class="pode-spinner spinner-grow pode-inbuilt-secondary-theme canvas-spinner" role="status"></span>
                 </div>
         </div>`;
     }
@@ -4738,7 +4732,7 @@ class PodeModal extends PodeContentElement {
 
         var submit = !this.submit.show ? '' : `<button
             type='button'
-            class='btn btn-inbuilt-theme pode-modal-submit'>
+            class='btn pode-inbuilt-primary-theme pode-modal-submit'>
                 ${data.SubmitText}
         </button>`;
 
@@ -5528,13 +5522,13 @@ class PodeFileStream extends PodeContentElement {
                         <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                     </div>
                     <div class='btn-group mr-2 mLeft05'>
-                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-download' for='${this.id}'>
+                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-action-btn pode-stream-download' for='${this.id}'>
                             <span class='mdi mdi-download mdi-size-20' title='Download' data-toggle='tooltip'></span>
                         </button>
-                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-clear' for='${this.id}'>
+                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-action-btn pode-stream-clear' for='${this.id}'>
                             <span class='mdi mdi-eraser mdi-size-20' title='Clear' data-toggle='tooltip'></span>
                         </button>
-                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-stream-pause' for='${this.id}'>
+                        <button type='button' class='btn btn-no-text btn-outline-secondary pode-action-btn pode-stream-pause' for='${this.id}'>
                             <span class='mdi mdi-pause mdi-size-20' title='Pause' data-toggle='tooltip'></span>
                         </button>
                     </div>
@@ -5763,13 +5757,13 @@ class PodeStep extends PodeContentElement {
 
     new(data, sender, opts) {
         //TODO: can be ".build()" these buttons? - which would also include the setIcon automatically
-        var prevBtn = this.child.isFirst ? '' : `<button class='btn btn-inbuilt-theme step-previous float-left' for='${this.id}'>
+        var prevBtn = this.child.isFirst ? '' : `<button class='btn pode-inbuilt-primary-theme step-previous float-left' for='${this.id}'>
             <span class='mdi mdi-chevron-left mRight02'></span>
             Previous
             <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
         </button>`;
 
-        var nextBtn = `<button class='btn btn-inbuilt-theme step-${this.child.isLast ? 'submit' : 'next'} float-right' for='${this.id}'>
+        var nextBtn = `<button class='btn pode-inbuilt-primary-theme step-${this.child.isLast ? 'submit' : 'next'} float-right' for='${this.id}'>
             <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
             ${this.child.isLast ? 'Submit' : 'Next'}
             <span class='mdi ${this.child.isLast ? 'mdi-checkbox-marked-circle-outline' : 'mdi-chevron-right'} mLeft02'></span>

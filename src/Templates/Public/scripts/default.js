@@ -30,9 +30,9 @@ $(() => {
     if (checkAutoTheme()) {
         return;
     }
+    mountCodeTheme();
 
     // base mappings
-    mapElementThemes();
     bindSidebarFilter();
     bindSidebarToggle();
     toggleSidebar();
@@ -53,7 +53,6 @@ function loadContent() {
     }
 
     sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, () => {
-        mapElementThemes();
         loadBreadcrumb();
         bindFormSubmits();
         contentLoaded = true;
@@ -161,7 +160,7 @@ function getPageUrl(subpath) {
 
     var base = `${window.location.origin}`;
 
-    var appPath = $('body').attr('pode-app-path');
+    var appPath = getAppPath();
     if (appPath) {
         base += `/${appPath}`;
     }
@@ -219,7 +218,6 @@ function loadBreadcrumb() {
 
 function checkAutoTheme() {
     var theme = getPodeTheme();
-
     if (theme != 'auto') {
         return;
     }
@@ -235,30 +233,26 @@ function checkAutoTheme() {
     return true;
 }
 
-function mapElementThemes() {
-    var bodyTheme = getPodeTheme();
-    var isTerminal = bodyTheme == 'terminal';
-    var types = ['badge', 'btn', 'text'];
+function mountCodeTheme() {
+    var theme = (getCssVariable('--podeweb-code-theme') ?? 'light').toLowerCase();
 
-    // main theme
-    var defTheme = isTerminal ? 'success' : 'primary';
+    // remove existing css file with class pode-code-theme
+    $('head link.pode-code-theme').remove();
 
-    types.forEach((type) => {
-        $(`.${type}-inbuilt-theme`).each((i, e) => {
-            $(e).removeClass(`${type}-inbuilt-theme`);
-            addClass($(e), `${type}-${defTheme}`);
-        });
-    });
+    // append new a11y code theme css file as link to head element
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
 
-    // secondary theme
-    defTheme = isTerminal ? 'success' : 'secondary';
+    var url = `/pode.web-static/libs/highlightjs/styles/a11y-${theme}.min.css`;
+    var appPath = getAppPath();
+    if (appPath) {
+        url = `${appPath}${url}`;
+    }
 
-    types.forEach((type) => {
-        $(`.${type}-inbuilt-sec-theme`).each((i, e) => {
-            $(e).removeClass(`${type}-inbuilt-sec-theme`);
-            addClass($(e), `${type}-${defTheme}`);
-        });
-    });
+    link.href = url;
+    link.classList.add('pode-code-theme');
+    document.head.appendChild(link);
 }
 
 function getPodeTheme() {
@@ -428,6 +422,10 @@ function setValidationError(element) {
     }
 }
 
+function getAppPath() {
+    return $('body').attr('pode-app-path');
+}
+
 function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallback, opts, button) {
     // get sender element
     var senderElement = sender?.getElement();
@@ -446,8 +444,8 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     // remove validation errors
     removeValidationErrors(senderElement);
 
-    // add app-path to url (for the likes of IIS)
-    var appPath = $('body').attr('pode-app-path');
+    // add app path to url (for the likes of IIS)
+    var appPath = getAppPath();
     if (appPath) {
         url = `${appPath}${url}`;
     }
@@ -1053,37 +1051,15 @@ function getChartAxesColours(theme, canvas, min, max) {
 
     // base opts on theme
     else {
-        switch (theme) {
-            case 'dark':
-                opts = {
-                    grid: {
-                        color: '#214981',
-                        zeroLineColor: '#214981'
-                    },
-                    ticks: { color: '#ccc' }
-                };
-                break;
-
-            case 'terminal':
-                opts = {
-                    grid: {
-                        color: 'darkgreen',
-                        zeroLineColor: 'darkgreen'
-                    },
-                    ticks: { color: '#33ff00' }
-                };
-                break;
-
-            default:
-                opts = {
-                    grid: {
-                        color: 'lightgrey',
-                        zeroLineColor: 'lightgrey'
-                    },
-                    ticks: { color: '#333' }
-                };
-                break;
-        }
+        opts = {
+            grid: {
+                color: getCssVariable('--podeweb-chart-grid-color'),
+                zeroLineColor: getCssVariable('--podeweb-chart-grid-color')
+            },
+            ticks: {
+                color: getCssVariable('--podeweb-chart-tick-color')
+            }
+        };
     }
 
     // add min/max
@@ -1100,20 +1076,11 @@ function getChartAxesColours(theme, canvas, min, max) {
 }
 
 function getChartPieBorderColour(theme) {
-    switch (theme) {
-        case 'dark':
-            return '#214981';
-
-        case 'terminal':
-            return 'darkgreen';
-
-        default:
-            return '#222';
-    }
+    return getCssVariable('--podeweb-chart-border-color');
 }
 
 function getChartColourPalette(theme, colours) {
-    // do the canvas have a defined set of colours?
+    // does the canvas have a defined set of colours?
     if (colours && colours.length > 0) {
         var converted = [];
         colours.forEach((c) => { converted.push(hexToRgb(c.trim())); });
@@ -1121,30 +1088,12 @@ function getChartColourPalette(theme, colours) {
     }
 
     // no colours, so use the defaults
-    var first = [
-        hexToRgb('#36a2eb'), // cornflower blue
-        hexToRgb('#ffb000')  // orange
-    ];
+    var themeColours = [];
+    getCssVariable('--podeweb-chart-point-color').split(',').forEach((c) => {
+        themeColours.push(hexToRgb(c.trim()));
+    });
 
-    if (theme == 'terminal') {
-        first = [hexToRgb('#ffb000'), hexToRgb('#36a2eb')]; // orange, blue
-    }
-
-    return first.concat([
-        hexToRgb('#ff6384'),    // red
-        hexToRgb('#ffcd56'),    // yellow
-        hexToRgb('#00a333'),    // green
-        hexToRgb('#9966ff'),    // purple
-        hexToRgb('#96b0c6'),    // grey
-        hexToRgb('#275c7b'),    // teal
-        hexToRgb('#665191'),    // purple
-        hexToRgb('#bc5090'),    // pink
-        hexToRgb('#f95d6a'),    // peach
-        hexToRgb('#488f31'),    // green
-        hexToRgb('#f1f1f1'),    // white
-        hexToRgb('#a9b450'),    // lime green
-        hexToRgb('#00d2ef')     // sky blue
-    ]);
+    return themeColours;
 }
 
 function hexToRgb(hex) {
@@ -1159,6 +1108,10 @@ function hexToRgb(hex) {
     }
 
     return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, 1.0)`;
+}
+
+function getCssVariable(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name);
 }
 
 function getTimeString() {

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow navbar-expand-lg">
+<nav class="navbar fixed-top flex-md-nowrap p-0 shadow navbar-expand-lg">
     <button type='button' class='btn btn-icon-only' id='menu-toggle'>
         <span class='mdi mdi-menu-open'></span>
     </button>

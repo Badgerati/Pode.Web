@@ -42,6 +42,7 @@ markdown_extensions:
       custom_checkbox: true
   - admonition
   - meta
+  - attr_list
 
 extra:
   version:

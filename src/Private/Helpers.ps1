@@ -140,7 +140,7 @@ function Get-PodeWebAuthTheme {
 }
 
 function Get-PodeWebInbuiltThemes {
-    return @('Auto', 'Light', 'Dark', 'Terminal', 'Custom')
+    return @('Auto', 'Light', 'Dark', 'Midnight', 'Sepia', 'Forest', 'Terminal', 'Custom')
 }
 
 function Test-PodeWebThemeCustom {
@@ -163,6 +163,160 @@ function Test-PodeWebThemeInbuilt {
 
     $inbuildThemes = Get-PodeWebInbuiltThemes
     return ($Name -iin $inbuildThemes)
+}
+
+function Get-PodeWebCustomThemeRoutePath {
+    return '/pode.web-dynamic/themes/custom' #?name=<name>
+}
+
+function Add-PodeWebCustomThemeRoute {
+    $path = Get-PodeWebCustomThemeRoutePath
+    if (Test-PodeWebRoute -Path $path -Method Get -NoThrow) {
+        return
+    }
+
+    Add-PodeRoute -Method Get -Path $path -ScriptBlock {
+        $name = $WebEvent.Query.Name
+        $theme = (Get-PodeWebState -Name 'custom-themes').Themes[$name]
+
+        # theme not found
+        if ($null -eq $theme) {
+            Set-PodeResponseStatus -Code 404
+            return
+        }
+
+        # theme invalid
+        if ($theme.IsStatic) {
+            Set-PodeResponseStatus -Code 400
+            return
+        }
+
+        # build theme css variables
+        $config = $theme.Config
+        $builder = [System.Text.StringBuilder]::new()
+
+        if ($config.ColourScheme) {
+            $null = $builder.Append("--podeweb-colour-scheme: $($config.ColourScheme);")
+        }
+
+        if ($config.FontFamily) {
+            $null = $builder.Append("--podeweb-font-family: '$($config.FontFamily -join "','")';")
+        }
+
+        if ($config.CodeEditorTheme) {
+            $null = $builder.Append("--podeweb-code-editor-theme: $($config.CodeEditorTheme);")
+        }
+
+        if ($config.CodeTheme) {
+            $null = $builder.Append("--podeweb-code-theme: $($config.CodeTheme);")
+        }
+
+        if ($config.BackgroundColourConfig.Count -gt 0) {
+            foreach ($bg in $config.BackgroundColourConfig.GetEnumerator()) {
+                if ($bg.Value) {
+                    $null = $builder.Append("--podeweb-$($bg.Name)-background-color: $($bg.Value);")
+                }
+            }
+        }
+
+        if ($config.BorderColourConfig.Count -gt 0) {
+            foreach ($border in $config.BorderColourConfig.GetEnumerator()) {
+                if ($border.Value) {
+                    $null = $builder.Append("--podeweb-$($border.Name)-border-color: $($border.Value);")
+                }
+            }
+        }
+
+        if ($config.TextColourConfig.Count -gt 0) {
+            foreach ($text in $config.TextColourConfig.GetEnumerator()) {
+                if ($text.Value) {
+                    $null = $builder.Append("--podeweb-$($text.Name)-text-color: $($text.Value);")
+                }
+            }
+        }
+
+        if ($config.NavColourConfig.Count -gt 0) {
+            foreach ($nav in $config.NavColourConfig.GetEnumerator()) {
+                if ($nav.Value) {
+                    $null = $builder.Append("--podeweb-nav-$($nav.Name)-color: $($nav.Value);")
+                }
+            }
+        }
+
+        if ($config.ToastColourConfig.Count -gt 0) {
+            foreach ($toast in $config.ToastColourConfig.GetEnumerator()) {
+                if ($toast.Value) {
+                    $null = $builder.Append("--podeweb-toast-$($toast.Name)-color: $($toast.Value);")
+                }
+            }
+        }
+
+        if ($config.CalendarIconColourConfig.Count -gt 0) {
+            foreach ($cal in $config.CalendarIconColourConfig.GetEnumerator()) {
+                if ($cal.Value) {
+                    $null = $builder.Append("--podeweb-input-calendar-$($cal.Name)-color: $($cal.Value);")
+                }
+            }
+        }
+
+        if ($config.ChartColourConfig.Count -gt 0) {
+            foreach ($chart in $config.ChartColourConfig.GetEnumerator()) {
+                if ($chart.Value) {
+                    $value = $chart.Value
+                    if ($chart.Name -ieq 'point') {
+                        $value = $value -join ','
+                    }
+
+                    $null = $builder.Append("--podeweb-chart-$($chart.Name)-color: $($value);")
+                }
+            }
+        }
+
+        # if builder is empty, just return a 204
+        if ($builder.Length -eq 0) {
+            Set-PodeResponseStatus -Code 204
+            return
+        }
+
+        # pre/append ":root { ... }" to builder
+        $null = $builder.Insert(0, ':root {').Append('}')
+
+        # convert builder to string, and return
+        Write-PodeTextResponse -Value $builder.ToString().ToLowerInvariant() -ContentType 'text/css' -Cache
+    }
+}
+
+function Test-PodeWebColour {
+    param(
+        [Parameter()]
+        [string[]]
+        $Colour,
+
+        [switch]
+        $HexOnly,
+
+        [switch]
+        $AllowEmpty
+    )
+
+    foreach ($c in $Colour) {
+        if ($AllowEmpty -and [string]::IsNullOrWhiteSpace($c)) {
+            continue
+        }
+
+        if ($HexOnly) {
+            if ($c -inotmatch '^#([a-f0-9]{6}|[a-f0-9]{3})$') {
+                throw "Colour '$($c)' is not a valid hex colour"
+            }
+        }
+        else {
+            if ($c -notmatch '^(#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})|[a-z]+|rgb(a)?\(\d+,\s*\d+,\s*\d+(,\s*[\d\.]+)?\))$') {
+                throw "Colour '$($c)' is not a valid named, hex, or rgb colour"
+            }
+        }
+    }
+
+    return $Colour
 }
 
 function Test-PodeWebArrayEmpty {
@@ -435,12 +589,20 @@ function Test-PodeWebRoute {
     param(
         [Parameter(Mandatory = $true)]
         [string]
-        $Path
+        $Path,
+
+        [Parameter()]
+        [ValidateSet('Get', 'Post', 'Put', 'Delete', 'Patch', 'Head', 'Options')]
+        [string]
+        $Method = 'Post',
+
+        [switch]
+        $NoThrow
     )
 
-    $route = (Get-PodeRoute -Method Post -Path $Path)
+    $route = (Get-PodeRoute -Method $Method -Path $Path)
 
-    if ([string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ElementData.Name) -and ($null -ne $route)) {
+    if (!$NoThrow -and [string]::IsNullOrWhiteSpace($PageData.Name) -and [string]::IsNullOrWhiteSpace($ElementData.Name) -and ($null -ne $route)) {
         throw "An element with ID '$(Split-Path -Path $Path -Leaf)' already exists"
     }
 

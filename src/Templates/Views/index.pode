@@ -111,7 +111,7 @@
                                                     <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$($icon)$($group.DisplayName)</span>
                                                     $(if (!$group.NoCounter) {
-                                                        "<span class='badge badge-inbuilt-theme'>$($grpPages.Length)</span>"
+                                                        "<span class='badge pode-inbuilt-primary-theme'>$($grpPages.Length)</span>"
                                                     })
                                                 </div>
                                             </a>

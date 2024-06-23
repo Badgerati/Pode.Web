@@ -14,7 +14,7 @@ function Use-PodeWebTemplates {
         $FavIcon,
 
         [Parameter()]
-        [ValidateSet('Auto', 'Light', 'Dark', 'Terminal', 'Custom')]
+        [ValidateSet('Auto', 'Light', 'Dark', 'Midnight', 'Sepia', 'Forest', 'Terminal', 'Custom')]
         [string]
         $Theme = 'Auto',
 
@@ -224,10 +224,21 @@ function Test-PodeWebTheme {
     param(
         [Parameter()]
         [string]
-        $Name
+        $Name,
+
+        [Parameter()]
+        [ValidateSet('Any', 'Inbuilt', 'Custom')]
+        [string]
+        $Type = 'Any'
     )
 
-    return ((Test-PodeWebThemeInbuilt -Name $Name) -or (Test-PodeWebThemeCustom -Name $Name))
+    if ($Type -iin 'Inbuilt', 'Any') {
+        return (Test-PodeWebThemeInbuilt -Name $Name)
+    }
+
+    if ($Type -iin 'Custom', 'Any') {
+        return (Test-PodeWebThemeCustom -Name $Name)
+    }
 }
 
 function Get-PodeWebUsername {
@@ -238,35 +249,128 @@ function Get-PodeWebUsername {
     return (Get-PodeWebAuthUsername -AuthData $authData)
 }
 
-function Add-PodeWebCustomTheme {
+function Set-PodeWebCustomThemeDefault {
     [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Name
+    )
+
+    # test that the custom theme exists
+    if (!(Test-PodeWebTheme -Name $Name -Type 'Custom')) {
+        throw "The custom theme '$($Name)' does not exist"
+    }
+
+    $customThemes = Get-PodeWebState -Name 'custom-themes'
+    $customThemes.Default = $Name.ToLowerInvariant()
+}
+
+function Add-PodeWebCustomTheme {
+    [CmdletBinding(DefaultParameterSetName = 'Url')]
     param(
         [Parameter(Mandatory = $true)]
         [string]
         $Name,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
+        [ValidateSet('None', 'Light', 'Dark', 'Midnight', 'Terminal')]
         [string]
-        $Url
+        $Base = 'None',
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Url')]
+        [string]
+        $Url,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [ValidateSet('Normal', 'Light', 'Dark')]
+        [string]
+        $ColourScheme,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [string[]]
+        $FontFamily,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [hashtable]
+        $BackgroundColourConfig,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [hashtable]
+        $BorderColourConfig,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [hashtable]
+        $TextColourConfig,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [hashtable]
+        $NavColourConfig,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [hashtable]
+        $ToastColourConfig,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [hashtable]
+        $CalendarIconColourConfig,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [hashtable]
+        $ChartColourConfig,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [ValidateSet('Light', 'Dark', 'HighContrast')]
+        [string]
+        $CodeEditorTheme,
+
+        [Parameter(ParameterSetName = 'Config')]
+        [ValidateSet('Light', 'Dark')]
+        [string]
+        $CodeTheme
     )
 
-    $Name = $Name.ToLowerInvariant()
-
     # is the theme already inbuilt?
-    $inbuildThemes = Get-PodeWebInbuiltThemes
-    if ($Name -iin $inbuildThemes) {
-        throw "There is already an inbuilt theme for $($Name) defined"
+    if (Test-PodeWebTheme -Name $Name -Type 'Inbuilt') {
+        throw "There is already an inbuilt theme for '$($Name)' defined"
     }
 
     # is the theme already defined?
-    $customThemes = Get-PodeWebState -Name 'custom-themes'
-    if ($customThemes.Themes.Keys -icontains $Name) {
-        throw "There is already a custom theme for $($Name) defined"
+    if (Test-PodeWebTheme -Name $Name -Type 'Custom') {
+        throw "There is already a custom theme for '$($Name)' defined"
+    }
+
+    # if using config, set appropriate URL, and create route if it doesn't already exist
+    if ($PSCmdlet.ParameterSetName -ieq 'Config') {
+        # build the url
+        $Url = Get-PodeWebCustomThemeRoutePath
+        $Url += "?name=$($Name)"
+
+        # add route
+        Add-PodeWebCustomThemeRoute
     }
 
     # add the custom theme
+    $Name = $Name.ToLowerInvariant()
+    $customThemes = Get-PodeWebState -Name 'custom-themes'
+
     $customThemes.Themes[$Name] = @{
-        Url = (Add-PodeWebAppPath -Url $Url)
+        Url      = (Add-PodeWebAppPath -Url $Url)
+        Base     = $Base
+        IsStatic = ($PSCmdlet.ParameterSetName -ieq 'Url')
+        Config   = @{
+            ColourScheme             = $ColourScheme
+            FontFamily               = $FontFamily
+            BackgroundColourConfig   = $BackgroundColourConfig
+            BorderColourConfig       = $BorderColourConfig
+            TextColourConfig         = $TextColourConfig
+            NavColourConfig          = $NavColourConfig
+            ToastColourConfig        = $ToastColourConfig
+            CalendarIconColourConfig = $CalendarIconColourConfig
+            CodeEditorTheme          = $CodeEditorTheme
+            CodeTheme                = $CodeTheme
+            ChartColourConfig        = $ChartColourConfig
+        }
     }
 
     # set as theme if first one
@@ -277,6 +381,217 @@ function Add-PodeWebCustomTheme {
 
     if ([string]::IsNullOrWhiteSpace($customThemes.Default)) {
         $customThemes.Default = $Name
+    }
+}
+
+function New-PodeWebBackgroundColourConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Page,
+
+        [Parameter()]
+        [string]
+        $Hero,
+
+        [Parameter()]
+        [string]
+        $Primary,
+
+        [Parameter()]
+        [string]
+        $Secondary,
+
+        [Parameter()]
+        [string]
+        $Tertiary
+    )
+
+    return @{
+        Page      = (Test-PodeWebColour -Colour $Page -AllowEmpty)
+        Hero      = (Test-PodeWebColour -Colour $Hero -AllowEmpty)
+        Primary   = (Test-PodeWebColour -Colour $Primary -AllowEmpty)
+        Secondary = (Test-PodeWebColour -Colour $Secondary -AllowEmpty)
+        Tertiary  = (Test-PodeWebColour -Colour $Tertiary -AllowEmpty)
+    }
+}
+
+function New-PodeWebBorderColourConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Primary,
+
+        [Parameter()]
+        [string]
+        $Secondary,
+
+        [Parameter()]
+        [string]
+        $Tertiary
+    )
+
+    return @{
+        Primary   = (Test-PodeWebColour -Colour $Primary -AllowEmpty)
+        Secondary = (Test-PodeWebColour -Colour $Secondary -AllowEmpty)
+        Tertiary  = (Test-PodeWebColour -Colour $Tertiary -AllowEmpty)
+    }
+}
+
+function New-PodeWebTextColourConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Primary,
+
+        [Parameter()]
+        [string]
+        $Secondary,
+
+        [Parameter()]
+        [string]
+        $Tertiary,
+
+        [Parameter()]
+        [string]
+        $Link,
+
+        [Parameter()]
+        [string]
+        $HoverPrimary,
+
+        [Parameter()]
+        [string]
+        $HoverSecondary,
+
+        [Parameter()]
+        [string]
+        $Disabled,
+
+        [Parameter()]
+        [string]
+        $Enabled
+    )
+
+    return @{
+        Primary           = (Test-PodeWebColour -Colour $Primary -AllowEmpty)
+        Secondary         = (Test-PodeWebColour -Colour $Secondary -AllowEmpty)
+        Tertiary          = (Test-PodeWebColour -Colour $Tertiary -AllowEmpty)
+        Link              = (Test-PodeWebColour -Colour $Link -AllowEmpty)
+        'Hover-Primary'   = (Test-PodeWebColour -Colour $HoverPrimary -AllowEmpty)
+        'Hover-Secondary' = (Test-PodeWebColour -Colour $HoverSecondary -AllowEmpty)
+        Disabled          = (Test-PodeWebColour -Colour $Disabled -AllowEmpty)
+        Enabled           = (Test-PodeWebColour -Colour $Enabled -AllowEmpty)
+    }
+}
+
+function New-PodeWebNavColourConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Background,
+
+        [Parameter()]
+        [string]
+        $Border,
+
+        [Parameter()]
+        [string]
+        $Text,
+
+        [Parameter()]
+        [string]
+        $HoverText
+    )
+
+    return @{
+        Background   = (Test-PodeWebColour -Colour $Background -AllowEmpty)
+        Border       = (Test-PodeWebColour -Colour $Border -AllowEmpty)
+        Text         = (Test-PodeWebColour -Colour $Text -AllowEmpty)
+        'Hover-Text' = (Test-PodeWebColour -Colour $HoverText -AllowEmpty)
+    }
+}
+
+function New-PodeWebToastColourConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $BackgroundPrimary,
+
+        [Parameter()]
+        [string]
+        $BackgroundSecondary,
+
+        [Parameter()]
+        [string]
+        $Border,
+
+        [Parameter()]
+        [string]
+        $TextPrimary,
+
+        [Parameter()]
+        [string]
+        $TextSecondary
+    )
+
+    return @{
+        'Primary-Background'   = (Test-PodeWebColour -Colour $BackgroundPrimary -AllowEmpty)
+        'Secondary-Background' = (Test-PodeWebColour -Colour $BackgroundSecondary -AllowEmpty)
+        Border                 = (Test-PodeWebColour -Colour $Border -AllowEmpty)
+        'Primary-Text'         = (Test-PodeWebColour -Colour $TextPrimary -AllowEmpty)
+        'Secondary-Text'       = (Test-PodeWebColour -Colour $TextSecondary -AllowEmpty)
+    }
+}
+
+function New-PodeWebCalendarIconColourConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Primary,
+
+        [Parameter()]
+        [string]
+        $Hover
+    )
+
+    return @{
+        Indicator         = $Primary
+        'Indicator-Hover' = $Hover
+    }
+}
+
+function New-PodeWebChartColourConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string[]]
+        $Point,
+
+        [Parameter()]
+        [string]
+        $Grid,
+
+        [Parameter()]
+        [string]
+        $Tick,
+
+        [Parameter()]
+        [string]
+        $Border
+    )
+
+    return @{
+        Point  = (Test-PodeWebColour -Colour $Point -AllowEmpty)
+        Grid   = (Test-PodeWebColour -Colour $Grid -AllowEmpty)
+        Tick   = (Test-PodeWebColour -Colour $Tick -AllowEmpty)
+        Border = (Test-PodeWebColour -Colour $Border -AllowEmpty)
     }
 }
 

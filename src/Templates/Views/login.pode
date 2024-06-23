@@ -39,13 +39,13 @@
                         </div>"
                     }
 
-                    "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
+                    "<button class='btn btn-lg pode-inbuilt-primary-theme btn-block' type='submit'>
                         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                         Sign in
                     </button>"
                 }
                 else {
-                    "<button class='btn btn-lg btn-inbuilt-theme btn-block' type='submit'>
+                    "<button class='btn btn-lg pode-inbuilt-primary-theme btn-block' type='submit'>
                         <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                         Sign in using OAuth2 ($($data.Auth.Name))
                     </button>"
