@@ -2047,6 +2047,14 @@ function New-PodeWebCounterChart {
         $MaxItems = 30,
 
         [Parameter()]
+        [string]
+        $Height = 0,
+
+        [Parameter()]
+        [string]
+        $Width = 0,
+
+        [Parameter()]
         [int]
         $MinX = [int]::MinValue,
 
@@ -2091,6 +2099,8 @@ function New-PodeWebCounterChart {
         -DisplayName $DisplayName `
         -Type Line `
         -MaxItems $MaxItems `
+        -Height $Height `
+        -Width $Width `
         -ArgumentList $Counter `
         -Append `
         -TimeLabels `
