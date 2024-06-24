@@ -1822,6 +1822,10 @@ function New-PodeWebChart {
         [string]
         $Height = 0,
 
+        [Parameter()]
+        [string]
+        $Width = 0,
+
         [Parameter(ParameterSetName = 'Dynamic')]
         [object[]]
         $ArgumentList,
@@ -1927,7 +1931,8 @@ function New-PodeWebChart {
             IsDynamic        = ($null -ne $ScriptBlock)
             Append           = $Append.IsPresent
             MaxItems         = $MaxItems
-            Height           = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px')
+            Height           = (ConvertTo-PodeWebSize -Value $Height -Default 'auto' -Type 'px').ToLowerInvariant()
+            Width            = (ConvertTo-PodeWebSize -Value $Width -Default '100%' -Type 'px').ToLowerInvariant()
             TimeLabels       = $TimeLabels.IsPresent
             AutoRefresh      = $AutoRefresh.IsPresent
             RefreshInterval  = ($RefreshInterval * 1000)
