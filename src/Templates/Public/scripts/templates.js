@@ -4467,8 +4467,6 @@ class PodeChart extends PodeRefreshableElement {
         var message = data.Message ? `<p class='card-text'>${data.Message}</p>` : '';
         var height = data.Height !== 'auto' ? `height:${data.Height};` : '';
         var width = data.Width !== 'auto' ? `width:${data.Width};` : '';
-        console.log(height);
-        console.log(width);
 
         return `${message}<div
             id="${this.id}"
