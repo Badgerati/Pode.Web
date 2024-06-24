@@ -228,10 +228,10 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -Height 250 -AsCard
         )
         New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Content @(
-            New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard
+            New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard -Height 500 -Width 750
         )
         New-PodeWebTab -Name 'Doughnut' -Icon (New-PodeWebIcon -Name 'chart-donut' -HoverIcon (New-PodeWebIconPreset -Spin)) -Content @(
-            New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard
+            New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard -Height 500 -Width 500
         )
     )
 

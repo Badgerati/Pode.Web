@@ -4466,10 +4466,12 @@ class PodeChart extends PodeRefreshableElement {
     new(data, sender, opts) {
         var message = data.Message ? `<p class='card-text'>${data.Message}</p>` : '';
         var height = data.Height !== 'auto' ? `height:${data.Height};` : '';
+        var width = data.Width !== 'auto' ? `width:${data.Width};` : '';
 
         return `${message}<div
             id="${this.id}"
             name="${this.name}"
+            class="w-100"
             role='chart'
             pode-object="${this.getType()}"
             pode-id="${this.uuid}">
@@ -4478,7 +4480,7 @@ class PodeChart extends PodeRefreshableElement {
                         ${this.buildRefreshButton(false)}
                     </div>
                 </div>
-                <canvas class="my-4 w-100" style="${height}"></canvas>
+                <canvas class="my-4" style="${height}${width}"></canvas>
                 <div class="text-center">
                     <span for='${this.uuid}' class="pode-spinner spinner-grow pode-inbuilt-secondary-theme canvas-spinner" role="status"></span>
                 </div>
@@ -4628,8 +4630,8 @@ class PodeChart extends PodeRefreshableElement {
 
         // axis themes
         var axesOpts = {
-            x: {},
-            y: {}
+            x: null,
+            y: null
         };
 
         // dataset details
@@ -4691,7 +4693,10 @@ class PodeChart extends PodeRefreshableElement {
                 scales: {
                     x: axesOpts.x,
                     y: axesOpts.y
-                }
+                },
+
+                responsive: false,
+                maintainAspectRatio: true
             }
         });
     }
