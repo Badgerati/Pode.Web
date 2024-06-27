@@ -8,25 +8,25 @@
     <link rel="stylesheet" href="$($data.AppPath)/pode.web-static/libs/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="$($data.AppPath)/pode.web-static/libs/bs-stepper/bs-stepper.min.css">
     <link rel="stylesheet" href="$($data.AppPath)/pode.web-static/libs/mdi-font/css/materialdesignicons.min.css">
+    <link id='pode-base-theme' rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/default.css'>
 
     $(
-        # main pode.web base styles
-        "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/default.css'>"
-
         # pode.web theme
         if (Test-PodeWebThemeCustom -Name $data.Theme) {
             $theme = (Get-PodeWebState -Name 'custom-themes').Themes[$data.Theme]
             if ($theme.Base -ine 'none') {
-                "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/themes/$($theme.Base).css'>"
+                "<link id='pode-inbuilt-theme' rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/themes/$($theme.Base).css'>"
             }
-            "<link rel='stylesheet' href='$($theme.Url)'>"
+            "<link id='pode-custom-theme' rel='stylesheet' href='$($theme.Url)'>"
         }
         else {
             if ($data.Theme -inotin @('auto', 'custom')) {
-                "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/themes/$($data.Theme).css'>"
+                "<link id='pode-inbuilt-theme' rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/themes/$($data.Theme).css'>"
             }
         }
+    )
 
+    $(
         # custom stylesheets
         $styles = @(Get-PodeWebState -Name 'custom-css')
         foreach ($style in $styles) {

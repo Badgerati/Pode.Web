@@ -33,6 +33,10 @@ Start-PodeServer -StatusPageExceptions Show {
     # set the use of templates
     Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
+    # add a custom darkred theme
+    Add-PodeWebCustomTheme -Name DarkRed -Base Dark `
+        -BackgroundColourConfig (New-PodeWebBackgroundColourConfig -Page 'darkred')
+
     # set login page
     # -BackgroundImage '/images/galaxy.jpg'
     Set-PodeWebLoginPage -Authentication Example -LoginPath '/auth/login' -LogoutPath '/auth/logout' -PassThru |
@@ -118,6 +122,7 @@ Start-PodeServer -StatusPageExceptions Show {
                 New-PodeWebButton -Name 'Sepia Theme' -NoAuth -Icon 'camera' -Colour Yellow -ScriptBlock { Update-PodeWebTheme -Name Sepia }
                 New-PodeWebButton -Name 'Forest Theme' -NoAuth -Icon 'tree' -Colour Green -ScriptBlock { Update-PodeWebTheme -Name Forest }
                 New-PodeWebButton -Name 'Terminal Theme' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock { Update-PodeWebTheme -Name Terminal }
+                New-PodeWebButton -Name 'DarkRed Theme' -NoAuth -Icon 'pencil' -Colour Red -ScriptBlock { Update-PodeWebTheme -Name DarkRed }
                 New-PodeWebButton -Name 'Reset Theme' -NoAuth -Icon 'refresh' -Colour Cyan -ScriptBlock { Reset-PodeWebTheme }
             )
         )
