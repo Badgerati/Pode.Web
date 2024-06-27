@@ -237,7 +237,7 @@ function mountCodeTheme() {
     var theme = (getCssVariable('--podeweb-code-theme') ?? 'light').toLowerCase();
 
     // remove existing css file with class pode-code-theme
-    $('head link.pode-code-theme').remove();
+    $('head link#pode-code-theme').remove();
 
     // append new a11y code theme css file as link to head element
     var link = document.createElement('link');
@@ -251,7 +251,7 @@ function mountCodeTheme() {
     }
 
     link.href = url;
-    link.classList.add('pode-code-theme');
+    link.id = 'pode-code-theme';
     document.head.appendChild(link);
 }
 
@@ -259,17 +259,86 @@ function getPodeTheme() {
     return $('body').attr('pode-theme');
 }
 
-function setPodeTheme(theme, refresh) {
+function setPodeTheme(theme, isInbuilt, base, customUrl) {
     // update body
     $('body').attr('pode-theme', theme);
 
     // set the cookie
     setPodeThemeCookie(theme);
 
-    // refresh?
-    if (refresh) {
-        refreshPage();
+    // remove the pode-inbuilt-theme css
+    $('head link#pode-inbuilt-theme').remove();
+
+    // remove the pode-custom-theme css
+    $('head link#pode-custom-theme').remove();
+
+    // temp vars
+    var url = '';
+    var appPath = getAppPath();
+
+    // if inbuilt or we have a base, then add back the pode-inbuilt-theme css
+    if (isInbuilt || base) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+
+        url = `/pode.web-static/styles/themes/${(isInbuilt ? theme : base).toLowerCase()}.css`;
+        if (appPath) {
+            url = `${appPath}${url}`;
+        }
+
+        link.href = url;
+        link.id = 'pode-inbuilt-theme';
+
+        // optional bind to reset theme for some elements onload
+        if (!customUrl) {
+            link.onload = () => {
+                PodeElementFactory.setTheme(theme);
+            };
+        }
+
+        // load the link
+        $('head link#pode-base-theme').after(link);
     }
+
+    // if custom, then add back the pode-custom-theme css
+    if (!isInbuilt && customUrl) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+
+        url = customUrl;
+        if (appPath) {
+            url = `${appPath}${url}`;
+        }
+
+        link.href = url;
+        link.id = 'pode-custom-theme';
+
+        // optional bind to reset theme for some elements onload
+        link.onload = () => {
+            PodeElementFactory.setTheme(theme);
+        };
+
+        // load the link
+        if (base) {
+            $('head link#pode-inbuilt-theme').after(link);
+        }
+        else {
+            $('head link#pode-base-theme').after(link);
+        }
+    }
+}
+
+function resetPodeTheme() {
+    // blank body theme
+    $('body').attr('pode-theme', '');
+
+    // blank the theme cookie
+    setPodeThemeCookie('');
+
+    // refresh the page
+    refreshPage();
 }
 
 function setPodeThemeCookie(theme) {
@@ -972,7 +1041,7 @@ function actionTheme(action) {
             break;
 
         case 'reset':
-            resetTheme();
+            resetPodeTheme();
             break;
     }
 }
@@ -982,11 +1051,7 @@ function updateTheme(action) {
         return;
     }
 
-    setPodeTheme(action.Name, true);
-}
-
-function resetTheme() {
-    setPodeTheme('', true);
+    setPodeTheme(action.Name, action.IsInbuilt, action.Base, action.Url);
 }
 
 function decodeHTML(value) {
@@ -1037,7 +1102,7 @@ function searchArray(array, element, caseInsensitive) {
     }) !== undefined;
 }
 
-function getChartAxesColours(theme, canvas, min, max) {
+function getChartAxesColours(canvas, min, max) {
     var opts = {};
 
     // just hide ticks/legend for small tile charts
@@ -1075,11 +1140,11 @@ function getChartAxesColours(theme, canvas, min, max) {
     return opts;
 }
 
-function getChartPieBorderColour(theme) {
+function getChartPieBorderColour() {
     return getCssVariable('--podeweb-chart-border-color');
 }
 
-function getChartColourPalette(theme, colours) {
+function getChartColourPalette(colours) {
     // does the canvas have a defined set of colours?
     if (colours && colours.length > 0) {
         var converted = [];

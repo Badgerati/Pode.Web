@@ -716,7 +716,6 @@ function New-PodeWebProgress {
     )
 
     $Id = Get-PodeWebElementId -Tag Progress -Id $Id -Name $Name
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     if ($Value -lt $Min) {
         $Value = $Min
@@ -746,7 +745,6 @@ function New-PodeWebProgress {
         Striped       = ($Striped.IsPresent -or $Animated.IsPresent)
         Animated      = $Animated.IsPresent
         Colour        = $Colour
-        ColourType    = $ColourType
         HideName      = $HideName.IsPresent
     }
 }
@@ -1346,7 +1344,6 @@ function New-PodeWebButtonGroup {
         ID            = (Get-PodeWebElementId -Tag ButtonGroup -Id $Id)
         Buttons       = $Buttons
         Direction     = $Direction
-        SizeType      = (Convert-PodeWebButtonSizeToClass -Size $Size -Group)
         NoEvents      = $true
     }
 }
@@ -1431,9 +1428,6 @@ function New-PodeWebButton {
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
 
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
-    $sizeType = Convert-PodeWebButtonSizeToClass -Size $Size -FullWidth:$FullWidth
-
     $element = @{
         Operation        = 'New'
         ComponentType    = 'Element'
@@ -1448,9 +1442,9 @@ function New-PodeWebButton {
         IsDynamic        = ($null -ne $ScriptBlock)
         IconOnly         = $IconOnly.IsPresent
         Colour           = $Colour
-        ColourType       = $ColourType
         Outline          = $Outline.IsPresent
-        SizeType         = $sizeType
+        Size             = $Size
+        FullWidth        = $FullWidth.IsPresent
         NewLine          = $NewLine.IsPresent
         NewTab           = $NewTab.IsPresent
         NoEvents         = $true
@@ -1515,6 +1509,10 @@ function New-PodeWebAlert {
         [string]
         $Type = 'Note',
 
+        [Parameter()]
+        [string]
+        $DisplayName,
+
         [Parameter(Mandatory = $true, ParameterSetName = 'Value')]
         [string]
         $Value,
@@ -1530,17 +1528,14 @@ function New-PodeWebAlert {
     }
 
     $Id = Get-PodeWebElementId -Tag Alert -Id $Id
-    $classType = Convert-PodeWebAlertTypeToClass -Type $Type
-    $iconType = Convert-PodeWebAlertTypeToIcon -Type $Type
 
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
         ObjectType    = 'Alert'
         ID            = $Id
-        Type          = [System.Net.WebUtility]::HtmlEncode($Type)
-        ClassType     = $classType
-        IconType      = $iconType
+        Type          = $Type
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Type -Encode)
         Value         = [System.Net.WebUtility]::HtmlEncode($Value)
         Content       = $Content
     }
@@ -1731,7 +1726,6 @@ function New-PodeWebBadge {
     )
 
     $Id = Get-PodeWebElementId -Tag Alert -Id $Id
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     return @{
         Operation     = 'New'
@@ -1739,7 +1733,6 @@ function New-PodeWebBadge {
         ObjectType    = 'Badge'
         ID            = $Id
         Colour        = $Colour
-        ColourType    = $ColourType.ToLowerInvariant()
         Value         = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
@@ -2974,7 +2967,6 @@ function New-PodeWebTile {
     }
 
     $Id = Get-PodeWebElementId -Tag Tile -Id $Id -Name $Name
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
 
     if ($RefreshInterval -le 0) {
         $RefreshInterval = 60
@@ -2992,7 +2984,6 @@ function New-PodeWebTile {
         Content          = $Content
         Icon             = (Protect-PodeWebIconType -Icon $Icon -Element 'Tile')
         Colour           = $Colour
-        ColourType       = $ColourType
         AutoRefresh      = $AutoRefresh.IsPresent
         RefreshInterval  = ($RefreshInterval * 1000)
         NoRefresh        = $NoRefresh.IsPresent

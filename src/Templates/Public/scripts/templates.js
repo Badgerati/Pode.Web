@@ -2,6 +2,17 @@ const PODE_CONTENT = $('content#pode-content');
 const PODE_BREADCRUMB = $('nav#pode-breadcrumb ol.breadcrumb');
 const PODE_NAVIGATION = $('div#pode-nav-items ul.navbar-nav');
 
+const PODE_COLOUR_TO_CLASS_MAP = {
+    blue: 'primary',
+    green: 'success',
+    red: 'danger',
+    yellow: 'warning',
+    grey: 'secondary',
+    light: 'light',
+    dark: 'dark',
+    cyan: 'info'
+};
+
 class PodeElementFactory {
     static classMap = new Map();
     static objMap = new Map();
@@ -161,6 +172,19 @@ class PodeElementFactory {
     static triggerObject(id, evt) {
         return this.getObject(id).trigger(evt, true);
     }
+
+    static setTheme(theme) {
+        // get all elements with pode-themeable=true attribute
+        var elements = $(`[pode-themeable="true"]`);
+
+        // loop through them, add get the element by pode-uuid and call setTheme
+        elements.each((_, element) => {
+            var obj = this.getObject(element.getAttribute('pode-id'));
+            if (obj) {
+                obj.setTheme(theme);
+            }
+        });
+    }
 }
 
 // base element class
@@ -194,6 +218,7 @@ class PodeElement {
         this.required = data.Required ?? false;
         this.width = data.Width ?? '';
         this.height = data.Height ?? '';
+        this.themeable = false;
 
         this.content = {
             0: 'Content'
@@ -596,6 +621,11 @@ class PodeElement {
     }
 
     setBaseAttributes() {
+        // themeable?
+        if (this.themeable) {
+            this.addAttribute('pode-themeable', 'true');
+        }
+
         // add classes
         if (this.css.classes) {
             convertToArray(this.css.classes).forEach((c) => {
@@ -887,6 +917,10 @@ class PodeElement {
         return obj.attr('pode-id');
     }
 
+    static mapColourToClass(colour) {
+        return PODE_COLOUR_TO_CLASS_MAP[colour.toLowerCase()];
+    }
+
     filter(elements, func, firstOnly) {
         if (!elements || !func) {
             return null;
@@ -1143,6 +1177,8 @@ class PodeElement {
 
         this.addStyle('width', value, this, { important: false });
     }
+
+    setTheme(theme) { }
 
     new(data, sender, opts) {
         throw `${this.getType()} "new" method not implemented`;
@@ -1673,7 +1709,7 @@ class PodeBadge extends PodeTextualElement {
     new(data, sender, opts) {
         return `<span
             id='${this.id}'
-            class='badge badge-${data.ColourType} pode-text'
+            class='badge badge-${PodeElement.mapColourToClass(data.Colour)} pode-text'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
             ${this.events(data.Events)}>
@@ -1686,7 +1722,7 @@ class PodeBadge extends PodeTextualElement {
 
         // change colour
         if (data.Colour) {
-            this.replaceClass('badge-\\w+', `badge-${data.ColourType}`, null, { pattern: true });
+            this.replaceClass('badge-\\w+', `badge-${PodeElement.mapColourToClass(data.Colour)}`, null, { pattern: true });
         }
     }
 }
@@ -2051,19 +2087,28 @@ class PodeButtonGroup extends PodeContentElement {
         super(data, sender, opts);
         this.content[0] = 'Buttons';
         this.direction = (data.Direction ?? 'horizontal').toLowerCase();
+        this.size = (data.Size ?? '').toLowerCase();
     }
 
     new(data, sender, opts) {
         var dirClass = this.direction == 'horizontal' ? 'btn-group' : 'btn-group-vertical'
         return `<div
             id='${this.id}'
-            class="${dirClass} ${data.SizeType} mr-2"
+            class="${dirClass} ${this.mapButtonGroupSizeToClass()} mr-2"
             role="group"
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
             pode-content-for="${this.uuid}"
             pode-content-order='0'>
         </div>`
+    }
+
+    mapButtonGroupSizeToClass() {
+        return ({
+            normal: '',
+            large: 'btn-group-lg',
+            small: 'btn-group-sm'
+        })[this.size];
     }
 }
 PodeElementFactory.setClass(PodeButtonGroup);
@@ -2079,6 +2124,9 @@ class PodeButton extends PodeFormElement {
         this.hasSpinner = true;
         this.displayName = data.DisplayName ?? '';
         this.clickName = data.ClickName ?? '';
+        this.colourType = PodeElement.mapColourToClass(data.Colour);
+        this.isOutline = data.Outline ?? false;
+        this.size = (data.Size ?? '').toLowerCase();
     }
 
     new(data, sender, opts) {
@@ -2120,20 +2168,18 @@ class PodeButton extends PodeFormElement {
             }
         }
         else {
-            var colour = data.ColourType;
-            if (data.Outline) {
-                colour = `outline-${colour}`;
-            }
+            var colour = this.mapButtonColourTypeToClass();
+            var size = this.mapButtonSizeToClass();
+            var sizeState = data.FullWidth ? 'btn-block' : '';
 
             if (this.dynamic) {
                 html = `<button
                     type='button'
-                    class='btn btn-${colour} ${data.SizeType} pode-button'
+                    class='btn ${colour} ${size} ${sizeState} pode-button'
                     id='${this.id}'
                     name='${this.name}'
                     pode-data-value='${data.DataValue}'
                     pode-object='${this.getType()}'
-                    pode-colour='${data.ColourType}'
                     pode-id='${this.uuid}'>
                         <span for='${this.uuid}' class='pode-spinner spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
                         ${icon}
@@ -2143,14 +2189,13 @@ class PodeButton extends PodeFormElement {
             else {
                 html = `<a
                     role='button'
-                    class='btn btn-${colour} ${data.SizeType} pode-link-button'
+                    class='btn ${colour} ${size} ${sizeState} pode-link-button'
                     id='${this.id}'
                     name='${this.name}'
                     href='${data.Url}'
                     target='${data.NewTab ? '_blank' : '_self'}'
                     pode-data-value='${data.DataValue}'
                     pode-object='${this.getType()}'
-                    pode-colour='${data.ColourType}'
                     pode-id='${this.uuid}'>
                         ${icon}
                         <span class='pode-text'>${this.displayName}</span>
@@ -2243,23 +2288,17 @@ class PodeButton extends PodeFormElement {
 
         // change colour
         if (!this.iconOnly && (data.Colour || data.ColourState != 'unchanged')) {
-            var isOutline = hasClass(this.element, 'btn-outline-\\w+');
-            var colour = this.element.attr('pode-colour');
-
-            var _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
-            this.removeClass(_class);
+            this.removeClass(this.mapButtonColourTypeToClass());
 
             if (data.ColourState != 'unchanged') {
-                isOutline = (data.ColourState == 'outline');
+                this.isOutline = (data.ColourState == 'outline');
             }
 
             if (data.Colour) {
-                colour = data.ColourType;
-                this.element.attr('pode-colour', colour);
+                this.colourType = PodeElement.mapColourToClass(data.Colour);
             }
 
-            _class = isOutline ? `btn-outline-${colour}` : `btn-${colour}`;
-            this.addClass(_class);
+            this.addClass(this.mapButtonColourTypeToClass());
         }
 
         // change size
@@ -2274,7 +2313,8 @@ class PodeButton extends PodeFormElement {
             }
 
             if (data.Size) {
-                this.replaceClass('btn-(sm|lg)', data.SizeType, null, { pattern: true });
+                this.size = data.Size.toLowerCase();
+                this.replaceClass('btn-(sm|lg)', this.mapButtonSizeToClass(), null, { pattern: true });
             }
         }
 
@@ -2292,6 +2332,20 @@ class PodeButton extends PodeFormElement {
         if (!this.dynamic && data.TabState != 'unchanged') {
             this.element.attr('target', data.TabState == 'newtab' ? '_blank' : '_self');
         }
+    }
+
+    mapButtonColourTypeToClass() {
+        return this.isOutline
+            ? `btn-outline-${this.colourType}`
+            : `btn-${this.colourType}`;
+    }
+
+    mapButtonSizeToClass() {
+        return ({
+            normal: '',
+            small: 'btn-sm',
+            large: 'btn-lg'
+        })[this.size];
     }
 }
 PodeElementFactory.setClass(PodeButton);
@@ -2532,17 +2586,40 @@ class PodeAlert extends PodeTextualElement {
         super(...args);
     }
 
+    static ALERT_TYPE_TO_CLASS_MAP = {
+        error: 'danger',
+        warning: 'warning',
+        info: 'info',
+        success: 'success',
+        tip: 'success',
+        note: 'secondary',
+        important: 'primary'
+    };
+
+    static ALERT_TYPE_TO_ICON_MAP = {
+        error: 'alert-circle',
+        warning: 'alert',
+        info: 'information',
+        success: 'check-circle',
+        tip: 'thumb-up',
+        note: 'book-open',
+        important: 'bell'
+    };
+
     new(data, sender, opts) {
+        var classType = PodeAlert.ALERT_TYPE_TO_CLASS_MAP[data.Type.toLowerCase()];
+        var iconType = PodeAlert.ALERT_TYPE_TO_ICON_MAP[data.Type.toLowerCase()];
+
         return `<div
             id="${this.id}"
-            class="alert alert-${data.ClassType}"
+            class="alert alert-${classType}"
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'
             role="alert"
             ${this.events(data.Events)}>
                 <h6 class='pode-alert-header'>
-                    <span class="mdi mdi-${data.IconType.toLowerCase()}"></span>
-                    <strong>${data.Type}</strong>
+                    <span class="mdi mdi-${iconType}"></span>
+                    <strong>${data.DisplayName}</strong>
                 </h6>
                 <div pode-content-for='${this.uuid}' pode-content-order='0' class='pode-alert-body pode-text'>
                     ${data.Value ? data.Value : ''}
@@ -4028,7 +4105,7 @@ class PodeTile extends PodeRefreshableElement {
 
         return `<div
             id="${this.id}"
-            class="container pode-tile alert-${data.ColourType} rounded"
+            class="container pode-tile alert-${PodeElement.mapColourToClass(data.Colour)} rounded"
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'
             name="${this.name}">
@@ -4080,7 +4157,7 @@ class PodeTile extends PodeRefreshableElement {
 
         /// update the colour
         if (data.Colour) {
-            this.replaceClass('alert-\\w+', `alert-${data.ColourType}`, null, { pattern: true });
+            this.replaceClass('alert-\\w+', `alert-${PodeElement.mapColourToClass(data.Colour)}`, null, { pattern: true });
         }
     }
 }
@@ -4351,6 +4428,7 @@ class PodeCodeEditor extends PodeContentElement {
         this.theme = (data.Theme ?? '').toLowerCase();
         this.value = data.Value ?? '';
         this.editor = null;
+        this.themeable = true;
     }
 
     new(data, sender, opts) {
@@ -4388,16 +4466,10 @@ class PodeCodeEditor extends PodeContentElement {
                 obj.theme = getCssVariable('--podeweb-code-editor-theme');
             }
 
-            var theme = ({
-                dark: 'vs-dark',
-                light: 'vs',
-                highcontrast: 'hc-black'
-            })[obj.theme] ?? 'vs';
-
             obj.editor = monaco.editor.create(obj.element.find('.code-editor')[0], {
                 value: obj.value,
                 language: obj.language,
-                theme: theme,
+                theme: obj.mapCodeEditorTheme(),
                 readOnly: obj.readonly,
                 automaticLayout: true
             });
@@ -4438,6 +4510,19 @@ class PodeCodeEditor extends PodeContentElement {
     clear(data, sender, opts) {
         this.editor.setValue('');
     }
+
+    mapCodeEditorTheme() {
+        return ({
+            dark: 'vs-dark',
+            light: 'vs',
+            highcontrast: 'hc-black'
+        })[this.theme] ?? 'vs';
+    }
+
+    setTheme(theme) {
+        this.theme = getCssVariable('--podeweb-code-editor-theme');
+        this.editor.updateOptions({ theme: this.mapCodeEditorTheme() });
+    }
 }
 PodeElementFactory.setClass(PodeCodeEditor);
 
@@ -4461,6 +4546,7 @@ class PodeChart extends PodeRefreshableElement {
         this.showLegend = !(data.NoLegend ?? false);
         this.colours = data.Colours ? convertToArray(data.Colours) : [];
         this.chart = null;
+        this.themeable = true;
     }
 
     new(data, sender, opts) {
@@ -4597,7 +4683,6 @@ class PodeChart extends PodeRefreshableElement {
 
         // get the chart's canvas and type
         var ctx = this.element.find('canvas')[0].getContext('2d');
-        var theme = getPodeTheme();
 
         // get senderId if present, and set on canvas as 'for'
         if (getTagName(sender) === 'form') {
@@ -4605,7 +4690,7 @@ class PodeChart extends PodeRefreshableElement {
         }
 
         // colours for lines/bars/segments
-        var palette = getChartColourPalette(theme, this.colours);
+        var palette = getChartColourPalette(this.colours);
 
         // x-axis labels
         var xAxis = [];
@@ -4628,12 +4713,6 @@ class PodeChart extends PodeRefreshableElement {
             });
         });
 
-        // axis themes
-        var axesOpts = {
-            x: null,
-            y: null
-        };
-
         // dataset details
         Object.keys(yAxises).forEach((key, index) => {
             switch (this.chartType) {
@@ -4643,8 +4722,6 @@ class PodeChart extends PodeRefreshableElement {
                     yAxises[key].borderWidth = 3;
                     yAxises[key].fill = true;
                     yAxises[key].tension = 0.4;
-                    axesOpts.x = getChartAxesColours(theme, this.element, this.min.x, this.max.x);
-                    axesOpts.y = getChartAxesColours(theme, this.element, this.min.y, this.max.y);
                     break;
 
                 case 'doughnut':
@@ -4652,18 +4729,30 @@ class PodeChart extends PodeRefreshableElement {
                     yAxises[key].backgroundColor = function(context) {
                         return palette[context.dataIndex % palette.length];
                     };
-                    yAxises[key].borderColor = getChartPieBorderColour(theme);
+                    yAxises[key].borderColor = getChartPieBorderColour();
                     break;
 
                 case 'bar':
                     yAxises[key].backgroundColor = palette[index % palette.length].replace('1.0)', '0.6)');
                     yAxises[key].borderColor = palette[index % palette.length];
                     yAxises[key].borderWidth = 1;
-                    axesOpts.x = getChartAxesColours(theme, this.element, this.min.x, this.max.x);
-                    axesOpts.y = getChartAxesColours(theme, this.element, this.min.y, this.max.y);
                     break;
             }
         });
+
+        // axis themes
+        var axesOpts = {
+            x: null,
+            y: null
+        };
+
+        switch (this.chartType) {
+            case 'line':
+            case 'bar':
+                axesOpts.x = getChartAxesColours(this.element, this.min.x, this.max.x);
+                axesOpts.y = getChartAxesColours(this.element, this.min.y, this.max.y);
+                break;
+        }
 
         // display the legend?
         var showLegend = (Object.keys(yAxises)[0].toLowerCase() != 'default');
@@ -4715,6 +4804,59 @@ class PodeChart extends PodeRefreshableElement {
         });
 
         // re-render
+        this.rebuild();
+    }
+
+    setTheme(theme) {
+        // colours for lines/bars/segments
+        var palette = getChartColourPalette(this.colours);
+
+        // update point colours
+        Object.keys(this.chart.data.datasets).forEach((_, index) => {
+            var dataset = this.chart.data.datasets[index];
+
+            switch (this.chartType) {
+                case 'line':
+                    dataset.backgroundColor = palette[index % palette.length].replace('1.0)', '0.2)');
+                    dataset.borderColor = palette[index % palette.length];
+                    break;
+
+                case 'doughnut':
+                case 'pie':
+                    dataset.backgroundColor = function(context) {
+                        return palette[context.dataIndex % palette.length];
+                    };
+                    dataset.borderColor = getChartPieBorderColour();
+                    break;
+
+                case 'bar':
+                    dataset.backgroundColor = palette[index % palette.length].replace('1.0)', '0.6)');
+                    dataset.borderColor = palette[index % palette.length];
+                    break;
+            }
+        });
+
+        // update axis colours
+        var axesOpts = {
+            x: null,
+            y: null
+        };
+
+        switch (this.chartType) {
+            case 'line':
+            case 'bar':
+                axesOpts.x = getChartAxesColours(this.element, this.min.x, this.max.x);
+                axesOpts.y = getChartAxesColours(this.element, this.min.y, this.max.y);
+                break;
+        }
+
+        this.chart.options.scales.x = axesOpts.x;
+        this.chart.options.scales.y = axesOpts.y;
+
+        // update legend colour
+        this.chart.options.plugins.legend.labels.color = $('body').css('color');
+
+        // update
         this.rebuild();
     }
 }
@@ -5128,12 +5270,13 @@ class PodeProgress extends PodeContentElement {
         var showValue = this.showValue ? 'pode-progress-value' : '';
         var striped = this.striped ? 'progress-bar-striped' : '';
         var animated = this.animated ? 'progress-bar-animated' : '';
+        var colourType = PODE_COLOUR_TO_CLASS_MAP[data.Colour.toLowerCase()];
 
         var html = `<div class='progress'>
                 <div
                     id='${this.id}'
                     name='${this.name}'
-                    class='progress-bar bg-${data.ColourType ?? 'primary'} ${showValue} ${striped} ${animated}'
+                    class='progress-bar bg-${colourType} ${showValue} ${striped} ${animated}'
                     role='progressbar'
                     style='width: ${data.Percentage ?? 0}%'
                     aria-valuenow='${data.Value ?? 0}'
@@ -5181,7 +5324,8 @@ class PodeProgress extends PodeContentElement {
 
         // colour
         if (data.Colour) {
-            this.replaceClass('bg-\\w+', `bg-${data.ColourType}`, null, { pattern: true });
+            var colourType = PODE_COLOUR_TO_CLASS_MAP[data.Colour.toLowerCase()];
+            this.replaceClass('bg-\\w+', `bg-${colourType}`, null, { pattern: true });
         }
     }
 

@@ -741,7 +741,6 @@ function Update-PodeWebBadge {
         ObjectType = 'Badge'
         ID         = $Id
         Colour     = $Colour
-        ColourType = (Convert-PodeWebColourToClass -Colour $Colour)
         Value      = [System.Net.WebUtility]::HtmlEncode($Value)
     }
 }
@@ -1137,15 +1136,12 @@ function Update-PodeWebProgress {
         $Colour = ''
     )
 
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
-
     Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Progress'
         ID         = $Id
         Name       = $Name
         Colour     = $Colour
-        ColourType = $ColourType
         Value      = $Value
     }
 }
@@ -1202,7 +1198,6 @@ function Update-PodeWebTile {
         ID         = $Id
         Name       = $Name
         Colour     = $Colour
-        ColourType = (Convert-PodeWebColourToClass -Colour $Colour)
         Icon       = (Protect-PodeWebIconType -Icon $Icon -Element 'Tile')
     }
 }
@@ -1235,14 +1230,31 @@ function Update-PodeWebTheme {
         $Name
     )
 
+    # does the theme exist?
     if (!(Test-PodeWebTheme -Name $Name)) {
         throw "Theme does not exist: $($Name)"
     }
 
+    # is this an inbuilt theme?
+    $isInbuilt = Test-PodeWebTheme -Name $Name -Type Inbuilt
+    $base = [string]::Empty
+    $url = [string]::Empty
+
+    # if it's not inbuilt, retrieve the custom theme details and get the Base theme and URL
+    if (!$isInbuilt) {
+        $theme = (Get-PodeWebState -Name 'custom-themes').Themes[$Name]
+        $base = $theme.Base
+        $url = $theme.Url
+    }
+
+    # send the theme update action
     Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'Theme'
         Name       = $Name.ToLowerInvariant()
+        IsInbuilt  = $isInbuilt
+        Base       = $base
+        Url        = $url
     }
 }
 
@@ -2581,19 +2593,14 @@ function Update-PodeWebButton {
         $TabState = 'Unchanged'
     )
 
-    $colourType = Convert-PodeWebColourToClass -Colour $Colour
-    $sizeType = Convert-PodeWebButtonSizeToClass -Size $Size
-
     Send-PodeWebAction -Value @{
         Operation   = 'Update'
         ObjectType  = 'Button'
         ID          = $Id
         Name        = $Name
         Colour      = $Colour
-        ColourType  = $ColourType
         ColourState = $ColourState.ToLowerInvariant()
         Size        = $Size
-        SizeType    = $sizeType
         SizeState   = $SizeState.ToLowerInvariant()
         DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         ClickName   = [System.Net.WebUtility]::HtmlEncode($ClickName)

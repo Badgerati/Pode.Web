@@ -232,13 +232,17 @@ function Test-PodeWebTheme {
         $Type = 'Any'
     )
 
+    $found = $false
+
     if ($Type -iin 'Inbuilt', 'Any') {
-        return (Test-PodeWebThemeInbuilt -Name $Name)
+        $found = Test-PodeWebThemeInbuilt -Name $Name
     }
 
-    if ($Type -iin 'Custom', 'Any') {
-        return (Test-PodeWebThemeCustom -Name $Name)
+    if (!$found -and ($Type -iin 'Custom', 'Any')) {
+        $found = Test-PodeWebThemeCustom -Name $Name
     }
+
+    return $found
 }
 
 function Get-PodeWebUsername {
