@@ -179,7 +179,7 @@
                                     $data.Page.Title
                                 "</h1>"
                                 if ($data.Page.ShowHelp) {
-                                    "<span class='mdi mdi-help-circle-outline pode-page-help' for='$($data.Page.Url)' title='Help' data-toggle='tooltip'></span>"
+                                    "<span class='mdi mdi-help-circle-outline pode-page-help' title='Help' data-toggle='tooltip'></span>"
                                 }
                             "</div>"
                         }

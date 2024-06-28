@@ -10,7 +10,7 @@ Start-PodeServer -Threads 2 {
     Use-PodeWebTemplates -Title 'Inputs' -Theme Dark
 
     # set the home page controls (just a simple paragraph)
-    $form = New-PodeWebForm -Name 'Test' -ShowReset -AsCard -ScriptBlock {
+    $form = New-PodeWebForm -Name 'Test' -ButtonType Submit, Reset -AsCard -ScriptBlock {
         $WebEvent.Data |
             New-PodeWebTextbox -Name 'TestOutput' -Multiline -Preformat -AsJson |
             Out-PodeWebElement

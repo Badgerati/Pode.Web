@@ -2714,15 +2714,17 @@ function New-PodeWebForm {
         $ResetText = 'Reset',
 
         [Parameter()]
+        [ValidateSet('None', 'Submit', 'Reset')]
+        [string[]]
+        $ButtonType = 'Submit',
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
 
         [switch]
-        $AsCard,
-
-        [switch]
-        $ShowReset
+        $AsCard
     )
 
     # ensure content are correct
@@ -2747,7 +2749,7 @@ function New-PodeWebForm {
         Action           = (Protect-PodeWebValue -Value $Action -Default $routePath)
         NoEvents         = $true
         NoAuthentication = $NoAuthentication.IsPresent
-        ShowReset        = $ShowReset.IsPresent
+        ButtonType       = $ButtonType.ToLowerInvariant()
         ResetText        = (Protect-PodeWebValue -Value $ResetText -Default 'Reset' -Encode)
         SubmitText       = (Protect-PodeWebValue -Value $SubmitText -Default 'Submit' -Encode)
     }
@@ -3768,6 +3770,11 @@ function New-PodeWebModal {
         $CloseText = 'Close',
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $ResetText = 'Reset',
+
+        [Parameter()]
         [ValidateSet('Small', 'Medium', 'Large')]
         [string]
         $Size = 'Small',
@@ -3792,6 +3799,11 @@ function New-PodeWebModal {
         [Parameter()]
         [string]
         $Action,
+
+        [Parameter()]
+        [ValidateSet('None', 'Submit', 'Reset', 'Close')]
+        [string[]]
+        $ButtonType = @('Close', 'Submit'),
 
         [switch]
         $AsForm,
@@ -3843,6 +3855,10 @@ function New-PodeWebModal {
         }
     }
 
+    if ($null -eq $ScriptBlock) {
+        $ButtonType = @('Close')
+    }
+
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -3852,11 +3868,12 @@ function New-PodeWebModal {
         ID            = $Id
         Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Modal')
         Content       = $Content
-        CloseText     = [System.Net.WebUtility]::HtmlEncode($CloseText)
-        SubmitText    = [System.Net.WebUtility]::HtmlEncode($SubmitText)
+        CloseText     = (Protect-PodeWebValue -Value $CloseText -Default 'Close' -Encode)
+        SubmitText    = (Protect-PodeWebValue -Value $SubmitText -Default 'Submit' -Encode)
+        ResetText     = (Protect-PodeWebValue -Value $ResetText -Default 'Reset' -Encode)
         Size          = $Size
         AsForm        = $AsForm.IsPresent
-        ShowSubmit    = ($null -ne $ScriptBlock)
+        ButtonType    = $ButtonType.ToLowerInvariant()
         Method        = $Method
         Action        = (Protect-PodeWebValue -Value $Action -Default $routePath)
         NoEvents      = $true

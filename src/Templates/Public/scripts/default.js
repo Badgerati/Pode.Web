@@ -52,7 +52,7 @@ function loadContent() {
         return;
     }
 
-    sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, () => {
+    sendAjaxReq(getPageUrl('content'), null, undefined, true, () => {
         loadBreadcrumb();
         bindFormSubmits();
         contentLoaded = true;
@@ -67,7 +67,7 @@ function connectSse() {
     }
 
     // create sse connection
-    const sse = new EventSource(`${getPageUrl('sse-open')}`);
+    const sse = new EventSource(getPageUrl('sse-open'));
 
     // wire up open event, to store clientId and load content
     sse.addEventListener('pode.open', (e) => {
@@ -92,7 +92,7 @@ function connectSse() {
 
     // wire up beforeunload, to close connection server side
     window.addEventListener("beforeunload", function(e) {
-        sendAjaxReq(`${getPageUrl('sse-close')}`, null, undefined, false);
+        sendAjaxReq(getPageUrl('sse-close'), null, undefined, false);
         return null;
     });
 }
@@ -898,9 +898,7 @@ function bindPageHelp() {
     $('span.pode-page-help').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-
-        var url = $(e.target).attr('for');
-        sendAjaxReq(`${url}/help`, null, null, true);
+        sendAjaxReq(getPageUrl('help'), null, null, true);
     });
 }
 

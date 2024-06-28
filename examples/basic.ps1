@@ -21,7 +21,7 @@ Start-PodeServer {
     Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $section -Title 'Awesome Homepage'
 
     # add a page to search process (output as json in an appended textbox)
-    $form = New-PodeWebForm -Name 'Search' -ShowReset -SubmitText 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
+    $form = New-PodeWebForm -Name 'Search' -ButtonType Submit, Reset -SubmitText 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
         $procs = @(Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
                 Select-Object Name, ID, WorkingSet, CPU)
 

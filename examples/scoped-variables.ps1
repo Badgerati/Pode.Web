@@ -23,7 +23,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # add a page to search process (output as json in an appended textbox)
     Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -ScriptBlock {
-        New-PodeWebForm -Name 'Search' -ShowReset -SubmitText 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
+        New-PodeWebForm -Name 'Search' -ButtonType Submit, Reset 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
             $procs = @(Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
                     Select-Object Name, ID, WorkingSet, CPU)
 
