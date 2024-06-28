@@ -118,3 +118,31 @@ New-PodeWebModal -Name 'Stop Service' -Content @() -ArgumentList 'Value1', 2, $f
     # $value3 = $false
 }
 ```
+
+## Buttons
+
+You can customise which buttons are visible at the bottom of the Modal by using the `-ButtonType` parameter on [`New-PodeWebModal`](../../../Functions/Elements/New-PodeWebModal).
+
+By default, this parameter has the value "Close" if no `-ScriptBlock` is supplied, or the value "Submit" & "Close" if a `-ScriptBlock` is supplied, but you can supply one or more of the following values to change this:
+
+* None
+* Submit
+* Reset
+* Close
+
+Following are some examples:
+
+```powershell
+# default close and no scriptblock
+New-PodeWebModal -Name 'Example' -Content @()
+
+# default close/submit and scriptblock
+New-PodeWebModal -Name 'Example' -AsForm -Content @() -ScriptBlock {}
+
+# scriptblock with only submit and reset
+New-PodeWebModal -Name 'Example' -ButtonType Submit, Reset -AsForm -Content @() -ScriptBlock {}
+
+# scriptblock with no buttons
+New-PodeWebModal -Name 'Example' -ButtonType None -AsForm -Content @() -ScriptBlock {}
+```
+

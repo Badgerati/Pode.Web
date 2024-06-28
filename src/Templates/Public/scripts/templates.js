@@ -2376,19 +2376,36 @@ class PodeForm extends PodeContentElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.showReset = data.ShowReset ?? false;
         this.action = data.Action ?? '';
         this.method = data.Method ?? 'POST';
         this.hasSpinner = true;
+        this.buttons = {
+            submit: data.ButtonType.indexOf('submit') >= 0,
+            reset: data.ButtonType.indexOf('reset') >= 0,
+            none: data.ButtonType.indexOf('none') >= 0
+        };
     }
 
     new(data, sender, opts) {
-        var resetBtn = !this.showReset ? '' : `<button
-            class='btn pode-inbuilt-secondary-theme form-reset'
-            for='${this.id}'
-            type='button'>
-                ${data.ResetText}
-        </button>`;
+        var formFooter = '';
+
+        if (!this.buttons.none) {
+            var submitBtn = !this.buttons.submit ? '' : `<button
+                class='btn pode-inbuilt-primary-theme'
+                type='submit'>
+                    <span for='${this.uuid}' class="pode-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
+                    ${data.SubmitText}
+            </button>`;
+
+            var resetBtn = !this.buttons.reset ? '' : `<button
+                class='btn pode-inbuilt-secondary-theme form-reset'
+                for='${this.id}'
+                type='button'>
+                    ${data.ResetText}
+            </button>`;
+
+            formFooter = `${submitBtn}${resetBtn}`;
+        }
 
         var html = `<form
             id="${this.id}"
@@ -2399,13 +2416,7 @@ class PodeForm extends PodeContentElement {
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
                 <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
-
-                <button class="btn pode-inbuilt-primary-theme" type="submit">
-                    <span for='${this.uuid}' class="pode-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
-                    ${data.SubmitText}
-                </button>
-
-                ${resetBtn}
+                ${formFooter}
         </form>`;
 
         if (data.Message) {
@@ -2420,13 +2431,15 @@ class PodeForm extends PodeContentElement {
         var obj = this;
 
         // submit form
-        this.listen(this.element, 'submit', function(e, target) {
-            var result = obj.serialize();
-            sendAjaxReq(obj.action, result.data, obj, true, null, null, result.opts, obj.getSubmitButton());
-        });
+        if (this.buttons.submit) {
+            this.listen(this.element, 'submit', function(e, target) {
+                var result = obj.serialize();
+                sendAjaxReq(obj.action, result.data, obj, true, null, null, result.opts, obj.getSubmitButton());
+            });
+        }
 
         // reset form
-        if (this.showReset) {
+        if (this.buttons.reset) {
             this.listen(this.element.find('.form-reset'), 'click', function(e, target) {
                 obj.reset();
                 unfocus(target);
@@ -2435,10 +2448,16 @@ class PodeForm extends PodeContentElement {
     }
 
     submit(data, sender, opts) {
-        this.getSubmitButton().trigger('click');
+        if (this.buttons.submit) {
+            this.getSubmitButton().trigger('click');
+        }
     }
 
     getSubmitButton() {
+        if (!this.buttons.submit) {
+            return null;
+        }
+
         return $(this.element[0]).find('[type="submit"]');
     }
 }
@@ -4867,21 +4886,47 @@ class PodeModal extends PodeContentElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.submit = {
-            show: data.ShowSubmit ?? false,
-            url: data.Action ?? ''
+        this.buttons = {
+            submit: data.ButtonType.indexOf('submit') > -1,
+            close: data.ButtonType.indexOf('close') > -1,
+            reset: data.ButtonType.indexOf('reset') > -1,
+            none: data.ButtonType.indexOf('none') > -1
         }
+        this.submitUrl = data.Action ?? '';
         this.asForm = data.AsForm ?? false;
     }
 
     new(data, sender, opts) {
         var icon = this.setIcon(data.Icon);
 
-        var submit = !this.submit.show ? '' : `<button
-            type='button'
-            class='btn pode-inbuilt-primary-theme pode-modal-submit'>
-                ${data.SubmitText}
-        </button>`;
+        var modalFooter = '';
+        if (!this.buttons.none) {
+            var submitBtn = !this.buttons.submit ? '' : `<button
+                type='button'
+                class='btn pode-inbuilt-primary-theme pode-modal-submit'>
+                    ${data.SubmitText}
+            </button>`;
+
+            var closeBtn = !this.buttons.close ? '' : `<button
+                type='button'
+                class='btn btn-secondary'
+                data-dismiss='modal'>
+                    ${data.CloseText}
+            </button>`;
+
+            var resetBtn = !this.buttons.reset ? '' : `<button
+                type='button'
+                class='btn btn-secondary modal-reset'
+                for='${this.id}'>
+                    ${data.ResetText}
+            </button>`;
+
+            modalFooter = `<div class='modal-footer'>
+                ${closeBtn}
+                ${resetBtn}
+                ${submitBtn}
+            </div>`;
+        }
 
         var contentArea = this.asForm
             ? `<form class='pode-form' method='${data.Method}' action='${data.Action}' for='${this.uuid}' pode-content-for='${this.uuid}' pode-content-order='0'>`
@@ -4911,10 +4956,7 @@ class PodeModal extends PodeContentElement {
                         <div class="modal-body">
                             ${contentArea}
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">${data.CloseText}</button>
-                            ${submit}
-                        </div>
+                        ${modalFooter}
                     </div>
                 </div>
         </div>`;
@@ -4923,7 +4965,14 @@ class PodeModal extends PodeContentElement {
     bind(data, sender, opts) {
         var obj = this;
 
-        if (this.submit.show) {
+        if (this.buttons.reset) {
+            this.listen(this.element.find('button.modal-reset'), 'click', function(e, target) {
+                resetForm(obj.element);
+                unfocus($(e.target));
+            });
+        }
+
+        if (this.buttons.submit) {
             this.listen(this.element.find("div.modal-content form.pode-form"), 'keypress', function(e, target) {
                 if (!isEnterKey(e)) {
                     return;
@@ -4940,8 +4989,8 @@ class PodeModal extends PodeContentElement {
 
             this.listen(this.element.find("div.modal-footer button.pode-modal-submit"), 'click', function(e, target) {
                 // get url
-                var url = obj.submit.url;
-                if (!obj.submit.url) {
+                var url = obj.submitUrl;
+                if (!obj.submitUrl) {
                     return;
                 }
 
