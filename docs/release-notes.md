@@ -28,15 +28,28 @@
 * #531: Adds support for re-ordering of Pages in the sidebar
 * #531: Enable custom Paths for Pages, and Remove Home Page function
 * #547: Enables support to use scoped variables in Pages, Elements, etc.
+* #584: Adds Actions to allow Updating, Enabling, and Disabling Links
+* #585: Adds a new ClickName parameter for Buttons, to toggle the value rendered on clicking
+* #585: Adds Url, DataValue, Tab state, and ClickName to Update-PodeWebButton
+* #588: Adds new Sepia and Forest inbuilt themes
+* #588: Adds support for building custom themes directly using Pode.Web functions
+* #588: Renames Dark theme to Midnight, and replaces Dark theme with a new Dark theme
+* #590: Allow theme to be updated without needing to reload the page
+* #591: Adds support for customising which buttons are visible on Forms and Modals
+* #593: Adds -HideName for all input elements
+* #593: Adds Pre/Append Icon/Text for Select and Textarea
 
 ### Bugs
 * #466: Throw and error if Use-PodeWebTemplates is called more than once
 * #481: Remove use of -NoNewLine, and fix JSON rendering
 * #528: Changed random name generation to use Get-Random rather than System.Random (thanks @Staples1887!)
-* #533: Add errorCallback and stop double-clicks
+* #533: Fixes a bug where buttons could be double-clicked
 * #534: Set Ajax to have no timeout for long requests
 * #550: Update Pages.ps1 (thanks @Szeraax!)
 * #572: Fix encoding for Name, Placeholder, and Title when they contain certain special chars
+* #586: Fixes a bug preventing textboxes in Modals from working
+* #586: Fixes a bug preventing URL Buttons from working
+* #589: Fixes an issue with Bar and Pie chart heights not being respected
 
 ### Documentation
 * #486: Update Accordion.md (thanks @fatherofinvention!)
@@ -49,13 +62,16 @@
 * #573: Add mike to mkdocs to support multiple doc versions
 
 ### Dependencies
-* #515 Bump jquery from 3.6.3 to 3.7.1
-* #537 Bump moment from 2.29.4 to 2.30.1
-* #539 Bump @mdi/font from 7.1.96 to 7.4.47
-* #540 Bump @highlightjs/cdn-assets from 11.7.0 to 11.9.0
-* #557 Bump chart.js from 4.2.1 to 4.4.2
-* #566 Bump monaco-editor from 0.36.0 to 0.48.0
-* #569: Bump bootstrap to v4.6.2
+* #515: Bump jquery from 3.6.3 to 3.7.1
+* #537: Bump moment from 2.29.4 to 2.30.1
+* #539: Bump @mdi/font from 7.1.96 to 7.4.47
+* #540: Bump @highlightjs/cdn-assets from 11.7.0 to 11.9.0
+* #574: Bump chart.js from 4.2.1 to 4.4.3
+* #576: Bump jquery-ui-dist from 1.13.2 to 1.13.3
+* #583: Bump Pode from v2.10.0 to v2.10.1
+* #587: Bump monaco-editor from 0.36.0 to 0.50.0
+* #592: Bumps Bootstrap from v4.6.2 to to v5.3.3
+* #592: Bumps PopperJS from v1.16.1 to v2.11.8
 
 ### Packaging
 * #536: Adds vscode pwsh formatter, and updates src files

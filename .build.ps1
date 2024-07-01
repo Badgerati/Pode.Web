@@ -454,8 +454,12 @@ task ReleaseNotes {
     $dependabot = @{}
 
     foreach ($pr in $prs) {
+        if ($pr.labels.name -icontains 'superseded') {
+            continue
+        }
+
         $label = ($pr.labels[0].name -split ' ')[0]
-        if ($label -ieq 'new-release') {
+        if ($label -iin @('new-release', 'internal-code')) {
             continue
         }
 
