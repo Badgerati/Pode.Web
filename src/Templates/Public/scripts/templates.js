@@ -3037,7 +3037,7 @@ class PodeTable extends PodeRefreshableElement {
                     }
 
                     rows.forEach((row) => {
-                        obj.element.find('table tbody').append(row); //.children[1].appendChild(row);
+                        obj.element.find('table tbody').append(row);
                     })
                 }
                 else {

@@ -1,74 +1,74 @@
 <nav class="navbar fixed-top flex-md-nowrap p-0 shadow navbar-expand-lg">
     <div class="container-fluid">
-    <button type='button' class='btn btn-icon-only' id='menu-toggle'>
-        <span class='mdi mdi-menu-open'></span>
-    </button>
+        <button type='button' class='btn btn-icon-only' id='menu-toggle'>
+            <span class='mdi mdi-menu-open'></span>
+        </button>
 
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="$((Get-PodeWebState -Name 'system-urls').Home.Url)">
-        $(
-            $title = Get-PodeWebState -Name 'title'
-            $logo = Get-PodeWebState -Name 'logo'
-
-            if (![string]::IsNullOrWhiteSpace($logo)) {
-                "<img src='$($logo)' width='30' height='30' class='d-inline-block align-top' alt='$($title)' loading='lazy'>"
-            }
-
-            $title
-        )
-    </a>
-
-    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div id='pode-nav'>
-        <div id='pode-nav-social'>
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="$((Get-PodeWebState -Name 'system-urls').Home.Url)">
             $(
-                $socials = Get-PodeWebState -Name 'social'
-                foreach ($key in $socials.Keys) {
-                    $social = $socials[$key]
+                $title = Get-PodeWebState -Name 'title'
+                $logo = Get-PodeWebState -Name 'logo'
 
-                    "<a href='$($social.Url.ToLowerInvariant())' target='_blank' data-bs-title='$($social.Tooltip)' data-bs-toggle='tooltip'>
-                        <span class='mdi mdi-$($key.ToLowerInvariant())'></span>
-                    </a>"
+                if (![string]::IsNullOrWhiteSpace($logo)) {
+                    "<img src='$($logo)' width='30' height='30' class='d-inline-block align-top' alt='$($title)' loading='lazy'>"
                 }
+
+                $title
             )
+        </a>
+
+        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div id='pode-nav'>
+            <div id='pode-nav-social'>
+                $(
+                    $socials = Get-PodeWebState -Name 'social'
+                    foreach ($key in $socials.Keys) {
+                        $social = $socials[$key]
+
+                        "<a href='$($social.Url.ToLowerInvariant())' target='_blank' data-bs-title='$($social.Tooltip)' data-bs-toggle='tooltip'>
+                            <span class='mdi mdi-$($key.ToLowerInvariant())'></span>
+                        </a>"
+                    }
+                )
+            </div>
+
+            <div id='pode-nav-items'>
+                <ul class="navbar-nav me-auto">
+                </ul>
+            </div>
         </div>
 
-        <div id='pode-nav-items'>
-            <ul class="navbar-nav me-auto">
-            </ul>
-        </div>
+        $(if ($data.Auth.Enabled) {
+            if ($data.Auth.Authenticated) {
+                "<form class='form-inline' action='$((Get-PodeWebState -Name 'system-urls').Logout.Url)' method='POST' style='margin-bottom: 0'>
+                    <span class='navbar-text mRight1 welcome-msg'>"
+                        if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
+                            "<img id='avatar' src='$($data.Auth.Avatar)' class='rounded-circle'>"
+                        }
+                        else {
+                            "<span id='avatar' class='mdi mdi-account'></span>"
+                        }
+                        "Hello, $([System.Net.WebUtility]::HtmlEncode($data.Auth.Username))
+                    </span>"
+                    if ($data.Auth.Logout) {
+                        "<button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                            <span class='mdi mdi-logout mRight02'></span>
+                            Sign out
+                        </button>"
+                    }
+                "</form>"
+            }
+            else {
+                "<form class='form-inline' action='$((Get-PodeWebState -Name 'system-urls').Login.Url)' method='GET' style='margin-bottom: 0'>
+                    <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
+                        <span class='mdi mdi-login mRight02'></span>
+                        Sign in
+                    </button>
+                </form>"
+            }
+        })
     </div>
-
-    $(if ($data.Auth.Enabled) {
-        if ($data.Auth.Authenticated) {
-            "<form class='form-inline' action='$((Get-PodeWebState -Name 'system-urls').Logout.Url)' method='POST' style='margin-bottom: 0'>
-                <span class='navbar-text mRight1 welcome-msg'>"
-                    if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
-                        "<img id='avatar' src='$($data.Auth.Avatar)' class='rounded-circle'>"
-                    }
-                    else {
-                        "<span id='avatar' class='mdi mdi-account'></span>"
-                    }
-                    "Hello, $([System.Net.WebUtility]::HtmlEncode($data.Auth.Username))
-                </span>"
-                if ($data.Auth.Logout) {
-                    "<button class='btn btn-danger my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                        <span class='mdi mdi-logout mRight02'></span>
-                        Sign out
-                    </button>"
-                }
-            "</form>"
-        }
-        else {
-            "<form class='form-inline' action='$((Get-PodeWebState -Name 'system-urls').Login.Url)' method='GET' style='margin-bottom: 0'>
-                <button class='btn btn-success my-2 my-sm-0 mBottom-06 mRight05' type='submit'>
-                    <span class='mdi mdi-login mRight02'></span>
-                    Sign in
-                </button>
-            </form>"
-        }
-    })
-</div>
 </nav>
