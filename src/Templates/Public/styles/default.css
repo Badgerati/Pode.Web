@@ -681,9 +681,9 @@ a.navbar-brand img {
     margin: auto;
 }
 
-.form-signin .form-label-group {
+/* .form-signin .form-label-group {
     margin-bottom: 1rem;
-}
+} */
 
 .form-signin button {
     width: 100%;
@@ -693,7 +693,7 @@ a.navbar-brand img {
     left: inherit;
 }
 
-.form-label-group {
+/* .form-label-group {
     position: relative;
 }
 
@@ -717,9 +717,9 @@ a.navbar-brand img {
     border: 1px solid transparent;
     border-radius: .25rem;
     transition: all .1s ease-in-out;
-}
+} */
 
-.form-label-group input::-webkit-input-placeholder {
+/* .form-label-group input::-webkit-input-placeholder {
     color: transparent;
 }
 
@@ -773,7 +773,7 @@ a.navbar-brand img {
     padding-bottom: .25rem;
     font-size: 12px;
     color: #777;
-}
+} */
 
 .pode-form-checkbox .col-form-label {
     margin-top: -5px;
@@ -798,7 +798,7 @@ div.no-form {
 
 /* Fallback for Edge
 -------------------------------------------------- */
-@supports (-ms-ime-align: auto) {
+/* @supports (-ms-ime-align: auto) {
     .form-label-group {
         display: -ms-flexbox;
         display: flex;
@@ -813,7 +813,7 @@ div.no-form {
     .form-label-group input::-ms-input-placeholder {
         color: #777;
     }
-}
+} */
 
 
 /*
@@ -1494,6 +1494,8 @@ select,
 
 input:not(:disabled, :read-only):hover,
 .input-group:hover input:not(:disabled, :read-only),
+.input-group:hover textarea:not(:disabled, :read-only),
+.input-group:hover select:not(:disabled),
 textarea:not(:disabled, :read-only):hover,
 select:not(:disabled):hover {
     border-color: var(--podeweb-secondary-border-color) !important;
@@ -1532,7 +1534,11 @@ textarea:not(:disabled, :read-only):focus {
     color: var(--podeweb-hover-primary-text-color) !important;
 }
 
-.form-control::placeholder {
+div:not(.form-floating)>.form-control::placeholder {
+    color: var(--podeweb-disabled-text-color) !important;
+}
+
+div.form-floating>.form-control::placeholder {
     color: none !important;
 }
 

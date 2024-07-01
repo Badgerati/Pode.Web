@@ -1478,7 +1478,7 @@ class PodeFormElement extends PodeContentElement {
         this.dynamicLabel = data.DynamicLabel ?? false;
         this.validation = opts.validation ?? true;
         this.label = {
-            enabled: opts.label ?? true,
+            enabled: opts.label ?? !(data.HideName ?? false),
             asLegend: false
         };
         this.asFieldset = false;
@@ -1561,7 +1561,7 @@ class PodeFormElement extends PodeContentElement {
                 }
 
                 // are we in a form?
-                if (this.inForm && !this.dynamicLabel) {
+                if (this.label.enabled && this.inForm && !this.dynamicLabel) {
                     html = `<div class='col-sm-10'>${html}</div>`;
                 }
 
@@ -5251,7 +5251,7 @@ class PodeSelect extends PodeFormElement {
             ${multiple}
             ${this.events(data.Events)}>
                 ${options}
-        </select`;
+        </select>`;
     }
 
     //TODO: add "New-PodeWebSelectOption", and make "PodeSelectOption" class

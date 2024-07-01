@@ -33,7 +33,7 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 
 ## 📦 Libraries
 
-The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Material Design Icons](https://materialdesignicons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
+The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Material Design Icons](https://pictogrammers.com/library/mdi/), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
 ## 🔥 Quick Look!
 
