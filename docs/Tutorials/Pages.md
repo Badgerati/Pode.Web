@@ -100,7 +100,7 @@ Set-PodeWebLoginPage -Authentication Example -Content @(
 
 Which would look like below:
 
-![login_custom](../../images/login_custom.png)
+![login_custom](../../images/login_custom.PNG)
 
 ## Page
 

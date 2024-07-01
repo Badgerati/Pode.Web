@@ -1,9 +1,10 @@
 <nav class="navbar fixed-top flex-md-nowrap p-0 shadow navbar-expand-lg">
+    <div class="container-fluid">
     <button type='button' class='btn btn-icon-only' id='menu-toggle'>
         <span class='mdi mdi-menu-open'></span>
     </button>
 
-    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="$((Get-PodeWebState -Name 'system-urls').Home.Url)">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="$((Get-PodeWebState -Name 'system-urls').Home.Url)">
         $(
             $title = Get-PodeWebState -Name 'title'
             $logo = Get-PodeWebState -Name 'logo'
@@ -16,7 +17,7 @@
         )
     </a>
 
-    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -27,7 +28,7 @@
                 foreach ($key in $socials.Keys) {
                     $social = $socials[$key]
 
-                    "<a href='$($social.Url.ToLowerInvariant())' target='_blank' title='$($social.Tooltip)' data-toggle='tooltip'>
+                    "<a href='$($social.Url.ToLowerInvariant())' target='_blank' data-bs-title='$($social.Tooltip)' data-bs-toggle='tooltip'>
                         <span class='mdi mdi-$($key.ToLowerInvariant())'></span>
                     </a>"
                 }
@@ -35,7 +36,7 @@
         </div>
 
         <div id='pode-nav-items'>
-            <ul class="navbar-nav mr-auto">
+            <ul class="navbar-nav me-auto">
             </ul>
         </div>
     </div>
@@ -45,7 +46,7 @@
             "<form class='form-inline' action='$((Get-PodeWebState -Name 'system-urls').Logout.Url)' method='POST' style='margin-bottom: 0'>
                 <span class='navbar-text mRight1 welcome-msg'>"
                     if (![string]::IsNullOrWhiteSpace($data.Auth.Avatar)) {
-                        "<img id='avatar' src='$($data.Auth.Avatar)'>"
+                        "<img id='avatar' src='$($data.Auth.Avatar)' class='rounded-circle'>"
                     }
                     else {
                         "<span id='avatar' class='mdi mdi-account'></span>"
@@ -69,4 +70,5 @@
             </form>"
         }
     })
+</div>
 </nav>

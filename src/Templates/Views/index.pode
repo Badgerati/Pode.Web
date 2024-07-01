@@ -43,7 +43,7 @@
 
                         if (!$noPageFilter) {
                             "<div class='input-group mb-2 mLeft1 w90 mTop1-8'>
-                                <div class='input-group-prepend'><div class='input-group-text'><span class='mdi mdi-filter'></span></div></div>
+                                <div class='input-group-text'><span class='mdi mdi-filter'></span></div>
                                 <input type='text' class='form-control pode-nav-filter' id='filter_sidebar' placeholder='Filter' for='sidebar-list'>
                             </div>"
                         }
@@ -54,14 +54,14 @@
 
                     <footer class="footer powered-by mt-auto py-3">
                         <div>
-                            <span class="text-muted">
+                            <span class="text-body-secondary">
                                 <span class="mdi mdi-heart mdi-size-15" style="color:orangered"></span>
                                 Powered by <a href='https://badgerati.github.io/Pode/' style='color: deepskyblue; text-decoration: none;'>Pode</a>
                             </span>
                         </div>
                     </footer>
 
-                    <div class="sidebar-sticky pt-0">
+                    <div class="position-sticky sidebar-sticky pt-0">
                         <ul id="sidebar-list" class="nav flex-column">
                             $(
                                 $pages = Get-PodeWebState -Name 'pages'
@@ -106,7 +106,7 @@
                                         }
 
                                         "<li class='nav-item mTop1 nav-group-title'>
-                                            <a class='nav-link' data-toggle='collapse' href='#nav-$($group.ID)' aria-expanded='$($data.Page.Group -ieq $group.Name)' aria-controls='nav-$($group.ID)'>
+                                            <a class='nav-link' data-bs-toggle='collapse' href='#nav-$($group.ID)' aria-expanded='$($data.Page.Group -ieq $group.Name)' aria-controls='nav-$($group.ID)'>
                                                 <div>
                                                     <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
                                                     <span class='h6'>$($icon)$($group.DisplayName)</span>
@@ -155,12 +155,12 @@
 
                 </nav>
 
-                <div aria-live="polite" aria-atomic="true" style="min-height: 200px;" class="sticky">
-                    <div id="toast-area">
+                <div id="pode-toast-container" aria-live="polite" aria-atomic="true" class="position-sticky">
+                    <div id="toast-area" class="toast-container p-3">
                     </div>
                 </div>
 
-                <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                     $(
                         $navPadding = [string]::Empty
                         if (!$data.Page.NoNavigation) {
@@ -179,7 +179,7 @@
                                     $data.Page.Title
                                 "</h1>"
                                 if ($data.Page.ShowHelp) {
-                                    "<span class='mdi mdi-help-circle-outline pode-page-help' title='Help' data-toggle='tooltip'></span>"
+                                    "<span class='mdi mdi-help-circle-outline pode-page-help' data-bs-title='Help' data-bs-toggle='tooltip'></span>"
                                 }
                             "</div>"
                         }

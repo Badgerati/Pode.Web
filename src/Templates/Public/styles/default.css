@@ -205,6 +205,7 @@ nav[role="pagination"] input.page-size {
     font-size: 1em;
     margin-right: 1em;
     display: flex;
+    height: 2.46rem;
 }
 
 .breadcrumb {
@@ -324,7 +325,7 @@ a.disabled {
     word-break: break-word;
 }
 
-.modal-header button.close {
+.modal-header button.btn-close {
     outline: none;
     text-shadow: none;
 }
@@ -487,10 +488,9 @@ input[type=date]::-webkit-calendar-picker-indicator:hover,
 input[type=time]::-webkit-calendar-picker-indicator:hover,
 input[type=datetime-local]::-webkit-calendar-picker-indicator:hover,
 input[type=range]:hover,
-div.custom-switch label.custom-control-label:hover,
-div.custom-radio label.custom-control-label:hover,
-div.custom-checkbox label.custom-control-label:hover,
-select.custom-select:hover,
+div.form-switch label.form-check-label:hover,
+div.form-check label.form-check-label:hover,
+select.form-select:hover,
 input[type=file]:hover {
     cursor: pointer;
 }
@@ -501,13 +501,21 @@ input[type=datetime-local]:hover {
     cursor: text;
 }
 
-.input-group .input-group-prepend .input-group-text,
-.input-group .input-group-append .input-group-text,
-div.custom-file label.custom-file-label::after {
+.input-group .input-group-text,
+.input-group .input-group-text {
     transition: border-color .15s ease-in-out,
         box-shadow .15s ease-in-out,
         background-color .15s ease-in-out,
         color .15s ease-in-out;
+}
+
+.pode-custom-file input[type=file]::-webkit-file-upload-button,
+.pode-custom-file input[type=file]::file-selector-button {
+    display: none;
+}
+
+.pode-custom-file input[type=file] {
+    margin-left: -2px !important;
 }
 
 .sidebar-sticky {
@@ -559,6 +567,17 @@ table tbody td {
     word-break: break-word;
 }
 
+table tbody tr {
+    vertical-align: middle;
+}
+
+table thead {
+    height: 2.5rem;
+    vertical-align: middle;
+    font-weight: bolder;
+    font-size: medium;
+}
+
 .pode-card {
     margin-bottom: 2em;
 }
@@ -568,26 +587,25 @@ table tbody td {
     padding-bottom: 0.625em;
 }
 
-.accordion .card-header button {
-    font-size: 1.1rem;
-    font-weight: bold;
+.accordion .accordion-header h2 {
+    width: 100%;
 }
 
-.accordion .card-header button span.arrow-toggle {
+.accordion .accordion-header .accordion-button::after {
+    background-image: none !important;
+}
+
+.accordion .accordion-header .accordion-button span.arrow-toggle {
     float: right;
 }
 
-.accordion .card-header button:focus {
+.accordion .accordion-header .accordion-button:focus {
     outline: none;
     box-shadow: none;
     text-decoration: none;
 }
 
-.accordion .card-header button:hover {
-    text-decoration: none;
-}
-
-.accordion .card .card-header {
+.accordion .accordion-header {
     transition: .15s ease-in-out,
         background-color .15s ease-in-out,
         border-color .15s ease-in-out,
@@ -603,6 +621,10 @@ table tbody td {
     top: 5em;
     right: 1em;
     z-index: 9999;
+}
+
+#pode-toast-container {
+    z-index: 999999999;
 }
 
 .welcome-msg {
@@ -659,9 +681,20 @@ a.navbar-brand img {
     margin: auto;
 }
 
+.form-signin .form-label-group {
+    margin-bottom: 1rem;
+}
+
+.form-signin button {
+    width: 100%;
+}
+
+.form-signin .form-floating label {
+    left: inherit;
+}
+
 .form-label-group {
     position: relative;
-    margin-bottom: 1rem;
 }
 
 .form-label-group input,
@@ -997,14 +1030,24 @@ th .mdi::before {
     top: 4px;
 }
 
-.accordion .card-header .btn .mdi::before {
-    position: relative;
-    top: 2px;
-}
-
 .pode-card .card-header .pode-card-collapse .mdi::before {
     position: relative;
     top: 1px;
+}
+
+.card-header:has(+.card-body[style*="display: none;"]) {
+    border-bottom-width: 0 !important;
+    border-bottom-right-radius: var(--bs-card-inner-border-radius) !important;
+    border-bottom-left-radius: var(--bs-card-inner-border-radius) !important;
+}
+
+.accordion-header:has(+.accordion-collapse.collapse:not(.show)) {
+    border-bottom-width: 0 !important;
+}
+
+.card-body {
+    border-bottom-right-radius: var(--bs-card-inner-border-radius) !important;
+    border-bottom-left-radius: var(--bs-card-inner-border-radius) !important;
 }
 
 div.file-stream pre {
@@ -1286,7 +1329,7 @@ body#normal-page {
     color: var(--podeweb-primary-text-color) !important;
 }
 
-.modal-header button.close {
+.modal-header button.btn-close {
     color: var(--podeweb-secondary-text-color) !important;
 }
 
@@ -1321,16 +1364,20 @@ body#normal-page {
     color: var(--podeweb-toast-secondary-text-color);
 }
 
-.toast-header .close {
+.toast-header .btn-close,
+.modal-header .btn-close {
+    background: none;
     color: var(--podeweb-toast-secondary-text-color);
     text-shadow: none;
+    box-shadow: none !important;
 }
 
 .toast-body {
     color: var(--podeweb-toast-primary-text-color) !important;
 }
 
-.card {
+.card,
+.accordion .accordion-item {
     background-color: var(--podeweb-primary-background-color) !important;
     border-color: var(--podeweb-primary-border-color) !important;
     color: var(--podeweb-secondary-text-color) !important;
@@ -1339,33 +1386,47 @@ body#normal-page {
 .card .card-header {
     background-color: var(--podeweb-secondary-background-color) !important;
     border-bottom-color: var(--podeweb-primary-border-color) !important;
+    border-top-right-radius: var(--bs-card-inner-border-radius) !important;
+    border-top-left-radius: var(--bs-card-inner-border-radius) !important;
+    box-shadow: none;
 }
 
-.card .card-body {
+.accordion .accordion-header,
+.accordion .accordion-header .accordion-button {
+    background-color: var(--podeweb-secondary-background-color) !important;
+    border-bottom-color: var(--podeweb-primary-border-color) !important;
+    border-top-right-radius: var(--bs-accordion-inner-border-radius) !important;
+    border-top-left-radius: var(--bs-accordion-inner-border-radius) !important;
+    box-shadow: none;
+}
+
+.accordion .accordion-header {
+    border-bottom: var(--bs-accordion-border-width) solid var(--podeweb-primary-border-color) !important;
+}
+
+.card .card-body,
+.accordion .accordion-body {
     background-color: var(--podeweb-primary-background-color) !important;
 }
 
-.accordion .card .card-header button {
+.accordion .accordion-header .accordion-button {
     color: var(--podeweb-secondary-text-color);
 }
 
-.accordion .card .card-header button.collapsed {
+.accordion .accordion-header .accordion-button.collapsed {
     color: var(--podeweb-primary-border-color);
 }
 
-.accordion .card .card-header:hover {
+.accordion .accordion-header:hover,
+.accordion .accordion-header:hover>h2 .accordion-button {
     background-color: var(--podeweb-primary-background-color) !important;
     color: var(--podeweb-hover-primary-text-color) !important;
+    border-top-right-radius: var(--bs-accordion-inner-border-radius) !important;
+    border-top-left-radius: var(--bs-accordion-inner-border-radius) !important;
     cursor: pointer;
 }
 
-.accordion .card .card-header:hover,
-.accordion .card .card-header:hover>h2 button {
-    color: var(--podeweb-hover-primary-text-color) !important;
-    cursor: pointer;
-}
-
-.accordion .card .card-header button:hover {
+.accordion .accordion-header button:hover {
     color: var(--podeweb-hover-primary-text-color) !important;
 }
 
@@ -1381,7 +1442,8 @@ a:hover {
     color: var(--podeweb-hover-primary-text-color);
 }
 
-a.disabled {
+a.disabled,
+.nav-link.disabled {
     color: var(--podeweb-disabled-text-color);
 }
 
@@ -1402,7 +1464,7 @@ a.disabled {
 }
 
 .nav-tabs {
-    border-bottom: 1px solid var(--podeweb-primary-border-color) !important;
+    border-bottom: none !important;
 }
 
 .nav-tabs .nav-link.active {
@@ -1424,92 +1486,81 @@ a.disabled {
 input,
 textarea,
 select,
-.progress,
-.custom-file-label {
+.progress {
     background-color: var(--podeweb-tertiary-background-color) !important;
     border-color: var(--podeweb-primary-border-color) !important;
     color: var(--podeweb-primary-text-color) !important;
 }
 
-input:hover,
-.input-group-prepend:has(+input:hover)>.input-group-text,
-input:hover+.input-group-append .input-group-text,
-textarea:hover,
-select:hover,
-.custom-file-label:hover {
+input:not(:disabled, :read-only):hover,
+.input-group:hover input:not(:disabled, :read-only),
+textarea:not(:disabled, :read-only):hover,
+select:not(:disabled):hover {
     border-color: var(--podeweb-secondary-border-color) !important;
 }
 
-input:hover,
-.input-group-prepend:has(+input:hover)>.input-group-text,
-input:hover+.input-group-append .input-group-text,
-textarea:hover {
+input:not(:disabled, :read-only):hover,
+.input-group:hover input:not(:disabled, :read-only),
+textarea:not(:disabled, :read-only):hover {
     color: var(--podeweb-hover-primary-text-color) !important;
 }
 
-input:focus,
-textarea:focus,
-select:focus {
+input:not(:disabled, :read-only):focus,
+textarea:not(:disabled, :read-only):focus,
+select:not(:disabled, :read-only):focus {
     border-color: var(--podeweb-secondary-border-color) !important;
 }
 
-input:focus,
-textarea:focus {
+input:not(:disabled, :read-only):focus,
+textarea:not(:disabled, :read-only):focus {
     color: var(--podeweb-hover-primary-text-color) !important;
 }
 
-.input-group .input-group-prepend .input-group-text,
-.input-group .input-group-append .input-group-text,
-.custom-file-label::after {
+.input-group .input-group-text,
+.input-group .input-group-text {
     background-color: var(--podeweb-secondary-background-color) !important;
     border-color: var(--podeweb-primary-border-color) !important;
     color: var(--podeweb-primary-text-color) !important
 }
 
-.input-group:hover>.input-group-prepend .input-group-text,
-.input-group:hover>.input-group-append .input-group-text,
-.input-group:hover>input,
-.input-group:hover>textarea {
+.input-group:not(:has(input:disabled), :has(textarea:disabled), :has(input:read-only), :has(textarea:read-only)):hover>.input-group-text,
+.col-form-label:hover+div:not(:has(input:disabled), :has(textarea:disabled), :has(input:read-only), :has(textarea:read-only)) input,
+.col-form-label:hover+div:not(:has(input:disabled), :has(textarea:disabled), :has(input:read-only), :has(textarea:read-only)) .input-group,
+.col-form-label:hover+div:not(:has(input:disabled), :has(textarea:disabled), :has(input:read-only), :has(textarea:read-only)) .input-group .input-group-text,
+.col-form-label:hover+div:not(:has(select:disabled)) select {
     border-color: var(--podeweb-secondary-border-color) !important;
     color: var(--podeweb-hover-primary-text-color) !important;
 }
 
-.custom-switch .custom-control-label::before,
-.custom-control-input:not(:disabled)~.custom-control-label::before {
+.form-control::placeholder {
+    color: none !important;
+}
+
+.form-floating>.form-control:focus~label,
+.form-floating .form-control:focus~label::after,
+.form-floating>.form-control:not(:placeholder-shown)~label,
+.form-floating>.form-control:not(:placeholder-shown)~label::after {
+    color: var(--podeweb-disabled-text-color) !important;
+    background: none !important;
+}
+
+.form-switch .form-check-input,
+.form-check-input:not(:disabled) {
     background-color: var(--podeweb-tertiary-background-color) !important;
     border-color: var(--podeweb-primary-border-color) !important;
 }
 
-.custom-switch .custom-control-label:hover::before,
-.custom-control-input:not(:disabled)~.custom-control-label:hover::before {
+.form-switch .form-check-label:hover,
+.form-check-input:not(:disabled):hover {
     border-color: var(--podeweb-secondary-border-color) !important;
 }
 
-.custom-control-input:checked~.custom-control-label::before {
+.form-check-input:checked {
     background-color: var(--podeweb-secondary-border-color) !important;
     border-color: var(--podeweb-secondary-border-color) !important;
 }
 
-.custom-switch .custom-control-label::after {
-    background-color: var(--podeweb-disabled-text-color) !important;
-}
-
-.custom-switch .custom-control-input:checked~.custom-control-label::after {
-    background-color: var(--podeweb-enabled-text-color) !important;
-}
-
-.custom-file-input:hover+.custom-file-label::after {
-    background-color: var(--podeweb-secondary-border-color) !important;
-    border-color: var(--podeweb-secondary-border-color) !important;
-    color: var(--podeweb-hover-secondary-text-color) !important;
-}
-
-.custom-file-input:hover+.custom-file-label {
-    border-color: var(--podeweb-secondary-border-color) !important;
-    color: var(--podeweb-hover-primary-text-color) !important;
-}
-
-select.custom-select option:hover {
+select.form-select option:hover {
     background-color: var(--podeweb-primary-border-color);
     color: var(--podeweb-tertiary-text-color);
 }
@@ -1561,12 +1612,14 @@ pre code {
     color: var(--podeweb-secondary-text-color) !important;
 }
 
-.table.table-striped tbody tr:nth-of-type(odd) {
+.table.table-striped tbody tr:nth-of-type(odd) td {
     background-color: var(--podeweb-primary-background-color) !important;
+    color: var(--podeweb-secondary-text-color) !important;
 }
 
-.table.table-striped tbody tr:nth-of-type(even) {
+.table.table-striped tbody tr:nth-of-type(even) td {
     background-color: var(--podeweb-secondary-background-color) !important;
+    color: var(--podeweb-secondary-text-color) !important;
 }
 
 .table td,
@@ -1575,9 +1628,9 @@ pre code {
     border-color: var(--podeweb-primary-border-color) !important;
 }
 
-.table.table-striped tbody tr:hover {
+.table.table-striped tbody tr:hover td {
     background-color: var(--podeweb-tertiary-background-color) !important;
-    color: var(--podeweb-hover-primary-text-color);
+    color: var(--podeweb-hover-primary-text-color) !important;
 }
 
 li.nav-group-title {
@@ -1633,7 +1686,7 @@ hr {
     border-color: var(--podeweb-primary-border-color);
 }
 
-.footer.powered-by .text-muted {
+.footer.powered-by .text-body-secondary {
     color: var(--podeweb-secondary-text-color) !important;
 }
 
@@ -1656,12 +1709,12 @@ hr {
     color: var(--podeweb-secondary-text-color);
 }
 
-.carousel .carousel-indicators li {
+.carousel .carousel-indicators button {
     background-color: var(--podeweb-secondary-text-color);
 }
 
-.carousel .carousel-indicators li:hover,
-.carousel .carousel-indicators li.active {
+.carousel .carousel-indicators button:hover,
+.carousel .carousel-indicators button.active {
     background-color: var(--podeweb-hover-primary-text-color);
 }
 
@@ -1751,4 +1804,12 @@ iframe {
 
 .pode-spinner.pode-inbuilt-secondary-theme {
     color: var(--podeweb-inbuilt-secondary-theme-color);
+}
+
+span.pode-page-help:hover {
+    color: var(--podeweb-hover-primary-text-color);
+}
+
+.text-body-secondary {
+    color: var(--podeweb-primary-border-color) !important;
 }

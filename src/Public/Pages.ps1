@@ -881,6 +881,13 @@ function ConvertTo-PodeWebPage {
         }
 
         $tabs = New-PodeWebTabs -Tabs @(foreach ($set in $sets) {
+                # build name
+                $name = $set.Name
+                if ([string]::IsNullOrWhiteSpace($name) -or ($set.Name -iin @('__AllParameterSets'))) {
+                    $name = 'Default'
+                }
+
+                # build input controls
                 $elements = @(foreach ($param in $set.Parameters) {
                         if ($sysParams -icontains $param.Name) {
                             continue
@@ -894,12 +901,12 @@ function ConvertTo-PodeWebPage {
                         }
 
                         if ($type -iin @('boolean', 'switchparameter')) {
-                            New-PodeWebCheckbox -Name $param.Name -AsSwitch
+                            New-PodeWebCheckbox -Name "$($name)_$($param.Name)" -DisplayName $param.Name -AsSwitch
                         }
                         else {
                             switch ($type) {
                                 'pscredential' {
-                                    New-PodeWebCredential -Name $param.Name
+                                    New-PodeWebCredential -Name "$($name)_$($param.Name)" -DisplayName $param.Name
                                 }
 
                                 default {
@@ -907,14 +914,14 @@ function ConvertTo-PodeWebPage {
 
                                     if ($param.Attributes.TypeId.Name -icontains 'ValidateSetAttribute') {
                                         $values = ($param.Attributes | Where-Object { $_.TypeId.Name -ieq 'ValidateSetAttribute' }).ValidValues
-                                        New-PodeWebSelect -Name  $param.Name -Options $values -SelectedValue $default -Multiple:$multiple
+                                        New-PodeWebSelect -Name "$($name)_$($param.Name)" -DisplayName $param.Name -Options $values -SelectedValue $default -Multiple:$multiple
                                     }
                                     elseif ($param.ParameterType.BaseType.Name -ieq 'enum') {
                                         $values = [enum]::GetValues($param.ParameterType)
-                                        New-PodeWebSelect -Name  $param.Name -Options $values -SelectedValue $default -Multiple:$multiple
+                                        New-PodeWebSelect -Name "$($name)_$($param.Name)" -DisplayName $param.Name -Options $values -SelectedValue $default -Multiple:$multiple
                                     }
                                     else {
-                                        New-PodeWebTextbox -Name $param.Name -Value $default
+                                        New-PodeWebTextbox -Name "$($name)_$($param.Name)" -DisplayName $param.Name -Value $default
                                     }
                                 }
                             }
@@ -922,24 +929,25 @@ function ConvertTo-PodeWebPage {
                     })
 
                 $elements += (New-PodeWebHidden -Name '_Function_Name_' -Value $cmd)
+                $elements += (New-PodeWebHidden -Name '_Parameter_Set_Name_' -Value $name)
 
-                $name = $set.Name
-                if ([string]::IsNullOrWhiteSpace($name) -or ($set.Name -iin @('__AllParameterSets'))) {
-                    $name = 'Default'
-                }
-
+                # build form
                 $formId = "form_param_$($cmd)_$($name)"
-
-                $form = New-PodeWebForm -Name Parameters -Id $formId -Content $elements -AsCard -NoAuthentication:$NoAuthentication -ScriptBlock {
+                $form = New-PodeWebForm -Name "$($name)_Parameters_Form" -Id $formId -Content $elements -NoAuthentication:$NoAuthentication -ScriptBlock {
                     $cmd = $WebEvent.Data['_Function_Name_']
                     $WebEvent.Data.Remove('_Function_Name_')
 
+                    $setName = $WebEvent.Data['_Parameter_Set_Name_']
+                    $WebEvent.Data.Remove('_Parameter_Set_Name_')
+
                     $_args = @{}
                     foreach ($key in $WebEvent.Data.Keys) {
-                        if ($key -imatch '(?<name>.+)_(Username|Password)$') {
+                        $argKey = $key -ireplace "$($setName)_", ''
+
+                        if ($argKey -imatch '(?<name>.+)_(Username|Password)$') {
                             $name = $Matches['name']
-                            $uKey = "$($name)_Username"
-                            $pKey = "$($name)_Password"
+                            $uKey = "$($argKey)_$($name)_Username"
+                            $pKey = "$($argKey)_$($name)_Password"
 
                             if (![string]::IsNullOrWhiteSpace($WebEvent.Data[$uKey]) -and ![string]::IsNullOrWhiteSpace($WebEvent.Data[$pKey])) {
                                 $creds = (New-Object System.Management.Automation.PSCredential -ArgumentList $WebEvent.Data[$uKey], (ConvertTo-SecureString -AsPlainText $WebEvent.Data[$pKey] -Force))
@@ -948,14 +956,14 @@ function ConvertTo-PodeWebPage {
                         }
                         else {
                             if ($WebEvent.Data[$key] -iin @('true', 'false')) {
-                                $_args[$key] = ($WebEvent.Data[$key] -ieq 'true')
+                                $_args[$argKey] = ($WebEvent.Data[$key] -ieq 'true')
                             }
                             else {
                                 if ($WebEvent.Data[$key].Contains(',')) {
-                                    $_args[$key] = ($WebEvent.Data[$key] -isplit ',' | ForEach-Object { $_.Trim() })
+                                    $_args[$argKey] = ($WebEvent.Data[$key] -isplit ',' | ForEach-Object { $_.Trim() })
                                 }
                                 else {
-                                    $_args[$key] = $WebEvent.Data[$key]
+                                    $_args[$argKey] = $WebEvent.Data[$key]
                                 }
                             }
                         }
@@ -973,7 +981,8 @@ function ConvertTo-PodeWebPage {
                     }
                 }
 
-                New-PodeWebTab -Name $name -Content $form
+                $card = New-PodeWebCard -Name "$($name)_Parameters" -DisplayName 'Parameters' -Content $form
+                New-PodeWebTab -Name $name -Content $card
             })
 
         $group = [string]::Empty
