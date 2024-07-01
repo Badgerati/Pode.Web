@@ -164,8 +164,9 @@ task MoveLibs {
 
     # popper.js
     New-Item -Path "$($libs_path)/popperjs" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/popper.js/dist/umd/popper.min.js" -Destination "$($libs_path)/popperjs/" -Force
-    Copy-Item -Path "$($src_path)/popper.js/dist/umd/popper.min.js.map" -Destination "$($libs_path)/popperjs/" -Force
+    Copy-Item -Path "$($src_path)/@popperjs/core/dist/umd/popper.min.js" -Destination "$($libs_path)/popperjs/" -Force
+    Copy-Item -Path "$($src_path)/@popperjs/core/dist/umd/popper.min.js.map" -Destination "$($libs_path)/popperjs/" -Force
+    Copy-Item -Path "$($src_path)/@popperjs/core/LICENSE.md" -Destination "$($libs_path)/popperjs/" -Force
 
     # bootstrap
     New-Item -Path "$($libs_path)/bootstrap" -ItemType Directory -Force | Out-Null

@@ -3,7 +3,7 @@ Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer -Threads 2 {
     # add a simple endpoint
-    Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
+    Add-PodeEndpoint -Address localhost -Port 8091 -Protocol Http
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
@@ -15,7 +15,7 @@ Start-PodeServer -Threads 2 {
             New-PodeWebTextbox -Name 'TestOutput' -Multiline -Preformat -AsJson |
             Out-PodeWebElement
     } -Content @(
-        New-PodeWebTextbox -Name 'Name' -AppendIcon Account -AutoComplete {
+        New-PodeWebTextbox -Name 'Name' -AppendIcon Account -DynamicLabel -HelpText 'Your name' -AutoComplete {
             return @('billy', 'bobby', 'alice', 'john', 'sarah', 'matt', 'zack', 'henry')
         } |
             Register-PodeWebEvent -Type KeyDown -ScriptBlock {

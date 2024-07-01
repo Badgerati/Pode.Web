@@ -12,7 +12,7 @@ const SSE_CLIENT_NAME = 'Pode.Web.Actions';
 var SSE_CLIENT_ID = null;
 
 var tooltips = function() {
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
 };
 tooltips();
 
@@ -275,6 +275,9 @@ function setPodeTheme(theme, isInbuilt, base, customUrl) {
     // temp vars
     var url = '';
     var appPath = getAppPath();
+    var linkOnloadFunc = () => {
+        PodeElementFactory.setTheme(theme);
+    };
 
     // if inbuilt or we have a base, then add back the pode-inbuilt-theme css
     if (isInbuilt || base) {
@@ -292,9 +295,7 @@ function setPodeTheme(theme, isInbuilt, base, customUrl) {
 
         // optional bind to reset theme for some elements onload
         if (!customUrl) {
-            link.onload = () => {
-                PodeElementFactory.setTheme(theme);
-            };
+            link.onload = linkOnloadFunc;
         }
 
         // load the link
@@ -316,9 +317,7 @@ function setPodeTheme(theme, isInbuilt, base, customUrl) {
         link.id = 'pode-custom-theme';
 
         // optional bind to reset theme for some elements onload
-        link.onload = () => {
-            PodeElementFactory.setTheme(theme);
-        };
+        link.onload = linkOnloadFunc;
 
         // load the link
         if (base) {
@@ -960,7 +959,7 @@ function getQueryStringValue(name) {
 }
 
 function buildTableHeader(column, direction, hidden) {
-    var value = `<th sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
+    var value = `<th scope='col' sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
 
     if (column.Width) {
         value += `width:${column.Width};`;
@@ -1175,6 +1174,15 @@ function hexToRgb(hex) {
 
 function getCssVariable(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name);
+}
+
+function getCssColorScheme(opposite) {
+    var scheme = getCssVariable('--podeweb-color-scheme');
+    if (!opposite) {
+        return scheme;
+    }
+
+    return (scheme == 'light' ? 'dark' : 'light');
 }
 
 function getTimeString() {

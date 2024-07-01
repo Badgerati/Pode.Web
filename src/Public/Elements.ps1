@@ -224,7 +224,10 @@ function New-PodeWebFileUpload {
         $Accept = '*/*',
 
         [switch]
-        $Required
+        $Required,
+
+        [switch]
+        $Multiple
     )
 
     $Id = Get-PodeWebElementId -Tag File -Id $Id -Name $Name
@@ -239,6 +242,7 @@ function New-PodeWebFileUpload {
         Accept        = ($Accept -join ',')
         NoEvents      = $true
         Required      = $Required.IsPresent
+        Multiple      = $Multiple.IsPresent
     }
 }
 

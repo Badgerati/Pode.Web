@@ -25,7 +25,7 @@
                 <a href='$(if ($data.LogoUrl) { $data.LogoUrl } else { (Get-PodeWebState -Name 'system-urls').Home.Url })'>
                     <img class='mb-4 rounded' src='$($data.Logo)' alt='logo' height='72'>
                 </a>
-                <h1 class='h3 mb-3 font-weight-normal'>$($data.SignInMessage)</h1>
+                <h1 class='h3 mb-3 fw-normal'>$($data.SignInMessage)</h1>
             </div>
 
             <form action="$((Get-PodeWebState -Name 'system-urls').Login.Url)" method='POST'>
@@ -39,20 +39,24 @@
                         </div>"
                     }
 
-                    "<button class='btn btn-lg pode-inbuilt-primary-theme btn-block' type='submit'>
-                        <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
-                        Sign in
-                    </button>"
+                    "<div class='text-center'>
+                        <button class='btn btn-lg pode-inbuilt-primary-theme btn-block' type='submit'>
+                            <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                            Sign in
+                        </button>
+                    </div>"
                 }
                 else {
-                    "<button class='btn btn-lg pode-inbuilt-primary-theme btn-block' type='submit'>
-                        <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
-                        Sign in using OAuth2 ($($data.Auth.Name))
-                    </button>"
+                    "<div class='text-center'>
+                        <button class='btn btn-lg pode-inbuilt-primary-theme btn-block' type='submit'>
+                            <span class='spinner-border spinner-border-sm' role='status' aria-hidden='true' style='display: none'></span>
+                            Sign in using OAuth2 ($($data.Auth.Name))
+                        </button>
+                    </div>"
                 })
 
                 $(if (![string]::IsNullOrWhiteSpace($data.Copyright)) {
-                    "<p class='mt-5 mb-3 text-muted'>&copy; $($data.Copyright)</p>"
+                    "<p class='mt-5 mb-3 text-body-secondary'>&copy; $($data.Copyright)</p>"
                 })
             </form>
         </div>
