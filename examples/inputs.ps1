@@ -25,16 +25,17 @@ Start-PodeServer -Threads 2 {
                 Show-PodeWebToast -Message "The element has a keyup: $($WebEvent.Data['Name'])"
             }
 
-        New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
+        New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon 'Lock' -Placeholder 'Enter your password' -HideName
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
+        New-PodeWebTextbox -Name 'Comments' -Multiline -PrependIcon 'comment-quote'
         New-PodeWebDateTime -Name 'DateTime' -DateValue '2023-12-23' -TimeValue '13:37'
         New-PodeWebCredential -Name 'Credentials'
         New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent' -ReadOnly
         New-PodeWebCheckbox -Name 'Switches' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -Inline
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
-        New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations')
+        New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations') -PrependIcon 'account' -AppendIcon 'account'
         New-PodeWebSelect -Name 'Role2' -Options @('User', 'Admin', 'Operations') -Multiple
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
 

@@ -107,7 +107,7 @@ Which would look like below:
 By adding a page to your site Pode.Web will add a link to it on your site's sidebar navigation. You can also group pages so you can collapse groups of them. To add a page to your site you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), and you can give your page a `-Name` and an `-Icon` to display on the sidebar. Pages can either be [static](#static) or [dynamic](#dynamic).
 
 !!! note
-    The `-Icon` is the name of a [Material Design Icon](https://materialdesignicons.com), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplying the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
+    The `-Icon` is the name of a [Material Design Icon](https://pictogrammers.com/library/mdi/), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplying the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
 
 For example, to add a simple Charts page to your site, to show a Windows counter:
 
