@@ -78,6 +78,10 @@ function Get-PodeBuildVersion {
     return (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').ModuleVersion
 }
 
+function Get-PodeBuildPreRelease {
+    return (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').PrivateData.PSData.Prerelease
+}
+
 function Get-PodeBuildCurrentBranch {
     $branch = git branch --show-current
     if ([string]::IsNullOrWhiteSpace($branch)) {
@@ -341,19 +345,25 @@ task DockerPack {
     }
 
     $version = Get-PodeBuildVersion
+    $latest = 'latest'
+
+    if (Test-PodeBuildDevBranch) {
+        $version += "-$(Get-PodeBuildPreRelease)"
+        $latest = 'preview'
+    }
 
     docker build -t badgerati/pode.web:$version -f ./Dockerfile .
-    docker build -t badgerati/pode.web:latest -f ./Dockerfile .
+    docker build -t badgerati/pode.web:$latest -f ./Dockerfile .
     docker build -t badgerati/pode.web:$version-alpine -f ./alpine.dockerfile .
-    docker build -t badgerati/pode.web:latest-alpine -f ./alpine.dockerfile .
+    docker build -t badgerati/pode.web:$latest-alpine -f ./alpine.dockerfile .
     docker build -t badgerati/pode.web:$version-arm32 -f ./arm32.dockerfile .
-    docker build -t badgerati/pode.web:latest-arm32 -f ./arm32.dockerfile .
+    docker build -t badgerati/pode.web:$latest-arm32 -f ./arm32.dockerfile .
 
-    docker tag badgerati/pode.web:latest docker.pkg.github.com/badgerati/pode.web/pode.web:latest
+    docker tag badgerati/pode.web:$latest docker.pkg.github.com/badgerati/pode.web/pode.web:$latest
     docker tag badgerati/pode.web:$version docker.pkg.github.com/badgerati/pode.web/pode.web:$version
-    docker tag badgerati/pode.web:latest-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:latest-alpine
+    docker tag badgerati/pode.web:$latest-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$latest-alpine
     docker tag badgerati/pode.web:$version-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$version-alpine
-    docker tag badgerati/pode.web:latest-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:latest-arm32
+    docker tag badgerati/pode.web:$latest-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$latest-arm32
     docker tag badgerati/pode.web:$version-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$version-arm32
 }
 
