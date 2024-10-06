@@ -25,7 +25,7 @@ Start-PodeServer -Threads 2 {
                 Show-PodeWebToast -Message "The element has a keyup: $($WebEvent.Data['Name'])"
             }
 
-        New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon 'Lock' -Placeholder 'Enter your password' -HideName
+        New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon 'Lock' -Placeholder 'Enter your password' -HideName -Required
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
         New-PodeWebTextbox -Name 'Comments' -Multiline -PrependIcon 'comment-quote'
@@ -63,7 +63,20 @@ Start-PodeServer -Threads 2 {
         New-PodeWebProgress -Name 'Loading' -Value 23 -Colour Green -Striped -Animated
     )
 
-    $container = New-PodeWebContainer -Content @(
+    $modal = New-PodeWebModal -Name 'Test Modal' -AsForm -Content @(
+        New-PodeWebTextbox -Name 'Username' -HideName -PrependText 'Username' -Required
+    ) -ScriptBlock {
+        Show-PodeWebToast -Message "The modal was submitted with: $($WebEvent.Data['Username'])"
+        Hide-PodeWebModal
+    }
+
+    $container1 = New-PodeWebContainer -Content @(
+        New-PodeWebButton -Name 'Show Input Modal' -ScriptBlock {
+            Show-PodeWebModal -Name 'Test Modal'
+        }
+    )
+
+    $container2 = New-PodeWebContainer -Content @(
         New-PodeWebButton -Name 'New Options' -ScriptBlock {
             $options = @(foreach ($i in (1..10)) {
                     Get-Random -Minimum 1 -Maximum 10
@@ -87,5 +100,5 @@ Start-PodeServer -Threads 2 {
         }
     )
 
-    Add-PodeWebPage -Name 'Home' -Path '/' -Content $form, $container -Title 'Testing Inputs' -HomePage
+    Add-PodeWebPage -Name 'Home' -Path '/' -Content $form, $container1, $modal, $container2 -Title 'Testing Inputs' -HomePage
 }
