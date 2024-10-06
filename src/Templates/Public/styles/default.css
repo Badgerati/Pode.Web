@@ -501,7 +501,6 @@ input[type=datetime-local]:hover {
     cursor: text;
 }
 
-.input-group .input-group-text,
 .input-group .input-group-text {
     transition: border-color .15s ease-in-out,
         box-shadow .15s ease-in-out,
@@ -641,16 +640,6 @@ table thead {
     border-width: 3px;
 }
 
-.navbar-brand {
-    font-size: 1.5em !important;
-    text-overflow: ellipsis;
-    overflow-x: hidden;
-}
-
-a.navbar-brand img {
-    border-radius: 0.2em;
-}
-
 .input-group {
     flex-wrap: nowrap !important;
     display: inline-flex !important;
@@ -782,7 +771,9 @@ div.no-form {
 .navbar-brand {
     padding-top: .75rem;
     padding-bottom: .75rem;
-    font-size: 1rem;
+    font-size: 1.5em;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
     background-color: rgba(0, 0, 0, .25);
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
 }
@@ -790,6 +781,10 @@ div.no-form {
 .navbar .navbar-toggler {
     top: .25rem;
     right: 1rem;
+}
+
+a.navbar-brand img {
+    border-radius: 0.2em;
 }
 
 .navbar .form-control {
@@ -1413,11 +1408,14 @@ textarea:not(:disabled, :read-only):focus {
     color: var(--podeweb-hover-primary-text-color) !important;
 }
 
-.input-group .input-group-text,
 .input-group .input-group-text {
     background-color: var(--podeweb-secondary-background-color) !important;
     border-color: var(--podeweb-primary-border-color) !important;
     color: var(--podeweb-primary-text-color) !important
+}
+
+.input-group .input-group-text:first-child {
+    margin-right: -1px;
 }
 
 .input-group:not(:has(input:disabled), :has(textarea:disabled), :has(input:read-only), :has(textarea:read-only)):hover>.input-group-text,
@@ -1634,7 +1632,8 @@ hr {
 }
 
 .footer.powered-by a {
-    color: var(--podeweb-link-text-color) !important;
+    color: var(--podeweb-link-text-color);
+    text-decoration: none;
 }
 
 input[type=date]::-webkit-calendar-picker-indicator,

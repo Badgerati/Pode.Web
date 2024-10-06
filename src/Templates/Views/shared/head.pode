@@ -30,7 +30,7 @@
         # custom stylesheets
         $styles = @(Get-PodeWebState -Name 'custom-css')
         foreach ($style in $styles) {
-            "<link rel='stylesheet' href='$($style)'>"
+            "<link class='pode-custom-css' rel='stylesheet' href='$($style)'>"
         }
     )
 </head>
