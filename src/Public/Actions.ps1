@@ -1672,7 +1672,12 @@ function Add-PodeWebStyle {
 
         [Parameter()]
         [string]
-        $Value
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Element', 'Container')]
+        [string]
+        $Scope = 'Element'
     )
 
     # update element
@@ -1685,14 +1690,18 @@ function Add-PodeWebStyle {
             $Element.Css.Styles = @{}
         }
 
-        $Element.Css.Styles[$key] = $Value
+        $Element.Css.Styles[$key] = @{
+            Value = $Value
+            Scope = $Scope
+        }
+
         return $Element
     }
 
     # send frontend action
     else {
         Send-PodeWebAction -Value @{
-            Operation     = 'Set'
+            Operation     = 'Add'
             ObjectType    = 'Element'
             SubObjectType = 'Style'
             ID            = $Id
@@ -1700,6 +1709,7 @@ function Add-PodeWebStyle {
             Name          = $Name
             Key           = $Key
             Value         = $Value
+            Scope         = $Scope
         }
     }
 }
@@ -1726,7 +1736,12 @@ function Remove-PodeWebStyle {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $Key
+        $Key,
+
+        [Parameter()]
+        [ValidateSet('Element', 'Container')]
+        [string]
+        $Scope = 'Element'
     )
 
     # update element
@@ -1748,6 +1763,7 @@ function Remove-PodeWebStyle {
             Type          = $ObjectType
             Name          = $Name
             Key           = $Key
+            Scope         = $Scope
         }
     }
 }
@@ -1774,7 +1790,12 @@ function Add-PodeWebClass {
 
         [Parameter(Mandatory = $true)]
         [string[]]
-        $Value
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Element', 'Container')]
+        [string]
+        $Scope = 'Element'
     )
 
     # update element
@@ -1784,10 +1805,15 @@ function Add-PodeWebClass {
         }
 
         if ($null -eq $Element.Css.Classes) {
-            $Element.Css.Classes = @()
+            $Element.Css.Classes = @{}
         }
 
-        $Element.Css.Classes = ($Element.Css.Classes + $Value) | Sort-Object -Unique
+        foreach ($v in $Value) {
+            $Element.Css.Classes[$v] = @{
+                Scope = $Scope
+            }
+        }
+
         return $Element
     }
 
@@ -1801,6 +1827,7 @@ function Add-PodeWebClass {
             Type          = $ObjectType
             Name          = $Name
             Value         = $Value
+            Scope         = $Scope
         }
     }
 }
@@ -1827,13 +1854,20 @@ function Remove-PodeWebClass {
 
         [Parameter(Mandatory = $true)]
         [string[]]
-        $Value
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Element', 'Container')]
+        [string]
+        $Scope = 'Element'
     )
 
     # update element
     if ($null -ne $Element) {
-        if ($null -ne $Element.Css.Classes) {
-            $Element.Css.Classes = $Element.Css.Classes | Where-Object { $_ -inotin $Value }
+        if (($null -ne $Element.Css) -and ($null -ne $Element.Css.Classes)) {
+            foreach ($v in $Value) {
+                $null = $Element.Css.Classes.Remove($v)
+            }
         }
 
         return $Element
@@ -1849,6 +1883,7 @@ function Remove-PodeWebClass {
             Type          = $ObjectType
             Name          = $Name
             Value         = $Value
+            Scope         = $Scope
         }
     }
 }
@@ -1879,14 +1914,19 @@ function Rename-PodeWebClass {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $To
+        $To,
+
+        [Parameter()]
+        [ValidateSet('Element', 'Container')]
+        [string]
+        $Scope = 'Element'
     )
 
     # update element
     if ($null -ne $Element) {
         return $Element |
-            Remove-PodeWebClass -Value $From |
-            Add-PodeWebClass -Value $To
+            Remove-PodeWebClass -Value $From -Scope $Scope |
+            Add-PodeWebClass -Value $To -Scope $Scope
     }
 
     # send frontend action
@@ -1900,6 +1940,7 @@ function Rename-PodeWebClass {
             Name          = $Name
             From          = $From
             To            = $To
+            Scope         = $Scope
         }
     }
 }
@@ -1931,26 +1972,31 @@ function Switch-PodeWebClass {
         [Parameter()]
         [ValidateSet('Toggle', 'Add', 'Remove')]
         [string]
-        $State = 'Toggle'
+        $State = 'Toggle',
+
+        [Parameter()]
+        [ValidateSet('Element', 'Container')]
+        [string]
+        $Scope = 'Element'
     )
 
     # update element
     if ($null -ne $Element) {
         switch ($State.ToLowerInvariant()) {
             'add' {
-                $Element = $Element | Add-PodeWebClass -Value $Value
+                $Element = $Element | Add-PodeWebClass -Value $Value -Scope $Scope
             }
 
             'remove' {
-                $Element = $Element | Remove-PodeWebClass -Value $Value
+                $Element = $Element | Remove-PodeWebClass -Value $Value -Scope $Scope
             }
 
             'toggle' {
-                if ($Element.Css.Classes -icontains $Value) {
-                    $Element = $Element | Remove-PodeWebClass -Value $Value
+                if (($null -ne $Element.Css.Classes) -and $Element.Css.Classes.ContainsKey($Value)) {
+                    $Element = $Element | Remove-PodeWebClass -Value $Value -Scope $Scope
                 }
                 else {
-                    $Element = $Element | Add-PodeWebClass -Value $Value
+                    $Element = $Element | Add-PodeWebClass -Value $Value -Scope $Scope
                 }
             }
         }
@@ -1969,6 +2015,7 @@ function Switch-PodeWebClass {
             Name          = $Name
             Value         = $Value
             State         = $State
+            Scope         = $Scope
         }
     }
 }
@@ -1999,7 +2046,12 @@ function Add-PodeWebAttribute {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $Value
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Element', 'Container')]
+        [string]
+        $Scope = 'Element'
     )
 
     # update element
@@ -2008,7 +2060,11 @@ function Add-PodeWebAttribute {
             $Element.Attributes = @{}
         }
 
-        $Element.Attributes[$Key] = $Value
+        $Element.Attributes[$Key] = @{
+            Value = $Value
+            Scope = $Scope
+        }
+
         return $Element
     }
 
@@ -2023,6 +2079,7 @@ function Add-PodeWebAttribute {
             Name          = $Name
             Key           = $Key
             Value         = $Value
+            Scope         = $Scope
         }
     }
 }
@@ -2049,7 +2106,12 @@ function Remove-PodeWebAttribute {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $Key
+        $Key,
+
+        [Parameter()]
+        [ValidateSet('Element', 'Container')]
+        [string]
+        $Scope = 'Element'
     )
 
     # update element
@@ -2071,6 +2133,7 @@ function Remove-PodeWebAttribute {
             Type          = $ObjectType
             Name          = $Name
             Key           = $Key
+            Scope         = $Scope
         }
     }
 }
