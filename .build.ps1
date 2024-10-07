@@ -305,9 +305,6 @@ task MoveLibs {
         Copy-Item -Path "$($src_path)/monaco-editor/min/vs/language/$($_)/*.*" -Destination "$($libs_path)/vs/language/$($_)/" -Force
     }
 
-    New-Item -Path "$($libs_path)/vs/base/common/worker" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.js" -Destination "$($libs_path)/vs/base/common/worker/" -Force
-
     $vs_maps_path = "$($dest_path)/min-maps/vs"
     if (Test-Path $vs_maps_path) {
         Remove-Item -Path $vs_maps_path -Recurse -Force | Out-Null
@@ -315,12 +312,10 @@ task MoveLibs {
 
     New-Item -Path "$($vs_maps_path)/editor" -ItemType Directory -Force | Out-Null
     New-Item -Path "$($vs_maps_path)/base/worker" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($vs_maps_path)/base/common/worker" -ItemType Directory -Force | Out-Null
 
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/loader.js.map" -Destination $vs_maps_path -Force
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/editor/*.*" -Destination "$($vs_maps_path)/editor/" -Force
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/base/worker/*.*" -Destination "$($vs_maps_path)/base/worker/" -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.js*" -Destination "$($vs_maps_path)/base/common/worker/" -Force
 }
 
 
