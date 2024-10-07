@@ -14,7 +14,7 @@
     "chart.js": "4.4.4",
     "@kurkle/color": "0.3.2",
     "@highlightjs/cdn-assets": "11.10.0",
-    "monaco-editor": "0.50.0",
+    "monaco-editor": "0.52.0",
     "moment": "2.30.1"
   }
 }
