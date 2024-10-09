@@ -1108,8 +1108,9 @@ function Set-PodeWebSecurity {
 
     Add-PodeSecurityContentSecurityPolicy `
         -Style 'self', 'unsafe-inline' `
-        -Scripts 'self', 'unsafe-inline' `
+        -Scripts 'self', 'unsafe-inline', 'blob:' `
         -Image 'self', 'data'
+    #TODO: move "blob:" to -Worker in Pode v2.12.0
 }
 
 function Test-PodeWebParameter {

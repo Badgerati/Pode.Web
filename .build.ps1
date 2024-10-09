@@ -78,6 +78,10 @@ function Get-PodeBuildVersion {
     return (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').ModuleVersion
 }
 
+function Get-PodeBuildPreRelease {
+    return (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').PrivateData.PSData.Prerelease
+}
+
 function Get-PodeBuildCurrentBranch {
     $branch = git branch --show-current
     if ([string]::IsNullOrWhiteSpace($branch)) {
@@ -301,9 +305,6 @@ task MoveLibs {
         Copy-Item -Path "$($src_path)/monaco-editor/min/vs/language/$($_)/*.*" -Destination "$($libs_path)/vs/language/$($_)/" -Force
     }
 
-    New-Item -Path "$($libs_path)/vs/base/common/worker" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.js" -Destination "$($libs_path)/vs/base/common/worker/" -Force
-
     $vs_maps_path = "$($dest_path)/min-maps/vs"
     if (Test-Path $vs_maps_path) {
         Remove-Item -Path $vs_maps_path -Recurse -Force | Out-Null
@@ -311,12 +312,10 @@ task MoveLibs {
 
     New-Item -Path "$($vs_maps_path)/editor" -ItemType Directory -Force | Out-Null
     New-Item -Path "$($vs_maps_path)/base/worker" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($vs_maps_path)/base/common/worker" -ItemType Directory -Force | Out-Null
 
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/loader.js.map" -Destination $vs_maps_path -Force
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/editor/*.*" -Destination "$($vs_maps_path)/editor/" -Force
     Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/base/worker/*.*" -Destination "$($vs_maps_path)/base/worker/" -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.js*" -Destination "$($vs_maps_path)/base/common/worker/" -Force
 }
 
 
@@ -341,19 +340,25 @@ task DockerPack {
     }
 
     $version = Get-PodeBuildVersion
+    $latest = 'latest'
+
+    if (Test-PodeBuildDevBranch) {
+        $version += "-$(Get-PodeBuildPreRelease)"
+        $latest = 'preview'
+    }
 
     docker build -t badgerati/pode.web:$version -f ./Dockerfile .
-    docker build -t badgerati/pode.web:latest -f ./Dockerfile .
+    docker build -t badgerati/pode.web:$latest -f ./Dockerfile .
     docker build -t badgerati/pode.web:$version-alpine -f ./alpine.dockerfile .
-    docker build -t badgerati/pode.web:latest-alpine -f ./alpine.dockerfile .
+    docker build -t badgerati/pode.web:$latest-alpine -f ./alpine.dockerfile .
     docker build -t badgerati/pode.web:$version-arm32 -f ./arm32.dockerfile .
-    docker build -t badgerati/pode.web:latest-arm32 -f ./arm32.dockerfile .
+    docker build -t badgerati/pode.web:$latest-arm32 -f ./arm32.dockerfile .
 
-    docker tag badgerati/pode.web:latest docker.pkg.github.com/badgerati/pode.web/pode.web:latest
+    docker tag badgerati/pode.web:$latest docker.pkg.github.com/badgerati/pode.web/pode.web:$latest
     docker tag badgerati/pode.web:$version docker.pkg.github.com/badgerati/pode.web/pode.web:$version
-    docker tag badgerati/pode.web:latest-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:latest-alpine
+    docker tag badgerati/pode.web:$latest-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$latest-alpine
     docker tag badgerati/pode.web:$version-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$version-alpine
-    docker tag badgerati/pode.web:latest-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:latest-arm32
+    docker tag badgerati/pode.web:$latest-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$latest-arm32
     docker tag badgerati/pode.web:$version-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$version-arm32
 }
 

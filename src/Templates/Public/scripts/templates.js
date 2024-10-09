@@ -245,7 +245,7 @@ class PodeElement {
         data.Css.Margin = data.Css.Margin ?? {};
         data.Css.Padding = data.Css.Padding ?? {};
         this.css = {
-            classes: data.Css.Classes ?? [],
+            classes: data.Css.Classes ?? {},
             styles: data.Css.Styles ?? {},
             display: data.Css.Display ?? '',
             margin: {
@@ -333,14 +333,14 @@ class PodeElement {
         // add padding
         if (padRight || padTop) {
             data.Css = data.Css ?? {};
-            data.Css.Classes = data.Css.Classes ?? [];
+            data.Css.Classes = data.Css.Classes ?? {};
 
             if (padRight) {
-                data.Css.Classes.push('mRight02');
+                data.Css.Classes['mRight02'] = { scope: null };
             }
 
             if (padTop) {
-                data.Css.Classes.push('mTop-02');
+                data.Css.Classes['mTop-02'] = { scope: null };
             }
         }
 
@@ -373,11 +373,11 @@ class PodeElement {
             case 'style':
                 switch (action) {
                     case 'add':
-                        this.addStyle(data.Key, data.Value, sender, { ...data, ...opts });
+                        this.addStyle(data.Key, data.Value, data.Scope, sender, { ...data, ...opts });
                         break;
 
                     case 'remove':
-                        this.removeStyle(data.Key, sender, { ...data, ...opts });
+                        this.removeStyle(data.Key, data.Scope, sender, { ...data, ...opts });
                         break;
                 }
                 break;
@@ -385,19 +385,23 @@ class PodeElement {
             case 'class':
                 switch (action) {
                     case 'add':
-                        this.addClass(data.Value, sender, { ...data, ...opts });
+                        convertToArray(data.Value).forEach((v) => {
+                            this.addClass(v, data.Scope, sender, { ...data, ...opts });
+                        });
                         break;
 
                     case 'remove':
-                        this.removeClass(data.Value, sender, { ...data, ...opts });
+                        convertToArray(data.Value).forEach((v) => {
+                            this.removeClass(v, data.Scope, sender, { ...data, ...opts });
+                        });
                         break;
 
                     case 'rename':
-                        this.replaceClass(data.From, data.To, sender, { ...data, ...opts });
+                        this.replaceClass(data.From, data.To, data.Scope, sender, { ...data, ...opts });
                         break;
 
                     case 'switch':
-                        this.toggleClass(data.Value, data.State, sender, { ...data, ...opts })
+                        this.toggleClass(data.Value, data.State, data.Scope, sender, { ...data, ...opts })
                         break;
                 }
                 break;
@@ -453,11 +457,11 @@ class PodeElement {
             case 'attribute':
                 switch (action) {
                     case 'add':
-                        this.addAttribute(data.Key, data.Value, sender, { ...data, ...opts })
+                        this.addAttribute(data.Key, data.Value, data.Scope, sender, { ...data, ...opts })
                         break;
 
                     case 'remove':
-                        this.removeAttribute(data.Key, sender, { ...data, ...opts });
+                        this.removeAttribute(data.Key, data.Scope, sender, { ...data, ...opts });
                         break;
                 }
                 break;
@@ -634,22 +638,25 @@ class PodeElement {
 
         // add classes
         if (this.css.classes) {
-            convertToArray(this.css.classes).forEach((c) => {
-                this.addClass(c);
+            Object.keys(this.css.classes).forEach((c) => {
+                var data = this.css.classes[c];
+                this.addClass(c, data.Scope);
             });
         }
 
         // add styles
         if (this.css.styles) {
             Object.keys(this.css.styles).forEach((p) => {
-                this.addStyle(p, this.css.styles[p]);
+                var data = this.css.styles[p];
+                this.addStyle(p, data.Value, data.Scope);
             });
         }
 
         // add attributes
         if (this.attributes) {
-            Object.keys(this.attributes).forEach((p) => {
-                this.addAttribute(p, this.attributes[p]);
+            Object.keys(this.attributes).forEach((a) => {
+                var data = this.attributes[a];
+                this.addAttribute(a, data.Value, data.Scope);
             });
         }
 
@@ -970,8 +977,10 @@ class PodeElement {
         return $(`[pode-id="${this.uuid}"]`);
     }
 
-    getElement() {
-        return this.element;
+    getElement(scope) {
+        return (scope && scope.toLowerCase() === 'container'
+            ? (this.container ?? this.element)
+            : this.element);
     }
 
     getContainer() {
@@ -1071,82 +1080,82 @@ class PodeElement {
         this.load(data, sender, opts);
     }
 
-    addAttribute(name, value, sender, opts) {
-        this.element.attr(name, value);
+    addAttribute(name, value, scope, sender, opts) {
+        this.getElement(scope).attr(name, value);
     }
 
-    removeAttribute(name, sender, opts) {
-        this.element.attr(name, null);
+    removeAttribute(name, scope, sender, opts) {
+        this.getElement(scope).attr(name, null);
     }
 
     setDisplay(value, sender, opts) {
-        this.addClass(`d-${value.toLowerCase()}`, sender, opts);
+        this.addClass(`d-${value.toLowerCase()}`, null, sender, opts);
     }
 
     setMargin(value, sender, opts) {
         if (value.all >= 0) {
-            this.addClass(`m-${value.all}`, sender, opts);
+            this.addClass(`m-${value.all}`, null, sender, opts);
         }
         else {
             if (value.top >= 0) {
-                this.addClass(`mt-${value.top}`, sender, opts);
+                this.addClass(`mt-${value.top}`, null, sender, opts);
             }
 
             if (value.bottom >= 0) {
-                this.addClass(`mb-${value.bottom}`, sender, opts);
+                this.addClass(`mb-${value.bottom}`, null, sender, opts);
             }
 
             if (value.left >= 0) {
-                this.addClass(`ms-${value.left}`, sender, opts);
+                this.addClass(`ms-${value.left}`, null, sender, opts);
             }
 
             if (value.right >= 0) {
-                this.addClass(`me-${value.right}`, sender, opts);
+                this.addClass(`me-${value.right}`, null, sender, opts);
             }
         }
     }
 
     setPadding(value, sender, opts) {
         if (value.all >= 0) {
-            this.addClass(`p-${value.all}`, sender, opts);
+            this.addClass(`p-${value.all}`, null, sender, opts);
         }
         else {
             if (value.top >= 0) {
-                this.addClass(`pt-${value.top}`, sender, opts);
+                this.addClass(`pt-${value.top}`, null, sender, opts);
             }
 
             if (value.bottom >= 0) {
-                this.addClass(`pb-${value.bottom}`, sender, opts);
+                this.addClass(`pb-${value.bottom}`, null, sender, opts);
             }
 
             if (value.left >= 0) {
-                this.addClass(`ps-${value.left}`, sender, opts);
+                this.addClass(`ps-${value.left}`, null, sender, opts);
             }
 
             if (value.right >= 0) {
-                this.addClass(`pe-${value.right}`, sender, opts);
+                this.addClass(`pe-${value.right}`, null, sender, opts);
             }
         }
     }
 
-    addStyle(name, value, sender, opts) {
-        setElementStyle((this.container ?? this.element)[0], name, value, ((opts ?? {}).important === false));
+    addStyle(name, value, scope, sender, opts) {
+        setElementStyle(this.getElement(scope)[0], name, value, ((opts ?? {}).important === false));
     }
 
-    removeStyle(name, sender, opts) {
-        setElementStyle((this.container ?? this.element)[0], name);
+    removeStyle(name, scope, sender, opts) {
+        setElementStyle(this.getElement(scope)[0], name);
     }
 
-    addClass(clazz, sender, opts) {
-        addClass((this.container ?? this.element), clazz);
+    addClass(clazz, scope, sender, opts) {
+        addClass(this.getElement(scope), clazz);
     }
 
-    removeClass(clazz, sender, opts) {
-        removeClass((this.container ?? this.element), clazz, !((opts ?? {}).pattern ?? false));
+    removeClass(clazz, scope, sender, opts) {
+        removeClass(this.getElement(scope), clazz, !((opts ?? {}).pattern ?? false));
     }
 
-    replaceClass(oldClass, newClass, sender, opts) {
-        var obj = (this.container ?? this.element);
+    replaceClass(oldClass, newClass, scope, sender, opts) {
+        var obj = this.getElement(scope);
 
         if (!hasClass(obj, newClass)) {
             removeClass(obj, oldClass, !((opts ?? {}).pattern ?? false));
@@ -1154,7 +1163,7 @@ class PodeElement {
         }
     }
 
-    toggleClass(clazz, state, sender, opts) {
+    toggleClass(clazz, state, scope, sender, opts) {
         if (typeof (state) === 'string') {
             state = ({
                 toggle: null,
@@ -1163,8 +1172,7 @@ class PodeElement {
             })[state.toLowerCase()];
         }
 
-        var obj = (this.container ?? this.element);
-        obj.toggleClass(clazz, state);
+        this.getElement(scope).toggleClass(clazz, state);
     }
 
     showValidation(message, sender, opts) {
@@ -1177,7 +1185,7 @@ class PodeElement {
             return;
         }
 
-        this.addStyle('height', value, this, { important: false });
+        this.addStyle('height', value, null, this, { important: false });
     }
 
     setWidth(value) {
@@ -1185,7 +1193,7 @@ class PodeElement {
             return;
         }
 
-        this.addStyle('width', value, this, { important: false });
+        this.addStyle('width', value, null, this, { important: false });
     }
 
     setTheme(theme) { }
@@ -1782,7 +1790,7 @@ class PodeBadge extends PodeTextualElement {
 
         // change colour
         if (data.Colour) {
-            this.replaceClass('text-bg-\\w+', `text-bg-${PodeElement.mapColourToClass(data.Colour)}`, null, { pattern: true });
+            this.replaceClass('text-bg-\\w+', `text-bg-${PodeElement.mapColourToClass(data.Colour)}`, null, null, { pattern: true });
         }
     }
 }
@@ -2033,10 +2041,10 @@ class PodeIcon extends PodeContentElement {
             this.colour = data.Colour.toLowerCase();
 
             if (this.colour === '') {
-                this.removeStyle('color', this);
+                this.removeStyle('color', null, this);
             }
             else {
-                this.addStyle('color', this.colour, this, { important: false });
+                this.addStyle('color', this.colour, null, this, { important: false });
             }
         }
 
@@ -2045,11 +2053,11 @@ class PodeIcon extends PodeContentElement {
             var newFlip = data.Flip;
 
             if (data.Flip == null) {
-                this.removeClass(`mdi-flip-\\w+`, this, { pattern: true });
+                this.removeClass(`mdi-flip-\\w+`, null, this, { pattern: true });
             }
             else {
                 newFlip = newFlip.toLowerCase();
-                this.replaceClass(`mdi-flip-\\w+`, `mdi-flip-${newFlip[0]}`, this, { pattern: true });
+                this.replaceClass(`mdi-flip-\\w+`, `mdi-flip-${newFlip[0]}`, null, this, { pattern: true });
             }
 
             this.flip = newFlip;
@@ -2058,10 +2066,10 @@ class PodeIcon extends PodeContentElement {
         // update rotation
         if (data.Rotate || data.Rotate > -1) {
             if (data.Rotate === 0) {
-                this.removeClass(`mdi-rotate-\\w+`, this, { pattern: true });
+                this.removeClass(`mdi-rotate-\\w+`, null, this, { pattern: true });
             }
             else {
-                this.replaceClass(`mdi-rotate-\\w+`, `mdi-rotate-${data.Rotate}`, this, { pattern: true });
+                this.replaceClass(`mdi-rotate-\\w+`, `mdi-rotate-${data.Rotate}`, null, this, { pattern: true });
             }
 
             this.rotate = data.Rotate;
@@ -2070,10 +2078,10 @@ class PodeIcon extends PodeContentElement {
         // update size
         if (data.Size || data.Size > -1) {
             if (data.Size === 0) {
-                this.removeClass(`mdi-size-\\w+`, this, { pattern: true });
+                this.removeClass(`mdi-size-\\w+`, null, this, { pattern: true });
             }
             else {
-                this.replaceClass(`mdi-size-\\w+`, `mdi-size-${data.Size}`, this, { pattern: true });
+                this.replaceClass(`mdi-size-\\w+`, `mdi-size-${data.Size}`, null, this, { pattern: true });
             }
 
             this.size = data.Size;
@@ -2081,7 +2089,7 @@ class PodeIcon extends PodeContentElement {
 
         // update spin
         if (data.Spin != null) {
-            this.toggleClass('mdi-spin', data.Spin, this);
+            this.toggleClass('mdi-spin', data.Spin, null, this);
         }
 
         // update toggle icon
@@ -2374,7 +2382,7 @@ class PodeButton extends PodeFormElement {
 
             if (data.Size) {
                 this.size = data.Size.toLowerCase();
-                this.replaceClass('btn-(sm|lg)', this.mapButtonSizeToClass(), null, { pattern: true });
+                this.replaceClass('btn-(sm|lg)', this.mapButtonSizeToClass(), null, null, { pattern: true });
             }
         }
 
@@ -4230,7 +4238,7 @@ class PodeTile extends PodeRefreshableElement {
 
         /// update the colour
         if (data.Colour) {
-            this.replaceClass('alert-\\w+', `alert-${PodeElement.mapColourToClass(data.Colour)}`, null, { pattern: true });
+            this.replaceClass('alert-\\w+', `alert-${PodeElement.mapColourToClass(data.Colour)}`, null, null, { pattern: true });
         }
     }
 
@@ -5116,8 +5124,8 @@ class PodeModal extends PodeContentElement {
         this.element.modal('hide');
     }
 
-    getElement() {
-        var ele = super.getElement();
+    getElement(scope) {
+        var ele = super.getElement(scope);
         return this.asForm
             ? ele.find('div.modal-body form')
             : ele;
@@ -5436,7 +5444,7 @@ class PodeProgress extends PodeContentElement {
         // colour
         if (data.Colour) {
             var colourType = PODE_COLOUR_TO_CLASS_MAP[data.Colour.toLowerCase()];
-            this.replaceClass('bg-\\w+', `bg-${colourType}`, null, { pattern: true });
+            this.replaceClass('bg-\\w+', `bg-${colourType}`, null, null, { pattern: true });
         }
     }
 
