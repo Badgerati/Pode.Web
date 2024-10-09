@@ -5996,7 +5996,7 @@ class PodeSteps extends PodeContentElement {
             return;
         }
 
-        var html = `<div class='step ${element.child.isFirst ? 'active' : ''}' data-bs-target='#${element.id}'>
+        var html = `<div class='step ${element.child.isFirst ? 'active' : ''}' data-target='#${element.id}'>
             <button type='button' class='step-trigger' role='tab' id='${element.id}-trigger' for='${this.uuid}' aria-controls='${element.id}' ${!element.child.isFirst ? 'disabled' : ''}>
                 <span class='bs-stepper-circle'>
                     ${data.Icon ? element.setIcon(data.Icon) : element.child.index + 1}
