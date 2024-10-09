@@ -2955,11 +2955,6 @@ function New-PodeWebTimer {
     # generate timer id
     $Id = Get-PodeWebElementId -Tag Timer -Id $Id -Name $Name
 
-    # check for min interval
-    if ($Interval -lt 10) {
-        $Interval = 10
-    }
-
     # check for scoped vars
     $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
 

@@ -64,7 +64,7 @@ Start-PodeServer -StatusPageExceptions Show {
     Set-PodeWebNavDefault -Items $link1, $link2, $div1, $link3, $dd1
 
 
-    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
+    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 5 -NoAuth -ScriptBlock {
         $rand = Get-Random -Minimum 0 -Maximum 3
         $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
         Update-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour

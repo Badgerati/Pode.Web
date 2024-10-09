@@ -4051,9 +4051,11 @@ class PodeTimer extends PodeContentElement {
         super.bind(data, sender, opts);
         this.invoke();
 
-        setInterval(() => {
-            this.invoke();
-        }, this.interval);
+        if (this.interval > 0) {
+            setInterval(() => {
+                this.invoke();
+            }, this.interval);
+        }
     }
 
     invoke(data, sender, opts) {
