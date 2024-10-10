@@ -2931,6 +2931,7 @@ function New-PodeWebTimer {
         $Id,
 
         [Parameter()]
+        [ValidateRange(1, [int]::MaxValue)]
         [int]
         $Interval = 60,
 
