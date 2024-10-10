@@ -1,12 +1,15 @@
 # Timer
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
-A timer is a non-visible element, it sets up a javascript timer in the background that periodically (60s) invokes logic. You can add a timer using [`New-PodeWebTimer`](../../../Functions/Elements/New-PodeWebTimer), and they're mostly used with the action function to alter the page.
+A timer is a non-visible element, it sets up a javascript timer in the background that periodically invokes logic on the server. You can add a timer using [`New-PodeWebTimer`](../../../Functions/Elements/New-PodeWebTimer).
 
-The below example sets up a timer that will update the badge's value and colour every 10 seconds:
+!!! warning
+    You can set the interval of a timer to run using the `-Interval` parameter, in seconds. The default is 60s, and you can set this to whatever you need: 120s, 30, 15s, etc.; you can also set this to lower values such as 5s and 1s, however, please note that the lower you set the value it might have an adverse affect on the performance of your website - depending on the logic being invoked.
+
+The below example sets up a timer that will update a badge's value and colour every 10 seconds:
 
 ```powershell
 New-PodeWebTimer -Interval 10 -ScriptBlock {
