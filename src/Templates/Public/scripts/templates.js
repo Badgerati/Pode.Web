@@ -1809,7 +1809,7 @@ class PodeText extends PodeTextualElement {
             class='pode-text'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
-                ${data.Value}
+                ${encodeNewlines(data.Value)}
         </span>`;
 
         switch (data.Style.toLowerCase()) {
@@ -3603,7 +3603,7 @@ class PodeParagraph extends PodeTextualElement {
             pode-object="${this.getType()}"
             pode-id="${this.uuid}">
                 <span pode-content-for='${this.uuid}' pode-content-order='0' class='pode-text'>
-                    ${data.Value ? data.Value : ''}
+                    ${data.Value ? encodeNewlines(data.Value) : ''}
                 </span>
         </p>`;
     }
