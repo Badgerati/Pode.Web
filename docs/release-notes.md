@@ -204,7 +204,7 @@
 * #210: Add `Update-PodeWebCodeEditor` and `Clear-PodeWebCodeEditor` output actions
 * #211: Add `-ShowReset` switch on forms, to display an optional Reset button
 * #214: Add support for customising a form's method/action properties
-* #222: Add ruby pronuncation support to `New-PodeWebText`
+* #222: Add ruby pronunciation support to `New-PodeWebText`
 * #226: Textboxes, Charts, Images, and Table Columns now allow raw CSS values for Widths
 * #230: Add `-Type` parameter for DateTime, Credentials and MinMax elements
 * #235: Add `-Accept` parameter on FileUpload
@@ -258,7 +258,7 @@
 * #125: Add `-HideSidebar` switch to `Use-PodeWebTemplates`
 * #140: Add Clear output actions for Charts, Tables, and Textboxes
 * #147: Add support for Select elements to be more dynamic
-* #149: Allow for the Size of a multi-select element to be alterted
+* #149: Allow for the Size of a multi-select element to be altered
 * #151: Enable `Update-PodeWebTableRow` to be able to alter a row's background/text colour
 * #153: Add more colours for charts, and let them be customised
 * #154: Display pages in groups in alphabetical order

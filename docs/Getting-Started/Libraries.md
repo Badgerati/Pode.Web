@@ -11,5 +11,5 @@ The primary libraries used by Pode.Web are as follows:
 * chart.js
 * jquery
 * jquery-ui
-* momemt
+* moment
 * monaco

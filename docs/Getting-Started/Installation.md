@@ -86,7 +86,7 @@ docker pull docker.pkg.github.com/badgerati/pode.web/pode.web:0.8.0
 
 ```powershell
 # for latest
-docker pull docker.pkg.github.com/badgerati/pode.web/pode.web:latest-apline
+docker pull docker.pkg.github.com/badgerati/pode.web/pode.web:latest-alpine
 
 # or the following for a specific version:
 docker pull docker.pkg.github.com/badgerati/pode.web/pode.web:0.8.0-alpine
