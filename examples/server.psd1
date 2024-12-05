@@ -1,16 +1,16 @@
 @{
     Server = @{
-        Request = @{
+        Request    = @{
             Timeout = 600
         }
         AutoImport = @{
             Modules = @{
-                Enable = $true
+                Enable     = $true
                 ExportOnly = $true
             }
         }
     }
-    Web = @{
+    Web    = @{
         Static = @{
             Cache = @{
                 Enable = $true
