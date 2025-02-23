@@ -1,0 +1,57 @@
+name: Pode.Web CI - Docs
+
+on:
+  push:
+    branches:
+    - '*'
+    - '!gh-pages'
+    paths:
+    - 'mkdocs.yml'
+    - 'mkdocs-overrides/**'
+    - 'docs/**'
+    - '.github/workflows/ci-docs.yml'
+    - '.build.ps1'
+    - 'src/Pode.Web.psd1'
+  pull_request:
+    branches:
+    - '*'
+    paths:
+    - 'mkdocs.yml'
+    - 'mkdocs-overrides/**'
+    - 'docs/**'
+    - '.github/workflows/ci-docs.yml'
+    - '.build.ps1'
+    - 'src/Pode.Web.psd1'
+
+env:
+  INVOKE_BUILD_VERSION: '5.12.0'
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Output PowerShell version
+      shell: pwsh
+      run: |
+        $PSVersionTable.PSVersion
+
+    - name: Install Invoke-Build
+      shell: pwsh
+      run: |
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Install-Module -Name InvokeBuild -RequiredVersion $env:INVOKE_BUILD_VERSION -Force
+
+    - name: Build Documentation
+      shell: pwsh
+      run: |
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-Build DocsBuild

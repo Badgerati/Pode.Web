@@ -15,9 +15,9 @@ $src_path = './pode_modules'
 #>
 
 $Versions = @{
-    MkDocs      = '1.6.0'
-    MkDocsTheme = '9.5.23'
-    Mike        = '2.1.1'
+    MkDocs      = '1.6.1'
+    MkDocsTheme = '9.6.4'
+    Mike        = '2.1.3'
     PlatyPS     = '0.14.2'
 }
 
@@ -438,6 +438,11 @@ task DocsDeploy DocsDeps, DocsHelpBuild, {
     mike deploy --push --update-aliases $version $alias
 }
 
+# Synopsis: Build the documentation
+task DocsBuild DocsDeps, DocsHelpBuild, {
+    mkdocs build --quiet
+}
+
 # Synopsis: Build the Release Notes
 task ReleaseNotes {
     if ([string]::IsNullOrWhiteSpace($ReleaseNoteVersion)) {
@@ -459,15 +464,15 @@ task ReleaseNotes {
     $dependabot = @{}
 
     foreach ($pr in $prs) {
-        if ($pr.labels.name -icontains 'superseded') {
+        $labels = @($pr.labels.name)
+        if ($labels -icontains 'superseded' -or
+            $labels -icontains 'new-release' -or
+            $labels -icontains 'internal-code :hammer:' -or
+            $labels -icontains 'exclude-from-release-notes') {
             continue
         }
 
         $label = ($pr.labels[0].name -split ' ')[0]
-        if ($label -iin @('new-release', 'internal-code')) {
-            continue
-        }
-
         if ([string]::IsNullOrWhiteSpace($label)) {
             $label = 'misc'
         }

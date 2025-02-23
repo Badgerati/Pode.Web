@@ -1,13 +1,32 @@
-name: Pode.Web CI
+name: Pode.Web CI - Pwsh
 
 on:
   push:
     branches:
     - '*'
     - '!gh-pages'
+    paths:
+    - 'src/**'
+    - 'tests/**'
+    - '.build.ps1'
+    - '.github/workflows/ci-pwsh.yml'
+    - 'Dockerfile'
+    - '*.dockerfile'
+    - 'package.json'
   pull_request:
     branches:
     - '*'
+    paths:
+    - 'src/**'
+    - 'tests/**'
+    - '.build.ps1'
+    - '.github/workflows/ci-pwsh.yml'
+    - 'Dockerfile'
+    - '*.dockerfile'
+    - 'package.json'
+
+env:
+  INVOKE_BUILD_VERSION: '5.12.0'
 
 jobs:
   build:
@@ -20,13 +39,18 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+
+    - name: Output PowerShell version
+      shell: pwsh
+      run: |
+        $PSVersionTable.PSVersion
 
     - name: Install Invoke-Build
       shell: pwsh
       run: |
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        Install-Module -Name InvokeBuild -RequiredVersion '5.5.1' -Force
+        Install-Module -Name InvokeBuild -RequiredVersion $env:INVOKE_BUILD_VERSION -Force
 
     - name: Install Yarn Packages
       shell: pwsh
