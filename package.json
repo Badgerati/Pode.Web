@@ -8,7 +8,7 @@
     "jquery": "3.7.1",
     "jquery-ui-dist": "1.13.3",
     "@popperjs/core": "2.11.8",
-    "bootstrap": "5.3.3",
+    "bootstrap": "5.3.8",
     "bs-stepper": "1.7.0",
     "@mdi/font": "7.4.47",
     "chart.js": "4.4.8",
