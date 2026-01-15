@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Streaming' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Streaming' -Theme Dark
 
     # set the home page controls
     $con = New-PodeWebContainer -Content @(

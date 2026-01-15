@@ -1,7 +1,7 @@
 <!-- omit in toc -->
 # <img src="https://github.com/Badgerati/Pode/blob/develop/images/icon.png?raw=true" width="25" /> Pode.Web
 
-> This is the develop branch for Pode.Web v1.0.0, which is currently dependant on Pode v2.12.0. If you want the latest released Pode.Web code (v0.8.3), please view the master branch instead.
+> This is the develop branch for Pode.Web v1.0.0, which is currently dependant on Pode v2.12.1. If you want the latest released Pode.Web code (v0.8.3), please view the master branch instead.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Badgerati/Pode.Web/master/LICENSE.txt)
 [![Documentation](https://img.shields.io/github/v/release/badgerati/pode.web?label=docs)](https://badgerati.github.io/Pode.Web)
@@ -25,7 +25,7 @@
 - [🔥 Quick Example](#-quick-example)
 - [🌎 Roadmap](#-roadmap)
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.12.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.12.1+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge is required!
 
@@ -98,7 +98,7 @@ Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
 
     # set the use of the pode.web templates
-    Use-PodeWebTemplates -Title 'Example' -Theme Midnight
+    Initialize-PodeWebTemplates -Title 'Example' -Theme Midnight
 
     # add the page
     Add-PodeWebPage -Name Processes -Icon Activity -ScriptBlock {

@@ -8,11 +8,11 @@
     "jquery": "3.7.1",
     "jquery-ui-dist": "1.13.3",
     "@popperjs/core": "2.11.8",
-    "bootstrap": "5.3.3",
+    "bootstrap": "5.3.8",
     "bs-stepper": "1.7.0",
     "@mdi/font": "7.4.47",
     "chart.js": "4.5.1",
-    "@kurkle/color": "0.3.4",
+    "@kurkle/color": "0.4.0",
     "@highlightjs/cdn-assets": "11.11.1",
     "monaco-editor": "0.52.2",
     "moment": "2.30.1"

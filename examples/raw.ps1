@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Raw' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Raw' -Theme Dark
 
     # set the home page controls (just a simple paragraph)
     $card = New-PodeWebCard -Content @(

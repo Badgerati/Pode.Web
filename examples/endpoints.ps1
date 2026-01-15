@@ -9,7 +9,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Basic Example' -Theme Dark -EndpointName '8090Endpoint', '8091Endpoint'
+    Initialize-PodeWebTemplates -Title 'Basic Example' -Theme Dark -EndpointName '8090Endpoint', '8091Endpoint'
 
     # set the home page controls (just a simple paragraph)
     $section = New-PodeWebCard -Name 'Welcome' -NoTitle -Content @(

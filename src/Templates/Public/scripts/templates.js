@@ -115,10 +115,13 @@ class PodeElementFactory {
         }
         else {
             obj = this.findObject(name, action, data, sender, opts);
-            if (action === 'new' && obj.created) {
-                action = 'update';
+            if (obj != null) {
+                if (action === 'new' && obj.created) {
+                    action = 'update';
+                }
+
+                html = obj.refresh(action).apply(action, data, sender, opts);
             }
-            html = obj.refresh(action).apply(action, data, sender, opts);
         }
 
         // invoke after element action event
@@ -4775,6 +4778,11 @@ class PodeChart extends PodeRefreshableElement {
         // remove the chart if exists
         if (this.chart) {
             this.chart.destroy();
+        }
+
+        // skip if no element
+        if (!this.element) {
+            return
         }
 
         // get the chart's canvas and type

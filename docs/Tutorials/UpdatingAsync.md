@@ -3,7 +3,7 @@
 In Pode.Web you can update users asynchronously, whether it be updating the rows of a Table from a long-running Task to retrieve data, or sending a Toast to all connected users from a Timer, it can be done asynchronously by sending events back to the user(s).
 
 !!! important
-    This feature is dependent on using SSE, if you have `-ResponseType Http` configured on your `Use-PodeWebTemplates` call, then asynchronous updates won't work.
+    This feature is dependent on using SSE connections. If you don't supply `-ConnectionType` to `Initialize-PodeWebTemplates`, or you do but it's set to HTTP, then asynchronous updates **will not** work.
 
 ## Connections
 
@@ -101,7 +101,7 @@ Add-PodeTask -Name 'GetProcesses' -ScriptBlock {
 ```
 
 !!! tip
-    You can use a Task to call other actions as well and update other elements - not just Tables! ??
+    You can use a Task to call other actions as well and update other elements - not just Tables!
 
 ### Timers / Schedules
 
