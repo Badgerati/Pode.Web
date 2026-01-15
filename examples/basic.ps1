@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Basic Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Basic Example' -Theme Dark
 
     # social
     Set-PodeWebSocial -Type GitHub -Url 'https://github.com/badgerati'

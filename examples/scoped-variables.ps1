@@ -9,7 +9,7 @@ Start-PodeServer -StatusPageExceptions Show {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Basic Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Basic Example' -Theme Dark
     $state:card_name = 'Hello, there!'
 
     # set the home page controls (just a simple paragraph)

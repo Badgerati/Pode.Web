@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Async Updates' -Theme Dark -RootRedirect
+    Initialize-PodeWebTemplates -Title 'Async Updates' -Theme Dark -RootRedirect
 
     # add a home page page
     Add-PodeWebPage -Name 'Page 1' -Id 'page_1' -HomePage -ScriptBlock {

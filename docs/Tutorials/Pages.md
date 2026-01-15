@@ -330,7 +330,7 @@ Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Pester'
+    Initialize-PodeWebTemplates -Title 'Pester'
 
     # convert module to pages
     ConvertTo-PodeWebPage -Module Pester -GroupVerbs

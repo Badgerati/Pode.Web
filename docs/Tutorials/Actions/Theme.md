@@ -7,7 +7,7 @@ This page details the actions available to the Theme of pages.
 To update the theme for a user you can use [`Update-PodeWebTheme`](../../../Functions/Actions/Update-PodeWebTheme). This will update the frontend cookie, and then reload the page to toggle the rendering theme:
 
 ```powershell
-Use-PodeWebTemplates -Title Test -Theme Dark
+Initialize-PodeWebTemplates -Title Test -Theme Dark
 
 New-PodeWebContainer -NoBackground -Content @(
     New-PodeWebButton -Name 'Dark Theme' -Icon 'moon-new' -Colour Dark -ScriptBlock {
