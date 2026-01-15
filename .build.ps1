@@ -249,73 +249,7 @@ task MoveLibs {
 
     # monaco
     New-Item -Path "$($libs_path)/monaco" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($libs_path)/vs" -ItemType Directory -Force | Out-Null
-
-    New-Item -Path "$($libs_path)/monaco/editor" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($libs_path)/monaco/basic-languages" -ItemType Directory -Force | Out-Null
-
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/loader.js" -Destination "$($libs_path)/monaco/" -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/editor/*.*" -Destination "$($libs_path)/monaco/editor/" -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/LICENSE" -Destination "$($libs_path)/monaco/editor/" -Force
-
-    New-Item -Path "$($libs_path)/monaco/base/worker" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/worker/*.*" -Destination "$($libs_path)/monaco/base/worker/" -Force
-
-    New-Item -Path "$($libs_path)/monaco/base/browser/ui/codicons/codicon" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/browser/ui/codicons/codicon/*.*" -Destination "$($libs_path)/monaco/base/browser/ui/codicons/codicon/" -Force
-
-    $langs = @(
-        'bat',
-        'cpp',
-        'csharp',
-        'css',
-        'dockerfile',
-        'fsharp',
-        'go',
-        'html',
-        'java',
-        'javascript',
-        'markdown',
-        'mysql',
-        'php',
-        'powershell',
-        'python',
-        'ruby',
-        'sql',
-        'typescript',
-        'xml',
-        'yaml'
-    )
-
-    (Get-ChildItem -Path "$($src_path)/monaco-editor/min/vs/basic-languages" -Directory).Name | ForEach-Object {
-        if ($_ -iin $langs) {
-            New-Item -Path "$($libs_path)/monaco/basic-languages/$($_)/" -ItemType Directory -Force | Out-Null
-            Copy-Item -Path "$($src_path)/monaco-editor/min/vs/basic-languages/$($_)/*.*" -Destination "$($libs_path)/monaco/basic-languages/$($_)/" -Force
-        }
-    }
-
-    New-Item -Path "$($libs_path)/monaco/language" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($libs_path)/vs/language" -ItemType Directory -Force | Out-Null
-
-    (Get-ChildItem -Path "$($src_path)/monaco-editor/min/vs/language" -Directory).Name | ForEach-Object {
-        New-Item -Path "$($libs_path)/monaco/language/$($_)/" -ItemType Directory -Force | Out-Null
-        Copy-Item -Path "$($src_path)/monaco-editor/min/vs/language/$($_)/*.*" -Destination "$($libs_path)/monaco/language/$($_)/" -Force
-
-        New-Item -Path "$($libs_path)/vs/language/$($_)/" -ItemType Directory -Force | Out-Null
-        Copy-Item -Path "$($src_path)/monaco-editor/min/vs/language/$($_)/*.*" -Destination "$($libs_path)/vs/language/$($_)/" -Force
-    }
-
-    $vs_maps_path = "$($dest_path)/min-maps/vs"
-    if (Test-Path $vs_maps_path) {
-        Remove-Item -Path $vs_maps_path -Recurse -Force | Out-Null
-    }
-
-    New-Item -Path "$($vs_maps_path)/editor" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($vs_maps_path)/base/worker" -ItemType Directory -Force | Out-Null
-
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/loader.js.map" -Destination $vs_maps_path -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/editor/*.*" -Destination "$($vs_maps_path)/editor/" -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/base/worker/*.*" -Destination "$($vs_maps_path)/base/worker/" -Force
+    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/*" -Destination "$($libs_path)/monaco/" -Force -Recurse
 }
 
 
