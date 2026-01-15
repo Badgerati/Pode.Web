@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Progress Async' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Progress Async' -Theme Dark
 
     # set the controls
     Add-PodeWebPage -Name 'Example' -ScriptBlock {

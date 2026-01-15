@@ -6,9 +6,8 @@ Start-PodeServer -StatusPageExceptions Show {
     Add-PodeEndpoint -Address * -Port 8090 -Protocol Http
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
-
     # enable sessions and authentication
-    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+    Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
 
     New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -SuccessUseOrigin -ScriptBlock {
         param($username, $password)
@@ -31,7 +30,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark -ConnectionType SSE
 
     # add a custom darkred theme
     Add-PodeWebCustomTheme -Name DarkRed -Base Dark `
@@ -81,7 +80,7 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebText -Value ' paragraphs' -Style Bold
         )
         New-PodeWebParagraph -Content @(
-            New-PodeWebText -Value 'Pronuncation example: '
+            New-PodeWebText -Value 'Pronunciation example: '
             New-PodeWebText -Value '漢' -Pronunciation 'ㄏㄢˋ'
         )
         New-PodeWebParagraph -Content @(
@@ -205,17 +204,17 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $carousel = New-PodeWebCarousel -Slides @(
         New-PodeWebSlide -Title 'First Slide' -Message 'First slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 1' -Alignment Center
             )
         )
         New-PodeWebSlide -Title 'Second Slide' -Message 'Second slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 2' -Alignment Center
             )
         )
         New-PodeWebSlide -Title 'Third Slide' -Message 'Third slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 3' -Alignment Center
             )
         )

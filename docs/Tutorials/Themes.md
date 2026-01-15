@@ -1,6 +1,6 @@
 # Themes
 
-Pode.Web comes with some inbuilt themes (including a dark theme!), plus the ability to build/use custom themes. Themes are set using [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates), or custom ones can be built using [`Add-PodeWebCustomTheme`](../../Functions/Utilities/Add-PodeWebCustomTheme).
+Pode.Web comes with some inbuilt themes (including a dark theme!), plus the ability to build/use custom themes. Themes are set using [`Initialize-PodeWebTemplates`](../../Functions/Utilities/Initialize-PodeWebTemplates), or custom ones can be built using [`Add-PodeWebCustomTheme`](../../Functions/Utilities/Add-PodeWebCustomTheme).
 
 ## Inbuilt
 
@@ -17,7 +17,7 @@ Pode.Web has 7 inbuilt themes:
 For example, to use the `Dark` theme:
 
 ```powershell
-Use-PodeWebTemplates -Title 'Example' -Theme Dark
+Initialize-PodeWebTemplates -Title 'Example' -Theme Dark
 ```
 
 Examples of how the inbuilt themes look are as follows:
@@ -54,7 +54,7 @@ This will allow you to build on top of, or customise, one of Pode.Web's inbuilt 
 One option for using a custom theme is to directly create a custom CSS file, and then have Pode.Web use that file by either literal or relative URL:
 
 ```powershell
-Use-PodeWebTemplates -Title 'Example' -Theme Custom
+Initialize-PodeWebTemplates -Title 'Example' -Theme Custom
 
 # literal url
 Add-PodeWebCustomTheme -Name 'Custom1' -Url 'https://example.com/custom-theme.css'
@@ -83,7 +83,7 @@ Instead of rolling a custom CSS file, Pode.Web comes with some functions that al
 Let's say you want to use the Dark theme as a base, and change the Page background to "darkred" and the font-family to "wingdings" (because why not!):
 
 ```powershell
-Use-PodeWebTemplates -Title 'Example' -Theme Custom
+Initialize-PodeWebTemplates -Title 'Example' -Theme Custom
 Add-PodeWebCustomTheme -Name 'Custom1' -Base Dark `
     -BackgroundColourConfig (New-PodeWebBackgroundColourConfig -Page 'darkred') `
     -FontFamily 'wingdings'
@@ -96,7 +96,7 @@ Only the parameters you supply will be applied and override the base theme - in 
 A fuller example, still using the Dark theme as a base, would be as follows. Here we supply nearly all possible configuration to build a custom darkred theme:
 
 ```powershell
-Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Custom
+Initialize-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Custom
 
 $bgColourConfig = @{
     Page      = '#000'

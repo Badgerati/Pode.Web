@@ -491,7 +491,9 @@ input[type=range]:hover,
 div.form-switch label.form-check-label:hover,
 div.form-check label.form-check-label:hover,
 select.form-select:hover,
-input[type=file]:hover {
+input[type=file]:hover,
+input[type=checkbox]:hover,
+input[type=radio]:hover {
     cursor: pointer;
 }
 
@@ -1094,6 +1096,11 @@ a.nav-link .mdi:before {
 
 .breadcrumb a:hover span {
     text-decoration: underline;
+}
+
+.breadcrumb-item.active,
+.breadcrumb-item.active::before {
+    color: var(--podeweb-primary-text-color);
 }
 
 .alert .mdi::before {

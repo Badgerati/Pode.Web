@@ -7,7 +7,7 @@
 
 > 💝 A lot of my free time, evenings, and weekends goes into making Pode happen; please do consider sponsoring as it will really help! 😊
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.12.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.12.1+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge is required!
 
@@ -45,7 +45,7 @@ Import-Module Pode.Web
 Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8080 -Protocol Http
 
-    Use-PodeWebTemplates -Title 'Example' -Theme Midnight
+    Initialize-PodeWebTemplates -Title 'Example' -Theme Midnight
 
     Add-PodeWebPage -Name 'Services' -Icon 'Settings' -ScriptBlock {
         New-PodeWebCard -Content @(

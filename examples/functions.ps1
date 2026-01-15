@@ -10,7 +10,7 @@ Start-PodeServer {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Functions' -RootRedirect
+    Initialize-PodeWebTemplates -Title 'Functions' -RootRedirect
 
     Export-PodeModule -Name 'functions'
 
