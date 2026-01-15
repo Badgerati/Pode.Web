@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Classy Styles' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Classy Styles' -Theme Dark
 
     # import the custom css/js
     Import-PodeWebStylesheet -Url '/my-styles.css'

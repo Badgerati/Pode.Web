@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Accordion' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Accordion' -Theme Dark
 
     # set the home page controls
     $acc = New-PodeWebAccordion -Name 'Accordion1' -Cycle -Bellows @(

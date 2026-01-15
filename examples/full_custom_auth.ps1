@@ -8,7 +8,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # enable sessions and authentication
-    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+    Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
 
     # define a new custom authentication scheme, which needs a client, username, and password
     $custom_scheme = New-PodeAuthScheme -Custom -ScriptBlock {
@@ -46,7 +46,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
     # set login page
     # -BackgroundImage '/images/galaxy.jpg'
@@ -206,17 +206,17 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $carousel = New-PodeWebCarousel -Slides @(
         New-PodeWebSlide -Title 'First Slide' -Message 'First slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 1' -Alignment Center
             )
         )
         New-PodeWebSlide -Title 'Second Slide' -Message 'Second slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 2' -Alignment Center
             )
         )
         New-PodeWebSlide -Title 'Third Slide' -Message 'Third slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 3' -Alignment Center
             )
         )

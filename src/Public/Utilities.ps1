@@ -1,4 +1,4 @@
-function Use-PodeWebTemplates {
+function Initialize-PodeWebTemplates {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -28,9 +28,9 @@ function Use-PodeWebTemplates {
         $Security = 'Default',
 
         [Parameter()]
-        [ValidateSet('Sse', 'Http')]
+        [ValidateSet('Http', 'Sse')]
         [string]
-        $ResponseType = 'Sse',
+        $ConnectionType = 'Http',
 
         [Parameter()]
         [string]
@@ -84,7 +84,7 @@ function Use-PodeWebTemplates {
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()
     Set-PodeWebState -Name 'custom-js' -Value @()
-    Set-PodeWebState -Name 'resp-type' -Value $ResponseType.ToLowerInvariant()
+    Set-PodeWebState -Name 'conn-type' -Value $ConnectionType.ToLowerInvariant()
 
     # themes
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
@@ -105,7 +105,7 @@ function Use-PodeWebTemplates {
     Set-PodeWebSecurity -Security $Security -UseHsts:$UseHsts
 
     # initialise SSE connections
-    if (Test-PodeWebResponseType -Type Sse) {
+    if (Test-PodeWebConnectionType -Type Sse) {
         if ([string]::IsNullOrEmpty($SseSecret)) {
             $SseSecret = Get-PodeServerDefaultSecret
         }
@@ -127,6 +127,10 @@ function Use-PodeWebTemplates {
             Set-PodeResponseStatus -Code 421
         }
     }
+}
+
+if (!(Test-Path Alias:Use-PodeWebTemplates)) {
+    New-Alias Use-PodeWebTemplates -Value Initialize-PodeWebTemplates
 }
 
 function Import-PodeWebStylesheet {

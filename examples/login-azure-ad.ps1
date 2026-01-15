@@ -6,7 +6,7 @@ Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
 
     # enable sessions and authentication
-    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+    Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
 
     $clientId = '<client-id-from-portal>'
     $clientSecret = '<client-secret-from-portal>'
@@ -25,7 +25,7 @@ Start-PodeServer {
     }
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Login Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Login Example' -Theme Dark
     Set-PodeWebLoginPage -Authentication AzureAD
 
     # set the home page controls (just a simple paragraph)

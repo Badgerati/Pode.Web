@@ -48,7 +48,7 @@ Start-PodeServer -Threads 2 {
     }
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Login Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Login Example' -Theme Dark
     Set-PodeWebLoginPage -Authentication MockOAuth2
 
     # set the home page controls (just a simple paragraph)

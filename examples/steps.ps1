@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Steps Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Steps Example' -Theme Dark
 
 
     # set the home page controls (just a simple paragraph)
