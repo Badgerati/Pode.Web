@@ -1,5 +1,4 @@
-#Import-Module Pode -MaximumVersion 2.99.99 -Force
-Import-Module ..\..\Pode\src\Pode.psm1 -Force
+Import-Module Pode -MaximumVersion 2.99.99 -Force
 Import-Module ..\src\Pode.Web.psm1 -Force
 
 Start-PodeServer -StatusPageExceptions Show {
@@ -9,11 +8,11 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # enable sessions and authentication
-    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+    Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
     Add-PodeAuthIIS -Name Example
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
 
     # set auth to iis
     Set-PodeWebAuth -Authentication Example
@@ -164,17 +163,17 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $carousel = New-PodeWebCarousel -Slides @(
         New-PodeWebSlide -Title 'First Slide' -Message 'First slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 1' -Alignment Center
             )
         )
         New-PodeWebSlide -Title 'Second Slide' -Message 'Second slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 2' -Alignment Center
             )
         )
         New-PodeWebSlide -Title 'Third Slide' -Message 'Third slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 3' -Alignment Center
             )
         )

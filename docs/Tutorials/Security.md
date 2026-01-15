@@ -6,10 +6,10 @@ Pode.Web uses this feature to automatically set some default headers on requests
 
 ## Options
 
-To set which security type to use, you can optionally specify a type via the `-Security` parameter on [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates). The valid values are: None, Default, Simple, and Strict.
+To set which security type to use, you can optionally specify a type via the `-Security` parameter on [`Initialize-PodeWebTemplates`](../../Functions/Utilities/Initialize-PodeWebTemplates). The valid values are: None, Default, Simple, and Strict.
 
 ```powershell
-Use-PodeWebTemplates -Title 'Test' -Theme Dark -Security Simple
+Initialize-PodeWebTemplates -Title 'Test' -Theme Dark -Security Simple
 ```
 
 In the case of the Default, Simple and Strict types: Pode.Web uses the inbuilt security types within Pode (simple for default), and adds some extra essential default Content Security Policy rules to allow Pode.Web to function:
@@ -66,7 +66,7 @@ The same also applies to styles and scripts as well.
 
 ### HSTS
 
-If you need to enable HSTS for your site, you can do so vua supplying the `-UseHSTS` switch on [`Use-PodeWebTemplates`](../../Functions/Utilities/Use-PodeWebTemplates).
+If you need to enable HSTS for your site, you can do so vua supplying the `-UseHSTS` switch on [`Initialize-PodeWebTemplates`](../../Functions/Utilities/Initialize-PodeWebTemplates).
 
 ### Rating
 

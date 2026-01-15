@@ -43,8 +43,8 @@ $(() => {
     // sessions
     setSessionTabId();
 
-    // setup sse connection
-    connectSse();
+    // setup client connection
+    setupClientConnection();
 });
 
 function loadContent() {
@@ -59,13 +59,28 @@ function loadContent() {
     });
 }
 
-function connectSse() {
-    // http responses?
-    if (!testConnectOverSse()) {
-        loadContent();
-        return;
-    }
+function setupClientConnection() {
+    var type = $('body').attr('pode-conn-type');
 
+    switch (type) {
+        case 'http':
+            setupHttpConnection();
+            break;
+
+        case 'sse':
+            setupSseConnection();
+            break;
+
+        default:
+            throw `Unknown response type '${type}'`;
+    }
+}
+
+function setupHttpConnection() {
+    loadContent();
+}
+
+function setupSseConnection() {
     // create sse connection
     const sse = new EventSource(getPageUrl('sse-open'));
 
@@ -77,28 +92,31 @@ function connectSse() {
 
     // wire up close event, to close sse connection
     sse.addEventListener('pode.close', (e) => {
+        sse.close();
         SSE_CLIENT_ID = null;
     });
 
     // wire up event for actions
     sse.addEventListener('pode.web.action', (e) => {
+        if (sse.readyState === EventSource.CLOSED) {
+            return;
+        }
+
         invokeActions(JSON.parse(e.data));
     });
 
     // error event
     sse.onerror = (e) => {
+        sse.close();
         console.log(e);
     };
 
     // wire up beforeunload, to close connection server side
     window.addEventListener("beforeunload", function(e) {
-        sendAjaxReq(getPageUrl('sse-close'), null, undefined, false);
+        sse.close();
+        SSE_CLIENT_ID = null;
         return null;
     });
-}
-
-function testConnectOverSse() {
-    return ($('body').attr('pode-resp-type') === 'sse');
 }
 
 function testCookie(name) {

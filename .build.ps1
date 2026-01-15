@@ -16,7 +16,7 @@ $src_path = './pode_modules'
 
 $Versions = @{
     MkDocs      = '1.6.1'
-    MkDocsTheme = '9.6.4'
+    MkDocsTheme = '9.7.1'
     Mike        = '2.1.3'
     PlatyPS     = '0.14.2'
 }
@@ -401,11 +401,11 @@ task DocsHelpBuild DocsDeps, {
         $content = (Get-Content -Path $_.FullName | ForEach-Object {
                 $line = $_
 
-                while ($line -imatch '\[`(?<name>[a-z]+\-podeweb[a-z]+)`\](?<char>([^(]|$))') {
+                while ($line -imatch '(?<func>\[`(?<name>[a-z]+\-podeweb[a-z]+)`\])([^(])') {
                     $updated = $true
+                    $func = $Matches['func']
                     $name = $Matches['name']
-                    $char = $Matches['char']
-                    $line = ($line -ireplace "\[``$($name)``\]([^(]|$)", "[``$($name)``]($('../' * $depth)Functions/$($map[$name])/$($name))$($char)")
+                    $line = $line.Replace($func, "$($func)($('../' * $depth)Functions/$($map[$name])/$($name))")
                 }
 
                 $line

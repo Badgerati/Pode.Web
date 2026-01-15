@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Charts' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Charts' -Theme Dark
 
     $chartData = {
         $count = 1

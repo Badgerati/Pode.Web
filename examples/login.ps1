@@ -6,7 +6,7 @@ Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
 
     # enable sessions and authentication
-    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+    Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
 
     New-PodeAuthScheme -Form | Add-PodeAuth -Name Login -ScriptBlock {
         param($username, $password)
@@ -22,7 +22,7 @@ Start-PodeServer {
     }
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Login Example'
+    Initialize-PodeWebTemplates -Title 'Login Example'
     Set-PodeWebLoginPage -Authentication Login
 
     # set the home page controls (just a simple paragraph)

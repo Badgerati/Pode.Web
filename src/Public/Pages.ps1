@@ -152,7 +152,7 @@ function Set-PodeWebLoginPage {
         IsOAuth2        = $isOAuth2
         GrantType       = $grantType
         IsSystem        = $true
-        ResponseType    = (Get-PodeWebResponseType)
+        ConnectionType  = (Get-PodeWebConnectionType)
     }
 
     # set auth system urls
@@ -217,11 +217,11 @@ function Set-PodeWebLoginPage {
         $global:PageData = $null
     }
 
-    # add sse open route
-    if (Test-PodeWebResponseType -Type Sse) {
+    # add sse open/close routes
+    if (Test-PodeWebConnectionType -Type Sse) {
         Add-PodeRoute -Method Get -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/sse-open" -ArgumentList @{ ID = $Id } -EndpointName $EndpointName -ScriptBlock {
             param($Data)
-            ConvertTo-PodeSseConnection -Name 'Pode.Web.Actions' -Group $Data.ID
+            ConvertTo-PodeSseConnection -Name 'Pode.Web.Actions' -Group $Data.ID -Scope Global
         }
 
         # add sse close route
@@ -419,7 +419,7 @@ function Add-PodeWebPage {
             Groups = @($AccessGroups)
             Users  = @($AccessUsers)
         }
-        ResponseType     = (Get-PodeWebResponseType)
+        ConnectionType   = (Get-PodeWebConnectionType)
     }
 
     # does the page need auth?
@@ -541,8 +541,8 @@ function Add-PodeWebPage {
         $global:PageData = $null
     }
 
-    # add sse open route
-    if (Test-PodeWebResponseType -Type Sse) {
+    # add sse open/close routes
+    if (Test-PodeWebConnectionType -Type Sse) {
         Add-PodeRoute -Method Get -Path "/pode.web-dynamic/pages/$($pageMeta.ID)/sse-open" -Authentication $pageMeta.Authentication -ArgumentList @{ Data = $ArgumentList; ID = $Id } -IfExists $IfExists -EndpointName $EndpointName -ScriptBlock {
             param($Data)
             $global:PageData = (Get-PodeWebState -Name 'pages')[$Data.ID]
@@ -567,7 +567,7 @@ function Add-PodeWebPage {
             }
             else {
                 # open new sse connection
-                ConvertTo-PodeSseConnection -Name 'Pode.Web.Actions' -Group $Data.ID
+                ConvertTo-PodeSseConnection -Name 'Pode.Web.Actions' -Group $Data.ID -Scope Global
             }
 
             $global:PageData = $null
@@ -970,7 +970,7 @@ function ConvertTo-PodeWebPage {
                     }
 
                     try {
-                    (. $cmd @_args) |
+                        (. $cmd @_args) |
                             New-PodeWebTextbox -Name 'Output_Result' -Multiline -Preformat |
                             Out-PodeWebElement
                     }

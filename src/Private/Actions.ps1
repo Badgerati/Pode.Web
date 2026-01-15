@@ -9,7 +9,7 @@ function Send-PodeWebAction {
     )
 
     # for http, just return
-    if (Test-PodeWebResponseType -Type Http) {
+    if (Test-PodeWebConnectionType -Type Http) {
         return $Value
     }
 
@@ -41,7 +41,7 @@ function Test-PodeWebActionsAsync {
     [OutputType([bool])]
     param()
 
-    return !(Test-PodeWebResponseType -Type Http)
+    return !(Test-PodeWebConnectionType -Type Http)
 }
 
 function Get-PodeWebSseClientId {
