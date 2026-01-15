@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Inputs' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Inputs' -Theme Dark
 
     # set the home page controls (just a simple paragraph)
     $form = New-PodeWebForm -Name 'Test' -ButtonType Submit, Reset -AsCard -ScriptBlock {

@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Audio' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Audio' -Theme Dark
 
     # set the home page controls
     Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Title 'Audio' -Content @(

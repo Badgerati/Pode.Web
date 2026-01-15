@@ -161,8 +161,8 @@ function Test-PodeWebThemeInbuilt {
         $Name
     )
 
-    $inbuildThemes = Get-PodeWebInbuiltThemes
-    return ($Name -iin $inbuildThemes)
+    $inbuiltThemes = Get-PodeWebInbuiltThemes
+    return ($Name -iin $inbuiltThemes)
 }
 
 function Get-PodeWebCustomThemeRoutePath {
@@ -1110,7 +1110,6 @@ function Set-PodeWebSecurity {
         -Style 'self', 'unsafe-inline' `
         -Scripts 'self', 'unsafe-inline', 'blob:' `
         -Image 'self', 'data'
-    #TODO: move "blob:" to -Worker in Pode v2.12.0
 }
 
 function Test-PodeWebParameter {
@@ -1226,7 +1225,7 @@ function Set-PodeWebMetadata {
     $WebEvent.Metadata.SenderId = Get-PodeHeader -Name 'X-PODE-WEB-SENDER-ID'
 }
 
-function Test-PodeWebResponseType {
+function Test-PodeWebConnectionType {
     param(
         [Parameter()]
         [ValidateSet('Http', 'Sse')]
@@ -1234,9 +1233,9 @@ function Test-PodeWebResponseType {
         $Type
     )
 
-    return ((Get-PodeWebState -Name 'resp-type') -ieq $Type)
+    return ((Get-PodeWebState -Name 'conn-type') -ieq $Type)
 }
 
-function Get-PodeWebResponseType {
-    return (Get-PodeWebState -Name 'resp-type')
+function Get-PodeWebConnectionType {
+    return (Get-PodeWebState -Name 'conn-type')
 }

@@ -7,7 +7,7 @@ Start-PodeServer -Threads 2 {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Input Events' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Input Events' -Theme Dark
 
 
     # select event

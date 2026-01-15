@@ -7,7 +7,7 @@ Start-PodeServer -Browse {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Links Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Links Example' -Theme Dark
 
     # home page with link togglging
     Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Title 'Homepage' -ScriptBlock {
