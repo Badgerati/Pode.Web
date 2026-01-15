@@ -1094,7 +1094,8 @@ function Set-PodeWebSecurity {
                 -Default 'http', 'https' `
                 -Style 'http', 'https' `
                 -Scripts 'http', 'https' `
-                -Image 'http', 'https'
+                -Image 'http', 'https' `
+                -Font 'http', 'https', 'data'
         }
 
         'simple' {
