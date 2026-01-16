@@ -379,6 +379,11 @@ function Add-PodeWebPage {
     $ScriptBlock, $mainUsingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
     $HelpScriptBlock, $helpUsingVars = Convert-PodeScopedVariables -ScriptBlock $HelpScriptBlock -PSSession $PSCmdlet.SessionState
 
+    # for homepage, set index to MinValue if not explicitly set
+    if ($HomePage -and ($Index -eq [int]::MaxValue)) {
+        $Index = [int]::MinValue
+    }
+
     # setup page meta
     $pageMeta = @{
         Operation        = 'New'
@@ -1114,7 +1119,7 @@ function Test-PodeWebPage {
 
     # by ID
     if (![string]::IsNullOrWhiteSpace($Id)) {
-        return (Get-PodeWebState -Name 'pages').ContainsKey($Id)
+        return (Get-PodeWebState -Name 'pages').Contains($Id)
     }
 
     # by Name/Group
@@ -1145,6 +1150,11 @@ function New-PodeWebPageGroup {
         [Parameter()]
         [string]
         $Icon,
+
+        [Parameter()]
+        [ValidateSet('Creation', 'Ascending', 'Descending')]
+        [string]
+        $PageOrder = 'Ascending',
 
         [switch]
         $NoCounter,
@@ -1177,6 +1187,7 @@ function New-PodeWebPageGroup {
         Icon          = $Icon
         NoCounter     = $NoCounter.IsPresent
         Hide          = $Hide.IsPresent
+        PageOrder     = $PageOrder.ToLowerInvariant()
         Pages         = @{}
     }
 
@@ -1216,7 +1227,7 @@ function Test-PodeWebPageGroup {
         $Name
     )
 
-    return (Get-PodeWebState -Name 'groups').ContainsKey($Name)
+    return (Get-PodeWebState -Name 'groups').Contains($Name)
 }
 
 function Remove-PodeWebPageGroup {

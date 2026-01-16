@@ -28,7 +28,6 @@ Start-PodeServer -StatusPageExceptions Show {
         return @{ Message = 'Invalid details supplied' }
     }
 
-
     # set the use of templates
     Initialize-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark -ConnectionType SSE
 
@@ -323,7 +322,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -Name Services -Index 0 -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -393,7 +392,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $data | Update-PodeWebTable -Name 'Dynamic Users' -PageIndex $pageIndex -TotalItemCount $totalCount
     }
 
-    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Content $table3
+    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Content $table3 -Index 0
 
 
     # open twitter
