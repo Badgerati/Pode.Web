@@ -1,10 +1,10 @@
 # Line
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
-This will render a line (`<hr>`) to your page, using [`New-PodeWebLine`](../../../Functions/Elements/New-PodeWebLine):
+This will render a line (`<hr/>`) to your page, using [`New-PodeWebLine`](../../../Functions/Elements/New-PodeWebLine):
 
 ```powershell
 New-PodeWebCard -Content @(

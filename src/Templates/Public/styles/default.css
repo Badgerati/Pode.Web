@@ -448,20 +448,39 @@ span.pode-page-help {
     cursor: pointer;
 }
 
-li.nav-group-title {
-    border-top: 1px dashed #888;
-    padding-top: 1em;
-}
-
 li.nav-group-title span.badge {
     float: right;
     margin-right: 1em;
     padding: 5px;
 }
 
-ul#sidebar-list div.collapse,
-ul#sidebar-list div.collapsing {
+ul#sidebar-list li.nav-group-title a span.mdi {
+    border-style: solid;
+    border-color: var(--podeweb-secondary-text-color);
+    border-radius: 0.4em;
+    border-width: 0.1em;
+    padding-top: 0.24em;
+    padding-bottom: 0.24em;
+}
+
+ul#sidebar-list li.nav-group-title a:not(.collapsed) span.mdi {
+    background-color: var(--podeweb-secondary-border-color);
+    border-color: var(--podeweb-tertiary-text-color);
+    color: var(--podeweb-tertiary-text-color);
+}
+
+ul#sidebar-list li.nav-group-title a.collapsed span.mdi {
+    background-color: var(--podeweb-tertiary-border-color);
+}
+
+ul#sidebar-list hr {
+    border-color: var(--podeweb-primary-text-color);
+    margin-right: 1em;
     margin-left: 1em;
+}
+
+ul#sidebar-list li.nav-item {
+    margin-bottom: 0.3em;
 }
 
 div.pode-grid {
@@ -833,6 +852,34 @@ iframe {
     margin-left: 1em;
 }
 
+.mLeft2 {
+    margin-left: 2em;
+}
+
+.mLeft4 {
+    margin-left: 4em;
+}
+
+.mLeft6 {
+    margin-left: 6em;
+}
+
+.mLeft8 {
+    margin-left: 8em;
+}
+
+.mLeft10 {
+    margin-left: 10em;
+}
+
+.mLeft12 {
+    margin-left: 12em;
+}
+
+.mLeft14 {
+    margin-left: 14em;
+}
+
 .mRight05 {
     margin-right: 0.5em;
 }
@@ -987,7 +1034,7 @@ span.canvas-spinner {
 
 a.nav-link .mdi:before {
     position: relative;
-    top: 3px;
+    vertical-align: text-top;
 }
 
 #pode-page-title span.mdi.pode-page-title-icon:before {
@@ -1493,6 +1540,7 @@ ul.dropdown-menu a.dropdown-item:active,
 ul.dropdown-menu a.dropdown-item:focus {
     background-color: var(--podeweb-primary-border-color);
     color: var(--podeweb-tertiary-text-color);
+    font-weight: bold;
 }
 
 pre code {
@@ -1539,10 +1587,6 @@ pre code {
     color: var(--podeweb-hover-primary-text-color) !important;
 }
 
-li.nav-group-title {
-    border-top-color: var(--podeweb-secondary-text-color);
-}
-
 .nav-item.nav-page-item a.nav-link.active {
     color: var(--podeweb-hover-primary-text-color) !important;
 }
@@ -1575,6 +1619,7 @@ nav .pagination .page-link:hover {
 
 hr {
     border-color: var(--podeweb-secondary-border-color);
+    border-width: medium;
 }
 
 .jumbotron {

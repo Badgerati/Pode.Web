@@ -28,13 +28,16 @@ Start-PodeServer -StatusPageExceptions Show {
         return @{ Message = 'Invalid details supplied' }
     }
 
-
     # set the use of templates
     Initialize-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark -ConnectionType SSE
 
     # add a custom darkred theme
     Add-PodeWebCustomTheme -Name DarkRed -Base Dark `
         -BackgroundColourConfig (New-PodeWebBackgroundColourConfig -Page 'darkred')
+
+    # create custom sidebar groups
+    New-PodeWebPageGroup -Name 'Tools' -PassThru | Show-PodeWebSidebarSeparator
+    New-PodeWebPageGroup -Name 'Windows' -Parent 'Tools'
 
     # set login page
     # -BackgroundImage '/images/galaxy.jpg'
@@ -61,7 +64,6 @@ Start-PodeServer -StatusPageExceptions Show {
     )
 
     Set-PodeWebNavDefault -Items $link1, $link2, $div1, $link3, $dd1
-
 
     $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 5 -NoAuth -ScriptBlock {
         $rand = Get-Random -Minimum 0 -Maximum 3
@@ -240,6 +242,7 @@ Start-PodeServer -StatusPageExceptions Show {
     )
 
     Add-PodeWebPage -Name Charts -Path 'my-charts' -Icon 'chart-bar' -Content $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
+        Show-PodeWebSidebarSeparator -Position After -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
             Show-PodeWebToast -Message "Page $($EventType)!"
         }
@@ -323,7 +326,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -Name Services -Index 0 -Icon 'cogs' -Group Windows -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -393,7 +396,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $data | Update-PodeWebTable -Name 'Dynamic Users' -PageIndex $pageIndex -TotalItemCount $totalCount
     }
 
-    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Content $table3
+    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Content $table3 -Index 0
 
 
     # open twitter

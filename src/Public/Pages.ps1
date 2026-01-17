@@ -379,6 +379,11 @@ function Add-PodeWebPage {
     $ScriptBlock, $mainUsingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
     $HelpScriptBlock, $helpUsingVars = Convert-PodeScopedVariables -ScriptBlock $HelpScriptBlock -PSSession $PSCmdlet.SessionState
 
+    # for homepage, set index to MinValue if not explicitly set
+    if ($HomePage -and ($Index -eq [int]::MaxValue)) {
+        $Index = [int]::MinValue
+    }
+
     # setup page meta
     $pageMeta = @{
         Operation        = 'New'
@@ -399,10 +404,12 @@ function Add-PodeWebPage {
         Icon             = $Icon
         Path             = (Get-PodeWebPagePath -Name $Name -Group $Group -Path $Path -NoAppPath)
         Url              = (Get-PodeWebPagePath -Name $Name -Group $Group -Path $Path)
-        Hide             = $Hide.IsPresent
         NoSidebar        = $NoSidebar.IsPresent
         NoNavigation     = $NoNavigation.IsPresent
         Navigation       = $Navigation
+        Sidebar          = @{
+            Hide = $Hide.IsPresent
+        }
         Logic            = @{
             ScriptBlock    = $ScriptBlock
             UsingVariables = $mainUsingVars
@@ -1114,7 +1121,7 @@ function Test-PodeWebPage {
 
     # by ID
     if (![string]::IsNullOrWhiteSpace($Id)) {
-        return (Get-PodeWebState -Name 'pages').ContainsKey($Id)
+        return (Get-PodeWebState -Name 'pages').Contains($Id)
     }
 
     # by Name/Group
@@ -1144,10 +1151,22 @@ function New-PodeWebPageGroup {
 
         [Parameter()]
         [string]
+        $Parent,
+
+        [Parameter()]
+        [string]
         $Icon,
 
+        [Parameter()]
+        [ValidateSet('Creation', 'Ascending', 'Descending')]
+        [string]
+        $PageOrder = 'Ascending',
+
         [switch]
-        $NoCounter,
+        $PagesFirst,
+
+        [switch]
+        $ShowCounter,
 
         [switch]
         $Hide,
@@ -1159,6 +1178,11 @@ function New-PodeWebPageGroup {
     # test if page group exists
     if (Test-PodeWebPageGroup -Name $Name) {
         throw "Page Group already exists: $($Name)"
+    }
+
+    # if parent supplied, test it exists
+    if (![string]::IsNullOrEmpty($Parent) -and !(Test-PodeWebPageGroup -Name $Parent)) {
+        throw "Parent Page Group does not exist: $($Parent)"
     }
 
     # set display name
@@ -1174,9 +1198,15 @@ function New-PodeWebPageGroup {
         ID            = Get-PodeWebRandomName
         Name          = $Name
         DisplayName   = [System.Net.WebUtility]::HtmlEncode($DisplayName)
-        Icon          = $Icon
-        NoCounter     = $NoCounter.IsPresent
-        Hide          = $Hide.IsPresent
+        Parent        = $Parent
+        Children      = @()
+        Icon          = $Icon1
+        Sidebar       = @{
+            ShowCounter = $ShowCounter.IsPresent
+            Hide        = $Hide.IsPresent
+        }
+        PageOrder     = $PageOrder.ToLowerInvariant()
+        PagesFirst    = $PagesFirst.IsPresent
         Pages         = @{}
     }
 
@@ -1184,6 +1214,12 @@ function New-PodeWebPageGroup {
     $groups = Get-PodeWebState -Name 'groups'
     $groups[$Name] = $groupMeta
 
+    # update parent's children, if applicable
+    if (![string]::IsNullOrEmpty($Parent)) {
+        $groups[$Parent].Children += $Name
+    }
+
+    # return group meta if needed
     if ($PassThru) {
         return $groupMeta
     }
@@ -1216,7 +1252,7 @@ function Test-PodeWebPageGroup {
         $Name
     )
 
-    return (Get-PodeWebState -Name 'groups').ContainsKey($Name)
+    return (Get-PodeWebState -Name 'groups').Contains($Name)
 }
 
 function Remove-PodeWebPageGroup {
@@ -1228,4 +1264,33 @@ function Remove-PodeWebPageGroup {
     )
 
     $null = (Get-PodeWebState -Name 'groups').Remove($Name)
+}
+
+function Show-PodeWebSidebarSeparator {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [hashtable]
+        $InputObject,
+
+        [Parameter()]
+        [ValidateSet('Before', 'After')]
+        [string]
+        $Position = 'Before',
+
+        [switch]
+        $PassThru
+    )
+
+    if ($null -eq $InputObject.Sidebar) {
+        $InputObject.Sidebar = @{}
+    }
+
+    $InputObject.Sidebar.Separator = @{
+        ShowBefore = ($Position -ieq 'Before')
+    }
+
+    if ($PassThru) {
+        return $InputObject
+    }
 }

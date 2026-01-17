@@ -36,6 +36,11 @@ function Initialize-PodeWebTemplates {
         [string]
         $SseSecret,
 
+        [Parameter()]
+        [ValidateSet('Creation', 'Ascending', 'Descending')]
+        [string]
+        $GroupOrder = 'Ascending',
+
         [switch]
         $NoPageFilter,
 
@@ -78,8 +83,9 @@ function Initialize-PodeWebTemplates {
     Set-PodeWebState -Name 'hide-sidebar' -Value $HideSidebar.IsPresent
     Set-PodeWebState -Name 'root-redirect' -Value $RootRedirect.IsPresent
     Set-PodeWebState -Name 'social' -Value ([ordered]@{})
-    Set-PodeWebState -Name 'pages' -Value @{}
-    Set-PodeWebState -Name 'groups' -Value @{}
+    Set-PodeWebState -Name 'pages' -Value ([ordered]@{})
+    Set-PodeWebState -Name 'groups' -Value ([ordered]@{})
+    Set-PodeWebState -Name 'group-order' -Value $GroupOrder.ToLowerInvariant()
     Set-PodeWebState -Name 'default-nav' -Value $null
     Set-PodeWebState -Name 'endpoint-name' -Value $EndpointName
     Set-PodeWebState -Name 'custom-css' -Value @()

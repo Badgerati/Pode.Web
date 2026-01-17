@@ -4004,7 +4004,7 @@ class PodeLine extends PodeContentElement {
             id="${this.id}"
             class="my-4"
             pode-object="${this.getType()}"
-            pode-id='${this.uuid}'>`;
+            pode-id='${this.uuid}' />`;
     }
 }
 PodeElementFactory.setClass(PodeLine);
@@ -4158,7 +4158,7 @@ class PodeHero extends PodeContentElement {
     }
 
     new(data, sender, opts) {
-        var content = data.Content ? `<hr class='my-4'><div pode-content-for='${this.uuid}' pode-content-order='0'></div>` : '';
+        var content = data.Content ? `<hr class='my-4' /><div pode-content-for='${this.uuid}' pode-content-order='0'></div>` : '';
 
         return `<div
             id="${this.id}"
@@ -6198,7 +6198,7 @@ class PodeNavDivider extends PodeNavElement {
 
     new(data, sender, opts) {
         return data.InDropdown
-            ? "<li><hr class='dropdown-divider'></li>"
+            ? "<li><hr class='dropdown-divider' /></li>"
             : "<span class='link-divider'>|</span>";
     }
 }
