@@ -37,117 +37,168 @@ $(
     <div class="position-sticky sidebar-sticky pt-0">
         <ul id="sidebar-list" class="nav flex-column">
             $(
-                $pages = Get-PodeWebState -Name 'pages'
+                function Write-PodeWebSidebarGroup {
+                    param(
+                        [string]$Name,
+                        [int]$Level
+                    )
 
-                $groups = Get-PodeWebState -Name 'groups'
-                $groupOrder = Get-PodeWebState -Name 'group-order'
-                $groupNames = @($groups.Keys)
+                    $group = $groups[$Name]
+                    $hasPages = $group.Pages.Count -gt 0
+                    $hasChildren = $group.Children.Length -gt 0
 
-                if ($groupOrder -ine 'creation') {
-                    [array]::Sort($groupNames)
+                    $html = [string]::Empty
+                    $pageCounter = 0
+                    $expanded = $false
+                    $childrenHtml = [string]::Empty
+                    $childrenPageCounter = 0
 
-                    if ($groupOrder -ieq 'descending') {
-                        [array]::Reverse($groupNames)
+                    if ($group.Sidebar.Hide -or (!$hasPages -and !$hasChildren)) {
+                        return $html, $pageCounter, $expanded
+                    }
+
+                    if ($hasChildren) {
+                        $children = Get-PodeWebSidebarOrderedGroupNames -Names $group.Children
+
+                        foreach ($childName in $children) {
+                            $_html, $_count, $_expanded = Write-PodeWebSidebarGroup -Name $childName -Level ($Level + 1)
+                            $childrenHtml += $_html
+                            $childrenPageCounter += $_count
+                            $expanded = $expanded -or $_expanded
+                        }
+                    }
+
+                    if ($hasPages) {
+                        $grpPageIndexes = @($group.Pages.Keys)
+                        [array]::Sort($grpPageIndexes)
+
+                        $grpPages = @(foreach ($grpPageIndex in $grpPageIndexes) {
+                                $pageIds = $group.Pages[$grpPageIndex]
+                                $pageIds = Get-PodeWebSidebarOrderedArray -Items $pageIds -Order $group.PageOrder
+
+                                foreach ($pageId in $pageIds) {
+                                    $page = $pages[$pageId]
+                                    if (!($page.Sidebar.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth))) {
+                                        $page
+                                    }
+                                }
+                            })
+                    }
+                    else {
+                        $grpPages = @()
+                    }
+
+                    $pageCounter = $grpPages.Length + $childrenPageCounter
+
+                    if ($pageCounter -gt 0) {
+                        if (![string]::IsNullOrEmpty($group.Name)) {
+                            $chevron = 'right'
+                            $show = [string]::Empty
+                            $collapsed = 'collapsed'
+
+                            if ($expanded -or ($data.Page.Group -ieq $group.Name)) {
+                                $chevron = 'down'
+                                $show = 'show'
+                                $collapsed = [string]::Empty
+                                $expanded = $true
+                            }
+
+                            $icon = [string]::Empty
+                            if (![string]::IsNullOrWhiteSpace($group.Icon)) {
+                                $icon = "<span class='mdi mdi-$($group.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>"
+                            }
+
+                            if ($group.Sidebar.Separator -and $group.Sidebar.Separator.ShowBefore) {
+                                $html += "<hr/>"
+                            }
+
+                            $html += "<li class='nav-item nav-group-title mLeft$($Level * 2)'>
+                                <a class='nav-link $($collapsed)' data-bs-toggle='collapse' href='#nav-$($group.ID)' aria-expanded='$($data.Page.Group -ieq $group.Name)' aria-controls='nav-$($group.ID)'>
+                                    <div>
+                                        <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
+                                        <span class='h6'><strong>$($icon)$($group.DisplayName)</strong></span>
+                                        $(if ($group.Sidebar.ShowCounter) {
+                                            "<span class='badge pode-inbuilt-primary-theme'>$($pageCounter)</span>"
+                                        })
+                                    </div>
+                                </a>
+                            </li>"
+
+                            $html += "<div class='collapse $($show)' id='nav-$($group.ID)'>"
+                        }
+                        else {
+                            $Level--
+                        }
+
+                        if ($hasChildren -and !$group.PagesFirst) {
+                            $html += $childrenHtml
+                        }
+
+                        foreach ($page in $grpPages) {
+                            $html += Write-PodeWebSidebarGroupPage -Page $page -Level $Level
+                        }
+
+                        if ($hasChildren -and $group.PagesFirst) {
+                            $html += $childrenHtml
+                        }
+
+                        if (![string]::IsNullOrEmpty($group.Name)) {
+                            $html += '</div>'
+
+                            if ($group.Sidebar.Separator -and !$group.Sidebar.Separator.ShowBefore) {
+                                $html += "<hr/>"
+                            }
+                        }
+                    }
+
+                    return $html, $pageCounter, $expanded
+                }
+
+                function Write-PodeWebSidebarGroupPage {
+                    param(
+                        [hashtable]$Page,
+                        [int]$Level
+                    )
+
+                    $href = [string]::Empty
+                    if (!$Page.IsDynamic) {
+                        $href = "href='$($Page.Url)'"
+
+                        if ($Page.NewTab) {
+                            $href += " target='_blank'"
+                        }
+                    }
+
+                    $activePage = [string]::Empty
+                    if (($data.Page.Name -ieq $Page.Name) -and ($data.Page.Group -ieq $group.Name)) {
+                        $activePage = 'active'
+                    }
+
+                    if ($Page.Sidebar.Separator -and $Page.Sidebar.Separator.ShowBefore) {
+                        "<hr/>"
+                    }
+
+                    "<li class='nav-item nav-page-item mLeft$(($Level + 1) * 2)'>
+                        <a class='nav-link $($activePage)' name='$($Page.Name)' pode-page-group='$($group.Name)' pode-page-type='$($Page.ObjectType)' pode-dynamic='$($Page.IsDynamic)' $($href)>
+                            <div>
+                                <span class='mdi mdi-$($Page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
+                                $($Page.DisplayName)
+                            </div>
+                        </a>
+                    </li>"
+
+                    if ($Page.Sidebar.Separator -and !$Page.Sidebar.Separator.ShowBefore) {
+                        "<hr/>"
                     }
                 }
 
-                if ($groupNames -contains '') {
-                    $groupNames = @('') + @(foreach ($name in $groupNames) {
-                        if ($name -ne '') {
-                            $name
-                        }
-                    })
-                }
+                $pages = Get-PodeWebState -Name 'pages'
+                $groups = Get-PodeWebState -Name 'groups'
+                $groupNames = Get-PodeWebSidebarParentGroupNames -Groups $groups.Values
 
                 foreach ($grpName in $groupNames) {
-                    $group = $groups[$grpName]
-                    if ($group.Pages.Count -eq 0) {
-                        continue
-                    }
-
-                    $grpPageIndexes = @($group.Pages.Keys)
-                    [array]::Sort($grpPageIndexes)
-
-                    $grpPages = @(foreach ($grpPageIndex in $grpPageIndexes) {
-                        $pageIds = $group.Pages[$grpPageIndex]
-
-                        if ($group.PageOrder -ine 'creation') {
-                            [array]::Sort($pageIds)
-
-                            if ($group.PageOrder -ieq 'descending') {
-                                [array]::Reverse($pageIds)
-                            }
-                        }
-
-                        foreach ($pageId in $pageIds) {
-                            $page = $pages[$pageId]
-                            if (!($page.Hide -or $page.IsSystem -or !(Test-PodeWebPageAccess -PageAccess $page.Access -Auth $data.Auth))) {
-                                $page
-                            }
-                        }
-                    })
-
-                    if ($grpPages.Length -eq 0) {
-                        continue
-                    }
-
-                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
-                        $chevron = 'right'
-                        $show = [string]::Empty
-
-                        if ($data.Page.Group -ieq $group.Name) {
-                            $chevron = 'down'
-                            $show = 'show'
-                        }
-
-                        $icon = [string]::Empty
-                        if (![string]::IsNullOrWhiteSpace($group.Icon)) {
-                            $icon = "<span class='mdi mdi-$($group.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>"
-                        }
-
-                        "<li class='nav-item mTop1 nav-group-title'>
-                            <a class='nav-link' data-bs-toggle='collapse' href='#nav-$($group.ID)' aria-expanded='$($data.Page.Group -ieq $group.Name)' aria-controls='nav-$($group.ID)'>
-                                <div>
-                                    <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
-                                    <span class='h6'>$($icon)$($group.DisplayName)</span>
-                                    $(if (!$group.NoCounter) {
-                                        "<span class='badge pode-inbuilt-primary-theme'>$($grpPages.Length)</span>"
-                                    })
-                                </div>
-                            </a>
-                        </li>"
-
-                        "<div class='collapse $($show)' id='nav-$($group.ID)'>"
-                    }
-
-                    foreach ($page in $grpPages) {
-                        $href = [string]::Empty
-                        if (!$page.IsDynamic) {
-                            $href = "href='$($page.Url)'"
-
-                            if ($page.NewTab) {
-                                $href += " target='_blank'"
-                            }
-                        }
-
-                        $activePage = [string]::Empty
-                        if (($data.Page.Name -ieq $page.Name) -and ($data.Page.Group -ieq $group.Name)) {
-                            $activePage = 'active'
-                        }
-
-                        "<li class='nav-item nav-page-item'>
-                            <a class='nav-link $($activePage)' name='$($page.Name)' pode-page-group='$($group.Name)' pode-page-type='$($page.ObjectType)' pode-dynamic='$($page.IsDynamic)' $($href)>
-                                <div>
-                                    <span class='mdi mdi-$($page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
-                                    $($page.DisplayName)
-                                </div>
-                            </a>
-                        </li>"
-                    }
-
-                    if (![string]::IsNullOrWhiteSpace($group.Name)) {
-                        "</div>"
-                    }
+                    $html, $count = Write-PodeWebSidebarGroup -Name $grpName -Level 0
+                    $html
                 }
             )
         </ul>

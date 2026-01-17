@@ -779,12 +779,14 @@ function bindPageGroupCollapse() {
         var id = $(e.target).attr('id');
         var icon = $(`a[aria-controls="${id}"] span.mdi`);
         toggleIcon(icon, 'chevron-right', 'chevron-down');
+        e.stopPropagation();
     });
 
     $('ul#sidebar-list div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
         var id = $(e.target).attr('id');
         var icon = $(`a[aria-controls="${id}"] span.mdi`);
         toggleIcon(icon, 'chevron-down', 'chevron-right');
+        e.stopPropagation();
     });
 }
 
