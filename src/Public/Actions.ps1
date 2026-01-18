@@ -936,16 +936,44 @@ function Move-PodeWebPage {
         [string]
         $DataValue,
 
+        [Parameter()]
+        [hashtable]
+        $QueryProperty,
+
         [switch]
         $NewTab
     )
 
-    $page = ((Get-PodeWebPagePath -Name $Name -Group $Group) -replace '\s+', '+')
+    # error if DataValue supplied, and QueryProperty contains a "Value" key
+    $hasDataValue = ![string]::IsNullOrWhiteSpace($DataValue)
 
-    if (![string]::IsNullOrWhiteSpace($DataValue)) {
-        $page += "?Value=$($DataValue)"
+    if ($hasDataValue -and ($null -ne $QueryProperty) -and $QueryProperty.ContainsKey('Value')) {
+        throw "You cannot specify both 'DataValue' and a 'Value' key in 'QueryProperty', for Move-PodeWebPage."
     }
 
+    # build page url, and sanitize spaces
+    $page = ((Get-PodeWebPagePath -Name $Name -Group $Group) -replace '\s+', '+')
+
+    # add the DataValue as a query string if provided
+    if ($hasDataValue) {
+        $page += "?Value=$([System.Web.HttpUtility]::UrlEncode($DataValue))"
+    }
+
+    # add any additional query properties
+    if ($null -ne $QueryProperty) {
+        $separator = '?'
+
+        foreach ($key in $QueryProperty.Keys) {
+            if ($hasDataValue) {
+                $separator = '&'
+            }
+
+            $page += "$($separator)$($key)=$([System.Web.HttpUtility]::UrlEncode($QueryProperty[$key]))"
+            $separator = '&'
+        }
+    }
+
+    # send the move action to the web client
     Send-PodeWebAction -Value @{
         Operation  = 'Move'
         ObjectType = 'Href'
