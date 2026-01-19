@@ -33,3 +33,5 @@ Add-PodeWebPage -Name 'Example' -Content $con1, $con2
     )
 }
 ```
+
+Various other properties can be updated as well.

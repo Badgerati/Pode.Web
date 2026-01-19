@@ -1489,6 +1489,7 @@ div.form-floating>.form-control::placeholder {
     color: none !important;
 }
 
+.form-floating>label,
 .form-floating>.form-control:focus~label,
 .form-floating .form-control:focus~label::after,
 .form-floating>.form-control:not(:placeholder-shown)~label,

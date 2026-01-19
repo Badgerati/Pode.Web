@@ -51,3 +51,5 @@ New-PodeWebElementGroup -Id 'ele_grp' -SubmitButtonId 'submit1' -Content @(
     }
 )
 ```
+
+Various other properties can be updated as well.

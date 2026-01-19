@@ -25,6 +25,8 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
+Various other properties can be updated as well.
+
 ## ConvertTo
 
 The [`ConvertTo-PodeWebChartData`](../../../Functions/Actions/ConvertTo-PodeWebChartData) simplifies using the raw format, by letting you convert data at the end of a pipeline. The function takes a `-LabelProperty` which is the name of a property in the input that should be used for the X-axis, and then a `-DatasetProperty` with is property names for Y-axis values.

@@ -1160,6 +1160,14 @@ function New-PodeWebCredential {
         [string[]]
         $Type = @('Username', 'Password'),
 
+        [Parameter()]
+        [string]
+        $UsernameValue,
+
+        [Parameter()]
+        [string]
+        $PasswordValue,
+
         [switch]
         $ReadOnly,
 
@@ -1198,6 +1206,10 @@ function New-PodeWebCredential {
         }
         Type          = @($Type)
         Required      = $Required.IsPresent
+        Values        = @{
+            Date = (Protect-PodeWebValue -Value $UsernameValue -Default '' -Encode)
+            Time = (Protect-PodeWebValue -Value $PasswordValue -Default '' -Encode)
+        }
     }
 }
 

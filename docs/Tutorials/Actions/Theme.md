@@ -19,6 +19,8 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
+Various other properties can be updated as well.
+
 ## Reset
 
 To reset a user's theme back to the default, you can use [`Reset-PodeWebTheme`](../../../Functions/Actions/Reset-PodeWebTheme):

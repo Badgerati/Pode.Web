@@ -1116,6 +1116,7 @@ function Set-PodeWebSecurity {
 function Test-PodeWebParameter {
     param(
         [Parameter(Mandatory = $true)]
+        [System.Collections.Generic.Dictionary[string, object]]
         $Parameters,
 
         [Parameter(Mandatory = $true)]
