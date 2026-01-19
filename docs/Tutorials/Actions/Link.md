@@ -45,3 +45,5 @@ New-PodeWebCard -Content @(
     }
 )
 ```
+
+Various other properties can be updated as well.

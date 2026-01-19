@@ -396,10 +396,191 @@ function Clear-PodeWebChart {
     }
 }
 
+function Update-PodeWebCredential {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter()]
+        [string]
+        $UsernameValue,
+
+        [Parameter()]
+        [string]
+        $PasswordValue,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [switch]
+        $ReadOnly,
+
+        [switch]
+        $Disabled
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Update'
+        ObjectType = 'Credential'
+        Values     = @{
+            Username = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'UsernameValue' -Value $UsernameValue)
+            Password = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'PasswordValue' -Value $PasswordValue)
+        }
+        ID         = $Id
+        Name       = $Name
+        ReadOnly   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'ReadOnly' -Value $ReadOnly.IsPresent)
+        Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+    }
+}
+
+function Clear-PodeWebCredential {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Clear'
+        ObjectType = 'Credential'
+        ID         = $Id
+        Name       = $Name
+    }
+}
+
+function Update-PodeWebDateTime {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter()]
+        [string]
+        $DateValue,
+
+        [Parameter()]
+        [string]
+        $TimeValue,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [switch]
+        $ReadOnly,
+
+        [switch]
+        $Disabled
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Update'
+        ObjectType = 'DateTime'
+        Values     = @{
+            Date = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'DateValue' -Value $DateValue)
+            Time = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'TimeValue' -Value $TimeValue)
+        }
+        ID         = $Id
+        Name       = $Name
+        ReadOnly   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'ReadOnly' -Value $ReadOnly.IsPresent)
+        Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+    }
+}
+
+function Clear-PodeWebDateTime {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Clear'
+        ObjectType = 'DateTime'
+        ID         = $Id
+        Name       = $Name
+    }
+}
+
+function Update-PodeWebMinMax {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter()]
+        [double]
+        $MinValue,
+
+        [Parameter()]
+        [double]
+        $MaxValue,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [switch]
+        $ReadOnly,
+
+        [switch]
+        $Disabled
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Update'
+        ObjectType = 'MinMax'
+        Values     = @{
+            Min = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'MinValue' -Value $MinValue)
+            Max = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'MaxValue' -Value $MaxValue)
+        }
+        ID         = $Id
+        Name       = $Name
+        ReadOnly   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'ReadOnly' -Value $ReadOnly.IsPresent)
+        Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+    }
+}
+
+function Clear-PodeWebMinMax {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Clear'
+        ObjectType = 'MinMax'
+        ID         = $Id
+        Name       = $Name
+    }
+}
+
 function Update-PodeWebTextbox {
     [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [Parameter(ValueFromPipeline = $true)]
+        [ValidateNotNull()]
         [Alias('Data')]
         $Value,
 
@@ -419,15 +600,11 @@ function Update-PodeWebTextbox {
         [switch]
         $JsonInline,
 
-        [Parameter()]
-        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
-        [string]
-        $ReadOnlyState = 'Unchanged',
+        [switch]
+        $ReadOnly,
 
-        [Parameter()]
-        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
-        [string]
-        $DisabledState = 'Unchanged'
+        [switch]
+        $Disabled
     )
 
     begin {
@@ -444,15 +621,15 @@ function Update-PodeWebTextbox {
         }
 
         Send-PodeWebAction -Value @{
-            Operation     = 'Update'
-            ObjectType    = 'Textbox'
-            Value         = $items
-            ID            = $Id
-            Name          = $Name
-            AsJson        = $AsJson.IsPresent
-            JsonInline    = $JsonInline.IsPresent
-            ReadOnlyState = $ReadOnlyState
-            DisabledState = $DisabledState
+            Operation  = 'Update'
+            ObjectType = 'Textbox'
+            Value      = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Value' -Value $items)
+            ID         = $Id
+            Name       = $Name
+            AsJson     = $AsJson.IsPresent
+            JsonInline = $JsonInline.IsPresent
+            ReadOnly   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'ReadOnly' -Value $ReadOnly.IsPresent)
+            Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
         }
     }
 }
@@ -651,10 +828,8 @@ function Update-PodeWebSelect {
         [string[]]
         $SelectedValue,
 
-        [Parameter()]
-        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
-        [string]
-        $DisabledState = 'Unchanged'
+        [switch]
+        $Disabled
     )
 
     begin {
@@ -674,7 +849,7 @@ function Update-PodeWebSelect {
             Options        = $items
             DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $items -EqualCount)
             SelectedValue  = @(Protect-PodeWebValues -Value $SelectedValue -Encode)
-            DisabledState  = $DisabledState
+            Disabled       = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
         }
     }
 }
@@ -760,12 +935,9 @@ function Update-PodeWebCheckbox {
         [int]
         $OptionId = 0,
 
-        [Parameter()]
-        [ValidateSet('Unchanged', 'Disabled', 'Enabled')]
-        [string]
-        $State = 'Unchanged',
+        [switch]
+        $Disabled,
 
-        [Parameter()]
         [switch]
         $Checked
     )
@@ -776,8 +948,8 @@ function Update-PodeWebCheckbox {
         ID         = $Id
         Name       = $Name
         OptionId   = $OptionId
-        State      = $State.ToLowerInvariant()
-        Checked    = $Checked.IsPresent
+        Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+        Checked    = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Checked' -Value $Checked.IsPresent)
     }
 }
 
@@ -2657,19 +2829,9 @@ function Update-PodeWebButton {
         $Colour = '',
 
         [Parameter()]
-        [ValidateSet('Unchanged', 'Outline', 'Solid')]
-        [string]
-        $ColourState = 'Unchanged',
-
-        [Parameter()]
         [ValidateSet('', 'Normal', 'Small', 'Large')]
         [string]
         $Size = '',
-
-        [Parameter()]
-        [ValidateSet('Unchanged', 'Normal', 'Full')]
-        [string]
-        $SizeState = 'Unchanged',
 
         [Parameter()]
         [string]
@@ -2679,9 +2841,14 @@ function Update-PodeWebButton {
         [string]
         $DataValue,
 
-        [Parameter()]
-        [ValidateSet('Unchanged', 'SameTab', 'NewTab')]
-        $TabState = 'Unchanged'
+        [switch]
+        $Outline,
+
+        [switch]
+        $FullWidth,
+
+        [switch]
+        $NewTab
     )
 
     Send-PodeWebAction -Value @{
@@ -2690,15 +2857,15 @@ function Update-PodeWebButton {
         ID          = $Id
         Name        = $Name
         Colour      = $Colour
-        ColourState = $ColourState.ToLowerInvariant()
+        Outline     = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Outline' -Value $Outline.IsPresent)
         Size        = $Size
-        SizeState   = $SizeState.ToLowerInvariant()
+        FullWidth   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'FullWidth' -Value $FullWidth.IsPresent)
         DisplayName = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         ClickName   = [System.Net.WebUtility]::HtmlEncode($ClickName)
         Icon        = (Protect-PodeWebIconType -Icon $Icon -Element 'Button')
         Url         = $Url
         DataValue   = $DataValue
-        TabState    = $TabState.ToLowerInvariant()
+        NewTab      = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'NewTab' -Value $NewTab.IsPresent)
     }
 }
 
@@ -3004,10 +3171,8 @@ function Update-PodeWebLink {
         [string]
         $Value,
 
-        [Parameter()]
-        [ValidateSet('Unchanged', 'SameTab', 'NewTab')]
-        [string]
-        $TabState = 'Unchanged'
+        [switch]
+        $NewTab
     )
 
     Send-PodeWebAction -Value @{
@@ -3016,6 +3181,6 @@ function Update-PodeWebLink {
         ID         = $Id
         Url        = (Add-PodeWebAppPath -Url $Url)
         Value      = [System.Net.WebUtility]::HtmlEncode($Value)
-        TabState   = $TabState.ToLowerInvariant()
+        NewTab     = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'NewTab' -Value $NewTab.IsPresent)
     }
 }

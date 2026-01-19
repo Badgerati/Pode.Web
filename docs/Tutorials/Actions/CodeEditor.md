@@ -29,3 +29,5 @@ New-PodeWebContainer -NoBackground -Content @(
     }
 )
 ```
+
+Various other properties can be updated as well.

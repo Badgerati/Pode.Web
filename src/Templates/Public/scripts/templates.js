@@ -319,6 +319,18 @@ class PodeElement {
         this.children.push(element);
     }
 
+    findChild(id, name) {
+        if (id) {
+            return this.children.find((c) => c.id == id);
+        }
+
+        if (name) {
+            return this.children.find((c) => c.name == name);
+        }
+
+        return null;
+    }
+
     setIcon(data, padRight, padTop, opts) {
         // empty if not icon
         if (!data) {
@@ -608,13 +620,11 @@ class PodeElement {
             }
         }
 
-        // render content, load and bind this element
+        // render content and import element/container
         this.element = this.get();
         this.container = this.getContainer();
         this.setBaseAttributes();
         this.renderContentArea(data);
-        this.load(data, sender, opts);
-        this.bind(data, sender, opts);
         this.created = true;
 
         // finalise non-created children
@@ -631,6 +641,10 @@ class PodeElement {
                 c.finalise(null, null, null, true, null);
             });
         }
+
+        // load and bind this element
+        this.load(data, sender, opts);
+        this.bind(data, sender, opts);
     }
 
     setBaseAttributes() {
@@ -1069,6 +1083,15 @@ class PodeElement {
         this.children.forEach((child) => { child.disable(data, sender, opts); });
     }
 
+    setDisabled(data, disabled, sender, opts) {
+        if (disabled) {
+            this.disable(data, sender, opts);
+        }
+        else {
+            this.enable(data, sender, opts);
+        }
+    }
+
     show(data, sender, opts) {
         (this.container ?? this.element).show();
         this.visible = true;
@@ -1250,6 +1273,10 @@ class PodeElement {
     }
 
     update(data, sender, opts) {
+        if (data == null) {
+            return;
+        }
+
         // update icon
         if (this.icon && data.Icon) {
             if (typeof (data.Icon) === 'string') {
@@ -1638,50 +1665,26 @@ class PodeFormElement extends PodeContentElement {
 
     update(data, sender, opts) {
         super.update(data, sender, opts);
+        if (data == null) {
+            return;
+        }
 
-        // disable / enable control
-        if (data.DisabledState) {
-            switch (data.DisabledState.toLowerCase()) {
-                case 'enabled':
-                    this.disabled = false;
-                    this.enable(data, sender, opts);
-                    break;
-
-                case 'disabled':
-                    this.disabled = true;
-                    this.disable(data, sender, opts);
-                    break;
-            }
+        // disable / enable state
+        if (data.Disabled != null) {
+            this.disabled = data.Disabled;
+            this.setDisabled(data, this.disabled, sender, opts);
         }
 
         // readonly state
-        if (data.ReadOnlyState) {
-            switch (data.ReadOnlyState.toLowerCase()) {
-                case 'enabled':
-                    this.readonly = true;
-                    this.setReadonly(true);
-                    break;
-
-                case 'disabled':
-                    this.readonly = false;
-                    this.setReadonly(false);
-                    break;
-            }
+        if (data.ReadOnly != null) {
+            this.readonly = data.ReadOnly;
+            this.setReadonly(data.ReadOnly);
         }
 
         // required state
-        if (data.RequiredState) {
-            switch (data.RequiredState.toLowerCase()) {
-                case 'enabled':
-                    this.required = true;
-                    this.setRequired(true);
-                    break;
-
-                case 'disabled':
-                    this.readonly = false;
-                    this.setRequired(false);
-                    break;
-            }
+        if (data.Required != null) {
+            this.required = data.Required;
+            this.setRequired(data.Required);
         }
     }
 }
@@ -1719,6 +1722,9 @@ class PodeFormMultiElement extends PodeFormElement {
                 ${html}
         </div>`;
     }
+
+    //TODO: custom disable / readonly / required for children
+    //TODO: how do we get child elements post-creation?
 }
 
 class PodeMediaElement extends PodeContentElement {
@@ -1934,8 +1940,8 @@ class PodeLink extends PodeTextualElement {
         }
 
         // update target
-        if (data.TabState != 'unchanged') {
-            this.element.attr('target', data.TabState == 'newtab' ? '_blank' : '_self');
+        if (data.NewTab != null) {
+            this.element.attr('target', data.NewTab ? '_blank' : '_self');
         }
     }
 }
@@ -2358,11 +2364,11 @@ class PodeButton extends PodeFormElement {
         }
 
         // change colour
-        if (!this.iconOnly && (data.Colour || data.ColourState != 'unchanged')) {
+        if (!this.iconOnly && (data.Colour || data.Outline != null)) {
             this.removeClass(this.mapButtonColourTypeToClass());
 
-            if (data.ColourState != 'unchanged') {
-                this.isOutline = (data.ColourState == 'outline');
+            if (data.Outline != null) {
+                this.isOutline = data.Outline;
             }
 
             if (data.Colour) {
@@ -2373,14 +2379,9 @@ class PodeButton extends PodeFormElement {
         }
 
         // change size
-        if (!this.iconOnly && (data.Size || data.SizeState != 'unchanged')) {
-            if (data.SizeState != 'unchanged') {
-                if (data.SizeState == 'normal') {
-                    this.removeClass('btn-block');
-                }
-                else {
-                    this.addClass('btn-block');
-                }
+        if (!this.iconOnly && (data.Size || data.FullWidth != null)) {
+            if (data.FullWidth != null) {
+                this.toggleClass('btn-block', data.FullWidth, null, this);
             }
 
             if (data.Size) {
@@ -2400,8 +2401,8 @@ class PodeButton extends PodeFormElement {
         }
 
         // change tab state
-        if (!this.dynamic && data.TabState != 'unchanged') {
-            this.element.attr('target', data.TabState == 'newtab' ? '_blank' : '_self');
+        if (!this.dynamic && data.NewTab != null) {
+            this.element.attr('target', data.NewTab ? '_blank' : '_self');
         }
     }
 
@@ -3717,7 +3718,11 @@ class PodeTextbox extends PodeFormElement {
 
     load(data, sender, opts) {
         super.load(data, sender, opts);
-        this.update(data, sender, opts);
+
+        if (data != null) {
+            this.update(data, sender, opts);
+        }
+
         var obj = this;
 
         if (this.autoComplete) {
@@ -3731,10 +3736,13 @@ class PodeTextbox extends PodeFormElement {
 
     update(data, sender, opts) {
         super.update(data, sender, opts);
+        if (data == null) {
+            return;
+        }
 
         // update value
-        if (data.Value) {
-            if (data.AsJson) {
+        if (data.Value != null) {
+            if (data.AsJson && data.Value != '') {
                 data.Value = data.JsonInline || !this.multiline
                     ? JSON.stringify(data.Value)
                     : JSON.stringify(data.Value, null, 4);
@@ -5542,18 +5550,9 @@ class PodeCheckbox extends PodeFormElement {
             return;
         }
 
-        // check TODO: Checked should have an "Unchanged" state
-        checkbox.attr('checked', data.Checked);
-
-        // enable/disable TODO: this isn't "DisabledState"
-        switch ((data.State ?? '').toLowerCase()) {
-            case 'enabled':
-                this.enable(data, sender, opts);
-                break;
-
-            case 'disabled':
-                this.disable(data, sender, opts);
-                break;
+        // check or uncheck
+        if (data.Checked != null) {
+            checkbox.prop('checked', data.Checked);
         }
     }
 
@@ -5678,6 +5677,49 @@ class PodeDateTime extends PodeFormMultiElement {
 
         return super.new(data, sender, opts);
     }
+
+    getDateElement() {
+        return this.findChild(`${this.id}_date`);
+    }
+
+    getTimeElement() {
+        return this.findChild(`${this.id}_time`);
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+        this.update(data, sender, opts);
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        if (data.Values.Date != null) {
+            var dateElement = this.getDateElement();
+            if (dateElement) {
+                dateElement.update({ Value: data.Values.Date }, sender, opts);
+            }
+        }
+
+        if (data.Values.Time != null) {
+            var timeElement = this.getTimeElement();
+            if (timeElement) {
+                timeElement.update({ Value: data.Values.Time }, sender, opts);
+            }
+        }
+    }
+
+    clear(data, sender, opts) {
+        var dateElement = this.getDateElement();
+        if (dateElement) {
+            dateElement.clear(data, sender, opts);
+        }
+
+        var timeElement = this.getTimeElement();
+        if (timeElement) {
+            timeElement.clear(data, sender, opts);
+        }
+    }
 }
 PodeElementFactory.setClass(PodeDateTime);
 
@@ -5697,7 +5739,8 @@ class PodeCredential extends PodeFormMultiElement {
                 ReadOnly: this.readonly,
                 Required: this.required,
                 DynamicLabel: true,
-                DisplayName: data.Placeholders.Username
+                DisplayName: data.Placeholders.Username,
+                Value: data.Values.Username
             }, {
                 help: { enabled: true, id: this.id }
             }));
@@ -5711,13 +5754,57 @@ class PodeCredential extends PodeFormMultiElement {
                 ReadOnly: this.readonly,
                 Required: this.required,
                 DynamicLabel: true,
-                DisplayName: data.Placeholders.Password
+                DisplayName: data.Placeholders.Password,
+                Value: data.Values.Password
             }, {
                 help: { enabled: true, id: this.id }
             }));
         }
 
         return super.new(data, sender, opts);
+    }
+
+    getUsernameElement() {
+        return this.findChild(`${this.id}_username`);
+    }
+
+    getPasswordElement() {
+        return this.findChild(`${this.id}_password`);
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+        this.update(data, sender, opts);
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        if (data.Values.Username != null) {
+            var usernameElement = this.getUsernameElement();
+            if (usernameElement) {
+                usernameElement.update({ Value: data.Values.Username }, sender, opts);
+            }
+        }
+
+        if (data.Values.Password != null) {
+            var passwordElement = this.getPasswordElement();
+            if (passwordElement) {
+                passwordElement.update({ Value: data.Values.Password }, sender, opts);
+            }
+        }
+    }
+
+    clear(data, sender, opts) {
+        var usernameElement = this.getUsernameElement();
+        if (usernameElement) {
+            usernameElement.clear(data, sender, opts);
+        }
+
+        var passwordElement = this.getPasswordElement();
+        if (passwordElement) {
+            passwordElement.clear(data, sender, opts);
+        }
     }
 }
 PodeElementFactory.setClass(PodeCredential);
@@ -5765,6 +5852,49 @@ class PodeMinMax extends PodeFormMultiElement {
         }
 
         return super.new(data, sender, opts);
+    }
+
+    getMinElement() {
+        return this.findChild(`${this.id}_min`);
+    }
+
+    getMaxElement() {
+        return this.findChild(`${this.id}_max`);
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+        this.update(data, sender, opts);
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        if (data.Values.Min != null) {
+            var minElement = this.getMinElement();
+            if (minElement) {
+                minElement.update({ Value: data.Values.Min }, sender, opts);
+            }
+        }
+
+        if (data.Values.Max != null) {
+            var maxElement = this.getMaxElement();
+            if (maxElement) {
+                maxElement.update({ Value: data.Values.Max }, sender, opts);
+            }
+        }
+    }
+
+    clear(data, sender, opts) {
+        var minElement = this.getMinElement();
+        if (minElement) {
+            minElement.clear(data, sender, opts);
+        }
+
+        var maxElement = this.getMaxElement();
+        if (maxElement) {
+            maxElement.clear(data, sender, opts);
+        }
     }
 }
 PodeElementFactory.setClass(PodeMinMax);

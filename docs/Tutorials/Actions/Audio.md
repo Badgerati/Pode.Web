@@ -73,3 +73,5 @@ New-PodeWebContainer -Content @(
     )
 )
 ```
+
+Various other properties can be updated as well.

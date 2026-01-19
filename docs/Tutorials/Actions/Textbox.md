@@ -16,6 +16,13 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
+You can omit the `-Value` and update other properties of the Textbox, such as `-ReadOnly`, etc.
+
+!!! note
+    You can clear the Textbox by supplying an empty string to `-Value`.
+
+Various other properties can be updated as well.
+
 ## Clear
 
 You can clear the content of a textbox by using [`Clear-PodeWebTextbox`](../../../Functions/Actions/Clear-PodeWebTextbox):

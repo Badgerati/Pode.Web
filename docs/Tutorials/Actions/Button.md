@@ -63,7 +63,7 @@ New-PodeWebCard -Content @(
     }
 
     New-PodeWebButton -Name 'Example' -ScriptBlock {
-        Update-PodeWebButton -Name 'Solid' -Colour Yellow -ColourState Outline
+        Update-PodeWebButton -Name 'Solid' -Colour Yellow -Outline
     }
 )
 ```
@@ -82,4 +82,4 @@ New-PodeWebCard -Content @(
 )
 ```
 
-The `-ColourState` and `-SizeState` have default values of `Unchanged`. They map to `-Outline` and `-FullWidth` of a button's switches, so they can be toggled in a stateful manner.
+Various other properties can be updated as well.

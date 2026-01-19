@@ -20,6 +20,8 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
+Various other properties can be updated as well.
+
 ## Sync
 
 To force a Tile to refresh its data you can use [`Sync-PodeWebTile`](../../../Functions/Actions/Sync-PodeWebTile):

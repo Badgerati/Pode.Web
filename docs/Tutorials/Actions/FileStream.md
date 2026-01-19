@@ -74,3 +74,5 @@ New-PodeWebContainer -NoBackground -Content @(
     New-PodeWebFileStream -Name 'Example' -Url '/logs/error.log'
 )
 ```
+
+Various other properties can be updated as well.
