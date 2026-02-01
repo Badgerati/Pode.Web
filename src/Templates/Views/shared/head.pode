@@ -28,9 +28,46 @@
 
     $(
         # custom stylesheets
-        $styles = @(Get-PodeWebState -Name 'custom-css')
+        $styles = Get-PodeWebState -Name 'custom-css'
         foreach ($style in $styles) {
-            "<link class='pode-custom-css' rel='stylesheet' href='$($style)'>"
+            $blocking = ''
+            if ($style.Blocking) {
+                $blocking = "blocking='$($style.Blocking -join ', ')'"
+            }
+
+            $crossOrigin = ''
+            if ($style.CrossOrigin) {
+                $crossOrigin = "crossorigin='$($style.CrossOrigin)'"
+            }
+
+            $fetchPriority = ''
+            if ($style.FetchPriority) {
+                $fetchPriority = "fetchpriority='$($style.FetchPriority)'"
+            }
+
+            $referrerPolicy = ''
+            if ($style.ReferrerPolicy) {
+                $referrerPolicy = "referrerpolicy='$($style.ReferrerPolicy)'"
+            }
+
+            $integrity = ''
+            if ($style.Integrity) {
+                $integrity = "integrity='$($style.Integrity)'"
+            }
+
+            "<link
+                rel='stylesheet'
+                href='$($style.Url)'
+                $blocking
+                $crossOrigin
+                $fetchPriority
+                $referrerPolicy
+                $integrity
+            />"
         }
     )
+
+    $(Use-PodeWebPartialView -Path 'shared/custom_scripts' -Data @{
+        Location = 'Head'
+    })
 </head>

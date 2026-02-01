@@ -12,9 +12,6 @@
 <script src="$($data.AppPath)/pode.web-static/scripts/default.js"></script>
 <script src="$($data.AppPath)/pode.web-static/scripts/templates.js"></script>
 
-$(
-    $scripts = @(Get-PodeWebState -Name 'custom-js')
-    foreach ($js in $scripts) {
-        "<script src='$($js)'></script>"
-    }
-)
+$(Use-PodeWebPartialView -Path 'shared/custom_scripts' -Data @{
+    Location = 'Body'
+})
