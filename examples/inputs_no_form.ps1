@@ -8,7 +8,7 @@ Start-PodeServer -Threads 2 {
 
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Inputs' -Theme Dark
-    Import-PodeWebJavaScript -Url '/client-events.js'
+    Import-PodeWebJavaScript -Url '/client-events.js' -Location Head -Async
 
     # add home page
     Add-PodeWebPage -Name 'Home' -Path '/' -Title 'Testing Inputs' -HomePage -ScriptBlock {
