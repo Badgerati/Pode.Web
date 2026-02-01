@@ -446,7 +446,7 @@ function Set-PodeWebState {
         $Value
     )
 
-    Set-PodeState -Name "pode.web.$($Name)" -Value $Value -Scope 'pode.web' | Out-Null
+    $null = Set-PodeState -Name "pode.web.$($Name)" -Value $Value -Scope 'pode.web'
 }
 
 function Get-PodeWebState {
@@ -957,7 +957,7 @@ function ConvertTo-PodeWebEvents {
     }
 
     foreach ($evt in $Events) {
-        $js_events += " on$($evt)=`"invokeEvent('$($evt)', this);`""
+        $js_events += " on$($evt)=`"invokePageEvent('$($evt)', this);`""
     }
 
     return $js_events

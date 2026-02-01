@@ -496,11 +496,16 @@ div.pode-grid {
 input[type="range"].pode-range-value {
     display: inline;
     width: 87% !important;
+    vertical-align: middle;
 }
 
 input[type="number"].pode-range-value {
     display: inline;
     width: 6% !important;
+}
+
+span.pode-range-max {
+    vertical-align: middle;
 }
 
 input[type=date]::-webkit-calendar-picker-indicator:hover,

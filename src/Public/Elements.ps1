@@ -248,7 +248,6 @@ function New-PodeWebFileUpload {
         HideName      = $HideName.IsPresent
         ID            = $Id
         Accept        = ($Accept -join ',')
-        NoEvents      = $true
         Required      = $Required.IsPresent
         Multiple      = $Multiple.IsPresent
     }
@@ -290,7 +289,6 @@ function New-PodeWebParagraph {
         Value         = [System.Net.WebUtility]::HtmlEncode($Value)
         Content       = $Content
         Alignment     = $Alignment.ToLowerInvariant()
-        NoEvents      = $true
     }
 }
 
@@ -332,7 +330,6 @@ function New-PodeWebCodeBlock {
         Value         = [System.Net.WebUtility]::HtmlEncode($Value)
         Language      = $Language.ToLowerInvariant()
         Scrollable    = $Scrollable.IsPresent
-        NoEvents      = $true
     }
 }
 
@@ -356,7 +353,6 @@ function New-PodeWebCode {
         ObjectType    = 'Code'
         ID            = $Id
         Value         = [System.Net.WebUtility]::HtmlEncode($Value)
-        NoEvents      = $true
     }
 }
 
@@ -684,6 +680,11 @@ function New-PodeWebRange {
         [int]
         $Max = 100,
 
+        [Parameter()]
+        [ValidateRange(0.1, [double]::MaxValue)]
+        [double]
+        $Step = 1.0,
+
         [switch]
         $Disabled,
 
@@ -697,8 +698,19 @@ function New-PodeWebRange {
         $HideName
     )
 
+    # ensure min less than max, and max greater than min
+    if ($Min -ge $Max) {
+        throw 'The Min value must be less than the Max value for a Range element'
+    }
+
+    if ($Max -le $Min) {
+        throw 'The Max value must be greater than the Min value for a Range element'
+    }
+
+    # generate an ID
     $Id = Get-PodeWebElementId -Tag Range -Id $Id -Name $Name
 
+    # clamp value
     if ($Value -lt $Min) {
         $Value = $Min
     }
@@ -707,6 +719,12 @@ function New-PodeWebRange {
         $Value = $Max
     }
 
+    # clamp step
+    if ($Step -gt ($Max - $Min)) {
+        $Step = $Max - $Min
+    }
+
+    # build element
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -718,6 +736,7 @@ function New-PodeWebRange {
         Value         = $Value
         Min           = $Min
         Max           = $Max
+        Step          = $Step
         Disabled      = $Disabled.IsPresent
         ShowValue     = $ShowValue.IsPresent
         Required      = $Required.IsPresent
@@ -884,7 +903,6 @@ function New-PodeWebHeader {
         Value         = [System.Net.WebUtility]::HtmlEncode($Value)
         Secondary     = [System.Net.WebUtility]::HtmlEncode($Secondary)
         Icon          = (Protect-PodeWebIconType -Icon $Icon -Element 'Header')
-        NoEvents      = $true
     }
 }
 
@@ -919,7 +937,6 @@ function New-PodeWebQuote {
         Alignment     = $Alignment.ToLowerInvariant()
         Value         = [System.Net.WebUtility]::HtmlEncode($Value)
         Source        = [System.Net.WebUtility]::HtmlEncode($Source)
-        NoEvents      = $true
     }
 }
 
@@ -1060,7 +1077,6 @@ function New-PodeWebText {
         Style         = $Style
         InParagraph   = $InParagraph.IsPresent
         Alignment     = $Alignment.ToLowerInvariant()
-        NoEvents      = $true
     }
 }
 
@@ -1077,7 +1093,6 @@ function New-PodeWebLine {
         ComponentType = 'Element'
         ObjectType    = 'Line'
         ID            = (Get-PodeWebElementId -Tag Line -Id $Id)
-        NoEvents      = $true
     }
 }
 
@@ -1553,7 +1568,11 @@ function New-PodeWebButton {
         $Disabled,
 
         [switch]
-        $FullWidth
+        $FullWidth,
+
+        [Parameter(ParameterSetName = 'NoClick')]
+        [switch]
+        $NoClick
     )
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
@@ -1570,6 +1589,7 @@ function New-PodeWebButton {
         Icon             = (Protect-PodeWebIconType -Icon $Icon -Element 'Button')
         Url              = (Add-PodeWebAppPath -Url $Url)
         IsDynamic        = ($null -ne $ScriptBlock)
+        NoClick          = $NoClick.IsPresent
         IconOnly         = $IconOnly.IsPresent
         Colour           = $Colour
         Outline          = $Outline.IsPresent
@@ -1577,13 +1597,12 @@ function New-PodeWebButton {
         FullWidth        = $FullWidth.IsPresent
         NewLine          = $NewLine.IsPresent
         NewTab           = $NewTab.IsPresent
-        NoEvents         = $true
         NoAuthentication = $NoAuthentication.IsPresent
         Disabled         = $Disabled.IsPresent
     }
 
     $routePath = "/pode.web-dynamic/elements/button/$($Id)/click"
-    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+    if (($null -ne $ScriptBlock) -and !$NoClick -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
         $elementLogic = @{
@@ -1834,7 +1853,6 @@ function New-PodeWebSpinner {
         ID            = (Get-PodeWebElementId -Tag Spinner -Id $Id)
         Colour        = $Colour
         Title         = $Title
-        NoEvents      = $true
     }
 }
 
