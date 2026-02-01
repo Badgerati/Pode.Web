@@ -3184,3 +3184,78 @@ function Update-PodeWebLink {
         NewTab     = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'NewTab' -Value $NewTab.IsPresent)
     }
 }
+
+function Update-PodeWebRange {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(ValueFromPipeline = $true)]
+        [int]
+        $Value,
+
+        [Parameter()]
+        [int]
+        $Min,
+
+        [Parameter()]
+        [int]
+        $Max,
+
+        [Parameter()]
+        [ValidateRange(0.1, [double]::MaxValue)]
+        [double]
+        $Step,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [switch]
+        $Disabled,
+
+        [switch]
+        $AsDelta
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Update'
+        ObjectType = 'Range'
+        Value      = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Value' -Value $Value)
+        Min        = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Min' -Value $Min)
+        Max        = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Max' -Value $Max)
+        Step       = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Step' -Value $Step)
+        ID         = $Id
+        Name       = $Name
+        Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+        AsDelta    = $AsDelta.IsPresent
+    }
+}
+
+function Step-PodeWebRange {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Increase', 'Decrease')]
+        [string]
+        $Direction
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Step'
+        ObjectType = 'Range'
+        ID         = $Id
+        Name       = $Name
+        Direction  = $Direction.ToLowerInvariant()
+    }
+}

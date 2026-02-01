@@ -8,6 +8,7 @@ Start-PodeServer -Threads 2 {
 
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Inputs' -Theme Dark
+    Import-PodeWebJavaScript -Url '/client-events.js'
 
     # set the home page controls (just a simple paragraph)
     $form = New-PodeWebForm -Name 'Test' -ButtonType Submit, Reset -AsCard -ScriptBlock {
@@ -23,6 +24,10 @@ Start-PodeServer -Threads 2 {
             } |
             Register-PodeWebEvent -Type KeyUp -ScriptBlock {
                 Show-PodeWebToast -Message "The element has a keyup: $($WebEvent.Data['Name'])"
+            } |
+            Register-PodeWebEvent -Type MouseOver -JSFunction 'customEvent' |
+            Register-PodeWebEvent -Type MouseOver -ScriptBlock {
+                Show-PodeWebToast -Message 'The element has the mouse over!'
             }
 
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon 'Lock' -Placeholder 'Enter your password' -HideName -Required

@@ -2,7 +2,7 @@
 
 | Support |     |
 | ------- | --- |
-| Events  | No  |
+| Events  | Yes |
 
 This will render a line (`<hr/>`) to your page, using [`New-PodeWebLine`](../../../Functions/Elements/New-PodeWebLine):
 

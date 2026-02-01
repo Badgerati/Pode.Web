@@ -178,8 +178,8 @@ class PodeElementFactory {
         return this.referenceMap.get(id);
     }
 
-    static triggerObject(id, evt) {
-        return this.getObject(id).trigger(evt, true);
+    static triggerObject(id, evt, opts) {
+        return this.getObject(id).trigger(evt, true, opts);
     }
 
     static setTheme(theme) {
@@ -228,6 +228,9 @@ class PodeElement {
         this.width = data.Width ?? '';
         this.height = data.Height ?? '';
         this.themeable = false;
+        this.focused = false;
+        this.previouslyFocused = false;
+        this.focusable = false;
 
         this.content = {
             0: 'Content'
@@ -587,6 +590,10 @@ class PodeElement {
             case 'switch':
                 this.switch(data, sender, opts);
                 break;
+
+            case 'step':
+                this.steps(data, sender, opts);
+                break;
         }
 
         if (this.ephemeral) {
@@ -780,7 +787,7 @@ class PodeElement {
 
         if (checkGroup) {
             var group = element.closest('.pode-element-group');
-            if (group) {
+            if (group && group.length > 0) {
                 element = group;
             }
         }
@@ -792,7 +799,19 @@ class PodeElement {
             processData: false
         };
 
-        if (element.find('input[type=file]').length > 0) {
+        // if the element is an input, textarea or select, serialize directly
+        if (element.is('input, textarea, select')) {
+            if (element.is('input[type=file]')) {
+                data = newFormData(element);
+            }
+            else {
+                opts = {};
+                data = element.serialize();
+            }
+        }
+
+        // otherwise we're in a container; if it has a file input use FormData
+        else if (element.find('input[type=file]').length > 0) {
             data = newFormData(element.find('input, textarea, select'));
         }
         else {
@@ -812,45 +831,47 @@ class PodeElement {
         };
     }
 
-    events(evts) {
-        if (!evts) {
-            return '';
-        }
-
-        var strEvents = '';
-
-        convertToArray(evts).forEach((evt) => {
-            strEvents += `on${evt}="invokeEvent('${evt}', this);"`;
-        });
-
-        return strEvents;
-    }
-
-    trigger(evt, asAjax) {
+    trigger(evt, asAjax, opts) {
         if (asAjax) {
+            if (!opts || !opts.eventId) {
+                throw 'Event ID is required for AJAX event server-side triggers';
+            }
+
             var inputs = this.serialize(null, true);
             inputs.opts.keepFocus = true;
-            sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this, true, null, null, inputs.opts);
+            sendAjaxReq(`${this.url}/events/${evt}/${opts.eventId}`, inputs.data, this, true, null, null, inputs.opts);
         }
         else {
             this.element.trigger(evt);
         }
     }
 
-    listen(element, evt, func, noPreventDefault) {
+    listen(element, evt, func, noPreventDefault, opts) {
         element = element ?? this.element;
         if (!element) {
             return;
         }
 
         var obj = this;
-        element.off(evt).on(evt, function(e) {
-            if (!noPreventDefault) {
+        element.on(evt, function(e) {
+            var skip = false;
+
+            // check focus state
+            if (obj.focusable && (evt == 'focus' || evt == 'focusout') && obj.previouslyFocused === obj.focused) {
+                skip = true;
+                console.log(`focus: ${obj.focused}, skip event ${evt}`);
+            }
+
+            // stop propagation/prevent default
+            if (!noPreventDefault || skip) {
                 e.preventDefault();
                 e.stopPropagation();
             }
 
-            func(e, $(this), obj);
+            // invoke function
+            if (!skip) {
+                func(e, $(this), obj, evt, opts);
+            }
         });
     }
 
@@ -1272,6 +1293,10 @@ class PodeElement {
         throw `${this.getType()} "switch" method not implemented`;
     }
 
+    steps(data, sender, opts) {
+        throw `${this.getType()} "steps" method not implemented`;
+    }
+
     update(data, sender, opts) {
         if (data == null) {
             return;
@@ -1293,7 +1318,66 @@ class PodeElement {
             return;
         }
 
+        // bind custom events
+        this.bindCustomEvents(data, sender, opts);
+
+        // bind tooltips
         this.element.find('[data-bs-toggle="tooltip"]').tooltip();
+    }
+
+    bindCustomEvents(data, sender, opts) {
+        // skip if no events
+        if (!this.element || !data || !data.Events) {
+            return;
+        }
+
+        // skip if events are off
+        var eventsStatus = this.element.attr('pode-events-status');
+        if (eventsStatus == 'off') {
+            return;
+        }
+
+        // get this object
+        var obj = this;
+
+        // get delegate element if exists
+        var ele = this.element;
+        var delegateEle = $(`[pode-events-for='${this.uuid}']`);
+        if (delegateEle && delegateEle.length > 0) {
+            ele = delegateEle;
+        }
+
+        // unbind existing events
+        ele.off();
+
+        // bind event handlers, and track focus state to prevent erroneous focusout event
+        var focusHandled = false;
+
+        convertToArray(data.Events).forEach((evt) => {
+            // need to handle focus/focusout only once
+            if (!focusHandled && this.focusable && (evt.Type === 'focus' || evt.Type === 'focusout')) {
+                focusHandled = true;
+
+                ele.on('focus', function() {
+                    obj.previouslyFocused = obj.focused;
+                    obj.focused = true;
+                });
+
+                ele.on('focusout', function() {
+                    obj.previouslyFocused = obj.focused;
+                    obj.focused = false;
+                });
+            }
+
+            // determine function name for server/client side
+            var funcName = 'invokeServerEvent';
+            if (evt.IsClientSide) {
+                funcName = evt.JSFunction;
+            }
+
+            // bind event
+            obj.listen(ele, evt.Type, window[funcName], true, { eventId: evt.ID });
+        });
     }
 
     load(data, sender, opts) {
@@ -1536,6 +1620,7 @@ class PodeFormElement extends PodeContentElement {
             icon: (data.Append.Icon ?? '').toLowerCase()
         };
         this.inForm = false;
+        this.focusable = true;
     }
 
     isInForm(sender) {
@@ -1618,7 +1703,7 @@ class PodeFormElement extends PodeContentElement {
                     var formGroup = !this.inForm ? 'd-inline-block' : `form-group row mb-3`;
                     var divTag = this.asFieldset ? 'fieldset' : 'div';
                     var idProps = this.asFieldset ? `id='${this.id}' pode-object='${this.getType()}' pode-id='${this.uuid}'` : '';
-                    var events = this.asFieldset ? this.events(data.Events) : '';
+                    var events = this.asFieldset ? `pode-events-status='off'` : '';
                     var width = this.inForm || !this.width ? '' : `width:${this.width}`;
 
                     html = `<${divTag}
@@ -1717,8 +1802,7 @@ class PodeFormMultiElement extends PodeFormElement {
             name='${this.name}'
             class='row'
             pode-object='${this.getType()}'
-            pode-id='${this.uuid}'
-            ${this.events(data.Events)}>
+            pode-id='${this.uuid}'>
                 ${html}
         </div>`;
     }
@@ -1788,8 +1872,7 @@ class PodeBadge extends PodeTextualElement {
             id='${this.id}'
             class='badge text-bg-${PodeElement.mapColourToClass(data.Colour)} pode-text'
             pode-object='${this.getType()}'
-            pode-id='${this.uuid}'
-            ${this.events(data.Events)}>
+            pode-id='${this.uuid}'>
                 ${data.Value}
         </span>`;
     }
@@ -1925,8 +2008,7 @@ class PodeLink extends PodeTextualElement {
             class="pode-text"
             target='${data.NewTab ? '_blank' : '_self'}'
             pode-object='${this.getType()}'
-            pode-id='${this.uuid}'
-            ${this.events(data.Events)}>
+            pode-id='${this.uuid}'>
                 ${data.Value}
         </a>`;
     }
@@ -1995,12 +2077,13 @@ class PodeIcon extends PodeContentElement {
             style='${colour}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
-            ${title}
-            ${this.events(data.Events)}>
+            ${title}>
         </span>`;
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+
         // icon or parent?
         var obj = this;
         if (this.parent && this.parent.icon && this.parent.icon.uuid === this.uuid) {
@@ -2195,6 +2278,7 @@ class PodeButton extends PodeFormElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        this.noClick = data.NoClick ?? false;
         this.iconOnly = data.IconOnly;
         this.validation = false;
         this.label.enabled = false;
@@ -2213,7 +2297,7 @@ class PodeButton extends PodeFormElement {
         var html = '';
 
         if (this.iconOnly) {
-            if (this.dynamic) {
+            if (this.dynamic || this.noClick) {
                 html = `<button
                     type='button'
                     class='btn btn-icon-only pode-button'
@@ -2249,7 +2333,7 @@ class PodeButton extends PodeFormElement {
             var size = this.mapButtonSizeToClass();
             var sizeState = data.FullWidth ? 'btn-block' : '';
 
-            if (this.dynamic) {
+            if (this.dynamic || this.noClick) {
                 html = `<button
                     type='button'
                     class='btn ${colour} ${size} ${sizeState} pode-button'
@@ -2304,7 +2388,7 @@ class PodeButton extends PodeFormElement {
                 }
 
                 // find a form, if no group found
-                if (!group || group.length == 0) {
+                else {
                     var form = sender.element.closest('form');
                     if (form && form.length > 0) {
                         inputs = sender.serialize(form);
@@ -2708,8 +2792,7 @@ class PodeAlert extends PodeTextualElement {
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'
             role="alert"
-            data-bs-theme="${getCssColorScheme()}"
-            ${this.events(data.Events)}>
+            data-bs-theme="${getCssColorScheme()}">
                 <h6 class='pode-alert-header'>
                     <span class="mdi mdi-${iconType}"></span>
                     <strong>${data.DisplayName}</strong>
@@ -3666,7 +3749,6 @@ class PodeTextbox extends PodeFormElement {
         var autofocus = this.autofocus ? 'autofocus' : '';
         var maxLength = data.MaxLength ? `maxlength='${data.MaxLength}'` : '';
         var width = `width:${this.width};`;
-        var events = this.events(data.Events);
 
         var placeholder = data.Placeholder
             ? `placeholder='${encodeAttribute(data.Placeholder)}'`
@@ -3684,7 +3766,6 @@ class PodeTextbox extends PodeFormElement {
                 style='${width}'
                 ${placeholder}
                 ${autofocus}
-                ${events}
                 ${maxLength}></textarea>`;
         }
 
@@ -3703,7 +3784,6 @@ class PodeTextbox extends PodeFormElement {
                 style='${width}'
                 ${placeholder}
                 ${autofocus}
-                ${events}
                 ${maxLength}>`;
         }
 
@@ -3822,8 +3902,7 @@ class PodeAudio extends PodeMediaElement {
             ${data.AutoPlay ? 'autoplay' : ''}
             ${data.AutoBuffer ? 'autobuffer' : ''}
             ${data.Loop ? 'loop' : ''}
-            ${data.Muted ? 'muted' : ''}
-            ${this.events(data.Events)}>
+            ${data.Muted ? 'muted' : ''}>
                 ${sources}
                 ${tracks}
                 ${data.NotSupportedText}
@@ -3866,8 +3945,7 @@ class PodeVideo extends PodeMediaElement {
             ${data.AutoBuffer ? 'autobuffer' : ''}
             ${data.Loop ? 'loop' : ''}
             ${data.Muted ? 'muted' : ''}
-            ${thumbnail})
-            ${this.events(data.Events)}>
+            ${thumbnail}>
                 ${sources}
                 ${tracks}
                 ${data.NotSupportedText}
@@ -4101,8 +4179,7 @@ class PodeImage extends PodeContentElement {
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
             data-bs-placement='bottom'
-            ${title}
-            ${this.events(data.Events)}>`;
+            ${title}>`;
     }
 
     update(data, sender, opts) {
@@ -4553,8 +4630,7 @@ class PodeCodeEditor extends PodeContentElement {
             name="${this.name}"
             class="pode-code-editor"
             pode-object="${this.getType()}"
-            pode-id="${this.uuid}"
-            ${this.events(data.Events)}>
+            pode-id="${this.uuid}">
                 ${upload}
                 <div class="code-editor" for="${this.id}"></div>
         </div>`;
@@ -5051,6 +5127,7 @@ class PodeModal extends PodeContentElement {
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         if (this.buttons.reset) {
@@ -5274,8 +5351,7 @@ class PodeSelect extends PodeFormElement {
             name='${this.name}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
-            ${multiple}
-            ${this.events(data.Events)}>
+            ${multiple}>
                 ${options}
         </select>`;
     }
@@ -5332,6 +5408,9 @@ class PodeRange extends PodeFormElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.showValue = data.ShowValue ?? false;
+        this.min = data.Min ?? 0;
+        this.max = data.Max ?? 100;
+        this.step = data.Step ?? 1.0;
     }
 
     new(data, sender, opts) {
@@ -5341,9 +5420,10 @@ class PodeRange extends PodeFormElement {
             class='form-control pode-range-value'
             for='${this.id}'
             value='${data.Value}'
-            min='${data.Min}'
-            max='${data.Max}'>
-        <label class=''>/${data.Max}</label>`;
+            min='${this.min}'
+            max='${this.max}'
+            step='${this.step}'>
+        <span class='pode-range-max'>/${this.max}</span>`;
 
         return `<span class='range-wrapper' for='${this.id}' pode-container-for='${this.uuid}'>
             <input
@@ -5354,14 +5434,15 @@ class PodeRange extends PodeFormElement {
                 pode-object='${this.getType()}'
                 pode-id='${this.uuid}'
                 value='${data.Value}'
-                min='${data.Min}'
-                max='${data.Max}'
-                ${this.events(data.Events)}>
+                min='${this.min}'
+                max='${this.max}'
+                step='${this.step}'>
             ${rangeValue}
         </span>`;
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         if (this.showValue) {
@@ -5373,8 +5454,85 @@ class PodeRange extends PodeFormElement {
 
             this.listen(valElement, 'change', function(e, target) {
                 obj.element.val(valElement.val());
+                obj.trigger('change');
             }, true);
         }
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update min if supplied
+        if (data.Min != null) {
+            var value = data.Min;
+            if (data.AsDelta) {
+                value = this.min + data.Min;
+            }
+
+            this.element.attr('min', value);
+            if (this.showValue) {
+                this.getNumberInput().attr('min', value);
+            }
+
+            this.min = value;
+        }
+
+        // update max if supplied
+        if (data.Max != null) {
+            var value = data.Max;
+            if (data.AsDelta) {
+                value = this.max + data.Max;
+            }
+
+            this.element.attr('max', value);
+            if (this.showValue) {
+                this.getNumberInput().attr('max', value);
+            }
+
+            this.max = value;
+        }
+
+        // update step if supplied
+        if (data.Step != null) {
+            var value = data.Step;
+            if (data.AsDelta) {
+                value = this.step + data.Step;
+            }
+
+            // ensure step is not greater than (max - min)
+            if (value > (this.max - this.min)) {
+                value = this.max - this.min;
+            }
+
+            this.element.attr('step', value);
+            if (this.showValue) {
+                this.getNumberInput().attr('step', value);
+            }
+
+            this.step = value;
+        }
+
+        // update value if supplied - but ensure the value is an increment of step
+        if (data.Value != null) {
+            var value = data.Value;
+            if (data.AsDelta) {
+                value = this.getValue() + data.Value;
+            }
+
+            // ensure value is an increment of step
+            if (((value - this.min) % this.step) !== 0) {
+                value = this.min + (Math.round((value - this.min) / this.step) * this.step);
+            }
+
+            // skip if value is out of range
+            this.updateValue(value);
+        }
+    }
+
+    steps(data, sender, opts) {
+        var currentValue = this.getValue();
+        var value = data.Direction == 'increase' ? currentValue + this.step : currentValue - this.step;
+        this.updateValue(value);
     }
 
     disable(data, sender, opts) {
@@ -5387,8 +5545,44 @@ class PodeRange extends PodeFormElement {
         enable(this.getNumberInput());
     }
 
+    updateValue(value) {
+        // ensure value is a number
+        if (value == null || isNaN(value)) {
+            return;
+        }
+
+        // clamp value to min/max
+        if (value < this.min) {
+            value = this.min;
+        }
+        else if (value > this.max) {
+            value = this.max;
+        }
+
+        // skip if no change
+        var currentValue = this.getValue();
+        if (value === currentValue) {
+            return;
+        }
+
+        // set value
+        this.element.val(value);
+        if (this.showValue) {
+            this.getNumberInput().val(value);
+        }
+
+        // trigger change
+        this.trigger('change');
+    }
+
+    getValue() {
+        return parseFloat(this.element.val());
+    }
+
     getNumberInput() {
-        return !this.showValue ? null : this.element.closest('.range-wrapper').find(`input[type="number"][for="${this.id}"]`);
+        return !this.showValue
+            ? null
+            : this.element.closest('.range-wrapper').find(`input[type="number"][for="${this.id}"]`);
     }
 }
 PodeElementFactory.setClass(PodeRange);
@@ -5420,8 +5614,7 @@ class PodeProgress extends PodeContentElement {
                     aria-valuemin='${data.Min ?? 0}'
                     aria-valuemax='${data.Max ?? 100}'
                     pode-object='${this.getType()}'
-                    pode-id='${this.uuid}'
-                    ${this.events(data.Events)}>
+                    pode-id='${this.uuid}'>
                 </div>
         </div>`;
 
@@ -5444,6 +5637,7 @@ class PodeProgress extends PodeContentElement {
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         if (this.showValue) {
@@ -5957,7 +6151,8 @@ class PodeFileStream extends PodeContentElement {
                             class="form-control"
                             rows="$($data.Height)"
                             readonly
-                            ${this.events(data.Events)}></textarea>
+                            pode-events-for='${this.uuid}'>
+                        </textarea>
                     </pre>
                 </div>
         </div>`;
@@ -6192,6 +6387,7 @@ class PodeStep extends PodeContentElement {
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         // auto submit on enter key
@@ -6395,6 +6591,7 @@ class PodeNavLink extends PodeNavElement {
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         if (this.dynamic) {

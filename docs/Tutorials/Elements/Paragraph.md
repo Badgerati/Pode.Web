@@ -2,7 +2,7 @@
 
 | Support |     |
 | ------- | --- |
-| Events  | No  |
+| Events  | Yes |
 
 You can display a `-Value`, or other `-Content`, within a paragraph block using [`New-PodeWebParagraph`](../../../Functions/Elements/New-PodeWebParagraph). This lets you separate blocks of text/elements neatly on a page:
 
