@@ -793,7 +793,7 @@ function Set-PodeWebSelect {
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
-        $Value
+        $OptionName
     )
 
     Send-PodeWebAction -Value @{
@@ -801,7 +801,89 @@ function Set-PodeWebSelect {
         ObjectType = 'Select'
         Name       = $Name
         ID         = $Id
-        Value      = [System.Net.WebUtility]::HtmlEncode($Value)
+        OptionName = [System.Net.WebUtility]::HtmlEncode($OptionName)
+    }
+}
+
+function Add-PodeWebSelectOption {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [hashtable[]]
+        $Option,
+
+        [Parameter()]
+        [string]
+        $GroupName
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $Option
+    }
+
+    end {
+        # ensure options are only of type option or option-group
+        if ([string]::IsNullOrEmpty($GroupName)) {
+            if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option', 'Option-Group')) {
+                throw 'A Select can only contain Options or Option Groups'
+            }
+        }
+        else {
+            if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option')) {
+                throw 'A Select Option Group can only contain Options'
+            }
+        }
+
+        Send-PodeWebAction -Value @{
+            Operation  = 'Add'
+            ObjectType = 'Select'
+            Name       = $Name
+            ID         = $Id
+            Options    = $items
+            GroupName  = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'GroupName' -Value $GroupName)
+        }
+    }
+}
+
+function Remove-PodeWebSelectOption {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName,
+
+        [Parameter()]
+        [string[]]
+        $GroupName
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Remove'
+        ObjectType = 'Select'
+        Name       = $Name
+        ID         = $Id
+        OptionName = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'OptionName' -Value $OptionName)
+        GroupName  = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'GroupName' -Value $GroupName)
     }
 }
 
@@ -816,20 +898,20 @@ function Update-PodeWebSelect {
         [string]
         $Id,
 
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [string[]]
+        [Parameter(ValueFromPipeline = $true)]
+        [hashtable[]]
         $Options,
 
         [Parameter()]
-        [string[]]
-        $DisplayOptions,
-
-        [Parameter()]
-        [string[]]
-        $SelectedValue,
+        [ValidateSet(1, [int]::MaxValue)]
+        [int]
+        $Size,
 
         [switch]
-        $Disabled
+        $Disabled,
+
+        [switch]
+        $Multiple
     )
 
     begin {
@@ -841,15 +923,19 @@ function Update-PodeWebSelect {
     }
 
     end {
+        if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option', 'Option-Group')) {
+            throw 'A Select can only contain Options or Option Groups'
+        }
+
         Send-PodeWebAction -Value @{
-            Operation      = 'Update'
-            ObjectType     = 'Select'
-            Name           = $Name
-            ID             = $Id
-            Options        = $items
-            DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $items -EqualCount)
-            SelectedValue  = @(Protect-PodeWebValues -Value $SelectedValue -Encode)
-            Disabled       = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+            Operation  = 'Update'
+            ObjectType = 'Select'
+            Name       = $Name
+            ID         = $Id
+            Options    = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Options' -Value $items)
+            Size       = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Size' -Value $Size)
+            Multiple   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Multiple' -Value $Multiple.IsPresent)
+            Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
         }
     }
 }
@@ -889,6 +975,195 @@ function Sync-PodeWebSelect {
     Send-PodeWebAction -Value @{
         Operation  = 'Sync'
         ObjectType = 'Select'
+        Name       = $Name
+        ID         = $Id
+    }
+}
+
+function Set-PodeWebDatalist {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string]
+        $Value
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Set'
+        ObjectType = 'Datalist'
+        Name       = $Name
+        ID         = $Id
+        Value      = [System.Net.WebUtility]::HtmlEncode($Value)
+    }
+}
+
+function Add-PodeWebDatalistOption {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [hashtable[]]
+        $Option,
+
+        [switch]
+        $NoAutoSelect
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $Option
+    }
+
+    end {
+        # ensure options are only of type option
+        if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option')) {
+            throw 'A Datalist can only contain Options'
+        }
+
+        Send-PodeWebAction -Value @{
+            Operation    = 'Add'
+            ObjectType   = 'Datalist'
+            Name         = $Name
+            ID           = $Id
+            Options      = $items
+            NoAutoSelect = $NoAutoSelect.IsPresent
+        }
+    }
+}
+
+function Remove-PodeWebDatalistOption {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName,
+
+        [switch]
+        $NoAutoSelect
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation    = 'Remove'
+        ObjectType   = 'Datalist'
+        Name         = $Name
+        ID           = $Id
+        OptionName   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'OptionName' -Value $OptionName)
+        NoAutoSelect = $NoAutoSelect.IsPresent
+    }
+}
+
+function Update-PodeWebDatalist {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [hashtable[]]
+        $Options,
+
+        [switch]
+        $ReadOnly,
+
+        [switch]
+        $Disabled,
+
+        [switch]
+        $NoAutoSelect
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $Options
+    }
+
+    end {
+        if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option')) {
+            throw 'A Datalist can only contain Options'
+        }
+
+        Send-PodeWebAction -Value @{
+            Operation    = 'Update'
+            ObjectType   = 'Datalist'
+            Name         = $Name
+            ID           = $Id
+            Options      = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Options' -Value $items)
+            ReadOnly     = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'ReadOnly' -Value $ReadOnly.IsPresent)
+            Disabled     = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+            NoAutoSelect = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'NoAutoSelect' -Value $NoAutoSelect.IsPresent)
+        }
+    }
+}
+
+function Clear-PodeWebDatalist {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Clear'
+        ObjectType = 'Datalist'
+        Name       = $Name
+        ID         = $Id
+    }
+}
+
+function Sync-PodeWebDatalist {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Sync'
+        ObjectType = 'Datalist'
         Name       = $Name
         ID         = $Id
     }

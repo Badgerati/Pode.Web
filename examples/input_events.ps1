@@ -13,7 +13,9 @@ Start-PodeServer -Threads 2 {
     # select event
     $select = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Please select a value: '
-        New-PodeWebSelect -Name 'Bellows' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebSelect -Name 'Bellows' -Options @(
+            @('Bellow 1', 'Bellow 2', 'Bellow 3') | ConvertTo-PodeWebOption
+        ) |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Open-PodeWebBellow -Name $WebEvent.Data['Bellows']
             }
@@ -43,7 +45,7 @@ Start-PodeServer -Threads 2 {
                     Sort-Object -Property CPU -Descending |
                     Select-Object -First 15 -Property Name, ID, WorkingSet, CPU |
                     Update-PodeWebTable -Name 'Processes'
-            }
+                }
         New-PodeWebLine
         New-PodeWebTable -Name 'Processes'
     )

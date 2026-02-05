@@ -921,11 +921,15 @@ function ConvertTo-PodeWebPage {
 
                                     if ($param.Attributes.TypeId.Name -icontains 'ValidateSetAttribute') {
                                         $values = ($param.Attributes | Where-Object { $_.TypeId.Name -ieq 'ValidateSetAttribute' }).ValidValues
-                                        New-PodeWebSelect -Name "$($name)_$($param.Name)" -DisplayName $param.Name -Options $values -SelectedValue $default -Multiple:$multiple
+                                        New-PodeWebSelect -Name "$($name)_$($param.Name)" -DisplayName $param.Name -Multiple:$multiple -Options @(
+                                            $values | ConvertTo-PodeWebOption -SelectedValue $default
+                                        )
                                     }
                                     elseif ($param.ParameterType.BaseType.Name -ieq 'enum') {
                                         $values = [enum]::GetValues($param.ParameterType)
-                                        New-PodeWebSelect -Name "$($name)_$($param.Name)" -DisplayName $param.Name -Options $values -SelectedValue $default -Multiple:$multiple
+                                        New-PodeWebSelect -Name "$($name)_$($param.Name)" -DisplayName $param.Name -Multiple:$multiple -Options @(
+                                            $values | ConvertTo-PodeWebOption -SelectedValue $default
+                                        )
                                     }
                                     else {
                                         New-PodeWebTextbox -Name "$($name)_$($param.Name)" -DisplayName $param.Name -Value $default
