@@ -4,7 +4,7 @@ This page details the actions available to Select elements.
 
 ## Add
 
-To add one or more Options, or Option Groups, you can use [`Add-PodeWebSelectOption`] along with `-Option` and optionally a `-GroupName` to place the options under:
+To add one or more Options, or Option Groups, you can use [`Add-PodeWebSelectOption`](../../../Functions/Actions/Add-PodeWebSelectOption) along with `-Option` and optionally a `-GroupName` to place the options under:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -57,7 +57,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Remove
 
-To remove one or more Options, or Option Groups, you can use [`Remove-PodeWebSelectOption`] along with `-OptionName` and/or `-GroupName`:
+To remove one or more Options, or Option Groups, you can use [`Remove-PodeWebSelectOption`](../../../Functions/Actions/Remove-PodeWebSelectOption) along with `-OptionName` and/or `-GroupName`:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

@@ -4,7 +4,7 @@ This page details the actions available to Datalist elements.
 
 ## Add
 
-To add one or more Options you can use [`Add-PodeWebDatalistOption`] along with `-Option`:
+To add one or more Options you can use [`Add-PodeWebDatalistOption`](../../../Functions/Actions/Add-PodeWebDatalistOption) along with `-Option`:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -23,7 +23,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Clear
 
-To clear the options of a Datalist element, you can use [`Clear-PodeWebDatalist`]:
+To clear the options of a Datalist element, you can use [`Clear-PodeWebDatalist`](../../../Functions/Actions/Clear-PodeWebDatalist):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -41,7 +41,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Remove
 
-To remove one or more Options you can use [`Remove-PodeWebDatalistOption`] along with `-OptionName`:
+To remove one or more Options you can use [`Remove-PodeWebDatalistOption`](../../../Functions/Actions/Remove-PodeWebDatalistOption) along with `-OptionName`:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -59,7 +59,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Set
 
-To set the currently selected option/value of a Datalist element, you can use [`Set-PodeWebDatalist`]. You can either set the value to a predefined option, or to a custom value not in the options list:
+To set the currently selected option/value of a Datalist element, you can use [`Set-PodeWebDatalist`](../../../Functions/Actions/Set-PodeWebDatalist). You can either set the value to a predefined option, or to a custom value not in the options list:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -83,7 +83,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Sync
 
-If you built a Datalist element with the `-ScriptBlock` parameter, then you can re-invoke the scriptblock to update the element by using [`Sync-PodeWebDatalist`]:
+If you built a Datalist element with the `-ScriptBlock` parameter, then you can re-invoke the scriptblock to update the element by using [`Sync-PodeWebDatalist`](../../../Functions/Actions/Sync-PodeWebDatalist):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -101,7 +101,7 @@ New-PodeWebContainer -NoBackground -Content @(
 
 ## Update
 
-You can update a Datalist element's options by using [`Update-PodeWebDatalist`]:
+You can update a Datalist element's options by using [`Update-PodeWebDatalist`](../../../Functions/Actions/Update-PodeWebDatalist):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(

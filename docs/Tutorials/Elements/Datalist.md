@@ -4,11 +4,11 @@
 | ------- | --- |
 | Events  | Yes |
 
-The Datalist element is a form input element, and can be added using [`New-PodeWebDatalist`]. This will add a textbox input element but with an "autocomplete" select-like dropdown menu, allowing the user to select either a predefined option or supply a custom value.
+The Datalist element is a form input element, and can be added using [`New-PodeWebDatalist`](../../../Functions/Elements/New-PodeWebDatalist). This will add a textbox input element but with an "autocomplete" select-like dropdown menu, allowing the user to select either a predefined option or supply a custom value.
 
 ## Options
 
-To create a Datalist element with pre-defined options, you can use the `-Options` parameter which accepts an array of [`New-PodeWebOption`]:
+To create a Datalist element with pre-defined options, you can use the `-Options` parameter which accepts an array of [`New-PodeWebOption`](../../../Functions/Elements/New-PodeWebOption):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -29,7 +29,7 @@ New-PodeWebCard -Content @(
 
 You can build a Datalist element's options dynamically by using the `-ScriptBlock` parameter. This will allow you to retrieve the options from elsewhere for use with the Datalist element.
 
-You can either return an array of raw values, or pipe the options into, and return, [`Update-PodeWebDatalist`]. When using the latter you will need to supply the options as Option elements, for this you can either build the options using [`New-PodeWebOption`] or convert raw values via [`ConvertTo-PodeWebOption`].
+You can either return an array of raw values, or pipe the options into, and return, [`Update-PodeWebDatalist`](../../../Functions/Actions/Update-PodeWebDatalist). When using the latter you will need to supply the options as Option elements, for this you can either build the options using [`New-PodeWebOption`](../../../Functions/Elements/New-PodeWebOption) or convert raw values via [`ConvertTo-PodeWebOption`](../../../Functions/Elements/ConvertTo-PodeWebOption).
 
 The following will both build a Datalist element with 10 random numbers as the options, using the above methods:
 

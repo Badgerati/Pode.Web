@@ -8,7 +8,7 @@ The Select element is a form input element, and can be added using [`New-PodeWeb
 
 ## Options
 
-To create a Select element with pre-defined options, you can use the `-Options` parameter which accepts an array of either [`New-PodeWebOption`] and/or [`New-PodeWebOptionGroup`]:
+To create a Select element with pre-defined options, you can use the `-Options` parameter which accepts an array of either [`New-PodeWebOption`](../../../Functions/Elements/New-PodeWebOption) and/or [`New-PodeWebOptionGroup`](../../../Functions/Elements/New-PodeWebOptionGroup):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -46,7 +46,7 @@ Which looks like below:
 
 You can build a Select element's options dynamically by using the `-ScriptBlock` parameter. This will allow you to retrieve the options from elsewhere for use with the Select element.
 
-You can either return an array of raw values, or pipe the options into, and return, [`Update-PodeWebSelect`](../../../Functions/Actions/Update-PodeWebSelect). When using the latter you will need to supply the options as Option elements, for this you can either build the options using [`New-PodeWebOption`] or convert raw values via [`ConvertTo-PodeWebOption`].
+You can either return an array of raw values, or pipe the options into, and return, [`Update-PodeWebSelect`](../../../Functions/Actions/Update-PodeWebSelect). When using the latter you will need to supply the options as Option elements, for this you can either build the options using [`New-PodeWebOption`](../../../Functions/Elements/New-PodeWebOption) or convert raw values via [`ConvertTo-PodeWebOption`](../../../Functions/Elements/ConvertTo-PodeWebOption).
 
 The following will both build a Select element with 10 random numbers as the options, using the above methods:
 
