@@ -86,7 +86,9 @@ New-PodeWebCard -Content @(
 )
 
 New-PodeWebModal -Name 'Edit Service' -AsForm -Content @(
-    New-PodeWebSelect -Name 'StartType' -Options Manual, Automatic, Disabled
+    New-PodeWebSelect -Name 'StartType' -Options @(
+        'Manual', 'Automatic', 'Disabled' | ConvertTo-PodeWebOption
+    )
 ) -ScriptBlock {
     Get-Service -Name $WebEvent.Data.Value | Set-Service -StartType $WebEvent.Data.StartType | Out-Null
     Show-PodeWebToast -Message "$($WebEvent.Data.Value) edited"

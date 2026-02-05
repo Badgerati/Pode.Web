@@ -859,7 +859,6 @@ class PodeElement {
             // check focus state
             if (obj.focusable && (evt == 'focus' || evt == 'focusout') && obj.previouslyFocused === obj.focused) {
                 skip = true;
-                console.log(`focus: ${obj.focused}, skip event ${evt}`);
             }
 
             // stop propagation/prevent default
@@ -1680,7 +1679,7 @@ class PodeFormElement extends PodeContentElement {
 
                 // help text
                 if (this.help.enabled && this.help.text) {
-                    html += `<small id='${this.help.id}_help' class='form-text text-body-secondary'>${this.help.text}</small>`;
+                    html += `<small id='${this.help.id}_help' class='form-text d-block text-body-secondary'>${this.help.text}</small>`;
                 }
 
                 // are we in a form?
@@ -1771,6 +1770,53 @@ class PodeFormElement extends PodeContentElement {
             this.required = data.Required;
             this.setRequired(data.Required);
         }
+    }
+}
+
+class PodeFormOptionElement extends PodeFormElement {
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+    }
+
+    buildOptions(options) {
+        var html = '';
+
+        convertToArray(options).forEach((opt) => {
+            if (opt.Options) {
+                html += this.buildGroup(opt);
+            }
+            else {
+                html += this.buildOption(opt);
+            }
+        });
+
+        return html;
+    }
+
+    buildOption(option) {
+        var label = option.Label ? ` label='${option.Label}'` : '';
+
+        return `<option
+            value='${option.Name}'
+            ${label}
+            ${option.Selected ? 'selected' : ''}
+            ${option.Disabled ? 'disabled' : ''}>
+                ${option.DisplayName}
+        </option>`;
+    }
+
+    buildGroup(group) {
+        var html = `<optgroup
+            value='${group.Name}'
+            label='${group.DisplayName}'
+            ${group.Disabled ? 'disabled' : ''}>`;
+
+        convertToArray(group.Options).forEach((opt) => {
+            html += this.buildOption(opt);
+        });
+
+        html += `</optgroup>`;
+        return html;
     }
 }
 
@@ -5315,35 +5361,21 @@ class PodeHidden extends PodeFormElement {
 }
 PodeElementFactory.setClass(PodeHidden);
 
-class PodeSelect extends PodeFormElement {
+class PodeSelect extends PodeFormOptionElement {
     static type = 'select';
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.multiSelect = data.Multiple ?? false;
+        this.multiple = data.Multiple ?? false;
     }
 
     new(data, sender, opts) {
-        var multiple = this.multiSelect ? `multiple size='${data.Size ?? 1}'` : '';
-
-        var selectedValue = convertToArray(data.SelectedValue);
-        if (!this.multiSelect && selectedValue.length >= 2) {
-            selectedValue = [selectedValue[0]];
-        }
+        var multiple = this.multiple ? `multiple size='${data.Size ?? 1}'` : '';
 
         var options = '';
-        data.DisplayOptions = convertToArray(data.DisplayOptions);
-        convertToArray(data.Options).forEach((opt, index) => {
-            if (!opt) {
-                return;
-            }
-
-            options += `<option
-                value='${opt}'
-                ${selectedValue.includes(opt) ? 'selected' : ''}>
-                    ${data.DisplayOptions[index]}
-            </option>`;
-        });
+        if (data.Options) {
+            options = this.buildOptions(data.Options);
+        }
 
         return `<select
             id='${this.id}'
@@ -5356,14 +5388,137 @@ class PodeSelect extends PodeFormElement {
         </select>`;
     }
 
-    //TODO: add "New-PodeWebSelectOption", and make "PodeSelectOption" class
-    //          --  "-Options" is now an array of that func, and we can remove "-DisplayOptions"!
-    //          -- need to fix "clear(...)" if we do this
-
     load(data, sender, opts) {
         super.load(data, sender, opts);
         if (this.dynamic) {
             sendAjaxReq(`${this.url}/options`, null, this, true);
+        }
+    }
+
+    set(data, sender, opts) {
+        if (!data.OptionName) {
+            return;
+        }
+
+        this.element.val(decodeHTML(data.OptionName));
+        this.trigger('change');
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update multiple
+        if (data.Multiple != null) {
+            this.multiple = data.Multiple;
+            if (this.multiple) {
+                this.addAttribute('multiple', 'multiple');
+                this.addAttribute('size', data.Size ?? 4);
+            }
+            else {
+                this.removeAttribute('multiple');
+                this.removeAttribute('size');
+            }
+        }
+
+        // update size
+        if (data.Size != null && this.multiple) {
+            this.addAttribute('size', data.Size);
+        }
+
+        // update options
+        if (data.Options != null) {
+            this.clear();
+            this.element.append(this.buildOptions(data.Options));
+        }
+    }
+
+    clear(data, sender, opts) {
+        this.element.empty();
+    }
+
+    add(data, sender, opts) {
+        // build options html
+        var html = this.buildOptions(data.Options);
+
+        // add options for a group
+        if (data.GroupName) {
+            var group = this.element.find(`optgroup[name='${data.GroupName}']`);
+
+            if (group && group.length > 0) {
+                group.append(html);
+            }
+        }
+
+        // else, add options to root
+        else {
+            this.element.append(html);
+        }
+    }
+
+    remove(data, sender, opts) {
+        // remove any option groups
+        if (data.GroupName) {
+            convertToArray(data.GroupName).forEach((group) => {
+                this.element.find(`optgroup[value='${group}']`).remove();
+            });
+        }
+
+        // remove any options
+        if (data.OptionName) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                this.element.find(`option[value='${opt}']`).remove();
+            });
+        }
+    }
+}
+PodeElementFactory.setClass(PodeSelect);
+
+class PodeDatalist extends PodeFormOptionElement {
+    static type = 'datalist';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+    }
+
+    new(data, sender, opts) {
+        var options = '';
+        if (data.Options) {
+            options = this.buildOptions(data.Options);
+        }
+
+        var placeholder = data.Placeholder ? `placeholder='${encodeAttribute(data.Placeholder)}'` : '';
+        var width = `width:${this.width};`;
+
+        var input = `<input
+            class='form-control'
+            id='${this.id}'
+            name='${this.name}'
+            list='${this.id}_datalist'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            style='${width}'
+            ${placeholder}>`;
+
+        var datalist = `<datalist
+            id='${this.id}_datalist'
+            for='${this.uuid}'>
+                ${options}
+        </datalist>`;
+
+        return `${input}${datalist}`;
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+
+        // load options dynamically
+        if (this.dynamic) {
+            sendAjaxReq(`${this.url}/options`, null, this, true);
+        }
+
+        // if there is a selected option, set element value
+        if (!this.dynamic && !data.NoAutoSelect) {
+            this.checkSelected();
         }
     }
 
@@ -5373,34 +5528,61 @@ class PodeSelect extends PodeFormElement {
         }
 
         this.element.val(decodeHTML(data.Value));
+        this.trigger('change');
     }
 
     update(data, sender, opts) {
         super.update(data, sender, opts);
 
         // update options
-        data.Options = convertToArray(data.Options);
-        if (data.Options.length > 0) {
+        if (data.Options != null) {
             this.clear();
+            this.getDatalist().append(this.buildOptions(data.Options));
 
-            data.DisplayOptions = convertToArray(data.DisplayOptions);
-            data.SelectedValue = convertToArray(data.SelectedValue);
-
-            data.Options.forEach((opt, index) => {
-                this.element.append(`<option
-                    value="${opt}"
-                    ${data.SelectedValue.includes(opt) ? 'selected' : ''}>
-                        ${data.DisplayOptions[index]}
-                </option>`);
-            });
+            if (!data.NoAutoSelect) {
+                this.checkSelected();
+            }
         }
     }
 
     clear(data, sender, opts) {
-        this.element.empty();
+        this.getDatalist().empty();
+        this.element.val('');
+    }
+
+    add(data, sender, opts) {
+        // build and add options
+        var html = this.buildOptions(data.Options);
+        this.getDatalist().append(html);
+
+        if (!data.NoAutoSelect) {
+            this.checkSelected();
+        }
+    }
+
+    remove(data, sender, opts) {
+        // remove any options
+        convertToArray(data.Value).forEach((opt) => {
+            this.getDatalist().find(`option[value='${opt}']`).remove();
+        });
+
+        if (!data.NoAutoSelect) {
+            this.checkSelected();
+        }
+    }
+
+    getDatalist() {
+        return $(`datalist[for='${this.uuid}']`);
+    }
+
+    checkSelected() {
+        var selected = this.getDatalist().find('option[selected]');
+        if (selected && selected.length > 0) {
+            this.element.val(selected.attr('value'));
+        }
     }
 }
-PodeElementFactory.setClass(PodeSelect);
+PodeElementFactory.setClass(PodeDatalist);
 
 class PodeRange extends PodeFormElement {
     static type = 'range';

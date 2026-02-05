@@ -21,7 +21,9 @@ New-PodeWebCard -Content @(
         New-PodeWebCredential -Name 'Credentials'
         New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
         New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
-        New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple
+        New-PodeWebSelect -Name 'Role' -Multiple -Options @(
+            @('User', 'Admin', 'Operations') | ConvertTo-PodeWebOption
+        )
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
     )
 )

@@ -29,7 +29,9 @@ Let's say you want to have a Select element, but not in a form. When the Select'
 ### Server-Side
 
 ```powershell
-New-PodeWebSelect -Name 'Role' -Options @('Choose...', 'User', 'Admin', 'Operations') |
+New-PodeWebSelect -Name 'Role' -Options @(
+    @('Choose...', 'User', 'Admin', 'Operations') | ConvertTo-PodeWebOption
+ ) |
     Register-PodeWebEvent -Type Change -ScriptBlock {
         Show-PodeWebToast -Message "The value was changed: $($WebEvent.Data['Role'])"
     }
@@ -40,7 +42,9 @@ If the element the event triggers for is a form input element, the value will be
 ### Client-Side
 
 ```powershell
-New-PodeWebSelect -Name 'Role' -Options @('Choose...', 'User', 'Admin', 'Operations') |
+New-PodeWebSelect -Name 'Role' -Options @(
+    @('Choose...', 'User', 'Admin', 'Operations') | ConvertTo-PodeWebOption
+ ) |
     Register-PodeWebEvent -Type Change -JSFunction 'invokeCustomEvent'
 ```
 

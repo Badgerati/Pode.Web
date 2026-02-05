@@ -379,6 +379,10 @@ function New-PodeWebCheckbox {
         [string[]]
         $DisplayOptions,
 
+        [Parameter()]
+        [string]
+        $HelpText,
+
         [Parameter(ParameterSetName = 'Multiple')]
         [switch]
         $Inline,
@@ -415,6 +419,7 @@ function New-PodeWebCheckbox {
         ID             = $Id
         Options        = @($Options)
         DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
+        HelpText       = [System.Net.WebUtility]::HtmlEncode($HelpText)
         Inline         = $Inline.IsPresent
         AsSwitch       = $AsSwitch.IsPresent
         Checked        = $Checked.IsPresent
@@ -446,6 +451,10 @@ function New-PodeWebRadio {
         [string[]]
         $DisplayOptions,
 
+        [Parameter()]
+        [string]
+        $HelpText,
+
         [switch]
         $Inline,
 
@@ -471,6 +480,7 @@ function New-PodeWebRadio {
         ID             = $Id
         Options        = @($Options)
         DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
+        HelpText       = [System.Net.WebUtility]::HtmlEncode($HelpText)
         Inline         = $Inline.IsPresent
         Disabled       = $Disabled.IsPresent
         Required       = $Required.IsPresent
@@ -493,12 +503,8 @@ function New-PodeWebSelect {
         $Id,
 
         [Parameter(ParameterSetName = 'Options')]
-        [string[]]
+        [hashtable[]]
         $Options,
-
-        [Parameter(ParameterSetName = 'Options')]
-        [string[]]
-        $DisplayOptions,
 
         [Parameter(ParameterSetName = 'ScriptBlock')]
         [scriptblock]
@@ -509,10 +515,7 @@ function New-PodeWebSelect {
         $ArgumentList,
 
         [Parameter()]
-        [string[]]
-        $SelectedValue,
-
-        [Parameter()]
+        [ValidateRange(1, [int]::MaxValue)]
         [int]
         $Size = 4,
 
@@ -532,6 +535,10 @@ function New-PodeWebSelect {
         [string]
         $AppendIcon,
 
+        [Parameter()]
+        [string]
+        $HelpText,
+
         [switch]
         $Multiple,
 
@@ -545,16 +552,41 @@ function New-PodeWebSelect {
         $HideName
     )
 
-    if (!$Multiple.IsPresent -and $SelectedValue.Length -ge 2) {
-        throw 'Multiple selected values require -Multiple switch'
+    # ensure options are only of type option or option-group
+    if (!(Test-PodeWebContent -Content $Options -ComponentType Element -ObjectType 'Option', 'Option-Group')) {
+        throw 'A Select can only contain Options or Option Groups'
     }
 
+    # only allow multiple selected values if -Multiple is set
+    if (!$Multiple) {
+        $selectedCount = 0
+
+        foreach ($option in $Options) {
+            if ($option.Selected) {
+                $selectedCount++
+                continue
+            }
+
+            if ($option.ObjectType -ine 'Option-Group') {
+                continue
+            }
+
+            foreach ($groupOption in $option.Options) {
+                if ($groupOption.Selected) {
+                    $selectedCount++
+                }
+            }
+        }
+
+        if ($selectedCount -ge 2) {
+            throw 'Multiple selected options require -Multiple switch'
+        }
+    }
+
+    # generate an ID
     $Id = Get-PodeWebElementId -Tag Select -Id $Id -Name $Name
 
-    if ($Size -le 0) {
-        $Size = 4
-    }
-
+    # build element
     $element = @{
         Operation        = 'New'
         ComponentType    = 'Element'
@@ -563,12 +595,11 @@ function New-PodeWebSelect {
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         HideName         = $HideName.IsPresent
         ID               = $Id
-        Options          = @($Options)
-        DisplayOptions   = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
+        Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
-        SelectedValue    = $SelectedValue
         Multiple         = $Multiple.IsPresent
         Size             = $Size
+        HelpText         = [System.Net.WebUtility]::HtmlEncode($HelpText)
         Prepend          = @{
             Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
             Text    = $PrependText
@@ -636,7 +667,9 @@ function New-PodeWebSelect {
             }
 
             if ($result.Length -gt 0) {
-                $result = ($result | Update-PodeWebSelect -Id $ElementData.ID)
+                $result = $result |
+                    ConvertTo-PodeWebOption |
+                    Update-PodeWebSelect -Id $ElementData.ID
             }
 
             $result = Join-PodeWebDynamicOutput -Wrapped $wrapped -Output $result
@@ -651,6 +684,295 @@ function New-PodeWebSelect {
     }
 
     return $element
+}
+
+function New-PodeWebDatalist {
+    [CmdletBinding(DefaultParameterSetName = 'Options')]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
+        $Id,
+
+        [Parameter(ParameterSetName = 'Options')]
+        [hashtable[]]
+        $Options,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [object[]]
+        $ArgumentList,
+
+        [Parameter()]
+        [string]
+        $Placeholder,
+
+        [Parameter()]
+        [string]
+        $Width = 100,
+
+        [Parameter()]
+        [string]
+        $PrependText,
+
+        [Parameter()]
+        [string]
+        $PrependIcon,
+
+        [Parameter()]
+        [string]
+        $AppendText,
+
+        [Parameter()]
+        [string]
+        $AppendIcon,
+
+        [Parameter()]
+        [string]
+        $HelpText,
+
+        [switch]
+        $ReadOnly,
+
+        [switch]
+        $Required,
+
+        [switch]
+        $Disabled,
+
+        [switch]
+        $HideName,
+
+        [switch]
+        $NoAutoSelect
+    )
+
+    # ensure options are only of type option
+    if (!(Test-PodeWebContent -Content $Options -ComponentType Element -ObjectType 'Option')) {
+        throw 'A Datalist can only contain Options'
+    }
+
+    # error if multiple selected values
+    $selectedCount = 0
+
+    foreach ($option in $Options) {
+        if ($option.Selected) {
+            $selectedCount++
+        }
+    }
+
+    if ($selectedCount -ge 2) {
+        throw 'Datalist cannot have multiple selected options'
+    }
+
+    # generate an ID
+    $Id = Get-PodeWebElementId -Tag Datalist -Id $Id -Name $Name
+
+    # build element
+    $element = @{
+        Operation        = 'New'
+        ComponentType    = 'Element'
+        ObjectType       = 'Datalist'
+        Name             = $Name
+        DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        HideName         = $HideName.IsPresent
+        ID               = $Id
+        Options          = $Options
+        IsDynamic        = ($null -ne $ScriptBlock)
+        Placeholder      = $Placeholder
+        Width            = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
+        HelpText         = [System.Net.WebUtility]::HtmlEncode($HelpText)
+        Prepend          = @{
+            Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
+            Text    = $PrependText
+            Icon    = $PrependIcon
+        }
+        Append           = @{
+            Enabled = (![string]::IsNullOrWhiteSpace($AppendText) -or ![string]::IsNullOrWhiteSpace($AppendIcon))
+            Text    = $AppendText
+            Icon    = $AppendIcon
+        }
+        NoAuthentication = $NoAuthentication.IsPresent
+        NoAutoSelect     = $NoAutoSelect.IsPresent
+        ReadOnly         = $ReadOnly.IsPresent
+        Required         = $Required.IsPresent
+        Disabled         = $Disabled.IsPresent
+    }
+
+    $routePath = "/pode.web-dynamic/elements/datalist/$($Id)/options"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
+        $auth = $null
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $ElementData,
+            $elementLogic
+        )
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Parent, $Logic)
+            $global:ElementData = $Element
+            $global:ParentData = $Parent
+            Set-PodeWebMetadata
+
+            $result = @(Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data)
+
+            $wrapped = $null
+            if (Test-PodeWebActionsAsync) {
+                if ($result.Length -gt 0) {
+                    if ($null -eq $result[0]) {
+                        $result = @()
+                    }
+
+                    $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
+                }
+            }
+            else {
+                if ($null -eq $result) {
+                    $result = @()
+                }
+
+                $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
+            }
+
+            if ($result.Length -gt 0) {
+                $result = $result |
+                    ConvertTo-PodeWebOption |
+                    Update-PodeWebDatalist -Id $ElementData.ID
+            }
+
+            $result = Join-PodeWebDynamicOutput -Wrapped $wrapped -Output $result
+
+            if (($null -ne $result) -and ($result.Length -gt 0)) {
+                Write-PodeJsonResponse -Value $result
+            }
+
+            $global:ElementData = $null
+            $global:ParentData = $null
+        }
+    }
+
+    return $element
+}
+
+function New-PodeWebOptionGroup {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable[]]
+        $Options,
+
+        [switch]
+        $Disabled
+    )
+
+    if (!(Test-PodeWebContent -Content $Options -ComponentType Element -ObjectType Option)) {
+        throw 'An Option Group can only contain Options'
+    }
+
+    return @{
+        Operation     = 'New'
+        ComponentType = 'Element'
+        ObjectType    = 'Option-Group'
+        Name          = (Protect-PodeWebValue -Value $Name -Encode)
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        Options       = $Options
+        Disabled      = $Disabled.IsPresent
+    }
+}
+
+function New-PodeWebOption {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Name,
+
+        [Parameter()]
+        [string]
+        $DisplayName,
+
+        [Parameter()]
+        [string]
+        $Label,
+
+        [switch]
+        $Disabled,
+
+        [switch]
+        $Selected
+    )
+
+    return @{
+        Operation     = 'New'
+        ComponentType = 'Element'
+        ObjectType    = 'Option'
+        Name          = $Name
+        DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        Label         = (Protect-PodeWebValue -Value $Label -Encode)
+        Disabled      = $Disabled.IsPresent
+        Selected      = $Selected.IsPresent
+    }
+}
+
+function ConvertTo-PodeWebOption {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string[]]
+        $InputObject,
+
+        [Parameter()]
+        [string[]]
+        $SelectedOption
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        $items += $InputObject
+    }
+
+    end {
+        foreach ($item in $items) {
+            New-PodeWebOption -Name $item -Selected:($item -iin $SelectedOption)
+        }
+    }
 }
 
 function New-PodeWebRange {
@@ -684,6 +1006,10 @@ function New-PodeWebRange {
         [ValidateRange(0.1, [double]::MaxValue)]
         [double]
         $Step = 1.0,
+
+        [Parameter()]
+        [string]
+        $HelpText,
 
         [switch]
         $Disabled,
@@ -737,6 +1063,7 @@ function New-PodeWebRange {
         Min           = $Min
         Max           = $Max
         Step          = $Step
+        HelpText      = [System.Net.WebUtility]::HtmlEncode($HelpText)
         Disabled      = $Disabled.IsPresent
         ShowValue     = $ShowValue.IsPresent
         Required      = $Required.IsPresent

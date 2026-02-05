@@ -27,7 +27,9 @@ New-PodeWebCard -Content @(
     } -Content @(
         New-PodeWebTextbox -Name 'Username'
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
-        New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin') -Multiple
+        New-PodeWebSelect -Name 'Role' -Multiple -Options @(
+            @('User', 'Admin') | ConvertTo-PodeWebOption
+        )
     )
 )
 ```
