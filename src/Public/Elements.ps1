@@ -357,7 +357,7 @@ function New-PodeWebCode {
 }
 
 function New-PodeWebCheckbox {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Single')]
     param(
         [Parameter(Mandatory = $true)]
         [string]
@@ -372,26 +372,38 @@ function New-PodeWebCheckbox {
         $Id,
 
         [Parameter(ParameterSetName = 'Multiple')]
-        [string[]]
+        [hashtable[]]
         $Options,
 
-        [Parameter(ParameterSetName = 'Multiple')]
-        [string[]]
-        $DisplayOptions,
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [object[]]
+        $ArgumentList,
 
         [Parameter()]
         [string]
         $HelpText,
 
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication,
+
         [Parameter(ParameterSetName = 'Multiple')]
+        [Parameter(ParameterSetName = 'ScriptBlock')]
         [switch]
         $Inline,
 
         [switch]
         $AsSwitch,
 
+        [Parameter(ParameterSetName = 'Single')]
+        [Alias('Checked')]
         [switch]
-        $Checked,
+        $Selected,
 
         [switch]
         $Disabled,
@@ -400,36 +412,121 @@ function New-PodeWebCheckbox {
         $Required,
 
         [switch]
-        $HideName
+        $HideName,
+
+        [Parameter(ParameterSetName = 'Empty')]
+        [switch]
+        $AllowEmpty
     )
 
+    # options can only be of type Option
+    if (!(Test-PodeWebContent -Content $Options -ComponentType Element -ObjectType Option)) {
+        throw 'A Checkbox can only contain Options'
+    }
+
+    # generate an ID
     $Id = Get-PodeWebElementId -Tag Checkbox -Id $Id -Name $Name
 
-    if (($null -eq $Options) -or ($Options.Length -eq 0)) {
-        $Options = @('true')
+    # handle single checkbox with no options, unless -AllowEmpty is specified
+    if (!$AllowEmpty -and (($null -eq $Options) -or ($Options.Length -eq 0)) -and ($null -eq $ScriptBlock)) {
+        $opt = New-PodeWebOption -Name 'pode_web_true' -Selected:$Selected
+        $opt.Required = $Required.IsPresent
+        $Options = @($opt)
     }
 
-    return @{
-        Operation      = 'New'
-        ComponentType  = 'Element'
-        ObjectType     = 'Checkbox'
-        Name           = $Name
-        DisplayName    = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName       = $HideName.IsPresent
-        ID             = $Id
-        Options        = @($Options)
-        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
-        HelpText       = [System.Net.WebUtility]::HtmlEncode($HelpText)
-        Inline         = $Inline.IsPresent
-        AsSwitch       = $AsSwitch.IsPresent
-        Checked        = $Checked.IsPresent
-        Disabled       = $Disabled.IsPresent
-        Required       = $Required.IsPresent
+    # build element
+    $element = @{
+        Operation        = 'New'
+        ComponentType    = 'Element'
+        ObjectType       = 'Checkbox'
+        Name             = $Name
+        DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        HideName         = $HideName.IsPresent
+        ID               = $Id
+        Options          = $Options
+        IsDynamic        = ($null -ne $ScriptBlock)
+        HelpText         = [System.Net.WebUtility]::HtmlEncode($HelpText)
+        Inline           = $Inline.IsPresent
+        AsSwitch         = $AsSwitch.IsPresent
+        NoAuthentication = $NoAuthentication.IsPresent
+        Disabled         = $Disabled.IsPresent
+        Required         = $Required.IsPresent
     }
+
+    # create dynamic options route
+    $routePath = "/pode.web-dynamic/elements/checkbox/$($Id)/options"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
+        $auth = $null
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $ElementData,
+            $elementLogic
+        )
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Parent, $Logic)
+            $global:ElementData = $Element
+            $global:ParentData = $Parent
+            Set-PodeWebMetadata
+
+            $result = @(Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data)
+
+            $wrapped = $null
+            if (Test-PodeWebActionsAsync) {
+                if ($result.Length -gt 0) {
+                    if ($null -eq $result[0]) {
+                        $result = @()
+                    }
+
+                    $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
+                }
+            }
+            else {
+                if ($null -eq $result) {
+                    $result = @()
+                }
+
+                $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
+            }
+
+            if ($result.Length -gt 0) {
+                $result = $result |
+                    ConvertTo-PodeWebOption |
+                    Update-PodeWebCheckbox -Id $ElementData.ID
+            }
+
+            $result = Join-PodeWebDynamicOutput -Wrapped $wrapped -Output $result
+
+            if (($null -ne $result) -and ($result.Length -gt 0)) {
+                Write-PodeJsonResponse -Value $result
+            }
+
+            $global:ElementData = $null
+            $global:ParentData = $null
+        }
+    }
+
+    return $element
 }
 
 function New-PodeWebRadio {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Options')]
     param(
         [Parameter(Mandatory = $true)]
         [string]
@@ -443,17 +540,27 @@ function New-PodeWebRadio {
         [string]
         $Id,
 
-        [Parameter(Mandatory = $true)]
-        [string[]]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Options')]
+        [ValidateNotNullOrEmpty()]
+        [hashtable[]]
         $Options,
 
-        [Parameter()]
-        [string[]]
-        $DisplayOptions,
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [scriptblock]
+        $ScriptBlock,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [object[]]
+        $ArgumentList,
 
         [Parameter()]
         [string]
         $HelpText,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication,
 
         [switch]
         $Inline,
@@ -465,26 +572,122 @@ function New-PodeWebRadio {
         $Required,
 
         [switch]
-        $HideName
+        $HideName,
+
+        [Parameter(ParameterSetName = 'Empty')]
+        [switch]
+        $AllowEmpty
     )
 
+    # options can only be of type Option
+    if (!(Test-PodeWebContent -Content $Options -ComponentType Element -ObjectType Option)) {
+        throw 'A Radio can only contain Options'
+    }
+
+    # error if multiple selected values
+    $selectedCount = 0
+
+    foreach ($option in $Options) {
+        if ($option.Selected) {
+            $selectedCount++
+        }
+    }
+
+    if ($selectedCount -ge 2) {
+        throw 'Radio cannot have multiple selected options'
+    }
+
+    # generate an ID
     $Id = Get-PodeWebElementId -Tag Radio -Id $Id -Name $Name
 
-    return @{
-        Operation      = 'New'
-        ComponentType  = 'Element'
-        ObjectType     = 'Radio'
-        Name           = $Name
-        DisplayName    = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName       = $HideName.IsPresent
-        ID             = $Id
-        Options        = @($Options)
-        DisplayOptions = @(Protect-PodeWebValues -Value $DisplayOptions -Default $Options -EqualCount -Encode)
-        HelpText       = [System.Net.WebUtility]::HtmlEncode($HelpText)
-        Inline         = $Inline.IsPresent
-        Disabled       = $Disabled.IsPresent
-        Required       = $Required.IsPresent
+    # build element
+    $element = @{
+        Operation        = 'New'
+        ComponentType    = 'Element'
+        ObjectType       = 'Radio'
+        Name             = $Name
+        DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
+        HideName         = $HideName.IsPresent
+        ID               = $Id
+        Options          = $Options
+        IsDynamic        = ($null -ne $ScriptBlock)
+        HelpText         = [System.Net.WebUtility]::HtmlEncode($HelpText)
+        Inline           = $Inline.IsPresent
+        NoAuthentication = $NoAuthentication.IsPresent
+        Disabled         = $Disabled.IsPresent
+        Required         = $Required.IsPresent
     }
+
+    # create dynamic options route
+    $routePath = "/pode.web-dynamic/elements/radio/$($Id)/options"
+    if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
+        # check for scoped vars
+        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
+        $elementLogic = @{
+            ScriptBlock    = $ScriptBlock
+            UsingVariables = $usingVars
+        }
+
+        $auth = $null
+        if (!$NoAuthentication -and !$PageData.NoAuthentication) {
+            $auth = (Get-PodeWebState -Name 'auth')
+        }
+
+        if (Test-PodeIsEmpty $EndpointName) {
+            $EndpointName = Get-PodeWebState -Name 'endpoint-name'
+        }
+
+        $argList = @(
+            @{ Data = $ArgumentList },
+            $element,
+            $ElementData,
+            $elementLogic
+        )
+
+        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $EndpointName -ScriptBlock {
+            param($Data, $Element, $Parent, $Logic)
+            $global:ElementData = $Element
+            $global:ParentData = $Parent
+            Set-PodeWebMetadata
+
+            $result = @(Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data)
+
+            $wrapped = $null
+            if (Test-PodeWebActionsAsync) {
+                if ($result.Length -gt 0) {
+                    if ($null -eq $result[0]) {
+                        $result = @()
+                    }
+
+                    $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
+                }
+            }
+            else {
+                if ($null -eq $result) {
+                    $result = @()
+                }
+
+                $wrapped, $result = Split-PodeWebDynamicOutput -Output $result
+            }
+
+            if ($result.Length -gt 0) {
+                $result = $result |
+                    ConvertTo-PodeWebOption |
+                    Update-PodeWebRadio -Id $ElementData.ID
+            }
+
+            $result = Join-PodeWebDynamicOutput -Wrapped $wrapped -Output $result
+
+            if (($null -ne $result) -and ($result.Length -gt 0)) {
+                Write-PodeJsonResponse -Value $result
+            }
+
+            $global:ElementData = $null
+            $global:ParentData = $null
+        }
+    }
+
+    return $element
 }
 
 function New-PodeWebSelect {
@@ -538,6 +741,11 @@ function New-PodeWebSelect {
         [Parameter()]
         [string]
         $HelpText,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
+        [Alias('NoAuth')]
+        [switch]
+        $NoAuthentication,
 
         [switch]
         $Multiple,
@@ -615,6 +823,7 @@ function New-PodeWebSelect {
         Disabled         = $Disabled.IsPresent
     }
 
+    # create dynamic options route
     $routePath = "/pode.web-dynamic/elements/select/$($Id)/options"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
@@ -925,10 +1134,6 @@ function New-PodeWebOption {
         [string]
         $DisplayName,
 
-        [Parameter()]
-        [string]
-        $Label,
-
         [switch]
         $Disabled,
 
@@ -936,13 +1141,13 @@ function New-PodeWebOption {
         $Selected
     )
 
+    # build element
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
         ObjectType    = 'Option'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        Label         = (Protect-PodeWebValue -Value $Label -Encode)
         Disabled      = $Disabled.IsPresent
         Selected      = $Selected.IsPresent
     }

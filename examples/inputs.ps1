@@ -37,9 +37,21 @@ Start-PodeServer -Threads 2 {
         New-PodeWebDateTime -Name 'DateTime' -DateValue '2023-12-23' -TimeValue '13:37'
         New-PodeWebCredential -Name 'Credentials'
         New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent' -ReadOnly
-        New-PodeWebCheckbox -Name 'Switches' -Options @('Terms', 'Privacy') -AsSwitch
-        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -Inline -HelpText 'Accept the terms and privacy policy'
-        New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L') -HelpText 'Select a size'
+
+        New-PodeWebCheckbox -Name 'Do you agree?' -AsSwitch
+
+        New-PodeWebCheckbox -Name 'Switches' -AsSwitch -Options @(
+            'Terms', 'Privacy' | ConvertTo-PodeWebOption
+        )
+
+        New-PodeWebCheckbox -Name 'Checkboxes' -Inline -HelpText 'Accept the terms and privacy policy' -Disabled -Options @(
+            New-PodeWebOption -Name 'Terms'
+            New-PodeWebOption -Name 'Privacy' -Selected
+        )
+
+        New-PodeWebRadio -Name 'Radios' -HelpText 'Select a size' -Options @(
+            'S', 'M', 'L' | ConvertTo-PodeWebOption
+        )
 
         New-PodeWebSelect -Name 'Role1' -PrependIcon 'account' -AppendIcon 'account' -HelpText 'Select a role' -Options @(
             @('Choose...', 'User', 'Admin', 'Operations') | ConvertTo-PodeWebOption

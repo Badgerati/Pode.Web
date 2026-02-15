@@ -19,10 +19,14 @@ New-PodeWebCard -Content @(
         New-PodeWebTextbox -Name 'Time' -Type Time
         New-PodeWebDateTime -Name 'DateTime'
         New-PodeWebCredential -Name 'Credentials'
-        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
-        New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
+        New-PodeWebCheckbox -Name 'Checkboxes' -Options @(
+            'Terms', 'Privacy' | ConvertTo-PodeWebOption
+        ) -AsSwitch
+        New-PodeWebRadio -Name 'Radios' -Options @(
+            'S', 'M', 'L' | ConvertTo-PodeWebOption
+        )
         New-PodeWebSelect -Name 'Role' -Multiple -Options @(
-            @('User', 'Admin', 'Operations') | ConvertTo-PodeWebOption
+            'User', 'Admin', 'Operations' | ConvertTo-PodeWebOption
         )
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
     )

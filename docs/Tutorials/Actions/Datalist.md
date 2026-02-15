@@ -57,9 +57,9 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
-## Set
+## Select
 
-To set the currently selected option/value of a Datalist element, you can use [`Set-PodeWebDatalist`](../../../Functions/Actions/Set-PodeWebDatalist). You can either set the value to a predefined option, or to a custom value not in the options list:
+To set the currently selected option/value of a Datalist element, you can use [`Select-PodeWebDatalistOption`](../../../Functions/Actions/Select-PodeWebDatalistOption). You can either set the value to a predefined option, or to a custom value not in the options list:
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -72,11 +72,11 @@ New-PodeWebContainer -NoBackground -Content @(
     New-PodeWebButton -Name 'Update Datalist Predefined' -ScriptBlock {
         $rand = Get-Random -Minimum 0 -Maximum 3
         $opt = (@('Option1', 'Option2', 'Option3'))[$rand]
-        Set-PodeWebDatalist -Name 'Example' -Value $opt
+        Select-PodeWebDatalistOption -Name 'Example' -Value $opt
     }
 
     New-PodeWebButton -Name 'Update Datalist Custom' -ScriptBlock {
-        Set-PodeWebDatalist -Name 'Example' -Value 'Custom Value'
+        Select-PodeWebDatalistOption -Name 'Example' -Value 'Custom Value'
     }
 )
 ```

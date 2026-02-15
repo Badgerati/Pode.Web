@@ -70,7 +70,7 @@ New-PodeWebCard -Content @(
         $editBtn = New-PodeWebButton -Name 'Edit' -Icon 'Edit' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
             Show-PodeWebModal -Name 'Edit Service' -DataValue $WebEvent.Data.Value -Actions @(
-                Set-PodeWebSelect -Name 'StartType' -Value $svc.StartType
+                Select-PodeWebSelectOption -Name 'StartType' -OptionName $svc.StartType
             )
         }
 
