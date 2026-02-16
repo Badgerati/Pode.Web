@@ -887,6 +887,14 @@ class PodeElement {
         element.off(evt);
     }
 
+    sanitize(value) {
+        if (FEATURES.ParseDateTime) {
+            value = convertDateTimeString(value);
+        }
+
+        return value;
+    }
+
     spinner(show) {
         if (!this.hasSpinner || (!show && this.loading)) {
             return;
@@ -3370,6 +3378,7 @@ class PodeTable extends PodeRefreshableElement {
                 break;
 
             default:
+                console.log(data);
                 this.updateTable(data, sender, opts);
                 break;
         }
@@ -3413,7 +3422,7 @@ class PodeTable extends PodeRefreshableElement {
                     elements.push(...(renderResult.elements));
                 }
                 else {
-                    html = rowData;
+                    html = this.sanitize(rowData);
                 }
 
                 row.find(`td[pode-column="${key}"]`).html(html);
@@ -3540,10 +3549,10 @@ class PodeTable extends PodeRefreshableElement {
                     });
                 }
                 else if (item[key] != null) {
-                    value += item[key];
+                    value += this.sanitize(item[key]);
                 }
                 else if (!item[key] && header.length > 0) {
-                    value += header.attr('default-value');
+                    value += this.sanitize(header.attr('default-value'));
                 }
 
                 value += `</td>`;

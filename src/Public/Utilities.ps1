@@ -92,6 +92,11 @@ function Initialize-PodeWebTemplates {
     Set-PodeWebState -Name 'custom-js' -Value @()
     Set-PodeWebState -Name 'conn-type' -Value $ConnectionType.ToLowerInvariant()
 
+    # setup default features for frontend parsing
+    Set-PodeWebState -Name 'features' -Value @{
+        ParseDateTime = !(Test-PodeIsPSCore)
+    }
+
     # themes
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
     Set-PodeWebState -Name 'custom-themes' -Value @{

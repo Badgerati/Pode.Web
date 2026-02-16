@@ -16,6 +16,7 @@ var tooltips = function() {
 };
 tooltips();
 
+var FEATURES = {};
 var pageLoaded = false;
 var contentLoaded = false;
 
@@ -25,6 +26,9 @@ $(() => {
         return;
     }
     pageLoaded = true;
+
+    // load features from body attributes
+    loadFeatures();
 
     // check theme
     if (checkAutoTheme()) {
@@ -46,6 +50,12 @@ $(() => {
     // setup client connection
     setupClientConnection();
 });
+
+function loadFeatures() {
+    FEATURES = {
+        ParseDateTime: ($('body').attr('pode-parse-datetime') === 'True')
+    };
+}
 
 function loadContent() {
     if (contentLoaded) {
@@ -1207,6 +1217,18 @@ function getCssColorScheme(opposite) {
 
 function getTimeString() {
     return (new Date()).toLocaleTimeString().split(':').slice(0, 2).join(':');
+}
+
+function convertDateTimeString(value) {
+    if (!value || typeof value !== 'string') {
+        return value;
+    }
+
+    // find references to "/Date(...)/" and convert to datetime object
+    return value.replace(/\/Date\((\d+)\)\//g, function(match, timestamp) {
+        // return in YYYY-MM-DDTHH:mm:ss format - same as .NET's default JSON date format
+        return new Date(parseInt(timestamp)).toISOString().split('.')[0];
+    });
 }
 
 function actionHref(action) {
