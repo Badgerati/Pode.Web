@@ -46,7 +46,7 @@ Which looks like below:
 
 You can build a Select element's options dynamically by using the `-ScriptBlock` parameter. This will allow you to retrieve the options from elsewhere for use with the Select element.
 
-You can either return an array of raw values, or pipe the options into, and return, [`Update-PodeWebSelect`](../../../Functions/Actions/Update-PodeWebSelect). When using the latter you will need to supply the options as Option elements, for this you can either build the options using [`New-PodeWebOption`](../../../Functions/Elements/New-PodeWebOption) or convert raw values via [`ConvertTo-PodeWebOption`](../../../Functions/Elements/ConvertTo-PodeWebOption).
+You can either return an array of raw string values, or pipe the options into, and return, [`Update-PodeWebSelect`](../../../Functions/Actions/Update-PodeWebSelect). When using the latter you will need to supply the options as Option elements, for this you can either build the options using [`New-PodeWebOption`](../../../Functions/Elements/New-PodeWebOption) or convert raw values via [`ConvertTo-PodeWebOption`](../../../Functions/Elements/ConvertTo-PodeWebOption).
 
 The following will both build a Select element with 10 random numbers as the options, using the above methods:
 
@@ -90,3 +90,5 @@ You can render a multiple select element, where more than one option can be sele
 ## Display Name
 
 By default the label displays the `-Name` of the element. You can change the value displayed by also supplying an optional `-DisplayName` value; this value is purely visual, when the user submits the form the value of the element is still retrieved using the `-Name` from `$WebEvent.Data`.
+
+The same principle applies to `New-PodeWebOption` and `-DisplayName`.

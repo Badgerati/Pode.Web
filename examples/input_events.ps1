@@ -70,7 +70,9 @@ Start-PodeServer -Threads 2 {
     # radio event
     $radio = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Select options: '
-        New-PodeWebRadio -Name 'Options' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebRadio -Name 'Options' -Options @(
+            'Bellow 1', 'Bellow 2', 'Bellow 3' | ConvertTo-PodeWebOption
+        ) |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Open-PodeWebBellow -Name $WebEvent.Data['Options']
             }
@@ -94,7 +96,9 @@ Start-PodeServer -Threads 2 {
     # checkbox event
     $checkbox = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Select options: '
-        New-PodeWebCheckbox -Name 'Options' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebCheckbox -Name 'Options' -Options @(
+            'Bellow 1', 'Bellow 2', 'Bellow 3' | ConvertTo-PodeWebOption
+        ) |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 if (!$WebEvent.Data['Options']) {
                     Close-PodeWebAccordion -Name 'Accordion3'

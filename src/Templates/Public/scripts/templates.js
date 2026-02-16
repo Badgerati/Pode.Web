@@ -594,6 +594,10 @@ class PodeElement {
             case 'step':
                 this.steps(data, sender, opts);
                 break;
+
+            case 'select':
+                this.select(data, sender, opts);
+                break;
         }
 
         if (this.ephemeral) {
@@ -1296,6 +1300,10 @@ class PodeElement {
         throw `${this.getType()} "steps" method not implemented`;
     }
 
+    select(data, sender, opts) {
+        throw `${this.getType()} "select" method not implemented`;
+    }
+
     update(data, sender, opts) {
         if (data == null) {
             return;
@@ -1701,14 +1709,12 @@ class PodeFormElement extends PodeContentElement {
                 if (this.parent instanceof PodeForm) {
                     var formGroup = !this.inForm ? 'd-inline-block' : `form-group row mb-3`;
                     var divTag = this.asFieldset ? 'fieldset' : 'div';
-                    var idProps = this.asFieldset ? `id='${this.id}' pode-object='${this.getType()}' pode-id='${this.uuid}'` : '';
                     var events = this.asFieldset ? `pode-events-status='off'` : '';
                     var width = this.inForm || !this.width ? '' : `width:${this.width}`;
 
                     html = `<${divTag}
                         class='pode-form-${this.getType()} ${formGroup}'
                         style='${width}'
-                        ${idProps}
                         ${events}>
                             ${html}
                     </${divTag}>`;
@@ -1776,17 +1782,22 @@ class PodeFormElement extends PodeContentElement {
 class PodeFormOptionElement extends PodeFormElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        this.optionCount = 0;
     }
 
     buildOptions(options) {
         var html = '';
+        if (!options) {
+            return html;
+        }
 
-        convertToArray(options).forEach((opt) => {
-            if (opt.Options) {
-                html += this.buildGroup(opt);
+        convertToArray(options).forEach((option) => {
+            if (option.Options) {
+                html += this.buildGroup(option);
             }
             else {
-                html += this.buildOption(opt);
+                this.optionCount++;
+                html += this.buildOption(option);
             }
         });
 
@@ -1794,29 +1805,26 @@ class PodeFormOptionElement extends PodeFormElement {
     }
 
     buildOption(option) {
-        var label = option.Label ? ` label='${option.Label}'` : '';
-
         return `<option
+            id='${this.buildOptionId(option)}'
             value='${option.Name}'
-            ${label}
             ${option.Selected ? 'selected' : ''}
             ${option.Disabled ? 'disabled' : ''}>
                 ${option.DisplayName}
         </option>`;
     }
 
+    buildOptionId(option) {
+        return `${this.id}_option${this.optionCount}`;
+    }
+
     buildGroup(group) {
-        var html = `<optgroup
+        return `<optgroup
             value='${group.Name}'
             label='${group.DisplayName}'
-            ${group.Disabled ? 'disabled' : ''}>`;
-
-        convertToArray(group.Options).forEach((opt) => {
-            html += this.buildOption(opt);
-        });
-
-        html += `</optgroup>`;
-        return html;
+            ${group.Disabled ? 'disabled' : ''}>
+                ${this.buildOptions(group.Options)}
+        </optgroup>`;
     }
 }
 
@@ -3794,7 +3802,7 @@ class PodeTextbox extends PodeFormElement {
 
         var autofocus = this.autofocus ? 'autofocus' : '';
         var maxLength = data.MaxLength ? `maxlength='${data.MaxLength}'` : '';
-        var width = `width:${this.width};`;
+        var width = this.width ? `width:${this.width};` : '';
 
         var placeholder = data.Placeholder
             ? `placeholder='${encodeAttribute(data.Placeholder)}'`
@@ -5395,7 +5403,7 @@ class PodeSelect extends PodeFormOptionElement {
         }
     }
 
-    set(data, sender, opts) {
+    select(data, sender, opts) {
         if (!data.OptionName) {
             return;
         }
@@ -5522,7 +5530,7 @@ class PodeDatalist extends PodeFormOptionElement {
         }
     }
 
-    set(data, sender, opts) {
+    select(data, sender, opts) {
         if (!data.Value) {
             return;
         }
@@ -5562,7 +5570,7 @@ class PodeDatalist extends PodeFormOptionElement {
 
     remove(data, sender, opts) {
         // remove any options
-        convertToArray(data.Value).forEach((opt) => {
+        convertToArray(data.OptionName).forEach((opt) => {
             this.getDatalist().find(`option[value='${opt}']`).remove();
         });
 
@@ -5871,145 +5879,312 @@ class PodeProgress extends PodeContentElement {
 }
 PodeElementFactory.setClass(PodeProgress);
 
-class PodeCheckbox extends PodeFormElement {
+class PodeCheckbox extends PodeFormOptionElement {
     static type = 'checkbox';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
         this.asFieldset = true;
+        this.asSwitch = data.AsSwitch ?? false;
+        this.inline = data.Inline ?? false;
+        this.isSingle = !data.Options;
     }
 
     new(data, sender, opts) {
-        var inline = data.Inline ? 'form-check-inline' : ''
-        var checked = data.Checked ? 'checked' : '';
-
-        var isSwitch = data.AsSwitch ?? false;
-        var checkboxClass = isSwitch ? 'form-check form-switch' : 'form-check';
-
-        data.Options = convertToArray(data.Options);
-        data.DisplayOptions = convertToArray(data.DisplayOptions);
-
         var options = '';
-        data.Options.forEach((opt, index) => {
-            if (!opt) {
-                return;
-            }
+        if (data.Options) {
+            options = this.buildOptions(data.Options);
+        }
 
-            options += `<div
-                id='${this.id}'
-                class='${checkboxClass} ${inline}'
-                pode-object='${this.getType()}'
-                pode-id='${this.uuid}'>
-                    <input
-                        type='checkbox'
-                        id='${this.id}_option${index}'
-                        class='form-check-input'
-                        value='${opt}'
-                        name='${this.name}'
-                        pode-option-id='${index}'
-                        ${checked}>
-                    <label class='form-check-label' for='${this.id}_option${index}'>
-                        ${opt !== 'true' ? data.DisplayOptions[index] : ''}
-                    </label>
-            </div>`;
-        });
+        return `<div
+            id='${this.id}'
+            name='${this.name}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+                ${options}
+        </div>`;
+    }
 
-        return `<div pode-container-for='${this.uuid}'>${options}</div>`;
+    buildOption(option) {
+        // classes and ID
+        var inline = this.inline ? 'form-check-inline' : '';
+        var checkboxClass = this.asSwitch ? 'form-check form-switch' : 'form-check';
+        var optId = this.buildOptionId(option);
+
+        // option name and label - setting "pode_web_true" as "true" and no label
+        var optName = option.Name;
+        var optLabel = option.DisplayName;
+
+        if (optName == 'pode_web_true') {
+            optName = 'true';
+            optLabel = '';
+        }
+
+        // disabled/required - top level takes priority over option level
+        var disabled = this.disabled || (option.Disabled ?? false) ? 'disabled' : '';
+        var required = this.required || (option.Required ?? false) ? 'required' : '';
+
+        return `<div class='${checkboxClass} ${inline}'>
+            <input
+                type='checkbox'
+                id='${optId}'
+                class='form-check-input'
+                value='${optName}'
+                name='${this.name}'
+                ${option.Selected ? 'checked' : ''}
+                ${disabled}
+                ${required}>
+            <label class='form-check-label' for='${optId}'>
+                ${optLabel}
+            </label>
+        </div>`;
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+        if (this.dynamic) {
+            sendAjaxReq(`${this.url}/options`, null, this, true);
+        }
     }
 
     update(data, sender, opts) {
         super.update(data, sender, opts);
 
-        // get checkbox
-        var checkbox = this.getCheckbox(data.OptionId);
-        if (!checkbox) {
-            return;
+        // update options
+        if (data.Options != null) {
+            this.clear();
+            this.element.append(this.buildOptions(data.Options));
         }
 
-        // check or uncheck
-        if (data.Checked != null) {
-            checkbox.prop('checked', data.Checked);
+        // set checked/unchecked on all options?
+        if (data.Selected != null) {
+            if (data.Selected) {
+                this.select({}, sender, opts);
+            }
+            else {
+                this.reset({}, sender, opts);
+            }
         }
+    }
+
+    setRequired(enabled) {
+        this.element.find(`input[type='checkbox']`).prop('required', enabled);
     }
 
     enable(data, sender, opts) {
-        var checkbox = this.getCheckbox(data.OptionId);
-        if (!checkbox) {
-            return;
+        // enable a specific option if OptionName supplied, else enable all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                enable(this.getCheckbox(opt));
+            });
         }
-
-        enable(checkbox);
+        else {
+            this.element.find(`input[type='checkbox']`).each((_, checkbox) => {
+                enable($(checkbox));
+            });
+        }
     }
 
     disable(data, sender, opts) {
-        var checkbox = this.getCheckbox(data.OptionId);
-        if (!checkbox) {
-            return;
+        // disable a specific option if OptionName supplied, else disable all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                disable(this.getCheckbox(opt));
+            });
+        }
+        else {
+            this.element.find(`input[type='checkbox']`).each((_, checkbox) => {
+                disable($(checkbox));
+            });
+        }
+    }
+
+    select(data, sender, opts) {
+        // check a specific option if OptionName supplied, else check all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                this.getCheckbox(opt).prop('checked', true);
+            });
+        }
+        else {
+            this.element.find(`input[type='checkbox']`).prop('checked', true);
         }
 
-        disable(checkbox);
+        this.trigger('change');
     }
 
-    getCheckbox(index) {
-        return this.element.find(`input#${this.id}_option${index}`);
+    reset(data, sender, opts) {
+        // uncheck a specific option if OptionName supplied, else uncheck all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                this.getCheckbox(opt).prop('checked', false);
+            });
+        }
+        else {
+            this.element.find(`input[type='checkbox']`).prop('checked', false);
+        }
+
+        this.trigger('change');
     }
 
-    //TODO: same as the comment for "select" - CheckboxOption ?
-    //          -- that would make this "Checkbox" not a "FormElement" but the "CheckOption" would be
-    //          -- this is needed to control individual checkboxes, and fix disabled/required/etc support
-    //          -- as well as update() support...
+    add(data, sender, opts) {
+        var html = this.buildOptions(data.Options);
+        this.element.append(html);
+    }
+
+    remove(data, sender, opts) {
+        convertToArray(data.OptionName).forEach((opt) => {
+            this.getCheckbox(opt).closest('.form-check').remove();
+        });
+    }
+
+    clear(data, sender, opts) {
+        this.element.empty();
+    }
+
+    getCheckbox(name) {
+        return this.element.find(`input[type='checkbox'][value='${name}']`);
+    }
 }
 PodeElementFactory.setClass(PodeCheckbox);
 
-class PodeRadio extends PodeFormElement {
+class PodeRadio extends PodeFormOptionElement {
     static type = 'radio';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
         this.label.asLegend = true;
         this.asFieldset = true;
+        this.inline = data.Inline ?? false;
     }
 
     new(data, sender, opts) {
-        var inline = data.Inline ? 'form-check-inline' : '';
-
-        data.Options = convertToArray(data.Options);
-        data.DisplayOptions = convertToArray(data.DisplayOptions);
-
         var options = '';
-        data.Options.forEach((opt, index) => {
-            if (!opt) {
-                return;
-            }
+        if (data.Options) {
+            options = this.buildOptions(data.Options);
+        }
 
-            options += `<div
-                id='${this.id}'
-                class='form-check ${inline}'
-                pode-object='${this.getType()}'
-                pode-id='${this.uuid}'>
-                    <input
-                        type='radio'
-                        id='${this.id}_option${index}'
-                        class='form-check-input'
-                        value='${opt}'
-                        name='${this.name}'
-                        pode-option-id='${index}'
-                        ${index === 0 ? 'checked' : ''}>
-                    <label class='form-check-label' for='${this.id}_option${index}'>
-                        ${opt !== 'true' ? data.DisplayOptions[index] : ''}
-                    </label>
-            </div>`;
-        });
-
-        return `<div pode-container-for='${this.uuid}'>${options}</div>`;
+        return `<div
+            id='${this.id}'
+            name='${this.name}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+                ${options}
+        </div>`;
     }
 
-    //TODO: same as the comment for "select" - CheckboxOption ?
-    //          -- that would make this "Checkbox" not a "FormElement" but the "CheckOption" would be
-    //          -- this is needed to control individual checkboxes, and fix disabled/required/etc support
-    //          -- as well as update() support...
+    buildOption(option) {
+        // classes and ID
+        var inline = this.inline ? 'form-check-inline' : '';
+        var optId = this.buildOptionId(option);
 
-    //TODO: radio missing update/enable/etc.
+        // disabled/required - top level takes priority over option level
+        var disabled = this.disabled || (option.Disabled ?? false) ? 'disabled' : '';
+        var required = this.required || (option.Required ?? false) ? 'required' : '';
+
+        return `<div class='form-check ${inline}'>
+            <input
+                type='radio'
+                id='${optId}'
+                class='form-check-input'
+                value='${option.Name}'
+                name='${this.name}'
+                ${option.Selected ? 'checked' : ''}
+                ${disabled}
+                ${required}>
+            <label class='form-check-label' for='${optId}'>
+                ${option.DisplayName}
+            </label>
+        </div>`;
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+        if (this.dynamic) {
+            sendAjaxReq(`${this.url}/options`, null, this, true);
+        }
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update options
+        if (data.Options != null) {
+            this.clear();
+            this.element.append(this.buildOptions(data.Options));
+        }
+    }
+
+    setRequired(enabled) {
+        this.element.find(`input[type='radio']`).prop('required', enabled);
+    }
+
+    enable(data, sender, opts) {
+        // enable a specific option if OptionName supplied, else enable all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                enable(this.getRadio(opt));
+            });
+        }
+        else {
+            this.element.find(`input[type='radio']`).each((_, radio) => {
+                enable($(radio));
+            });
+        }
+    }
+
+    disable(data, sender, opts) {
+        // disable a specific option if OptionName supplied, else disable all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                disable(this.getRadio(opt));
+            });
+        }
+        else {
+            this.element.find(`input[type='radio']`).each((_, radio) => {
+                disable($(radio));
+            });
+        }
+    }
+
+    select(data, sender, opts) {
+        // check a specific option
+        if (!data.OptionName) {
+            return;
+        }
+
+        this.getRadio(data.OptionName).prop('checked', true);
+        this.trigger('change');
+    }
+
+    reset(data, sender, opts) {
+        // uncheck a specific option
+        if (!data.OptionName) {
+            return;
+        }
+
+        this.getRadio(data.OptionName).prop('checked', false);
+        this.trigger('change');
+    }
+
+    add(data, sender, opts) {
+        var html = this.buildOptions(data.Options);
+        this.element.append(html);
+    }
+
+    remove(data, sender, opts) {
+        convertToArray(data.OptionName).forEach((opt) => {
+            this.getRadio(opt).closest('.form-check').remove();
+        });
+    }
+
+    clear(data, sender, opts) {
+        this.element.empty();
+    }
+
+    getRadio(name) {
+        return this.element.find(`input[type='radio'][value='${name}']`);
+    }
 }
 PodeElementFactory.setClass(PodeRadio);
 

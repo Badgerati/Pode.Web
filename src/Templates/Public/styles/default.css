@@ -508,22 +508,21 @@ span.pode-range-max {
     vertical-align: middle;
 }
 
-input[type=date]::-webkit-calendar-picker-indicator:hover,
-input[type=time]::-webkit-calendar-picker-indicator:hover,
-input[type=datetime-local]::-webkit-calendar-picker-indicator:hover,
-input[type=range]:hover,
-div.form-switch label.form-check-label:hover,
-div.form-check label.form-check-label:hover,
-select.form-select:hover,
-input[type=file]:hover,
-input[type=checkbox]:hover,
-input[type=radio]:hover {
+input[type=date]:not(:disabled)::-webkit-calendar-picker-indicator:hover,
+input[type=time]:not(:disabled)::-webkit-calendar-picker-indicator:hover,
+input[type=datetime-local]:not(:disabled)::-webkit-calendar-picker-indicator:hover,
+input[type=range]:not(:disabled):hover,
+.form-check-input:not(:disabled)~label.form-check-label:hover,
+select.form-select:not(:disabled):hover,
+input[type=file]:not(:disabled):hover,
+input[type=checkbox]:not(:disabled):hover,
+input[type=radio]:not(:disabled):hover {
     cursor: pointer;
 }
 
-input[type=date]:hover,
-input[type=time]:hover,
-input[type=datetime-local]:hover {
+input[type=date]:not(:disabled):hover,
+input[type=time]:not(:disabled):hover,
+input[type=datetime-local]:not(:disabled):hover {
     cursor: text;
 }
 

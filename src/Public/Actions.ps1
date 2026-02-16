@@ -780,7 +780,7 @@ function Update-PodeWebText {
     }
 }
 
-function Set-PodeWebSelect {
+function Select-PodeWebSelectOption {
     [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
@@ -797,7 +797,7 @@ function Set-PodeWebSelect {
     )
 
     Send-PodeWebAction -Value @{
-        Operation  = 'Set'
+        Operation  = 'Select'
         ObjectType = 'Select'
         Name       = $Name
         ID         = $Id
@@ -830,7 +830,9 @@ function Add-PodeWebSelectOption {
     }
 
     process {
-        $items += $Option
+        if ($null -ne $Option) {
+            $items += $Option
+        }
     }
 
     end {
@@ -877,13 +879,25 @@ function Remove-PodeWebSelectOption {
         $GroupName
     )
 
-    Send-PodeWebAction -Value @{
-        Operation  = 'Remove'
-        ObjectType = 'Select'
-        Name       = $Name
-        ID         = $Id
-        OptionName = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'OptionName' -Value $OptionName)
-        GroupName  = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'GroupName' -Value $GroupName)
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Remove'
+            ObjectType = 'Select'
+            Name       = $Name
+            ID         = $Id
+            OptionName = $items
+            GroupName  = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'GroupName' -Value $GroupName)
+        }
     }
 }
 
@@ -919,7 +933,9 @@ function Update-PodeWebSelect {
     }
 
     process {
-        $items += $Options
+        if ($null -ne $Options) {
+            $items += $Options
+        }
     }
 
     end {
@@ -980,7 +996,7 @@ function Sync-PodeWebSelect {
     }
 }
 
-function Set-PodeWebDatalist {
+function Select-PodeWebDatalistOption {
     [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
@@ -997,7 +1013,7 @@ function Set-PodeWebDatalist {
     )
 
     Send-PodeWebAction -Value @{
-        Operation  = 'Set'
+        Operation  = 'Select'
         ObjectType = 'Datalist'
         Name       = $Name
         ID         = $Id
@@ -1029,7 +1045,9 @@ function Add-PodeWebDatalistOption {
     }
 
     process {
-        $items += $Option
+        if ($null -ne $Option) {
+            $items += $Option
+        }
     }
 
     end {
@@ -1060,7 +1078,7 @@ function Remove-PodeWebDatalistOption {
         [string]
         $Id,
 
-        [Parameter(ValueFromPipeline = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string[]]
         $OptionName,
 
@@ -1068,13 +1086,25 @@ function Remove-PodeWebDatalistOption {
         $NoAutoSelect
     )
 
-    Send-PodeWebAction -Value @{
-        Operation    = 'Remove'
-        ObjectType   = 'Datalist'
-        Name         = $Name
-        ID           = $Id
-        OptionName   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'OptionName' -Value $OptionName)
-        NoAutoSelect = $NoAutoSelect.IsPresent
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation    = 'Remove'
+            ObjectType   = 'Datalist'
+            Name         = $Name
+            ID           = $Id
+            OptionName   = $items
+            NoAutoSelect = $NoAutoSelect.IsPresent
+        }
     }
 }
 
@@ -1108,7 +1138,9 @@ function Update-PodeWebDatalist {
     }
 
     process {
-        $items += $Options
+        if ($null -ne $Options) {
+            $items += $Options
+        }
     }
 
     end {
@@ -1206,25 +1238,46 @@ function Update-PodeWebCheckbox {
         [string]
         $Name,
 
-        [Parameter()]
-        [int]
-        $OptionId = 0,
+        [Parameter(ValueFromPipeline = $true)]
+        [hashtable[]]
+        $Options,
 
         [switch]
         $Disabled,
 
         [switch]
-        $Checked
+        $Required,
+
+        [Alias('Checked')]
+        [switch]
+        $Selected
     )
 
-    Send-PodeWebAction -Value @{
-        Operation  = 'Update'
-        ObjectType = 'Checkbox'
-        ID         = $Id
-        Name       = $Name
-        OptionId   = $OptionId
-        Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
-        Checked    = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Checked' -Value $Checked.IsPresent)
+    begin {
+        $items = @()
+    }
+
+    process {
+        if ($null -ne $Options) {
+            $items += $Options
+        }
+    }
+
+    end {
+        if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option')) {
+            throw 'A Checkbox can only contain Options'
+        }
+
+        Send-PodeWebAction -Value @{
+            Operation  = 'Update'
+            ObjectType = 'Checkbox'
+            Name       = $Name
+            ID         = $Id
+            Options    = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Options' -Value $items)
+            Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+            Required   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Required' -Value $Required.IsPresent)
+            Selected   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Selected' -Value $Selected.IsPresent)
+        }
     }
 }
 
@@ -1239,17 +1292,29 @@ function Enable-PodeWebCheckbox {
         [string]
         $Name,
 
-        [Parameter()]
-        [int]
-        $OptionId = 0
+        [Parameter(ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName
     )
 
-    Send-PodeWebAction -Value @{
-        Operation  = 'Enable'
-        ObjectType = 'Checkbox'
-        ID         = $Id
-        Name       = $Name
-        OptionId   = $OptionId
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Enable'
+            ObjectType = 'Checkbox'
+            ID         = $Id
+            Name       = $Name
+            OptionName = $items
+        }
     }
 }
 
@@ -1264,17 +1329,514 @@ function Disable-PodeWebCheckbox {
         [string]
         $Name,
 
-        [Parameter()]
-        [int]
-        $OptionId = 0
+        [Parameter(ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Disable'
+            ObjectType = 'Checkbox'
+            ID         = $Id
+            Name       = $Name
+            OptionName = $items
+        }
+    }
+}
+
+function Select-PodeWebCheckbox {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Select'
+            ObjectType = 'Checkbox'
+            Name       = $Name
+            ID         = $Id
+            OptionName = $items
+        }
+    }
+}
+
+function Reset-PodeWebCheckbox {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Reset'
+            ObjectType = 'Checkbox'
+            Name       = $Name
+            ID         = $Id
+            OptionName = $items
+        }
+    }
+}
+
+function Add-PodeWebCheckboxOption {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [hashtable[]]
+        $Option
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if ($null -ne $Option) {
+            $items += $Option
+        }
+    }
+
+    end {
+        # ensure options are only of type option
+        if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option')) {
+            throw 'A Checkbox can only contain Options'
+        }
+
+        Send-PodeWebAction -Value @{
+            Operation  = 'Add'
+            ObjectType = 'Checkbox'
+            Name       = $Name
+            ID         = $Id
+            Options    = $items
+        }
+    }
+}
+
+function Remove-PodeWebCheckboxOption {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Remove'
+            ObjectType = 'Checkbox'
+            Name       = $Name
+            ID         = $Id
+            OptionName = $items
+        }
+    }
+}
+
+function Clear-PodeWebCheckbox {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
     )
 
     Send-PodeWebAction -Value @{
-        Operation  = 'Disable'
+        Operation  = 'Clear'
         ObjectType = 'Checkbox'
-        ID         = $Id
         Name       = $Name
-        OptionId   = $OptionId
+        ID         = $Id
+    }
+}
+
+function Sync-PodeWebCheckbox {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Sync'
+        ObjectType = 'Checkbox'
+        Name       = $Name
+        ID         = $Id
+    }
+}
+
+function Update-PodeWebRadio {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [hashtable[]]
+        $Options,
+
+        [switch]
+        $Disabled,
+
+        [switch]
+        $Required
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if ($null -ne $Options) {
+            $items += $Options
+        }
+    }
+
+    end {
+        if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option')) {
+            throw 'A Radio can only contain Options'
+        }
+
+        Send-PodeWebAction -Value @{
+            Operation  = 'Update'
+            ObjectType = 'Radio'
+            Name       = $Name
+            ID         = $Id
+            Options    = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Options' -Value $items)
+            Disabled   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Disabled' -Value $Disabled.IsPresent)
+            Required   = (Test-PodeWebParameter -Parameters $PSBoundParameters -Name 'Required' -Value $Required.IsPresent)
+        }
+    }
+}
+
+function Enable-PodeWebRadio {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Enable'
+            ObjectType = 'Radio'
+            ID         = $Id
+            Name       = $Name
+            OptionName = $items
+        }
+    }
+}
+
+function Disable-PodeWebRadio {
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Disable'
+            ObjectType = 'Radio'
+            ID         = $Id
+            Name       = $Name
+            OptionName = $items
+        }
+    }
+}
+
+function Select-PodeWebRadio {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string]
+        $OptionName
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Select'
+        ObjectType = 'Radio'
+        Name       = $Name
+        ID         = $Id
+        OptionName = $OptionName
+    }
+}
+
+function Reset-PodeWebRadio {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string]
+        $OptionName
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Reset'
+        ObjectType = 'Radio'
+        Name       = $Name
+        ID         = $Id
+        OptionName = $OptionName
+    }
+}
+
+function Add-PodeWebRadioOption {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [hashtable[]]
+        $Option
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if ($null -ne $Option) {
+            $items += $Option
+        }
+    }
+
+    end {
+        # ensure options are only of type option
+        if (!(Test-PodeWebContent -Content $items -ComponentType Element -ObjectType 'Option')) {
+            throw 'A Radio can only contain Options'
+        }
+
+        Send-PodeWebAction -Value @{
+            Operation  = 'Add'
+            ObjectType = 'Radio'
+            Name       = $Name
+            ID         = $Id
+            Options    = $items
+        }
+    }
+}
+
+function Remove-PodeWebRadioOption {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string[]]
+        $OptionName
+    )
+
+    begin {
+        $items = @()
+    }
+
+    process {
+        if (![string]::IsNullOrEmpty($OptionName)) {
+            $items += $OptionName
+        }
+    }
+
+    end {
+        Send-PodeWebAction -Value @{
+            Operation  = 'Remove'
+            ObjectType = 'Radio'
+            Name       = $Name
+            ID         = $Id
+            OptionName = $items
+        }
+    }
+}
+
+function Clear-PodeWebRadio {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Clear'
+        ObjectType = 'Radio'
+        Name       = $Name
+        ID         = $Id
+    }
+}
+
+function Sync-PodeWebRadio {
+    [CmdletBinding(DefaultParameterSetName = 'Name')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Id')]
+        [string]
+        $Id
+    )
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Sync'
+        ObjectType = 'Radio'
+        Name       = $Name
+        ID         = $Id
     }
 }
 

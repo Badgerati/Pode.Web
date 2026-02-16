@@ -81,9 +81,9 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
-## Set
+## Select
 
-To set the currently selected option/value of a Select element, you can use [`Set-PodeWebSelect`](../../../Functions/Actions/Set-PodeWebSelect):
+To set the currently selected option/value of a Select element, you can use [`Select-PodeWebSelectOption`](../../../Functions/Actions/Select-PodeWebSelectOption):
 
 ```powershell
 New-PodeWebContainer -NoBackground -Content @(
@@ -96,7 +96,7 @@ New-PodeWebContainer -NoBackground -Content @(
     New-PodeWebButton -Name 'Update Select' -ScriptBlock {
         $rand = Get-Random -Minimum 0 -Maximum 3
         $opt = (@('Option1', 'Option2', 'Option3'))[$rand]
-        Set-PodeWebSelect -Name 'Example' -OptionName $opt
+        Select-PodeWebSelectOption -Name 'Example' -OptionName $opt
     }
 )
 ```

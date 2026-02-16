@@ -322,10 +322,11 @@ function Test-PodeWebColour {
 function Test-PodeWebArrayEmpty {
     param(
         [Parameter()]
+        [array]
         $Array
     )
 
-    return (($null -eq $Array) -or (@($Array).Length -eq 0))
+    return (($null -eq $Array) -or ($Array.Length -eq 0))
 }
 
 function Test-PodeWebPageAccess {
