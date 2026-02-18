@@ -1,7 +1,7 @@
 Import-Module Pode -MaximumVersion 2.99.99 -Force
 Import-Module ..\src\Pode.Web.psm1 -Force
 
-Import-Module ./misc/functions.psm1
+Import-Module ./misc/functions.psm1 -Force
 
 Start-PodeServer {
     # add a simple endpoint
@@ -15,5 +15,5 @@ Start-PodeServer {
     Export-PodeModule -Name 'functions'
 
     # convert module to pages
-    ConvertTo-PodeWebPage -Commands 'Get-Noun'
+    ConvertTo-PodeWebPage -Commands 'Get-Noun', 'Get-CustomObject' -AsJson
 }

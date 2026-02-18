@@ -821,7 +821,7 @@ function Add-PodeWebPageLink {
 }
 
 function ConvertTo-PodeWebPage {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'NoGroup')]
     param(
         [Parameter(ValueFromPipeline = $true)]
         [string[]]
@@ -831,13 +831,33 @@ function ConvertTo-PodeWebPage {
         [string]
         $Module,
 
+        [Parameter()]
+        [ValidateRange(1, [int]::MaxValue)]
+        [int]
+        $Depth = 1,
+
+        [Parameter(ParameterSetName = 'GroupByCustom')]
+        [string]
+        $Group,
+
+        [Parameter(ParameterSetName = 'GroupByVerbs')]
         [switch]
         $GroupVerbs,
+
+        [Parameter(ParameterSetName = 'GroupByModule')]
+        [switch]
+        $GroupModule,
 
         [Parameter()]
         [Alias('NoAuth')]
         [switch]
-        $NoAuthentication
+        $NoAuthentication,
+
+        [switch]
+        $ExcludeOptionalParameters,
+
+        [switch]
+        $AsJson
     )
 
     # if a module was supplied, import it - then validate the commands
@@ -868,7 +888,12 @@ function ConvertTo-PodeWebPage {
         throw 'No commands supplied to convert to Pages'
     }
 
+    # list of system parameters to ignore when building input controls
     $sysParams = [System.Management.Automation.PSCmdlet]::CommonParameters.GetEnumerator() | Foreach-Object { $_ }
+
+    if ($ExcludeOptionalParameters) {
+        $sysParams += [System.Management.Automation.PSCmdlet]::OptionalParameters.GetEnumerator() | Foreach-Object { $_ }
+    }
 
     # create the pages for each of the commands
     foreach ($cmd in $Commands) {
@@ -946,7 +971,9 @@ function ConvertTo-PodeWebPage {
 
                 # build form
                 $formId = "form_param_$($cmd)_$($name)"
-                $form = New-PodeWebForm -Name "$($name)_Parameters_Form" -Id $formId -Content $elements -NoAuthentication:$NoAuthentication -ScriptBlock {
+                $form = New-PodeWebForm -Name "$($name)_Parameters_Form" -Id $formId -Content $elements -NoAuthentication:$NoAuthentication -ArgumentList $AsJson.IsPresent, $Depth -ScriptBlock {
+                    param($AsJson, $Depth)
+
                     $cmd = $WebEvent.Data['_Function_Name_']
                     $WebEvent.Data.Remove('_Function_Name_')
 
@@ -983,14 +1010,20 @@ function ConvertTo-PodeWebPage {
                     }
 
                     try {
-                        (. $cmd @_args) |
-                            New-PodeWebTextbox -Name 'Output_Result' -Multiline -Preformat |
-                            Out-PodeWebElement
+                        $result = (. $cmd @_args)
+                        if ($AsJson) {
+                            $result = $result | ConvertTo-Json -Depth $Depth
+                        }
+
+                        New-PodeWebTextbox -Name 'Output_Result' -Multiline -Preformat -Value $result | Out-PodeWebElement
                     }
                     catch {
-                        $_.Exception |
-                            New-PodeWebTextbox -Name 'Output_Error' -Multiline -Preformat |
-                            Out-PodeWebElement
+                        $result = $_.Exception
+                        if ($AsJson) {
+                            $result = $result | ConvertTo-Json -Depth $Depth
+                        }
+
+                        New-PodeWebTextbox -Name 'Output_Error' -Multiline -Preformat -Value $result | Out-PodeWebElement
                     }
                 }
 
@@ -998,14 +1031,28 @@ function ConvertTo-PodeWebPage {
                 New-PodeWebTab -Name $name -Content $card
             })
 
-        $group = [string]::Empty
-        if ($GroupVerbs) {
-            $group = $cmdInfo.Verb
-            if ([string]::IsNullOrWhiteSpace($group)) {
-                $group = '_'
+        # which group should the page belong to?
+        switch ($PSCmdlet.ParameterSetName) {
+            'NoGroup' {
+                $Group = [string]::Empty
+            }
+
+            'GroupByVerbs' {
+                $Group = $cmdInfo.Verb
+                if ([string]::IsNullOrWhiteSpace($Group)) {
+                    $Group = '_'
+                }
+            }
+
+            'GroupByModule' {
+                $Group = $cmdInfo.ModuleName
+                if ([string]::IsNullOrWhiteSpace($Group)) {
+                    $Group = '_'
+                }
             }
         }
 
+        # add the page
         Add-PodeWebPage `
             -Name $cmd `
             -Icon Settings `
