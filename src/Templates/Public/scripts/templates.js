@@ -3803,7 +3803,11 @@ class PodeTextbox extends PodeFormElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.multiline = data.Multiline ?? false;
-        this.autoComplete = data.IsAutoComplete ?? false;
+        this.autoComplete = {
+            enabled: data.AutoComplete.Enabled ?? false,
+            type: data.AutoComplete.Type ?? 'once',
+            minLength: data.AutoComplete.MinLength ?? 1
+        }
     }
 
     new(data, sender, opts) {
@@ -3868,12 +3872,35 @@ class PodeTextbox extends PodeFormElement {
 
         var obj = this;
 
-        if (this.autoComplete) {
-            sendAjaxReq(`${this.url}/autocomplete`, null, null, false, null, null, {
-                customActionCallback: (res) => {
-                    obj.element.autocomplete({ source: res.Values });
-                }
-            });
+        // bind autocomplete handlers
+        if (this.autoComplete.enabled) {
+            switch (this.autoComplete.type) {
+                // load autocomplete options once, and cache on the element
+                case 'once':
+                    sendAjaxReq(`${this.url}/autocomplete`, null, null, false, null, null, {
+                        customActionCallback: (res) => {
+                            obj.element.autocomplete({
+                                source: convertToArray(res.Values),
+                                minLength: obj.autoComplete.minLength
+                            });
+                        }
+                    });
+                    break;
+
+                // load autocomplete options on every char press
+                case 'always':
+                    this.element.autocomplete({
+                        source: function(request, response) {
+                            sendAjaxReq(`${obj.url}/autocomplete`, `Value=${request.term}`, null, false, null, null, {
+                                customActionCallback: (res) => {
+                                    response(convertToArray(res.Values));
+                                }
+                            });
+                        },
+                        minLength: obj.autoComplete.minLength
+                    });
+                    break;
+            }
         }
     }
 
