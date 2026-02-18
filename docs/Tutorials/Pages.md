@@ -10,7 +10,7 @@ To enable the use of a login page, and lock your site behind authentication, is 
     Since the login page uses a form to log a user in, the best scheme to use is Forms: `New-PodeAuthScheme -Form`. OAuth2 also works, as the login page will automatically trigger the relevant redirects to your OAuth2 provider.
 
 !!! important
-    If you require a login page, then you **must** call [`Set-PodeWebLoginPage`] before you make any calls to [`Add-PodeWebPage`].
+    If you require a login page, then you **must** call [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) before you make any calls to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
 
 ```powershell
 Enable-PodeSessionMiddleware -Duration 120 -Extend
@@ -54,7 +54,7 @@ Set-PodeWebAuth -Authentication Example
 
 ### Custom Fields
 
-By default the Login page will display a login form with Username and Password inputs. This can be overridden by supplying custom Layouts and Elements to the `-Content` parameter of [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage). Any custom content will be placed between the "Please sign in" message and the "Sign In" button.
+By default the Login page will display a login form with Username and Password inputs. This can be overridden by supplying custom Elements to the `-Content` parameter of [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage). Any custom content will be placed between the "Please sign in" message and the "Sign In" button.
 
 ```powershell
 # setup sessions
@@ -100,14 +100,14 @@ Set-PodeWebLoginPage -Authentication Example -Content @(
 
 Which would look like below:
 
-![login_custom](../../images/login_custom.png)
+![login_custom](../../images/login_custom.PNG)
 
 ## Page
 
 By adding a page to your site Pode.Web will add a link to it on your site's sidebar navigation. You can also group pages so you can collapse groups of them. To add a page to your site you use [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), and you can give your page a `-Name` and an `-Icon` to display on the sidebar. Pages can either be [static](#static) or [dynamic](#dynamic).
 
 !!! note
-    The `-Icon` is the name of a [Material Design Icon](https://materialdesignicons.com), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplying the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
+    The `-Icon` is the name of a [Material Design Icon](https://pictogrammers.com/library/mdi/), a list of which can be found on their [website](https://pictogrammers.github.io/@mdi/font/5.4.55/). When supplying the name, just supply the part after `mdi-`. For example, `mdi-github` should be `-Icon 'github'`.
 
 For example, to add a simple Charts page to your site, to show a Windows counter:
 
@@ -159,23 +159,67 @@ Add-PodeWebPageLink -Name Twitter -Icon Twitter -ScriptBlock {
 
 ### Group
 
-You can group multiple pages on the sidebar by using the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage). This will group pages into a collapsible container.
+You can group multiple pages on the sidebar by using the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), and this will group pages into a collapsible container.
 
-By just supplying the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage) Pode.Web will configure a default Group for you. However, you can pre-create groups by using [`New-PodeWebPageGroup`](../../Functions/Pages/New-PodeWebPageGroup), this will allow you to customise the Display Name, Icons, whether the page counter should be visible or not, and whether the Group itself should be visible or not in the sidebar. To place a Page into a pre-created Group, just use the name of the Group in the `-Group` parameter as normal.
+By just supplying the `-Group` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage) Pode.Web will configure a default Group for you. However, you can pre-initialise groups by using [`New-PodeWebPageGroup`](../../Functions/Pages/New-PodeWebPageGroup), and this will allow you to customise the Display Name; Icons; whether the page counter should be visible or not; and whether the Group itself should be visible or not in the sidebar.
+
+To place a Page into a pre-initialised Group, just use the name of the Group in the `-Group` parameter as normal.
 
 ```powershell
-# pre-create a Tools group, with an icon and show no counter
-New-PodeWebGroup -Name Tools -Icon Settings -NoCounter
+# initialise a Tools group, with an icon
+New-PodeWebPageGroup -Name Tools -Icon Settings
 
 # create a page that uses the above Tools group
 Add-PodeWebPage -Name Services -Group Tools -ScriptBlock { ... }
 ```
 
+Groups are automatically sorted into alphabetical order, you can customise this using the `-GroupOrder` parameter on [`Initialize-PodeWebTemplates`](../../Functions/Utilities/Initialize-PodeWebTemplates). Valid options are:
+
+| Type         | Description                                        |
+| ------------ | -------------------------------------------------- |
+| `Ascending`  | The default value, and sorts Groups alphabetically |
+| `Creation`   | Will order Groups in the order they were created   |
+| `Descending` | Will order Groups in reverse alphabetical order    |
+
+!!! note
+    The only exception when Groups are sorted is the "empty" group; this is the Group pages are placed into when no `-Group` is specified. This Group will always be at the top of the Sidebar.
+
+Groups can also be nested during initialisation, by supplying it a parent group:
+
+```powershell
+# initialise a Tools group
+New-PodeWebPageGroup -Name Tools
+
+# initialise a Windows group, with Tools as its parent
+New-PodeWebPageGroup -Name Windows -Parent Tools
+```
+
+Additionally, you can show separator lines Before - or After - a group, or page, by using `-PassThru` and piping the result into [`Show-PodeWebSidebarSeparator`](../../Functions/Pages/Show-PodeWebSidebarSeparator):
+
+```powershell
+# shows a line before the Group name
+New-PodeWebPageGroup -Name Tools -PassThru |
+    Show-PodeWebSidebarSeparator
+
+# shows a line after the Page name
+Add-PodeWebPage -Name ExamplePage -Etc -PassThru |
+    Show-PodeWebSidebarSeparator -Position After
+```
+
 ### Index
 
-Pages within the sidebar are automatically sorted into alphabetical order, within the scope of the Group they're contained in. You can change the ordering of a Page by using the `-Index` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), any Pages with the same index value will still be sorted alphabetically.
+Pages within the sidebar are automatically sorted into alphabetical order, within the scope of the Group they're contained in. You can change the ordering of a Page by using the `-Index` parameter on [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage), any Pages with the same index value will still be sorted alphabetically. This can be altered by specifying one of the following values to the `-PageOrder` parameter on [`New-PodeWebPageGroup`](../../Functions/Pages/New-PodeWebPageGroup):
+
+| Type         | Description                                       |
+| ------------ | ------------------------------------------------- |
+| `Ascending`  | The default value, and sorts Pages alphabetically |
+| `Creation`   | Will order Pages in the order they were created   |
+| `Descending` | Will order Pages in reverse alphabetical order    |
 
 All Pages by default have an index of `[int]::MaxValue`, creating a Page with an index lower than this (say, 0) will cause that Page to be sorted to the top of the list of Pages in the sidebar (within the scope of the Group they're in).
+
+!!! note
+    The only exception for Page default indexes is the Home Page: if no `-Index` is supplied, will have a default index of `[int]::MinValue` instead.
 
 ### Help Icon
 
@@ -286,9 +330,9 @@ Add-PodeWebPage -Name Services -Icon Settings -ArgumentList 'Value1', 2, $false 
 
 If you add a page when you've enabled authentication, you can set a page to be accessible without authentication by supplying the `-NoAuth` switch to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
 
-If you do this and you add all elements/layouts dynamically (via `-ScriptBlock`), then there's no further action needed.
+If you do this and you add all elements dynamically (via `-ScriptBlock`), then there's no further action needed.
 
-If however you're added the elements/layouts using the `-Content` parameter, then certain elements/layouts will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise, data/actions will fail with a 401 response.
+If however you're added the elements using the `-Content` parameter, then certain elements will also need their `-NoAuth` switches to be supplied (such as charts, for example), otherwise, data/actions will fail with a 401 response.
 
 ### Sidebar
 
@@ -330,7 +374,7 @@ Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Pester'
+    Initialize-PodeWebTemplates -Title 'Pester'
 
     # convert module to pages
     ConvertTo-PodeWebPage -Module Pester -GroupVerbs
@@ -341,11 +385,11 @@ Start-PodeServer {
 
 The Login and normal Pages support registering the following events, and they can be registered via [`Register-PodeWebPageEvent`](../../Functions/Events/Register-PodeWebPageEvent):
 
-| Name | Description |
-| ---- | ----------- |
-| Load | Fires when the page has fully loaded, including js/css/etc. |
-| Unload | Fires when the has fully unloaded/closed |
-| BeforeUnload | Fires just before the page is about to unload/close |
+| Name         | Description                                                 |
+| ------------ | ----------------------------------------------------------- |
+| Load         | Fires when the page has fully loaded, including js/css/etc. |
+| Unload       | Fires when the has fully unloaded/closed                    |
+| BeforeUnload | Fires just before the page is about to unload/close         |
 
 To register an event for each page type:
 

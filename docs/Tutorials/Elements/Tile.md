@@ -1,8 +1,8 @@
 # Tile
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
 A tile is a small coloured container, that contains either a static value or more elements. There purpose is to display quick informational data like: CPU, counters, charts, etc.
 
@@ -109,4 +109,4 @@ To set a tile to automatically refresh once a minute, you can supply the `-AutoR
 
 Tiles will be displayed inline, and to display one on a new line you can supply the `-NewLine` switch.
 
-If you want to display the tiles more neatly in a line, it's recommended to display them using a [Grid](../../Layouts/Grid).
+If you want to display the tiles more neatly in a line, it's recommended to display them using a [Grid](../../Elements/Grid).

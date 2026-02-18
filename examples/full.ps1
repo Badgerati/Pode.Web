@@ -1,5 +1,4 @@
 Import-Module Pode -MaximumVersion 2.99.99 -Force
-# Import-Module ..\..\Pode\src\Pode.psm1 -Force
 Import-Module ..\src\Pode.Web.psd1 -Force
 
 Start-PodeServer -StatusPageExceptions Show {
@@ -7,9 +6,8 @@ Start-PodeServer -StatusPageExceptions Show {
     Add-PodeEndpoint -Address * -Port 8090 -Protocol Http
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
-
     # enable sessions and authentication
-    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+    Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
 
     New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -SuccessUseOrigin -ScriptBlock {
         param($username, $password)
@@ -30,9 +28,16 @@ Start-PodeServer -StatusPageExceptions Show {
         return @{ Message = 'Invalid details supplied' }
     }
 
-
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Test' -Logo '/pode.web-static/images/icon.png' -Theme Dark -ConnectionType SSE
+
+    # add a custom darkred theme
+    Add-PodeWebCustomTheme -Name DarkRed -Base Dark `
+        -BackgroundColourConfig (New-PodeWebBackgroundColourConfig -Page 'darkred')
+
+    # create custom sidebar groups
+    New-PodeWebPageGroup -Name 'Tools' -PassThru | Show-PodeWebSidebarSeparator
+    New-PodeWebPageGroup -Name 'Windows' -Parent 'Tools'
 
     # set login page
     # -BackgroundImage '/images/galaxy.jpg'
@@ -60,8 +65,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     Set-PodeWebNavDefault -Items $link1, $link2, $div1, $link3, $dd1
 
-
-    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 10 -NoAuth -ScriptBlock {
+    $timer1 = New-PodeWebTimer -Name 'Timer1' -Interval 5 -NoAuth -ScriptBlock {
         $rand = Get-Random -Minimum 0 -Maximum 3
         $colour = (@('Green', 'Yellow', 'Cyan'))[$rand]
         Update-PodeWebBadge -Id 'bdg_test' -Value ([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss')) -Colour $colour
@@ -78,12 +82,12 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebText -Value ' paragraphs' -Style Bold
         )
         New-PodeWebParagraph -Content @(
-            New-PodeWebText -Value 'Pronuncation example: '
+            New-PodeWebText -Value 'Pronunciation example: '
             New-PodeWebText -Value '漢' -Pronunciation 'ㄏㄢˋ'
         )
         New-PodeWebParagraph -Content @(
             New-PodeWebText -Value "Look, here's a "
-            New-PodeWebLink -Id 'link_test' -Source 'https://github.com/badgerati/pode' -Value 'link' -NewTab
+            New-PodeWebLink -Id 'link_test' -Url 'https://github.com/badgerati/pode' -Value 'link' -NewTab
             New-PodeWebText -Value '! '
             New-PodeWebBadge -Id 'bdg_test' -Value 'Sweet!' -Colour Cyan |
                 Register-PodeWebEvent -Type Click -NoAuth -ScriptBlock {
@@ -104,15 +108,23 @@ Start-PodeServer -StatusPageExceptions Show {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
         }
-        New-PodeWebButton -Name 'Click Me Outlined' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Green -Outline -ScriptBlock {
+        New-PodeWebButton -Name 'Click Me Outlined' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Grey -Outline -ScriptBlock {
             Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)"
             Show-PodeWebNotification -Title 'Hello, there' -Body 'General Kenobi' -Icon '/pode.web-static/images/icon.png'
+        }
+        New-PodeWebButton -Name 'Click Me IconOnly' -DataValue 'PowerShell Rules!' -NoAuth -Icon 'console-line' -Colour Grey -IconOnly -ScriptBlock {
+            Show-PodeWebToast -Message "Message of the day: $($WebEvent.Data.Value)" -Duration 15000
         }
         New-PodeWebContainer -Content @(
             New-PodeWebButtonGroup -Buttons @(
                 New-PodeWebButton -Name 'Dark Theme' -NoAuth -Icon 'moon-new' -Colour Dark -ScriptBlock { Update-PodeWebTheme -Name Dark }
                 New-PodeWebButton -Name 'Light Theme' -NoAuth -Icon 'weather-sunny' -Colour Light -ScriptBlock { Update-PodeWebTheme -Name Light }
-                New-PodeWebButton -Name 'Reset Theme' -NoAuth -Icon 'refresh' -ScriptBlock { Reset-PodeWebTheme }
+                New-PodeWebButton -Name 'Midnight Theme' -NoAuth -Icon 'weather-night' -Colour Blue -ScriptBlock { Update-PodeWebTheme -Name Midnight }
+                New-PodeWebButton -Name 'Sepia Theme' -NoAuth -Icon 'camera' -Colour Yellow -ScriptBlock { Update-PodeWebTheme -Name Sepia }
+                New-PodeWebButton -Name 'Forest Theme' -NoAuth -Icon 'tree' -Colour Green -ScriptBlock { Update-PodeWebTheme -Name Forest }
+                New-PodeWebButton -Name 'Terminal Theme' -NoAuth -Icon 'console-line' -Colour Green -ScriptBlock { Update-PodeWebTheme -Name Terminal }
+                New-PodeWebButton -Name 'DarkRed Theme' -NoAuth -Icon 'pencil' -Colour Red -ScriptBlock { Update-PodeWebTheme -Name DarkRed }
+                New-PodeWebButton -Name 'Reset Theme' -NoAuth -Icon 'refresh' -Colour Cyan -ScriptBlock { Reset-PodeWebTheme }
             )
         )
         New-PodeWebAlert -Type Note -Value 'Hello, world'
@@ -194,17 +206,17 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $carousel = New-PodeWebCarousel -Slides @(
         New-PodeWebSlide -Title 'First Slide' -Message 'First slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 1' -Alignment Center
             )
         )
         New-PodeWebSlide -Title 'Second Slide' -Message 'Second slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 2' -Alignment Center
             )
         )
         New-PodeWebSlide -Title 'Third Slide' -Message 'Third slide message' -Content @(
-            New-PodeWebContainer -Nobackground -Content @(
+            New-PodeWebContainer -NoBackground -Content @(
                 New-PodeWebText -Value 'Slide 3' -Alignment Center
             )
         )
@@ -222,14 +234,15 @@ Start-PodeServer -StatusPageExceptions Show {
             New-PodeWebChart -Name 'Line Example 2' -NoAuth -Type Line -ScriptBlock $chartData -Append -TimeLabels -MaxItems 30 -AutoRefresh -Height 250 -AsCard
         )
         New-PodeWebTab -Name 'Bar' -Icon 'chart-bar' -Content @(
-            New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard
+            New-PodeWebChart -Name 'Bar Example 2' -NoAuth -Type Bar -ScriptBlock $chartData -AsCard -Height 500 -Width 750
         )
         New-PodeWebTab -Name 'Doughnut' -Icon (New-PodeWebIcon -Name 'chart-donut' -HoverIcon (New-PodeWebIconPreset -Spin)) -Content @(
-            New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard
+            New-PodeWebChart -Name 'Doughnut Example 1' -NoAuth -Type Doughnut -ScriptBlock $chartData -AsCard -Height 500 -Width 500
         )
     )
 
     Add-PodeWebPage -Name Charts -Path 'my-charts' -Icon 'chart-bar' -Content $tabs1 -Title 'Cycling Tabs' -NoSidebar -PassThru |
+        Show-PodeWebSidebarSeparator -Position After -PassThru |
         Register-PodeWebPageEvent -Type Load, Unload, BeforeUnload -ScriptBlock {
             Show-PodeWebToast -Message "Page $($EventType)!"
         }
@@ -252,18 +265,20 @@ Start-PodeServer -StatusPageExceptions Show {
     $startName = 'Start'
     $editName = 'Edit'
 
-    $table = New-PodeWebTable -Name 'Static' -DataColumn Name -AsCard -Filter -SimpleSort -Click -Paginate -ScriptBlock {
+    $table = New-PodeWebTable -PageSize 10 -Name 'Static' -DataColumn Name -AsCard -Filter -SimpleSort -Click -Paginate -ScriptBlock {
         $stopBtn = New-PodeWebButton -Name $using:stopName -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
-            Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
+            # Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) stopped"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
+        $stopBtn | Out-PodeWebElement -AsReference
 
         $startBtn = New-PodeWebButton -Name $using:startName -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
-            Start-Service -Name $WebEvent.Data.Value | Out-Null
+            # Start-Service -Name $WebEvent.Data.Value | Out-Null
             Show-PodeWebToast -Message "$($WebEvent.Data.Value) started"
-            Sync-PodeWebTable -Id $ElementData.Parent.ID
+            Sync-PodeWebTable -Id $ParentData.ID
         }
+        $startBtn | Out-PodeWebElement -AsReference
 
         $editBtn = New-PodeWebButton -Name $using:editName -Icon 'square-edit-outline' -IconOnly -ScriptBlock {
             $svc = Get-Service -Name $WebEvent.Data.Value
@@ -273,6 +288,7 @@ Start-PodeServer -StatusPageExceptions Show {
                 Update-PodeWebCheckbox -Id 'chk_svc_running' -Checked:$checked
             )
         }
+        $editBtn | Out-PodeWebElement -AsReference
 
         $filter = "*$($WebEvent.Data.Filter)*"
 
@@ -281,12 +297,12 @@ Start-PodeServer -StatusPageExceptions Show {
                 continue
             }
 
-            $btns = @($editBtn)
+            $btns = @(Use-PodeWebElement -Element $editBtn)
             if ($svc.Status -ieq 'running') {
-                $btns += $stopBtn
+                $btns += (Use-PodeWebElement -Element $stopBtn)
             }
             else {
-                $btns += $startBtn
+                $btns += (Use-PodeWebElement -Element $startBtn)
             }
 
             [ordered]@{
@@ -310,7 +326,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     $homeLink1 = New-PodeWebNavLink -Name 'Home' -Url '/'
 
-    Add-PodeWebPage -Name Services -Icon 'cogs' -Group Tools -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
+    Add-PodeWebPage -Name Services -Index 0 -Icon 'cogs' -Group Windows -Content $editModal, $helpModal, $table -Navigation $homeLink1 -ScriptBlock {
         $name = $WebEvent.Query['value']
         if ([string]::IsNullOrWhiteSpace($name)) {
             return
@@ -380,7 +396,7 @@ Start-PodeServer -StatusPageExceptions Show {
         $data | Update-PodeWebTable -Name 'Dynamic Users' -PageIndex $pageIndex -TotalItemCount $totalCount
     }
 
-    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Content $table3
+    Add-PodeWebPage -Name 'Dynamic Paging' -Icon Database -Group Tools -Content $table3 -Index 0
 
 
     # open twitter

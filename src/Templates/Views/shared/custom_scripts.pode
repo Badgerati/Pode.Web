@@ -1,0 +1,44 @@
+$(
+    $scripts = Get-PodeWebState -Name 'custom-js'
+    foreach ($js in $scripts) {
+        if ($js.Location -ine $data.Location) {
+            continue
+        }
+
+        $blocking = ''
+        if ($js.Blocking) {
+            $blocking = "blocking='$($js.Blocking -join ', ')'"
+        }
+
+        $crossOrigin = ''
+        if ($js.CrossOrigin) {
+            $crossOrigin = "crossorigin='$($js.CrossOrigin)'"
+        }
+
+        $fetchPriority = ''
+        if ($js.FetchPriority) {
+            $fetchPriority = "fetchpriority='$($js.FetchPriority)'"
+        }
+
+        $referrerPolicy = ''
+        if ($js.ReferrerPolicy) {
+            $referrerPolicy = "referrerpolicy='$($js.ReferrerPolicy)'"
+        }
+
+        $integrity = ''
+        if ($js.Integrity) {
+            $integrity = "integrity='$($js.Integrity)'"
+        }
+
+        "<script
+            src='$($js.Url)'
+            $(if ($js.Async) { 'async' })
+            $(if ($js.Defer) { 'defer' })
+            $blocking
+            $crossOrigin
+            $fetchPriority
+            $referrerPolicy
+            $integrity
+        ></script>"
+    }
+)

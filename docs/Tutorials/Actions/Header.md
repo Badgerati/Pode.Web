@@ -18,5 +18,7 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
+Various other properties can be updated as well.
+
 !!! note
     A `-Size` of `0` will leave the Header size unchanged - this is the default.

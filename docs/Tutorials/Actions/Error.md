@@ -13,8 +13,12 @@ New-PodeWebCard -Content @(
     } -Content @(
         New-PodeWebTextbox -Name 'Name'
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon Lock
-        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
-        New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple
+        New-PodeWebCheckbox -Name 'Checkboxes' -Options @(
+            'Terms', 'Privacy' | ConvertTo-PodeWebOption
+        ) -AsSwitch
+        New-PodeWebSelect -Name 'Role' -Multiple -Options @(
+            'User', 'Admin', 'Operations' | ConvertTo-PodeWebOption
+        )
     )
 )
 ```

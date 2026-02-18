@@ -10,7 +10,7 @@ A Comment Block lets you display messages/comments on your page, showing a user'
 New-PodeWebCard -Content @(
     New-PodeWebComment -Username 'Badgerati' -Message 'Is this reality?' -Icon '/pode.web-static/images/icon.png'
     New-PodeWebComment -Username 'Joe Bloggs' -Message 'Or is this just fantasy?' -Icon '/pode.web-static/images/icon.png'
-    New-PodeWebComment -Username 'Jane Doe' -Message 'Caught in a landsland' -Icon '/pode.web-static/images/icon.png'
+    New-PodeWebComment -Username 'Jane Doe' -Message 'Caught in a landslide' -Icon '/pode.web-static/images/icon.png'
 )
 ```
 

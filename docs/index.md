@@ -7,11 +7,11 @@
 
 > 💝 A lot of my free time, evenings, and weekends goes into making Pode happen; please do consider sponsoring as it will really help! 😊
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.10.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.12.1+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge is required!
 
-You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, and terminal themes, and you can supply a custom CSS file.
+You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, terminal, and more themes available, and you can supply custom CSS files or build your own in PowerShell.
 
 [![GetStarted](https://img.shields.io/badge/-Get%20Started!-green.svg?longCache=true&style=for-the-badge)](./Getting-Started/Installation)
 [![QuickLook](https://img.shields.io/badge/-Quick%20Look!-blue.svg?longCache=true&style=for-the-badge)](#quick-look)
@@ -19,21 +19,21 @@ You can build charts, forms, tables, general text, tabs, login pages, etc. There
 ## 🚀 Features
 
 * Like [Pode](https://github.com/Badgerati/Pode), this is already cross-platform! (with support for PS5)
-* Easily add pages, with different layouts and elements
+* Easily add pages, with different elements
 * Support for authentication with a login page!
 * Create line, bar, pie, and doughnut charts
 * Support for forms, with all kinds of input elements
 * Show toast messages on the page, or send desktop notifications
-* Display data in tables, with pagination, sorting and filtering
+* Display data in tables, with pagination, sorting, and filtering
 * Use a stepper for a more controlled flow of form input
 * Or, use a tabs layout for your pages!
 * Show or write code via the Monaco editor (still WIP)
-* Render code in code-blocks with code highlighting!
-* Support for Light, Dark, Terminal, and custom themes
+* Render code in code blocks with code highlighting!
+* Support for Light, Dark, Terminal, custom themes, and more
 
 ## 📦 Libraries
 
-The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Material Design Icons](https://materialdesignicons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
+The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Material Design Icons](https://pictogrammers.com/library/mdi/), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
 ## 🔥 Quick Look!
 
@@ -45,7 +45,7 @@ Import-Module Pode.Web
 Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8080 -Protocol Http
 
-    Use-PodeWebTemplates -Title 'Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Example' -Theme Midnight
 
     Add-PodeWebPage -Name 'Services' -Icon 'Settings' -ScriptBlock {
         New-PodeWebCard -Content @(
@@ -62,7 +62,7 @@ Start-PodeServer {
 }
 ```
 
-And this will render a page that looks as follows:
+This will render a page that looks as follows:
 
 ![quick_look](./images/quick_look.png)
 

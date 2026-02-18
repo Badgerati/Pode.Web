@@ -8,7 +8,7 @@ Start-PodeServer {
 
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Azure Core Usage' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Azure Core Usage' -Theme Dark
 
 
     # set the home page controls

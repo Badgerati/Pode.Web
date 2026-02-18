@@ -23,6 +23,8 @@ New-PodeWebContainer -NoBackground -Content @(
 )
 ```
 
+Various other properties can be updated as well.
+
 ## Update Row
 
 To update a single row in the table you can use [`Update-PodeWebTableRow`](../../../Functions/Actions/Update-PodeWebTableRow). You need to supply the table's ID/Name, and then either the index of the row, or the value of that row's `-DataColumn`. The `-Data` is a HashTable/PSCustomObject containing the properties/columns that you want to update:

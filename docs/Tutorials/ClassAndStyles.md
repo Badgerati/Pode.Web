@@ -1,6 +1,8 @@
-# Classes, Styles and Attributes
+# Classes, Styles, and Attributes
 
-Every element can be piped into either [`Add-PodeWebClass`](../../Functions/Actions/Add-PodeWebClass), [`Add-PodeWebStyle`](../../Functions/Actions/Add-PodeWebStyle) or [`Add-PodeWebAttribute`](../../Functions/Actions/Add-PodeWebAttribute). These functions let you you add custom classes, styles or attributes to elements, during creation, so you can control their look and functionality.
+Every element can be piped into either [`Add-PodeWebClass`](../../Functions/Actions/Add-PodeWebClass), [`Add-PodeWebStyle`](../../Functions/Actions/Add-PodeWebStyle), or [`Add-PodeWebAttribute`](../../Functions/Actions/Add-PodeWebAttribute). These functions let you you add custom classes, styles, or attributes to elements during creation so you can control their look and functionality - you can also use them to control classes/styles, etc. dynamically during the running of the website as an async Action.
+
+By default, they will all be applied to the primary Element. Some Elements are wrapped in "Containers" which might be better suited for the style/class. If you need to alter the scope, you can do so via the `-Scope` parameter on most class, style, and attribute functions.
 
 ## Classes
 
@@ -44,7 +46,7 @@ For example, the following would display a paragraph with yellow text:
 ```powershell
 New-PodeWebParagraph -Content @(
     New-PodeWebText -Value 'And then here is some more text, that also includes a '
-    New-PodeWebLink -Value 'link' -Source 'https://google.com'
+    New-PodeWebLink -Value 'link' -Url 'https://google.com'
     New-PodeWebText -Value ' that takes you to Google'
 ) |
     Add-PodeWebStyle -Key 'color' -Value 'yellow'
@@ -74,4 +76,4 @@ New-PodeWebTextbox -Name 'Message' |
     Hide-PodeWebElement
 ```
 
-You can later show the element by using the [Visibility actions](../Actions/Elements#visibility).
+You can later show the element by using the [Visibility actions](../Actions/Elements#visibility), such as [`Show-PodeWebElement`](../../Functions/Actions/Show-PodeWebElement).

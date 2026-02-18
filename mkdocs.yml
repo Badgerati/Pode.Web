@@ -1,4 +1,9 @@
 site_name: Pode.Web
+site_author: Badgerati
+repo_name: badgerati/pode.web
+repo_url: https://github.com/Badgerati/Pode.Web
+site_url: https://badgerati.github.io/Pode.Web/
+edit_uri: edit/master/docs
 
 theme:
   name: material
@@ -10,8 +15,9 @@ theme:
     - navigation.tabs.sticky
     - navigation.tracking
     - navigation.top
-    - content.copy.code
+    - content.code.copy
     - content.action.edit
+    - content.action.view
   font:
     text: Fira Sans
     code: Fira Code
@@ -36,15 +42,21 @@ markdown_extensions:
       custom_checkbox: true
   - admonition
   - meta
-
-repo_name: badgerati/pode.web
-repo_url: https://github.com/Badgerati/Pode.Web
+  - attr_list
 
 extra:
+  version:
+    provider: mike
+    default: latest
+
   social:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/fRqeGcbF6h
     - icon: fontawesome/brands/github
       link: https://github.com/badgerati/pode
-    - icon: fontawesome/brands/twitter
+    - icon: fontawesome/brands/x-twitter
       link: https://twitter.com/badgerati
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/badgerati.bsky.social
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/badgerati/pode.web

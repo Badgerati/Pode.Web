@@ -11,7 +11,7 @@
     RootModule        = 'Pode.Web.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.8.3'
+    ModuleVersion     = '1.0.0'
 
     # ID used to uniquely identify this module
     GUID              = '5c6cae5a-8e62-48a4-c2e5-7511ffe2d439'
@@ -20,18 +20,18 @@
     Author            = 'Matthew Kelly (Badgerati)'
 
     # Copyright statement for this module
-    Copyright         = 'Copyright (c) 2020-2022 Matthew Kelly (Badgerati), licensed under the MIT License.'
+    Copyright         = 'Copyright (c) 2020-2025 Matthew Kelly (Badgerati), licensed under the MIT License.'
 
     # Description of the functionality provided by this module
     Description       = 'Web template framework for the Pode PowerShell web server'
 
     # Minimum version of the Windows PowerShell engine required by this module
-    PowerShellVersion = '5.0'
+    PowerShellVersion = '5.1'
 
     RequiredModules   = @(
         @{
             ModuleName    = 'Pode'
-            ModuleVersion = '2.10.0'
+            ModuleVersion = '2.12.1'
             Guid          = 'e3ea217c-fc3d-406b-95d5-4304ab06c6af'
         }
     )
@@ -40,17 +40,25 @@
     PrivateData       = @{
         PSData = @{
 
+            Prerelease   = 'preview3'
+
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags       = @('powershell', 'web', 'server', 'pode', 'framework', 'templates', 'pages', 'charts', 'dashboard')
+            Tags         = @('powershell', 'web', 'server', 'pode', 'framework', 'templates', 'pages', 'charts', 'dashboard')
 
             # A URL to the license for this module.
-            LicenseUri = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/LICENSE.txt'
+            LicenseUri   = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/LICENSE.txt'
 
             # A URL to the main website for this project.
-            ProjectUri = 'https://github.com/Badgerati/Pode.Web'
+            ProjectUri   = 'https://github.com/Badgerati/Pode.Web'
 
             # A URL to an icon representing this module.
-            IconUri    = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/images/icon.png'
+            IconUri      = 'https://raw.githubusercontent.com/Badgerati/Pode.Web/master/images/icon.png'
+
+            # Release notes for this version of the module.
+            ReleaseNotes = 'https://badgerati.github.io/Pode.Web/release-notes/'
+
+            # Documentation to refer to for this module.
+            HelpInfoURI  = 'https://badgerati.github.io/Pode.Web/'
 
         }
     }

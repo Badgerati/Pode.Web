@@ -1,14 +1,14 @@
 # Button
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | Yes |
 
 To display a button on your page you use [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton); a button can either be dynamic and run custom logic via a `-ScriptBlock`, or it can redirect a user to a `-Url`.
 
 ## Dynamic
 
-A dynamic button is one that takes a custom `-ScriptBlock`, and when clicked will invoke that logic. You can run whatever you like, including actions for Pode.Web to action against.
+A dynamic button takes a custom `-ScriptBlock`, and when clicked will invoke that logic. You can run whatever you like, including actions for Pode.Web to action against.
 
 When using a dynamic button you can also supply a `-DataValue`, which is a way of supplying a special value/identity when the button is clicked. If supplied, this value is available in your scriptblock via `$WebEvent.Data['Value']`.
 
@@ -38,6 +38,19 @@ New-PodeWebButton -Name 'Click Me' -ArgumentList 'Value1', 2, $false -ScriptBloc
 }
 ```
 
+### Display/Click Name
+
+For dynamic buttons, alongside `-DisplayName` to customise the rendered value, there is also a `-ClickName` parameter. This `-ClickName` parameter will be shown when the button is clicked, and for the duration in which the spinner is visible. Once the button's action has been completed, the original value is shown again - this will be either `-Name` or `-DisplayName`.
+
+For example, the following will display "Disable Link" originally but when clicked will show "Disabling..." for 2 seconds, and will then revert to "Disable Link" again.
+
+```powershell
+New-PodeWebButton -Name 'Disable Link' -ClickName 'Disabling...' -ScriptBlock {
+    Start-Sleep -Seconds 2
+    Disable-PodeWebLink -Id 'link'
+}
+```
+
 ## URL
 
 To have a button that simply redirects to another URL, all you have to do is supply `-Url`:
@@ -56,9 +69,20 @@ To open the URL in a new tab, supply the `-NewTab` switch:
 New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
 ```
 
+## Custom Events
+
+The Button element does support [`Register-PodeWebEvent`](../../../Functions/Events/Register-PodeWebEvent) and the `Click` event type. There is the `-ScriptBlock` parameter on [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton), but you can supply `-NoClick` instead which will render a dummy button with no event handlers - allowing you to supply custom, including client-side, event handlers via [`Register-PodeWebEvent`](../../../Functions/Events/Register-PodeWebEvent) instead:
+
+```powershell
+New-PodeWebButton -Name 'Custom Events' -NoClick |
+    Register-PodeWebEvent -Type Click -ScriptBlock {
+        Show-PodeWebToast -Message 'The button click event was triggered!'
+    }
+```
+
 ## Outlined
 
-By default a button will be displayed as a block colour, but you can show a button as an outline by using the `-Outline` switch:
+By default, a button will be displayed as a block colour, but you can show a button as an outline by using the `-Outline` switch:
 
 ```powershell
 New-PodeWebButton -Name 'Example' -Colour Cyan -Outline -ScriptBlock {
@@ -72,4 +96,4 @@ Which looks like below:
 
 ## Grouping
 
-You can group a series of Buttons together by using a [Button Group](../ButtonGroup).
+You can group a series of Buttons by using a [Button Group](../ButtonGroup).

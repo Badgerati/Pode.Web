@@ -1,7 +1,7 @@
 <!-- omit in toc -->
 # <img src="https://github.com/Badgerati/Pode/blob/develop/images/icon.png?raw=true" width="25" /> Pode.Web
 
-> This is the develop branch for Pode,Web v1.0.0, which is currently dependant on an unreleased version of Pode (v2.10.0). If you want the latest released Pode.Web code (v0.8.3), please view the master branch instead.
+> This is the develop branch for Pode.Web v1.0.0, which is currently dependant on Pode v2.12.1. If you want the latest released Pode.Web code (v0.8.3), please view the master branch instead.
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Badgerati/Pode.Web/master/LICENSE.txt)
 [![Documentation](https://img.shields.io/github/v/release/badgerati/pode.web?label=docs)](https://badgerati.github.io/Pode.Web)
@@ -25,15 +25,15 @@
 - [🔥 Quick Example](#-quick-example)
 - [🌎 Roadmap](#-roadmap)
 
-This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.10.0+).
+This is a web template framework for use with the [Pode](https://github.com/Badgerati/Pode) PowerShell web server (v2.12.1+).
 
 It allows you to build web pages purely with PowerShell - no HTML, CSS, or JavaScript knowledge is required!
 
-You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, and terminal themes, and you can supply a custom CSS file.
+You can build charts, forms, tables, general text, tabs, login pages, etc. There's a light, dark, terminal, and more themes available, and you can supply custom CSS files or build your own in PowerShell.
 
 ## 📦 Libraries
 
-The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Material Design Icons](https://materialdesignicons.com), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
+The Pode.Web templates are built using [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com), [Material Design Icons](https://pictogrammers.com/library/mdi/), [Chart.js](https://www.chartjs.org), and [Highlight.js](https://github.com/highlightjs/highlight.js).
 
 ## 📘 Documentation
 
@@ -50,17 +50,17 @@ Then navigate to `http://127.0.0.1:8000` in your browser.
 ## 🚀 Features
 
 * Like [Pode](https://github.com/Badgerati/Pode), this is already cross-platform! (with support for PS5)
-* Easily add pages, with different layouts and elements
+* Easily add pages, with different elements
 * Support for authentication with a login page!
 * Create line, bar, pie, and doughnut charts
 * Support for forms, with all kinds of input elements
 * Show toast messages on the page, or send desktop notifications
-* Display data in tables, with pagination, sorting and filtering
+* Display data in tables, with pagination, sorting, and filtering
 * Use a stepper for a more controlled flow of form input
 * Or, use a tabs layout for your pages!
 * Show or right code via the Monaco editor (still WIP)
-* Render code in code-blocks with code highlighting!
-* Support for Light, Dark, Terminal, and custom themes
+* Render code in code blocks with code highlighting!
+* Support for Light, Dark, Terminal, custom themes, and more
 
 ## 📦 Install
 
@@ -98,7 +98,7 @@ Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
 
     # set the use of the pode.web templates
-    Use-PodeWebTemplates -Title 'Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Example' -Theme Midnight
 
     # add the page
     Add-PodeWebPage -Name Processes -Icon Activity -ScriptBlock {
@@ -118,4 +118,4 @@ Start-PodeServer {
 
 You can find a list of the features, enhancements, and ideas that will hopefully one day make it into Pode.Web [here in the documentation](https://badgerati.github.io/Pode.Web/roadmap/).
 
-There is also a [Project](https://github.com/users/Badgerati/projects/3) in the beginnings of being setup for Pode.Web, with milestone progression and current roadmap issues. Plus, there is a [Draft Board](https://github.com/users/Badgerati/projects/5) which contains a range of ideas for Pode.Web features/enhancements which are either brilliant, ludicrous, or down right insane! Draft Issues are purely ideas, and any in the design stage might one day make it in! If you see a Draft Issue you which to discuss, or have an idea for one, please dicuss it over on [Discord](https://discord.gg/fRqeGcbF6h) in the `#ideas` or `#pode-web` channel.
+There is also a [Project](https://github.com/users/Badgerati/projects/3) in the beginning of being set up for Pode.Web, with milestone progression and current roadmap issues. Plus, there is a [Draft Board](https://github.com/users/Badgerati/projects/5) that contains a range of ideas for Pode.Web features/enhancements that are either brilliant, ludicrous, or downright insane! Draft Issues are purely ideas, and any in the design stage might one day make it in! If you see a Draft Issue you wish to discuss or have an idea for one, please discuss it over on [Discord](https://discord.gg/fRqeGcbF6h) in the `#ideas` or `#pode-web` channel.

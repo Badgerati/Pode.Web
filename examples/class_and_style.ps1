@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Classy Styles' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Classy Styles' -Theme Dark
 
     # import the custom css/js
     Import-PodeWebStylesheet -Url '/my-styles.css'
@@ -20,7 +20,7 @@ Start-PodeServer {
 
         New-PodeWebParagraph -Content @(
             New-PodeWebText -Value 'And then here is some more text, that also includes a '
-            New-PodeWebLink -Value 'link' -Source 'https://google.com'
+            New-PodeWebLink -Value 'link' -Url 'https://google.com'
             New-PodeWebText -Value ' that takes you to Google'
         ) |
             Add-PodeWebStyle -Key 'color' -Value 'yellow' |

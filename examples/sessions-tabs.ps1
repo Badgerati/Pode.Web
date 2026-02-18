@@ -30,7 +30,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
 
     # set the use of templates
-    Use-PodeWebTemplates -Title 'Sessions' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Sessions' -Theme Dark
 
     # set login page
     Set-PodeWebLoginPage -Authentication Example -PassThru

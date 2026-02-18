@@ -3,15 +3,15 @@
 This page details the actions available to all elements of Pode.Web.
 
 !!! important
-    Most of the functions also have an `-Element` parameter. This parameter should only be used when creating a new element, such as `New-PodeWebTextbox`. Using this function as an action to update an existing element on the frontend will actually just create another new element! For this, use the `-Id` or `-Name`/`-Type` parameters instead.
+    Most of the functions also have an `-Element` parameter, and it should only be used when creating a new element, such as with `New-PodeWebTextbox` - otherwise attempting to use this parameter to update an existing element on the frontend will just create another new element instead! To update an element, use the `-Id` or `-Name`/`-Type` parameters instead.
 
 ## General
 
 ### Out
 
-When rendering new elements as actions it's wise to pipe them into [`Out-PodeWebElement`](../../../Functions/Actions/Out-PodeWebElement). This will allow Pode.Web to render the new element in the correct location with respect to the "sender" - ie: a Form, Button, etc.
+When rendering new elements as actions it's wise to pipe them into [`Out-PodeWebElement`](../../../Functions/Actions/Out-PodeWebElement). This will allow Pode.Web to render the new element in the correct location relative to the "sender" - ie: a Form, Button, etc.
 
-By default this will append the new element "after" the sender, but you can customise the location via `-AppendType` - such as appending the new element before the sender, or within the sender.
+By default, this will append the new element "after" the sender, but you can customise the location via `-AppendType` - such as appending the new element before the sender, or within the sender.
 
 ```powershell
 $form = New-PodeWebForm -Name 'Search Processes' -AsCard -ScriptBlock {
@@ -22,6 +22,45 @@ $form = New-PodeWebForm -Name 'Search Processes' -AsCard -ScriptBlock {
 } -Content @(
     New-PodeWebTextbox -Name 'Name'
 )
+```
+
+#### Reference
+
+You can use [`Out-PodeWebElement`](../../../Functions/Actions/Out-PodeWebElement) to create a "reference" element on the frontend, and then use the reference via [`Use-PodeWebElement`](../../../Functions/Elements/Use-PodeWebElement). The element is cached but isn't rendered to the screen. This lets you create a new element, and then reference it later on for rendering - such as buttons in table rows, so you don't have to build a new button every time:
+
+```powershell
+$table = New-PodeWebTable -Name 'Example' -Paginate -ScriptBlock {
+    # create a reference to a stop button
+    $stopBtn = New-PodeWebButton -Name 'Stop' -Icon 'stop-circle-outline' -IconOnly -ScriptBlock {
+        Stop-Service -Name $WebEvent.Data.Value -Force | Out-Null
+        Sync-PodeWebTable -Id $ParentData.ID
+    }
+    $stopBtn | Out-PodeWebElement -AsReference
+
+    # create a reference to a start button
+    $startBtn = New-PodeWebButton -Name 'Start' -Icon 'play-circle-outline' -IconOnly -ScriptBlock {
+        Start-Service -Name $WebEvent.Data.Value | Out-Null
+        Sync-PodeWebTable -Id $ParentData.ID
+    }
+    $startBtn | Out-PodeWebElement -AsReference
+
+    # build rows, and use button references above
+    foreach ($svc in (Get-Service)) {
+        $btn = $null
+        if ($svc.Status -ieq 'running') {
+            $btn = Use-PodeWebElement -Element $stopBtn
+        }
+        else {
+            $btn = Use-PodeWebElement -Element $startBtn
+        }
+
+        [ordered]@{
+            Name    = $svc.Name
+            Status  = "$($svc.Status)"
+            Actions = @($btn)
+        }
+    }
+}
 ```
 
 ## Visibility
@@ -54,7 +93,7 @@ Show-PodeWebElement -Id 'card_somename'
 
 ### Add
 
-You can add a class onto an element via [`Add-PodeWebClass`](../../../Functions/Actions/Add-PodeWebClass). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+You can add a class to an element via [`Add-PodeWebClass`](../../../Functions/Actions/Add-PodeWebClass). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
 
 ```powershell
 Add-PodeWebClass -Type 'Textbox' -Name 'SomeTextboxName' -Value 'my-custom-class'
@@ -90,7 +129,7 @@ Rename-PodeWebClass -Id 'textbox_somename' -From 'my-custom-class' -To 'my-other
 
 ### Switch
 
-You can toggle a class to be added/removed by using [`Switch-PodeWebClass`](../../../Functions/Actions/Switch-PodeWebClass). By default this will toggle a class between being added/removed, but you can specify the state to be added or removed by supplying the `-State` parameter. You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
+You can toggle a class to be added/removed by using [`Switch-PodeWebClass`](../../../Functions/Actions/Switch-PodeWebClass). By default, this will toggle a class between being added/removed, but you can specify the state to be added or removed by supplying the `-State` parameter. You can update an element either by `-Id`, or by the element's `-Name` and `-Type`:
 
 ```powershell
 Switch-PodeWebClass -Type 'Textbox' -Name 'SomeTextboxName' -Value 'my-custom-class'
@@ -151,4 +190,63 @@ Remove-PodeWebAttribute -Type 'Textbox' -Name 'SomeTextboxName' -Key 'hx-confirm
 # or
 
 Remove-PodeWebAttribute -Id 'textbox_somename' -Key 'hx-confirm'
+```
+
+## Padding
+
+### Set
+
+You can set the padding of an element using [`Set-PodeWebPadding`](../../../Functions/Actions/Set-PodeWebPadding). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`; you can also control the individual padding values for `-Left`, `-Right`, `-Top`, and `-Bottom`, or you can set them all at once via `-Value`.
+
+Padding values can be supplied in a range of 0 to 5, with 0 being no padding and 5 being the most padding.
+
+```powershell
+Set-PodeWebPadding -Type 'Textbox' -Name 'SomeTextboxName' -Value 3
+Set-PodeWebPadding -Type 'Textbox' -Name 'SomeTextboxName' -Right 3 -Left 4
+
+# or
+
+Set-PodeWebPadding -Id 'textbox_somename' -Value 3
+Set-PodeWebPadding -Id 'textbox_somename' -Right 3 -Left 4
+```
+
+## Margin
+
+### Set
+
+You can set the margin of an element using [`Set-PodeWebMargin`](../../../Functions/Actions/Set-PodeWebMargin). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`; you can also control the individual margin values for `-Left`, `-Right`, `-Top`, and `-Bottom`, or you can set them all at once via `-Value`.
+
+Margin values can be supplied in a range of 0 to 5, with 0 being no margin and 5 being the largest margin.
+
+```powershell
+Set-PodeWebMargin -Type 'Textbox' -Name 'SomeTextboxName' -Value 3
+Set-PodeWebMargin -Type 'Textbox' -Name 'SomeTextboxName' -Right 3 -Left 4
+
+# or
+
+Set-PodeWebMargin -Id 'textbox_somename' -Value 3
+Set-PodeWebMargin -Id 'textbox_somename' -Right 3 -Left 4
+```
+
+## Display
+
+### Set
+
+You can set the display mode of an element using [`Set-PodeWebDisplay`](../../../Functions/Actions/Set-PodeWebDisplay). You can update an element either by `-Id`, or by the element's `-Name` and `-Type`
+
+Display values allowed are:
+
+* Block
+* Inline
+* Inline-Block
+* Flex
+* Inline-Flex
+* None
+
+```powershell
+Set-PodeWebDisplay -Type 'Textbox' -Name 'SomeTextboxName' -Value 'Inline-Block'
+
+# or
+
+Set-PodeWebDisplay -Id 'textbox_somename' -Value 'Flex'
 ```

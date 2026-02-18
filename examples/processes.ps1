@@ -7,13 +7,13 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # login/auth
-    Enable-PodeSessionMiddleware -Secret 'schwifty' -Duration (10 * 60) -Extend
+    Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
     New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
         param($username, $password)
 
         if ($username -eq 'morty' -and $password -eq 'pickle') {
             return @{
-                User = @{ ID ='M0R7Y302'; Name = 'Morty'; Type = 'Human' }
+                User = @{ ID = 'M0R7Y302'; Name = 'Morty'; Type = 'Human' }
             }
         }
 
@@ -21,7 +21,7 @@ Start-PodeServer {
     }
 
     # templates / login page
-    Use-PodeWebTemplates -Title Test -Theme Dark
+    Initialize-PodeWebTemplates -Title Test -Theme Dark -RootRedirect
     Set-PodeWebLoginPage -Authentication Example
 
     # processes - table for results, and a form to search
@@ -34,7 +34,7 @@ Start-PodeServer {
         New-PodeWebTextbox -Name 'Name'
     )
 
-    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Content $form, $table
+    Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -Content $form, $table -HomePage
 
     # processes - table for results, and a form to search, but table as action
     $form2 = New-PodeWebForm -Name 'Search2' -AsCard -ScriptBlock {

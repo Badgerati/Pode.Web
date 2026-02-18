@@ -1,14 +1,14 @@
 # List
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
 Pode.Web lets you display lists of items, either bullet pointed or numbered, using [`New-PodeWebList`](../../../Functions/Elements/New-PodeWebList). You need to supply an array of `-Items` or `-Values`, and then the `-Numbered` flag for numbered lists.
 
 ## Items
 
-The `-Items` parameter takes an array of ListItem elements (created via [`New-PodeWebListItem`](../../../Functions/Elements/New-PodeWebListItem)). The ListItem element accepts an array of `-Content`, which can be either layouts or elements:
+The `-Items` parameter takes an array of ListItem elements (created via [`New-PodeWebListItem`](../../../Functions/Elements/New-PodeWebListItem)). The ListItem element accepts an array of `-Content`, which is an array of other elements:
 
 ```powershell
 New-PodeWebCard -Content @(

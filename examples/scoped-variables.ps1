@@ -9,7 +9,7 @@ Start-PodeServer -StatusPageExceptions Show {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Basic Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Basic Example' -Theme Dark
     $state:card_name = 'Hello, there!'
 
     # set the home page controls (just a simple paragraph)
@@ -23,7 +23,7 @@ Start-PodeServer -StatusPageExceptions Show {
 
     # add a page to search process (output as json in an appended textbox)
     Add-PodeWebPage -Name Processes -Icon 'chart-box-outline' -ScriptBlock {
-        New-PodeWebForm -Name 'Search' -ShowReset -SubmitText 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
+        New-PodeWebForm -Name 'Search' -ButtonType Submit, Reset 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
             $procs = @(Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
                     Select-Object Name, ID, WorkingSet, CPU)
 

@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'CatFacts' -Theme Dark -RootRedirect
+    Initialize-PodeWebTemplates -Title 'CatFacts' -Theme Dark -RootRedirect
 
     $table = New-PodeWebTable -Name 'Static' -DataColumn ID -AsCard -Click -Paginate -ScriptBlock {
         # refresh button, to refresh the current row
@@ -23,7 +23,7 @@ Start-PodeServer {
             $bgColour = (@('Green', 'Yellow', 'Blue', $null))[$index]
             $colour = (@('White', 'Black', 'White', $null))[$index]
 
-            $data | Update-PodeWebTableRow -Id $ElementData.Parent.ID -DataValue $WebEvent.Data['value'] -BackgroundColour $bgColour -Colour $colour
+            $data | Update-PodeWebTableRow -Id $ParentData.ID -DataValue $WebEvent.Data['value'] -BackgroundColour $bgColour -Colour $colour
         }
 
         # load all catfacts

@@ -8,33 +8,66 @@
     <link rel="stylesheet" href="$($data.AppPath)/pode.web-static/libs/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="$($data.AppPath)/pode.web-static/libs/bs-stepper/bs-stepper.min.css">
     <link rel="stylesheet" href="$($data.AppPath)/pode.web-static/libs/mdi-font/css/materialdesignicons.min.css">
+    <link id='pode-base-theme' rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/default.css'>
 
     $(
-        # highlight theme
-        if ($data.Theme -iin @('dark', 'terminal')) {
-            "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/libs/highlightjs/styles/tomorrow-night-blue.min.css'>"
-        }
-        else {
-            "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/libs/highlightjs/styles/default.min.css'>"
-        }
-
-        # main pode.web base styles
-        "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/default.css'>"
-
         # pode.web theme
         if (Test-PodeWebThemeCustom -Name $data.Theme) {
-            "<link rel='stylesheet' href='$((Get-PodeWebState -Name 'custom-themes').Themes[$data.Theme].Url)'>"
+            $theme = (Get-PodeWebState -Name 'custom-themes').Themes[$data.Theme]
+            if ($theme.Base -ine 'none') {
+                "<link id='pode-inbuilt-theme' rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/themes/$($theme.Base).css'>"
+            }
+            "<link id='pode-custom-theme' rel='stylesheet' href='$($theme.Url)'>"
         }
         else {
             if ($data.Theme -inotin @('auto', 'custom')) {
-                "<link rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/default-$($data.Theme).css'>"
+                "<link id='pode-inbuilt-theme' rel='stylesheet' href='$($data.AppPath)/pode.web-static/styles/themes/$($data.Theme).css'>"
             }
         }
+    )
 
+    $(
         # custom stylesheets
-        $styles = @(Get-PodeWebState -Name 'custom-css')
+        $styles = Get-PodeWebState -Name 'custom-css'
         foreach ($style in $styles) {
-            "<link rel='stylesheet' href='$($style)'>"
+            $blocking = ''
+            if ($style.Blocking) {
+                $blocking = "blocking='$($style.Blocking -join ', ')'"
+            }
+
+            $crossOrigin = ''
+            if ($style.CrossOrigin) {
+                $crossOrigin = "crossorigin='$($style.CrossOrigin)'"
+            }
+
+            $fetchPriority = ''
+            if ($style.FetchPriority) {
+                $fetchPriority = "fetchpriority='$($style.FetchPriority)'"
+            }
+
+            $referrerPolicy = ''
+            if ($style.ReferrerPolicy) {
+                $referrerPolicy = "referrerpolicy='$($style.ReferrerPolicy)'"
+            }
+
+            $integrity = ''
+            if ($style.Integrity) {
+                $integrity = "integrity='$($style.Integrity)'"
+            }
+
+            "<link
+                rel='stylesheet'
+                href='$($style.Url)'
+                $blocking
+                $crossOrigin
+                $fetchPriority
+                $referrerPolicy
+                $integrity
+            />"
         }
     )
+
+    $(Use-PodeWebPartialView -Path 'shared/custom_scripts' -Data @{
+        Location = 'Head'
+    })
 </head>

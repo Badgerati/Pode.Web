@@ -1,8 +1,8 @@
 # Charts
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
 You can display data rendered as a chart by using [`New-PodeWebChart`](../../../Functions/Elements/New-PodeWebChart), and the following chart types are supported:
 
@@ -31,7 +31,7 @@ New-PodeWebChart -Name 'Example Chart' -Type Line -ArgumentList 'Value1', 2, $fa
 
 ### Raw
 
-Before showing the ConvertTo function, the data format needed is as follows: the returned value has be an array of hashtables, with each hashtable requires a `Key` property, and a `Values` property that's an array of further hashtables. The `Key` is the value used on the X-axis, and the `Values` is an array of data points used on the Y-axis. The `Values` hashtables also has to contain a `Key` and a `Value` property - the `Key` here is the dataset group name, and the `Value` is the value on the Y-axis.
+Before showing the ConvertTo function, the data format needed is as follows: the returned value has to be an array of hashtables, with each hashtable requiring a `Key` property, and a `Values` property that's an array of further hashtables. The `Key` is the value used on the X-axis, and the `Values` are an array of data points used on the Y-axis. The `Values` hashtables also need to contain a `Key` and a `Value` property - the `Key` here is the dataset group name, and the `Value` is the value on the Y-axis.
 
 For example, the below will show a line chart consisting of 10 data points across 2 groups: Group1/Group2:
 
@@ -68,9 +68,9 @@ If you click the refresh button in the top-left corner, the `-ScriptBlock` will 
 
 ### ConvertTo
 
-The [`ConvertTo-PodeWebChartData`](../../../Functions/Actions/ConvertTo-PodeWebChartData) helps to simplify the above a raw format, by letting you convert data at the end of a pipeline. The function takes a `-LabelProperty` which is the name of a property in the input that should be used for the X-axis, and then a `-DatasetProperty` with is property names for Y-axis values.
+The [`ConvertTo-PodeWebChartData`](../../../Functions/Actions/ConvertTo-PodeWebChartData) helps to simplify the above raw format, by letting you convert data at the end of a pipeline. The function takes a `-LabelProperty` which is the name of a property in the input that should be used for the X-axis, and then a `-DatasetProperty` with its property names for Y-axis values.
 
-For example, let's say we want to display the top 10 processes using the most CPU. We want to display the process name, and its CPU and Memory usage, *and* we want it to auto-refresh every minute:
+For example, let's say we want to display the top 10 processes using the most CPU. We want to display the process name and its CPU and Memory usage, *and* we want it to auto-refresh every minute:
 
 ```powershell
 New-PodeWebContainer -Content @(
@@ -89,10 +89,10 @@ which renders a chart that looks like below:
 
 ### Data
 
-You can pass static data to a Chart to be rendered by using the `-Data` parameter. This parameter can be used to in general, but is more appropriate to be used when rendering a new Chart as an action from another element - such as a Form to show "top X" processes.
+You can pass static data to a Chart to be rendered by using the `-Data` parameter. This parameter can be used in general but is more appropriate to be used when rendering a new Chart as an action from another element - such as a Form to show "top X" processes.
 
 !!! important
-    If you render a main Chart using `-Data` on your page the data will be static and unchanging on page loads - unless you render the Chart inside a `-ScriptBlock` of `Add-PodeWebPage`, but you'd be refetching the data on every page load which might impact the performance of loading the page as it will be synchronous not asynchronous.
+    If you render a main Chart using `-Data` on your page the data will be static and unchanging on page loads - unless you render the Chart inside a `-ScriptBlock` of `Add-PodeWebPage`, but you'd be re-fetching the data on every page load which might impact the performance of loading the page as it will be synchronous, not asynchronous.
 
 ```powershell
 New-PodeWebContainer -Content @(
@@ -123,9 +123,9 @@ New-PodeWebContainer -Content @(
 
 ## Append
 
-Now let's say we want `-AutoRefresh` a chart every minute, and we want it to display the current CPU usage, but only for the last 15 minutes. To do this, you have to supply `-Append` and any data returned from the `-ScriptBlock` will be appended to the chart instead. To restrict the data points to 15 minutes, we can supply `-MaxItems 15`.
+Now let's say we want `-AutoRefresh` a chart every minute, and we want it to display the current CPU usage, but only for the last 15 minutes. To do this, you have to supply `-Append`, and any data returned from the `-ScriptBlock` will be appended to the chart instead. To restrict the data points to 15 minutes, we can supply `-MaxItems 15`.
 
-It would also be nice to have the X-axis labels be timestamps, and Pode.Web can automatically show a data points time stamp by using the `-TimeLabels` switch.
+It would also be nice to have the X-axis labels be timestamps and Pode.Web can automatically show a data point's timestamp by using the `-TimeLabels` switch.
 
 The below example would render this chart for us:
 
@@ -147,7 +147,7 @@ The scriptblock has access to the `$WebEvent`, and when a chart requests its `-S
 
 ## Windows Counters
 
-To display line charts for Windows Performance Counters more easily, Pode.Web has an inbuilt [`New-PodeWebCounterChart`](../../../Functions/Elements/New-PodeWebCounterChart). When used, this automatically sets up an auto-refreshing, timestamped, appending line chart for you; all you have to do is supply the name of the counter, and it will show a chart for up to the last 30mins.
+To display line charts for Windows Performance Counters more easily, Pode.Web has an inbuilt [`New-PodeWebCounterChart`](../../../Functions/Elements/New-PodeWebCounterChart). When used, this automatically sets up an auto-refreshing, timestamped, appending line chart for you; all you have to do is supply the name of the counter, and it will show a chart for up to the last 30 minutes.
 
 For example, taking the above CPU example, this would be it using the inbuilt helper:
 
@@ -161,4 +161,7 @@ which renders a chart that looks like below:
 
 ## Size
 
-The `-Height` of a chart has the default unit of `px`. If `0` is specified then `auto` is used instead. Any custom value such as `10%` can be used, but if a plain number is used then `px` is appended.
+The `-Height` or `-Width` of a chart has the default unit of `px`. If `0` is specified then `auto` is used instead (or `100%` for width). Any custom value such as `10%` can be used, but if a plain number is used then `px` is appended - or you can use `em` values as well.
+
+!!! note
+    When using `%` values, note that for `-Width` they are usually respected however, for `-Height` is is best to try an use literal values as the `%` isn't always respected.

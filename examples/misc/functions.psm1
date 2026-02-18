@@ -3,5 +3,6 @@ function Get-Noun {
     param (
         [String]$V1
     )
-    'Ok'
+
+    return "Ok = $V1"
 }

@@ -1,10 +1,10 @@
 # Form
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | No  |
 
-A form is kind of like a layout, but is an element that contains other elements. It automatically wraps the `-Content` as a `<form>` and adds a submit button to the bottom. When clicked, the form is serialised and sent to the `-ScriptBlock`. To add a form to you page use [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) along with other form elements:
+A form contains other elements, supplied via `-Content`, and it automatically wraps them in a `<form>` and adds a submit button to the bottom. When clicked, the form is serialised and sent to the `-ScriptBlock`. To add a form to your page use [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) along with other form elements:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -19,9 +19,15 @@ New-PodeWebCard -Content @(
         New-PodeWebTextbox -Name 'Time' -Type Time
         New-PodeWebDateTime -Name 'DateTime'
         New-PodeWebCredential -Name 'Credentials'
-        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -AsSwitch
-        New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
-        New-PodeWebSelect -Name 'Role' -Options @('User', 'Admin', 'Operations') -Multiple
+        New-PodeWebCheckbox -Name 'Checkboxes' -Options @(
+            'Terms', 'Privacy' | ConvertTo-PodeWebOption
+        ) -AsSwitch
+        New-PodeWebRadio -Name 'Radios' -Options @(
+            'S', 'M', 'L' | ConvertTo-PodeWebOption
+        )
+        New-PodeWebSelect -Name 'Role' -Multiple -Options @(
+            'User', 'Admin', 'Operations' | ConvertTo-PodeWebOption
+        )
         New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
     )
 )
@@ -68,6 +74,28 @@ The default method for forms is `Post`, and the action is the internal route cre
 
 You can change these values by using the `-Method` and `-Action` parameters. The method can only be `Get` or `Post`, and the action must be a valid URL.
 
-## Reset
+## Buttons
 
-You can reset all form inputs by either using the [`Reset-PodeWebForm`](../../../Functions/Actions/Reset-PodeWebForm) action, or by using `-ShowReset` switch on [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm) to display an optional reset button.
+You can customise which buttons are visible at the bottom of the Form by using the `-ButtonType` parameter on [`New-PodeWebForm`](../../../Functions/Elements/New-PodeWebForm).
+
+By default, this parameter has the value "Submit", but you can supply one or more of the following values to change this:
+
+* None
+* Submit
+* Reset
+
+Following are some examples:
+
+```powershell
+# default submit button:
+New-PodeWebForm -Name 'Example' -Content @() -ScriptBlock {}
+
+# if you want a Form with a Submit and Reset button:
+New-PodeWebForm -Name 'Example' -ButtonType Submit, Reset -Content @() -ScriptBlock {}
+
+# if you want a Form with just a Reset button:
+New-PodeWebForm -Name 'Example' -ButtonType Submit, Reset -Content @() -ScriptBlock {}
+
+# if you want a Form with no buttons:
+New-PodeWebForm -Name 'Example' -ButtonType None -Content @() -ScriptBlock {}
+```

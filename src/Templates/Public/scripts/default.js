@@ -4,15 +4,22 @@ $.expr.pseudos.icontains = $.expr.createPseudo(function(arg) {
     };
 });
 
-var MIN_INT32 = (1 << 31);
-var MAX_INT32 = ((2 ** 31) - 1);
+const PAGE_ID = $('body').attr('pode-page-id');
+const MIN_INT32 = (1 << 31);
+const MAX_INT32 = ((2 ** 31) - 1);
+
+const SSE_CLIENT_NAME = 'Pode.Web.Actions';
+var SSE_CLIENT_ID = null;
 
 var tooltips = function() {
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
 };
 tooltips();
 
+var FEATURES = {};
 var pageLoaded = false;
+var contentLoaded = false;
+
 $(() => {
     // don't load the page multiple time
     if (pageLoaded) {
@@ -20,31 +27,111 @@ $(() => {
     }
     pageLoaded = true;
 
+    // load features from body attributes
+    loadFeatures();
+
     // check theme
     if (checkAutoTheme()) {
         return;
     }
+    mountCodeTheme();
+
+    // base mappings
+    bindSidebarFilter();
+    bindSidebarToggle();
+    toggleSidebar();
+    bindPageLinks();
+    bindPageHelp();
+    bindPageGroupCollapse();
 
     // sessions
     setSessionTabId();
 
-    // load content
-    sendAjaxReq(`${getPageUrl('content')}`, null, undefined, true, (res, sender) => {
-        mapElementThemes();
-
-        loadBreadcrumb();
-
-        bindSidebarFilter();
-        bindSidebarToggle();
-        toggleSidebar();
-        bindPageLinks();
-        bindPageHelp();
-
-        bindFormSubmits();
-
-        bindPageGroupCollapse();
-    });
+    // setup client connection
+    setupClientConnection();
 });
+
+function loadFeatures() {
+    FEATURES = {
+        ParseDateTime: ($('body').attr('pode-parse-datetime') === 'True')
+    };
+}
+
+function loadContent() {
+    if (contentLoaded) {
+        return;
+    }
+
+    sendAjaxReq(getPageUrl('content'), null, undefined, true, () => {
+        loadBreadcrumb();
+        bindFormSubmits();
+        contentLoaded = true;
+    });
+}
+
+function setupClientConnection() {
+    var type = $('body').attr('pode-conn-type');
+
+    switch (type) {
+        case 'http':
+            setupHttpConnection();
+            break;
+
+        case 'sse':
+            setupSseConnection();
+            break;
+
+        default:
+            throw `Unknown response type '${type}'`;
+    }
+}
+
+function setupHttpConnection() {
+    loadContent();
+}
+
+function setupSseConnection() {
+    // create sse connection
+    const sse = new EventSource(getPageUrl('sse-open'));
+
+    // wire up open event, to store clientId and load content
+    sse.addEventListener('pode.open', (e) => {
+        SSE_CLIENT_ID = JSON.parse(e.data).clientId;
+        loadContent();
+    });
+
+    // wire up close event, to close sse connection
+    sse.addEventListener('pode.close', (e) => {
+        sse.close();
+        SSE_CLIENT_ID = null;
+    });
+
+    // wire up event for actions
+    sse.addEventListener('pode.web.action', (e) => {
+        if (sse.readyState === EventSource.CLOSED) {
+            return;
+        }
+
+        invokeActions(JSON.parse(e.data));
+    });
+
+    // error event
+    sse.onerror = (e) => {
+        sse.close();
+        console.log(e);
+    };
+
+    // wire up beforeunload, to close connection server side
+    window.addEventListener("beforeunload", function(e) {
+        sse.close();
+        SSE_CLIENT_ID = null;
+        return null;
+    });
+}
+
+function testCookie(name) {
+    return (document.cookie.match(`(;\s*)?${name}=`) != null);
+}
 
 function setSessionTabId() {
     if (!testSessionTabsEnabled()) {
@@ -76,7 +163,7 @@ function getSessionTabId() {
 }
 
 function testSessionTabsEnabled() {
-    return ($('body').attr('pode-session-tabs') === 'True')
+    return ($('body').attr('pode-session-tabs') === 'True');
 }
 
 function getUrl(subpath) {
@@ -95,19 +182,18 @@ function getPageUrl(subpath) {
         subpath = `/${subpath}`;
     }
 
-    var pageId = $('body').attr('pode-page-id');
-    if (!pageId) {
+    if (!PAGE_ID) {
         return getUrl(subpath);
     }
 
     var base = `${window.location.origin}`;
 
-    var appPath = $('body').attr('pode-app-path');
+    var appPath = getAppPath();
     if (appPath) {
         base += `/${appPath}`;
     }
 
-    return `${base}/pode.web-dynamic/pages/${pageId}${subpath}`;
+    return `${base}/pode.web-dynamic/pages/${PAGE_ID}${subpath}`;
 }
 
 function loadBreadcrumb() {
@@ -160,7 +246,6 @@ function loadBreadcrumb() {
 
 function checkAutoTheme() {
     var theme = getPodeTheme();
-
     if (theme != 'auto') {
         return;
     }
@@ -176,47 +261,111 @@ function checkAutoTheme() {
     return true;
 }
 
-function mapElementThemes() {
-    var bodyTheme = getPodeTheme();
-    var isTerminal = bodyTheme == 'terminal';
-    var types = ['badge', 'btn', 'text'];
+function mountCodeTheme() {
+    var theme = (getCssVariable('--podeweb-code-theme') ?? 'light').toLowerCase();
 
-    // main theme
-    var defTheme = isTerminal ? 'success' : 'primary';
+    // remove existing css file with class pode-code-theme
+    $('head link#pode-code-theme').remove();
 
-    types.forEach((type) => {
-        $(`.${type}-inbuilt-theme`).each((i, e) => {
-            $(e).removeClass(`${type}-inbuilt-theme`);
-            addClass($(e), `${type}-${defTheme}`);
-        });
-    });
+    // append new a11y code theme css file as link to head element
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
 
-    // secondary theme
-    defTheme = isTerminal ? 'success' : 'secondary';
+    var url = `/pode.web-static/libs/highlightjs/styles/a11y-${theme}.min.css`;
+    var appPath = getAppPath();
+    if (appPath) {
+        url = `${appPath}${url}`;
+    }
 
-    types.forEach((type) => {
-        $(`.${type}-inbuilt-sec-theme`).each((i, e) => {
-            $(e).removeClass(`${type}-inbuilt-sec-theme`);
-            addClass($(e), `${type}-${defTheme}`);
-        });
-    });
+    link.href = url;
+    link.id = 'pode-code-theme';
+    document.head.appendChild(link);
 }
 
 function getPodeTheme() {
     return $('body').attr('pode-theme');
 }
 
-function setPodeTheme(theme, refresh) {
+function setPodeTheme(theme, isInbuilt, base, customUrl) {
     // update body
     $('body').attr('pode-theme', theme);
 
     // set the cookie
     setPodeThemeCookie(theme);
 
-    // refresh?
-    if (refresh) {
-        refreshPage();
+    // remove the pode-inbuilt-theme css
+    $('head link#pode-inbuilt-theme').remove();
+
+    // remove the pode-custom-theme css
+    $('head link#pode-custom-theme').remove();
+
+    // temp vars
+    var url = '';
+    var appPath = getAppPath();
+    var linkOnloadFunc = () => {
+        PodeElementFactory.setTheme(theme);
+    };
+
+    // if inbuilt or we have a base, then add back the pode-inbuilt-theme css
+    if (isInbuilt || base) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+
+        url = `/pode.web-static/styles/themes/${(isInbuilt ? theme : base).toLowerCase()}.css`;
+        if (appPath) {
+            url = `${appPath}${url}`;
+        }
+
+        link.href = url;
+        link.id = 'pode-inbuilt-theme';
+
+        // optional bind to reset theme for some elements onload
+        if (!customUrl) {
+            link.onload = linkOnloadFunc;
+        }
+
+        // load the link
+        $('head link#pode-base-theme').after(link);
     }
+
+    // if custom, then add back the pode-custom-theme css
+    if (!isInbuilt && customUrl) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+
+        url = customUrl;
+        if (appPath) {
+            url = `${appPath}${url}`;
+        }
+
+        link.href = url;
+        link.id = 'pode-custom-theme';
+
+        // optional bind to reset theme for some elements onload
+        link.onload = linkOnloadFunc;
+
+        // load the link
+        if (base) {
+            $('head link#pode-inbuilt-theme').after(link);
+        }
+        else {
+            $('head link#pode-base-theme').after(link);
+        }
+    }
+}
+
+function resetPodeTheme() {
+    // blank body theme
+    $('body').attr('pode-theme', '');
+
+    // blank the theme cookie
+    setPodeThemeCookie('');
+
+    // refresh the page
+    refreshPage();
 }
 
 function setPodeThemeCookie(theme) {
@@ -369,9 +518,16 @@ function setValidationError(element) {
     }
 }
 
+function getAppPath() {
+    return $('body').attr('pode-app-path');
+}
+
 function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallback, opts, button) {
+    // get sender element
+    var senderElement = sender?.getElement();
+
     // show the spinner
-    showSpinner(sender);
+    sender?.spinner(true);
     $('.alert.pode-error').remove();
 
     // disable the button
@@ -382,11 +538,13 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     disable(button);
 
     // remove validation errors
-    removeValidationErrors(sender);
+    removeValidationErrors(senderElement);
 
-    // add app-path to url (for the likes of IIS)
-    var appPath = $('body').attr('pode-app-path');
-    url = `${appPath}${url}`;
+    // add app path to url (for the likes of IIS)
+    var appPath = getAppPath();
+    if (appPath) {
+        url = `${appPath}${url}`;
+    }
 
     // add current query string
     if (window.location.search) {
@@ -403,8 +561,21 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
     // custom headers
     var headers = {};
 
+    // session tabId header
     if (testSessionTabsEnabled()) {
         headers['X-PODE-SESSION-TAB-ID'] = getSessionTabId();
+    }
+
+    // sse clientId header
+    if (SSE_CLIENT_ID != null) {
+        headers['X-PODE-SSE-CLIENT-ID'] = SSE_CLIENT_ID;
+        headers['X-PODE-SSE-NAME'] = SSE_CLIENT_NAME;
+        headers['X-PODE-SSE-GROUP'] = PAGE_ID;
+    }
+
+    // set senderId if we have a sender
+    if (sender != null) {
+        headers['X-PODE-WEB-SENDER-ID'] = sender.uuid;
     }
 
     // make the call
@@ -422,54 +593,67 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
             responseType: 'blob'
         },
         success: function(res, status, xhr) {
+            // call success callback before actions
+            if (successCallback && opts.successCallbackBefore) {
+                successCallback(senderElement);
+            }
+
             // attempt to hide any spinners
-            hideSpinner(sender);
+            if (xhr.getResponseHeader('X-PODE-WEB-PROCESSING-ASYNC') !== '1') {
+                sender?.spinner(false);
+            }
 
             // re-enable the button
             enable(button);
 
             // re-gain focus, or lose focus?
             if (!opts.keepFocus) {
-                unfocus(sender);
-            }
-
-            // call success callback before actions
-            if (successCallback && opts.successCallbackBefore) {
-                res.text().then((v) => {
-                    successCallback(JSON.parse(v), sender);
-                });
+                unfocus(senderElement);
             }
 
             // do we have a file to download?
             var filename = getAjaxFileName(xhr);
             if (filename) {
                 downloadBlob(filename, res, xhr);
+
+                // call success callback after actions
+                if (successCallback && !opts.successCallbackBefore) {
+                    successCallback(senderElement);
+                }
             }
 
             // run any actions, if we need to
             else if (useActions) {
                 res.text().then((v) => {
-                    invokeActions(JSON.parse(v), sender);
+                    invokeActions(v ? JSON.parse(v) : null, sender);
+
+                    // call success callback after actions
+                    if (successCallback && !opts.successCallbackBefore) {
+                        successCallback(senderElement);
+                    }
                 });
             }
-
-            // call success callback after actions
-            if (successCallback && !opts.successCallbackBefore) {
+            else if (opts.customActionCallback) {
                 res.text().then((v) => {
-                    successCallback(JSON.parse(v), sender);
+                    opts.customActionCallback(v ? JSON.parse(v) : null, senderElement);
+
+                    // call success callback after actions
+                    if (successCallback && !opts.successCallbackBefore) {
+                        successCallback(senderElement);
+                    }
                 });
             }
         },
         error: function(err, msg, stack) {
             // attempt to hide any spinners
-            hideSpinner(sender);
+            sender?.spinner(false);
 
             // re-enable the button
             enable(button);
 
             // re-gain focus, or lose focus?
             if (!opts.keepFocus) {
-                unfocus(sender);
+                unfocus(senderElement);
             }
 
             // log the error/stack
@@ -478,7 +662,7 @@ function sendAjaxReq(url, data, sender, useActions, successCallback, errorCallba
 
             // call error callback
             if (errorCallback) {
-                errorCallback(err, msg, stack, sender);
+                errorCallback(err, msg, stack, senderElement);
             }
         }
     });
@@ -542,28 +726,28 @@ function getAjaxFileName(xhr) {
     return filename;
 }
 
-function showSpinner(sender) {
-    if (!sender) {
+function showSpinner(element) {
+    if (!element) {
         return;
     }
 
-    show(sender.find('span.spinner-border'));
+    show(element.find('span.spinner-border'));
 }
 
-function hideSpinner(sender) {
-    if (!sender) {
+function hideSpinner(element) {
+    if (!element) {
         return;
     }
 
-    hide(sender.find('span.spinner-border'));
+    hide(element.find('span.spinner-border'));
 }
 
-function unfocus(sender) {
-    if (!sender) {
+function unfocus(element) {
+    if (!element) {
         return;
     }
 
-    sender.blur();
+    element.blur();
 }
 
 function bindSidebarToggle() {
@@ -605,12 +789,14 @@ function bindPageGroupCollapse() {
         var id = $(e.target).attr('id');
         var icon = $(`a[aria-controls="${id}"] span.mdi`);
         toggleIcon(icon, 'chevron-right', 'chevron-down');
+        e.stopPropagation();
     });
 
     $('ul#sidebar-list div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
         var id = $(e.target).attr('id');
         var icon = $(`a[aria-controls="${id}"] span.mdi`);
         toggleIcon(icon, 'chevron-down', 'chevron-right');
+        e.stopPropagation();
     });
 }
 
@@ -666,6 +852,10 @@ function invokeActions(actions, sender) {
             return;
         }
 
+        if (sender == null && action.SenderId != null) {
+            sender = PodeElementFactory.getObject(action.SenderId);
+        }
+
         var _type = (action.ObjectType ?? '').toLowerCase();
         var _subType = (action.SubObjectType ?? '').toLowerCase()
         var _operation = (action.Operation ?? 'new').toLowerCase();
@@ -679,8 +869,10 @@ function invokeActions(actions, sender) {
                 actionPage(action);
                 break;
 
+            //TODO: for error, rewrite the object to be
+            // what the sender type is, and call invokeClass directly?
             case 'error':
-                actionError(action, sender);
+                actionError(action, sender?.getElement());
                 break;
 
             case 'theme':
@@ -688,7 +880,7 @@ function invokeActions(actions, sender) {
                 break;
 
             default:
-                PodeElementFactory.invokeClass(_type, _operation, action, sender, {
+                PodeElementFactory.invokeClass(_type, _operation, action, sender?.getElement(), {
                     type: _type,
                     subType: _subType
                 });
@@ -735,9 +927,7 @@ function bindPageHelp() {
     $('span.pode-page-help').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-
-        var url = $(e.target).attr('for');
-        sendAjaxReq(`${url}/help`, null, null, true);
+        sendAjaxReq(getPageUrl('help'), null, null, true);
     });
 }
 
@@ -799,7 +989,7 @@ function getQueryStringValue(name) {
 }
 
 function buildTableHeader(column, direction, hidden) {
-    var value = `<th sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
+    var value = `<th scope='col' sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
 
     if (column.Width) {
         value += `width:${column.Width};`;
@@ -878,7 +1068,7 @@ function actionTheme(action) {
             break;
 
         case 'reset':
-            resetTheme();
+            resetPodeTheme();
             break;
     }
 }
@@ -888,11 +1078,7 @@ function updateTheme(action) {
         return;
     }
 
-    setPodeTheme(action.Name, true);
-}
-
-function resetTheme() {
-    setPodeTheme('', true);
+    setPodeTheme(action.Name, action.IsInbuilt, action.Base, action.Url);
 }
 
 function decodeHTML(value) {
@@ -905,6 +1091,10 @@ function decodeHTML(value) {
 
 function encodeHTML(value) {
     return $('<div/>').text(value).html();
+}
+
+function encodeAttribute(value) {
+    return value.replace('&', '&amp;').replace('<', '&lt;').replace('"', '&quot;').replace("'", '&#39;');
 }
 
 function truncateArray(array, maxItems) {
@@ -939,7 +1129,7 @@ function searchArray(array, element, caseInsensitive) {
     }) !== undefined;
 }
 
-function getChartAxesColours(theme, canvas, min, max) {
+function getChartAxesColours(canvas, min, max) {
     var opts = {};
 
     // just hide ticks/legend for small tile charts
@@ -953,37 +1143,15 @@ function getChartAxesColours(theme, canvas, min, max) {
 
     // base opts on theme
     else {
-        switch (theme) {
-            case 'dark':
-                opts = {
-                    grid: {
-                        color: '#214981',
-                        zeroLineColor: '#214981'
-                    },
-                    ticks: { color: '#ccc' }
-                };
-                break;
-
-            case 'terminal':
-                opts = {
-                    grid: {
-                        color: 'darkgreen',
-                        zeroLineColor: 'darkgreen'
-                    },
-                    ticks: { color: '#33ff00' }
-                };
-                break;
-
-            default:
-                opts = {
-                    grid: {
-                        color: 'lightgrey',
-                        zeroLineColor: 'lightgrey'
-                    },
-                    ticks: { color: '#333' }
-                };
-                break;
-        }
+        opts = {
+            grid: {
+                color: getCssVariable('--podeweb-chart-grid-color'),
+                zeroLineColor: getCssVariable('--podeweb-chart-grid-color')
+            },
+            ticks: {
+                color: getCssVariable('--podeweb-chart-tick-color')
+            }
+        };
     }
 
     // add min/max
@@ -999,21 +1167,12 @@ function getChartAxesColours(theme, canvas, min, max) {
     return opts;
 }
 
-function getChartPieBorderColour(theme) {
-    switch (theme) {
-        case 'dark':
-            return '#214981';
-
-        case 'terminal':
-            return 'darkgreen';
-
-        default:
-            return '#222';
-    }
+function getChartPieBorderColour() {
+    return getCssVariable('--podeweb-chart-border-color');
 }
 
-function getChartColourPalette(theme, colours) {
-    // do the canvas have a defined set of colours?
+function getChartColourPalette(colours) {
+    // does the canvas have a defined set of colours?
     if (colours && colours.length > 0) {
         var converted = [];
         colours.forEach((c) => { converted.push(hexToRgb(c.trim())); });
@@ -1021,30 +1180,12 @@ function getChartColourPalette(theme, colours) {
     }
 
     // no colours, so use the defaults
-    var first = [
-        hexToRgb('#36a2eb'), // cornflower blue
-        hexToRgb('#ffb000')  // orange
-    ];
+    var themeColours = [];
+    getCssVariable('--podeweb-chart-point-color').split(',').forEach((c) => {
+        themeColours.push(hexToRgb(c.trim()));
+    });
 
-    if (theme == 'terminal') {
-        first = [hexToRgb('#ffb000'), hexToRgb('#36a2eb')]; // orange, blue
-    }
-
-    return first.concat([
-        hexToRgb('#ff6384'),    // red
-        hexToRgb('#ffcd56'),    // yellow
-        hexToRgb('#00a333'),    // green
-        hexToRgb('#9966ff'),    // purple
-        hexToRgb('#96b0c6'),    // grey
-        hexToRgb('#275c7b'),    // teal
-        hexToRgb('#665191'),    // purple
-        hexToRgb('#bc5090'),    // pink
-        hexToRgb('#f95d6a'),    // peach
-        hexToRgb('#488f31'),    // green
-        hexToRgb('#f1f1f1'),    // white
-        hexToRgb('#a9b450'),    // lime green
-        hexToRgb('#00d2ef')     // sky blue
-    ]);
+    return themeColours;
 }
 
 function hexToRgb(hex) {
@@ -1061,8 +1202,33 @@ function hexToRgb(hex) {
     return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, 1.0)`;
 }
 
+function getCssVariable(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name);
+}
+
+function getCssColorScheme(opposite) {
+    var scheme = getCssVariable('--podeweb-color-scheme');
+    if (!opposite) {
+        return scheme;
+    }
+
+    return (scheme == 'light' ? 'dark' : 'light');
+}
+
 function getTimeString() {
     return (new Date()).toLocaleTimeString().split(':').slice(0, 2).join(':');
+}
+
+function convertDateTimeString(value) {
+    if (!value || typeof value !== 'string') {
+        return value;
+    }
+
+    // find references to "/Date(...)/" and convert to datetime object
+    return value.replace(/\/Date\((\d+)\)\//g, function(match, timestamp) {
+        // return in YYYY-MM-DDTHH:mm:ss format - same as .NET's default JSON date format
+        return new Date(parseInt(timestamp)).toISOString().split('.')[0];
+    });
 }
 
 function actionHref(action) {
@@ -1208,15 +1374,15 @@ function refreshPage() {
     window.location.reload();
 }
 
-function actionError(action, sender) {
-    if (!action || !sender) {
+function actionError(action, element) {
+    if (!action || !element) {
         return;
     }
 
-    showError(action.Message, sender);
+    showError(action.Message, element);
 }
 
-function showError(message, sender, prepend) {
+function showError(message, element, prepend) {
     var error = `<div class="alert alert-danger pode-error mTop1" role="alert">
         <h6 class='pode-alert-header'>
             <span class="alert-circle"></span>
@@ -1229,10 +1395,10 @@ function showError(message, sender, prepend) {
     </div>`;
 
     if (prepend) {
-        sender.prepend(error);
+        element.prepend(error);
     }
     else {
-        sender.append(error);
+        element.append(error);
     }
 }
 
@@ -1240,20 +1406,34 @@ function getPageTitle() {
     return $('#pode-page-title h1').text().trim();
 }
 
-function invokeEvent(type, sender) {
-    sender = $(sender);
+function invokePageEvent(eventType, target) {
+    sendAjaxReq(getPageUrl(`events/${eventType}`), null, null, true);
+}
 
-    if (getTagName(sender) == null) {
-        var url = (window.location.pathname == '/' ? '/home' : window.location.pathname);
-        sendAjaxReq(`${url}/events/${type}`, null, sender, true);
-    }
-    else {
-        PodeElementFactory.triggerObject(sender.attr('pode-id'), type);
-    }
+function invokeServerEvent(evt, target, sender, eventType, opts) {
+    PodeElementFactory.triggerObject(target.attr('pode-id'), eventType, opts);
 }
 
 function generateUuid() {
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
+}
+
+function mergeObjects(obj1, obj2, excludeProps) {
+    for (var key in obj2) {
+        if (!(key in obj1) && (excludeProps == null || excludeProps.length == 0 || excludeProps.indexOf(key) == -1)) {
+            obj1[key] = obj2[key];
+        }
+    }
+
+    return obj1;
+}
+
+function encodeNewlines(text) {
+    if (!text) {
+        return '';
+    }
+
+    return text.replace(/\r?\n/g, "<br/>");
 }

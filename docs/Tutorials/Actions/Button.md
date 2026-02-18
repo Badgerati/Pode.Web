@@ -36,7 +36,7 @@ New-PodeWebCard -Content @(
 
 ## Disable
 
-To disable a enabled button on the page, you can use [`Disable-PodeWebButton`](../../../Functions/Actions/Disable-PodeWebButton):
+To disable an enabled button on the page, you can use [`Disable-PodeWebButton`](../../../Functions/Actions/Disable-PodeWebButton):
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -52,9 +52,9 @@ New-PodeWebCard -Content @(
 
 ## Update
 
-You can update a button's Icon, DisplayName, Colour, and Size using [`Update-PodeWebButton`](../../../Functions/Actions/Update-PodeWebButton).
+You can update a button's Icon, DisplayName, Colour, Url, Size, and various other properties using [`Update-PodeWebButton`](../../../Functions/Actions/Update-PodeWebButton).
 
-For example, just change a solid button to be yellow and outlined:
+For example, to change a solid button to be yellow and outlined:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -63,7 +63,7 @@ New-PodeWebCard -Content @(
     }
 
     New-PodeWebButton -Name 'Example' -ScriptBlock {
-        Update-PodeWebButton -Name 'Solid' -Colour Yellow -ColourState Outline
+        Update-PodeWebButton -Name 'Solid' -Colour Yellow -Outline
     }
 )
 ```
@@ -82,4 +82,4 @@ New-PodeWebCard -Content @(
 )
 ```
 
-The `-ColourState` and `-SizeState` have default values of `Unchanged`. They map to `-Outline` and `-FullWidth` of a button's switches, so they can be toggled in a stateful manner.
+Various other properties can be updated as well.

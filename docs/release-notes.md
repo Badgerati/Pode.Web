@@ -1,5 +1,82 @@
 # Release Notes
 
+## v1.0.0
+
+```plain
+### Features
+* #468: Add Button Groups element, and support for Buttons in Card headers
+* #551: Adds built-in support for handling sessions with Tab scope
+* #568: Add support for SSE and Async Updates
+* #571: Add support for logically grouping element together
+* #571: Adds Actions for Padding, Margin, and Display
+* #571: Adds new Span Element
+
+### Enhancements
+* #412: Added Update-PodeWebTextbox ReadOnly parameter (thanks @RobinBeismann!)
+* #455: Additional Actions for Accordions, Bellows, and Tabs
+* #455: Merge Layouts and Elements to be just Elements
+* #455: Migrate element rending to JavaScript
+* #458: Add Update-PodeWebRaw support
+* #459: Add support for initial Date/Time values on the DateTime element
+* #460: Add -Icon to New-PodeWebHeader
+* #462: Add -ScriptBlock and -Icon support for Home pages, plus -NoNavigation support for all Pages
+* #465: Add icon support to Update-PodeWebTile, and Update-PodeWebHeader
+* #467: Centralise class/styles, add custom attribute support, and enable hiding element on creation
+* #469: Add Update-PodeWebImage support
+* #478: Add actions for Icons, Toggle/Hover support, and -Icon parameter can now accept New-PodeWebIcon
+* #531: Adds functions to customise Groups
+* #531: Adds support for re-ordering of Pages in the sidebar
+* #531: Enable custom Paths for Pages, and Remove Home Page function
+* #547: Enables support to use scoped variables in Pages, Elements, etc.
+* #584: Adds Actions to allow Updating, Enabling, and Disabling Links
+* #585: Adds a new ClickName parameter for Buttons, to toggle the value rendered on clicking
+* #585: Adds Url, DataValue, Tab state, and ClickName to Update-PodeWebButton
+* #588: Adds new Sepia and Forest inbuilt themes
+* #588: Adds support for building custom themes directly using Pode.Web functions
+* #588: Renames Dark theme to Midnight, and replaces Dark theme with a new Dark theme
+* #590: Allow theme to be updated without needing to reload the page
+* #591: Adds support for customising which buttons are visible on Forms and Modals
+* #593: Adds -HideName for all input elements
+* #593: Adds Pre/Append Icon/Text for Select and Textarea
+
+### Bugs
+* #466: Throw and error if Use-PodeWebTemplates is called more than once
+* #481: Remove use of -NoNewLine, and fix JSON rendering
+* #528: Changed random name generation to use Get-Random rather than System.Random (thanks @Staples1887!)
+* #533: Fixes a bug where buttons could be double-clicked
+* #534: Set Ajax to have no timeout for long requests
+* #550: Update Pages.ps1 (thanks @Szeraax!)
+* #572: Fix encoding for Name, Placeholder, and Title when they contain certain special chars
+* #586: Fixes a bug preventing textboxes in Modals from working
+* #586: Fixes a bug preventing URL Buttons from working
+* #589: Fixes an issue with Bar and Pie chart heights not being respected
+
+### Documentation
+* #486: Update Accordion.md (thanks @fatherofinvention!)
+* #487: Update index.md (thanks @fatherofinvention!)
+* #488: Update Button.md (thanks @fatherofinvention!)
+* #490: Update Events.md (thanks @fatherofinvention!)
+* #500: fix: README.md example (thanks @Szeraax!)
+* #530: Update Image.md (thanks @Szeraax!)
+* #561: Fix typo in CommentBlock.md (thanks @KeithALane!)
+* #573: Add mike to mkdocs to support multiple doc versions
+
+### Dependencies
+* #515: Bump jquery from 3.6.3 to 3.7.1
+* #537: Bump moment from 2.29.4 to 2.30.1
+* #539: Bump @mdi/font from 7.1.96 to 7.4.47
+* #540: Bump @highlightjs/cdn-assets from 11.7.0 to 11.9.0
+* #574: Bump chart.js from 4.2.1 to 4.4.3
+* #576: Bump jquery-ui-dist from 1.13.2 to 1.13.3
+* #583: Bump Pode from v2.10.0 to v2.10.1
+* #587: Bump monaco-editor from 0.36.0 to 0.50.0
+* #592: Bumps Bootstrap from v4.6.2 to to v5.3.3
+* #592: Bumps PopperJS from v1.16.1 to v2.11.8
+
+### Packaging
+* #536: Adds vscode pwsh formatter, and updates src files
+```
+
 ## v0.8.3
 
 ```plain
@@ -127,7 +204,7 @@
 * #210: Add `Update-PodeWebCodeEditor` and `Clear-PodeWebCodeEditor` output actions
 * #211: Add `-ShowReset` switch on forms, to display an optional Reset button
 * #214: Add support for customising a form's method/action properties
-* #222: Add ruby pronuncation support to `New-PodeWebText`
+* #222: Add ruby pronunciation support to `New-PodeWebText`
 * #226: Textboxes, Charts, Images, and Table Columns now allow raw CSS values for Widths
 * #230: Add `-Type` parameter for DateTime, Credentials and MinMax elements
 * #235: Add `-Accept` parameter on FileUpload
@@ -181,7 +258,7 @@
 * #125: Add `-HideSidebar` switch to `Use-PodeWebTemplates`
 * #140: Add Clear output actions for Charts, Tables, and Textboxes
 * #147: Add support for Select elements to be more dynamic
-* #149: Allow for the Size of a multi-select element to be alterted
+* #149: Allow for the Size of a multi-select element to be altered
 * #151: Enable `Update-PodeWebTableRow` to be able to alter a row's background/text colour
 * #153: Add more colours for charts, and let them be customised
 * #154: Display pages in groups in alphabetical order
@@ -350,7 +427,7 @@ Important: This release contains vast breaking changes to v0.2.0 - Layouts and E
 * Multiple datasets on charts
 * Spinner, Comment Box, and Line elements
 * Monaco editor
-* Hero and Timer components 
+* Hero and Timer components
 ```
 
 ## v0.1.0

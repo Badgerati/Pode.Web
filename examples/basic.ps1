@@ -7,7 +7,7 @@ Start-PodeServer {
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
-    Use-PodeWebTemplates -Title 'Basic Example' -Theme Dark
+    Initialize-PodeWebTemplates -Title 'Basic Example' -Theme Dark
 
     # social
     Set-PodeWebSocial -Type GitHub -Url 'https://github.com/badgerati'
@@ -21,9 +21,9 @@ Start-PodeServer {
     Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $section -Title 'Awesome Homepage'
 
     # add a page to search process (output as json in an appended textbox)
-    $form = New-PodeWebForm -Name 'Search' -ShowReset -SubmitText 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
+    $form = New-PodeWebForm -Name 'Search' -ButtonType Submit, Reset -SubmitText 'Search' -ResetText 'Clear' -AsCard -ScriptBlock {
         $procs = @(Get-Process -Name $WebEvent.Data.Name -ErrorAction Ignore |
-            Select-Object Name, ID, WorkingSet, CPU)
+                Select-Object Name, ID, WorkingSet, CPU)
 
         $procs |
             New-PodeWebTextbox -Name 'Output' -Multiline -Preformat -AsJson -Size ((6 * $procs.Length) + 2) |

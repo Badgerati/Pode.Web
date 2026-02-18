@@ -1,6 +1,9 @@
-param (
+param(
     [string]
-    $Version = ''
+    $ReleaseNoteVersion,
+
+    [switch]
+    $SkipDockerPack
 )
 
 $dest_path = './src/Templates/Public'
@@ -12,8 +15,9 @@ $src_path = './pode_modules'
 #>
 
 $Versions = @{
-    MkDocs      = '1.5.3'
-    MkDocsTheme = '9.4.6'
+    MkDocs      = '1.6.1'
+    MkDocsTheme = '9.7.1'
+    Mike        = '2.1.3'
     PlatyPS     = '0.14.2'
 }
 
@@ -70,6 +74,33 @@ function Install-PodeBuildModule($name) {
     Install-Module -Name "$($name)" -Scope CurrentUser -RequiredVersion "$($Versions[$name])" -Force -SkipPublisherCheck
 }
 
+function Get-PodeBuildVersion {
+    return (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').ModuleVersion
+}
+
+function Get-PodeBuildPreRelease {
+    return (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').PrivateData.PSData.Prerelease
+}
+
+function Get-PodeBuildCurrentBranch {
+    $branch = git branch --show-current
+    if ([string]::IsNullOrWhiteSpace($branch)) {
+        $branch = git rev-parse --abbrev-ref HEAD
+    }
+
+    return $branch
+}
+
+function Test-PodeBuildDevBranch {
+    $branch = Get-PodeBuildCurrentBranch
+    return ($branch -ieq 'develop')
+}
+
+function Test-PodeBuildLiveBranch {
+    $branch = Get-PodeBuildCurrentBranch
+    return ($branch -ieq 'master')
+}
+
 
 <#
 # Dependencies
@@ -90,9 +121,15 @@ task DocsDeps ChocoDeps, {
         Invoke-PodeBuildInstall 'mkdocs' $Versions.MkDocs
     }
 
+    # install mkdocs-material theme
     $_installed = (pip list --format json --disable-pip-version-check | ConvertFrom-Json)
     if (($_installed | Where-Object { $_.name -ieq 'mkdocs-material' -and $_.version -ieq $Versions.MkDocsTheme } | Measure-Object).Count -eq 0) {
         pip install "mkdocs-material==$($Versions.MkDocsTheme)" --force-reinstall --disable-pip-version-check
+    }
+
+    # install mike
+    if (($_installed | Where-Object { $_.name -ieq 'mike' -and $_.version -ieq $Versions.Mike } | Measure-Object).Count -eq 0) {
+        pip install "mike==$($Versions.Mike)" --force-reinstall --disable-pip-version-check
     }
 
     # install platyps
@@ -121,39 +158,52 @@ task MoveLibs {
     # jquery
     New-Item -Path "$($libs_path)/jquery" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/jquery/dist/jquery.min.js" -Destination "$($libs_path)/jquery/" -Force
+    Copy-Item -Path "$($src_path)/jquery/LICENSE.txt" -Destination "$($libs_path)/jquery/" -Force
 
     # jquery-ui
     New-Item -Path "$($libs_path)/jquery-ui" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/jquery-ui-dist/jquery-ui.min.js" -Destination "$($libs_path)/jquery-ui/" -Force
     Copy-Item -Path "$($src_path)/jquery-ui-dist/jquery-ui.min.css" -Destination "$($libs_path)/jquery-ui/" -Force
+    Copy-Item -Path "$($src_path)/jquery-ui-dist/LICENSE.txt" -Destination "$($libs_path)/jquery-ui/" -Force
 
     # popper.js
     New-Item -Path "$($libs_path)/popperjs" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/popper.js/dist/umd/popper.min.js" -Destination "$($libs_path)/popperjs/" -Force
-    Copy-Item -Path "$($src_path)/popper.js/dist/umd/popper.min.js.map" -Destination "$($libs_path)/popperjs/" -Force
+    Copy-Item -Path "$($src_path)/@popperjs/core/dist/umd/popper.min.js" -Destination "$($libs_path)/popperjs/" -Force
+    Copy-Item -Path "$($src_path)/@popperjs/core/dist/umd/popper.min.js.map" -Destination "$($libs_path)/popperjs/" -Force
+    Copy-Item -Path "$($src_path)/@popperjs/core/LICENSE.md" -Destination "$($libs_path)/popperjs/" -Force
 
     # bootstrap
     New-Item -Path "$($libs_path)/bootstrap" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/bootstrap/dist/js/bootstrap.bundle.min.js*" -Destination "$($libs_path)/bootstrap/" -Force
     Copy-Item -Path "$($src_path)/bootstrap/dist/css/bootstrap.min.css*" -Destination "$($libs_path)/bootstrap/" -Force
+    Copy-Item -Path "$($src_path)/bootstrap/LICENSE" -Destination "$($libs_path)/bootstrap/" -Force
 
     # bs-stepper
     New-Item -Path "$($libs_path)/bs-stepper" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/bs-stepper/dist/js/bs-stepper.min.js*" -Destination "$($libs_path)/bs-stepper/" -Force
     Copy-Item -Path "$($src_path)/bs-stepper/dist/css/bs-stepper.min.css*" -Destination "$($libs_path)/bs-stepper/" -Force
+    Copy-Item -Path "$($src_path)/bs-stepper/LICENSE" -Destination "$($libs_path)/bs-stepper/" -Force
 
     # moment
     New-Item -Path "$($libs_path)/moment" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/moment/min/moment.min.js*" -Destination "$($libs_path)/moment/" -Force
+    Copy-Item -Path "$($src_path)/moment/LICENSE" -Destination "$($libs_path)/moment/" -Force
 
     # chart.js
     New-Item -Path "$($libs_path)/chartjs" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/chart.js/dist/chart.umd.js*" -Destination "$($libs_path)/chartjs/" -Force
+    Copy-Item -Path "$($src_path)/chart.js/LICENSE.md" -Destination "$($libs_path)/chartjs/" -Force
+
+    # kurkle (used by chart.js)
+    New-Item -Path "$($libs_path)/kurkle" -ItemType Directory -Force | Out-Null
+    Copy-Item -Path "$($src_path)/@kurkle/color/dist/color.min.js*" -Destination "$($libs_path)/kurkle/" -Force
+    Copy-Item -Path "$($src_path)/@kurkle/color/LICENSE.md" -Destination "$($libs_path)/kurkle/" -Force
 
     # mdi fonts - icons
     New-Item -Path "$($libs_path)/mdi-font/css" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/@mdi/font/css/materialdesignicons.min.css*" -Destination "$($libs_path)/mdi-font/css/" -Force
     Copy-Item -Path "$($src_path)/@mdi/font/css/materialdesignicons.css.map" -Destination "$($libs_path)/mdi-font/css/" -Force
+    Copy-Item -Path "$($src_path)/@mdi/font/LICENSE" -Destination "$($libs_path)/mdi-font/css/" -Force
 
     New-Item -Path "$($libs_path)/mdi-font/fonts" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/@mdi/font/fonts/materialdesignicons-webfont*" -Destination "$($libs_path)/mdi-font/fonts/" -Force
@@ -161,6 +211,7 @@ task MoveLibs {
     # highlight.js
     New-Item -Path "$($libs_path)/highlightjs" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/highlight.min.js" -Destination "$($libs_path)/highlightjs/" -Force
+    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/LICENSE" -Destination "$($libs_path)/highlightjs/" -Force
 
     New-Item -Path "$($libs_path)/highlightjs/languages" -ItemType Directory -Force | Out-Null
 
@@ -193,82 +244,12 @@ task MoveLibs {
     }
 
     New-Item -Path "$($libs_path)/highlightjs/styles" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/styles/tomorrow-night-blue.min.css" -Destination "$($libs_path)/highlightjs/styles/" -Force
-    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/styles/default.min.css" -Destination "$($libs_path)/highlightjs/styles/" -Force
+    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/styles/a11y-dark.min.css" -Destination "$($libs_path)/highlightjs/styles/" -Force
+    Copy-Item -Path "$($src_path)/@highlightjs/cdn-assets/styles/a11y-light.min.css" -Destination "$($libs_path)/highlightjs/styles/" -Force
 
     # monaco
     New-Item -Path "$($libs_path)/monaco" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($libs_path)/vs" -ItemType Directory -Force | Out-Null
-
-    New-Item -Path "$($libs_path)/monaco/editor" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($libs_path)/monaco/basic-languages" -ItemType Directory -Force | Out-Null
-
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/loader.js" -Destination "$($libs_path)/monaco/" -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/editor/*.*" -Destination "$($libs_path)/monaco/editor/" -Force
-
-    New-Item -Path "$($libs_path)/monaco/base/worker" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/worker/*.*" -Destination "$($libs_path)/monaco/base/worker/" -Force
-
-    New-Item -Path "$($libs_path)/monaco/base/browser/ui/codicons/codicon" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/browser/ui/codicons/codicon/*.*" -Destination "$($libs_path)/monaco/base/browser/ui/codicons/codicon/" -Force
-
-    $langs = @(
-        'bat',
-        'cpp',
-        'csharp',
-        'css',
-        'dockerfile',
-        'fsharp',
-        'go',
-        'html',
-        'java',
-        'javascript',
-        'markdown',
-        'mysql',
-        'php',
-        'powershell',
-        'python',
-        'ruby',
-        'sql',
-        'typescript',
-        'xml',
-        'yaml'
-    )
-
-    (Get-ChildItem -Path "$($src_path)/monaco-editor/min/vs/basic-languages" -Directory).Name | ForEach-Object {
-        if ($_ -iin $langs) {
-            New-Item -Path "$($libs_path)/monaco/basic-languages/$($_)/" -ItemType Directory -Force | Out-Null
-            Copy-Item -Path "$($src_path)/monaco-editor/min/vs/basic-languages/$($_)/*.*" -Destination "$($libs_path)/monaco/basic-languages/$($_)/" -Force
-        }
-    }
-
-    New-Item -Path "$($libs_path)/monaco/language" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($libs_path)/vs/language" -ItemType Directory -Force | Out-Null
-
-    (Get-ChildItem -Path "$($src_path)/monaco-editor/min/vs/language" -Directory).Name | ForEach-Object {
-        New-Item -Path "$($libs_path)/monaco/language/$($_)/" -ItemType Directory -Force | Out-Null
-        Copy-Item -Path "$($src_path)/monaco-editor/min/vs/language/$($_)/*.*" -Destination "$($libs_path)/monaco/language/$($_)/" -Force
-
-        New-Item -Path "$($libs_path)/vs/language/$($_)/" -ItemType Directory -Force | Out-Null
-        Copy-Item -Path "$($src_path)/monaco-editor/min/vs/language/$($_)/*.*" -Destination "$($libs_path)/vs/language/$($_)/" -Force
-    }
-
-    New-Item -Path "$($libs_path)/vs/base/common/worker" -ItemType Directory -Force | Out-Null
-    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.js" -Destination "$($libs_path)/vs/base/common/worker/" -Force
-
-    $vs_maps_path = "$($dest_path)/min-maps/vs"
-    if (Test-Path $vs_maps_path) {
-        Remove-Item -Path $vs_maps_path -Recurse -Force | Out-Null
-    }
-
-    New-Item -Path "$($vs_maps_path)/editor" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($vs_maps_path)/base/worker" -ItemType Directory -Force | Out-Null
-    New-Item -Path "$($vs_maps_path)/base/common/worker" -ItemType Directory -Force | Out-Null
-
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/loader.js.map" -Destination $vs_maps_path -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/editor/*.*" -Destination "$($vs_maps_path)/editor/" -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/base/worker/*.*" -Destination "$($vs_maps_path)/base/worker/" -Force
-    Copy-Item -Path "$($src_path)/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.js*" -Destination "$($vs_maps_path)/base/common/worker/" -Force
+    Copy-Item -Path "$($src_path)/monaco-editor/min/vs/*" -Destination "$($libs_path)/monaco/" -Force -Recurse
 }
 
 
@@ -277,27 +258,42 @@ task MoveLibs {
 #>
 
 # Synopsis: Package up the Module
-task Pack -If (Test-PodeBuildIsWindows) Build, {
-    if (!$Version) {
-        $Version = (Import-PowerShellDataFile -Path './src/Pode.Web.psd1').ModuleVersion
-    }
-}, DockerPack
+task Pack -If (Test-PodeBuildIsWindows) Build, PowershellPack, DockerPack
+
+# Synopsis: Package up the Module
+task PowershellPack {
+    $Name = 'Pode.Web'
+    Copy-Item './src' "./$($Name)" -Recurse -Force
+}
 
 # Synopsis: Create docker tags
 task DockerPack {
-    docker build -t badgerati/pode.web:$Version -f ./Dockerfile .
-    docker build -t badgerati/pode.web:latest -f ./Dockerfile .
-    docker build -t badgerati/pode.web:$Version-alpine -f ./alpine.dockerfile .
-    docker build -t badgerati/pode.web:latest-alpine -f ./alpine.dockerfile .
-    docker build -t badgerati/pode.web:$Version-arm32 -f ./arm32.dockerfile .
-    docker build -t badgerati/pode.web:latest-arm32 -f ./arm32.dockerfile .
+    if ($SkipDockerPack) {
+        Write-Host 'Skipping docker pack...' -ForegroundColor Yellow
+        return
+    }
 
-    docker tag badgerati/pode.web:latest docker.pkg.github.com/badgerati/pode.web/pode.web:latest
-    docker tag badgerati/pode.web:$Version docker.pkg.github.com/badgerati/pode.web/pode.web:$Version
-    docker tag badgerati/pode.web:latest-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:latest-alpine
-    docker tag badgerati/pode.web:$Version-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$Version-alpine
-    docker tag badgerati/pode.web:latest-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:latest-arm32
-    docker tag badgerati/pode.web:$Version-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$Version-arm32
+    $version = Get-PodeBuildVersion
+    $latest = 'latest'
+
+    if (Test-PodeBuildDevBranch) {
+        $version += "-$(Get-PodeBuildPreRelease)"
+        $latest = 'preview'
+    }
+
+    docker build -t badgerati/pode.web:$version -f ./Dockerfile .
+    docker build -t badgerati/pode.web:$latest -f ./Dockerfile .
+    docker build -t badgerati/pode.web:$version-alpine -f ./alpine.dockerfile .
+    docker build -t badgerati/pode.web:$latest-alpine -f ./alpine.dockerfile .
+    docker build -t badgerati/pode.web:$version-arm32 -f ./arm32.dockerfile .
+    docker build -t badgerati/pode.web:$latest-arm32 -f ./arm32.dockerfile .
+
+    docker tag badgerati/pode.web:$latest docker.pkg.github.com/badgerati/pode.web/pode.web:$latest
+    docker tag badgerati/pode.web:$version docker.pkg.github.com/badgerati/pode.web/pode.web:$version
+    docker tag badgerati/pode.web:$latest-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$latest-alpine
+    docker tag badgerati/pode.web:$version-alpine docker.pkg.github.com/badgerati/pode.web/pode.web:$version-alpine
+    docker tag badgerati/pode.web:$latest-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$latest-arm32
+    docker tag badgerati/pode.web:$version-arm32 docker.pkg.github.com/badgerati/pode.web/pode.web:$version-arm32
 }
 
 
@@ -305,10 +301,10 @@ task DockerPack {
 # Docs
 #>
 
-# Synopsis: Run the documentation locally
+# Synopsis: Build and run the documentation locally
 task Docs DocsDeps, DocsHelpBuild, {
     Write-Host 'Documentation available at 127:0.0.1:8000...' -ForegroundColor Yellow
-    mkdocs serve --quiet
+    mkdocs serve --quiet --open
 }
 
 # Synopsis: Build the function help documentation
@@ -320,6 +316,9 @@ task DocsHelpBuild DocsDeps, {
     # build the function docs
     $path = './docs/Functions'
     $map = @{}
+
+    Remove-Item -Path $path -Recurse -Force -ErrorAction Ignore | Out-Null
+    New-Item -Path $path -ItemType Directory -Force | Out-Null
 
     (Get-Module Pode.Web).ExportedFunctions.Keys | ForEach-Object {
         $type = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path -Leaf -Path (Get-Command $_ -Module Pode.Web).ScriptBlock.File))
@@ -336,11 +335,11 @@ task DocsHelpBuild DocsDeps, {
         $content = (Get-Content -Path $_.FullName | ForEach-Object {
                 $line = $_
 
-                while ($line -imatch '\[`(?<name>[a-z]+\-podeweb[a-z]+)`\](?<char>([^(]|$))') {
+                while ($line -imatch '(?<func>\[`(?<name>[a-z]+\-podeweb[a-z]+)`\])([^(])') {
                     $updated = $true
+                    $func = $Matches['func']
                     $name = $Matches['name']
-                    $char = $Matches['char']
-                    $line = ($line -ireplace "\[``$($name)``\]([^(]|$)", "[``$($name)``]($('../' * $depth)Functions/$($map[$name])/$($name))$($char)")
+                    $line = $line.Replace($func, "$($func)($('../' * $depth)Functions/$($map[$name])/$($name))")
                 }
 
                 $line
@@ -355,7 +354,148 @@ task DocsHelpBuild DocsDeps, {
     Remove-Module Pode.Web -Force -ErrorAction Ignore | Out-Null
 }
 
+# Synopsis: Deploy the documentation
+task DocsDeploy DocsDeps, DocsHelpBuild, {
+    $version = Get-PodeBuildVersion
+
+    if (!(Test-PodeBuildDevBranch) -and !(Test-PodeBuildLiveBranch)) {
+        Write-Host 'Skipping documentation deploy for non-master/dev branch...' -ForegroundColor Yellow
+        return
+    }
+
+    $alias = 'latest'
+    if (Test-PodeBuildDevBranch) {
+        $alias = 'dev'
+    }
+
+    git fetch origin gh-pages --depth=1
+    mike deploy --push --update-aliases $version $alias
+}
+
 # Synopsis: Build the documentation
 task DocsBuild DocsDeps, DocsHelpBuild, {
     mkdocs build --quiet
+}
+
+# Synopsis: Build the Release Notes
+task ReleaseNotes {
+    if ([string]::IsNullOrWhiteSpace($ReleaseNoteVersion)) {
+        Write-Host 'Please provide a ReleaseNoteVersion' -ForegroundColor Red
+        return
+    }
+
+    # get the PRs for the ReleaseNoteVersion
+    $prs = gh search prs --milestone $ReleaseNoteVersion --repo badgerati/pode.web --merged --limit 200 --json 'number,title,labels,author' | ConvertFrom-Json
+
+    # group PRs into categories, filtering out some internal PRs
+    $categories = [ordered]@{
+        Features      = @()
+        Enhancements  = @()
+        Bugs          = @()
+        Documentation = @()
+    }
+
+    $dependabot = @{}
+
+    foreach ($pr in $prs) {
+        $labels = @($pr.labels.name)
+        if ($labels -icontains 'superseded' -or
+            $labels -icontains 'new-release' -or
+            $labels -icontains 'internal-code :hammer:' -or
+            $labels -icontains 'exclude-from-release-notes') {
+            continue
+        }
+
+        $label = ($pr.labels[0].name -split ' ')[0]
+        if ([string]::IsNullOrWhiteSpace($label)) {
+            $label = 'misc'
+        }
+
+        switch ($label.ToLowerInvariant()) {
+            'feature' { $label = 'Features' }
+            'enhancement' { $label = 'Enhancements' }
+            'bug' { $label = 'Bugs' }
+        }
+
+        if (!$categories.Contains($label)) {
+            $categories[$label] = @()
+        }
+
+        if ($pr.author.login -ilike '*dependabot*') {
+            if ($pr.title -imatch 'Bump (?<name>\S+) from (?<from>[0-9\.]+) to (?<to>[0-9\.]+)') {
+                if (!$dependabot.ContainsKey($Matches['name'])) {
+                    $dependabot[$Matches['name']] = @{
+                        Name   = $Matches['name']
+                        Number = $pr.number
+                        From   = [version]$Matches['from']
+                        To     = [version]$Matches['to']
+                    }
+                }
+                else {
+                    $item = $dependabot[$Matches['name']]
+                    if ([int]$pr.number -gt [int]$item.Number) {
+                        $item.Number = $pr.number
+                    }
+                    if ([version]$Matches['from'] -lt $item.From) {
+                        $item.From = [version]$Matches['from']
+                    }
+                    if ([version]$Matches['to'] -gt $item.To) {
+                        $item.To = [version]$Matches['to']
+                    }
+                }
+
+                continue
+            }
+        }
+
+        $titles = @($pr.title)
+        if ($pr.title.Contains(';')) {
+            $titles = ($pr.title -split ';').Trim()
+        }
+
+        $author = $null
+        if (($pr.author.login -ine 'badgerati') -and ($pr.author.login -inotlike '*dependabot*')) {
+            $author = $pr.author.login
+        }
+
+        foreach ($title in $titles) {
+            $str = "* #$($pr.number): $($title)"
+            if (![string]::IsNullOrWhiteSpace($author)) {
+                $str += " (thanks @$($author)!)"
+            }
+
+            if ($str -imatch '\s+(docs|documentation)\s+') {
+                $categories['Documentation'] += $str
+            }
+            else {
+                $categories[$label] += $str
+            }
+        }
+    }
+
+    # add dependabot aggregated PRs
+    if ($dependabot.Count -gt 0) {
+        $label = 'dependencies'
+        if (!$categories.Contains($label)) {
+            $categories[$label] = @()
+        }
+
+        foreach ($dep in $dependabot.Values) {
+            $categories[$label] += "* #$($dep.Number): Bump $($dep.Name) from $($dep.From) to $($dep.To)"
+        }
+    }
+
+    # output the release notes
+    Write-Host "# v$($ReleaseNoteVersion)`n"
+
+    $culture = (Get-Culture).TextInfo
+    foreach ($category in $categories.Keys) {
+        if ($categories[$category].Length -eq 0) {
+            continue
+        }
+
+        Write-Host "### $($culture.ToTitleCase($category))"
+        $categories[$category] | Sort-Object | ForEach-Object { Write-Host $_ }
+        Write-Host ''
+    }
 }
