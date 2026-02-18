@@ -6,3 +6,14 @@ function Get-Noun {
 
     return "Ok = $V1"
 }
+
+function Get-CustomObject {
+    [CmdletBinding()]
+    param (
+        [String]$V1
+    )
+
+    return [PSCustomObject]@{
+        Ok = $V1
+    }
+}
