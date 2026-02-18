@@ -662,7 +662,7 @@ function Clear-PodeWebTextbox {
 function Show-PodeWebToast {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
         $Message,
 
@@ -680,17 +680,31 @@ function Show-PodeWebToast {
         $Icon = 'information'
     )
 
-    if ($Duration -le 0) {
-        $Duration = 3000
+    begin {
+        $items = @()
     }
 
-    Send-PodeWebAction -Value @{
-        Operation  = 'Show'
-        ObjectType = 'Toast'
-        Message    = [System.Net.WebUtility]::HtmlEncode($Message)
-        Title      = [System.Net.WebUtility]::HtmlEncode($Title)
-        Duration   = $Duration
-        Icon       = (Protect-PodeWebIconType -Icon $Icon -Element 'Toast')
+    process {
+        if (![string]::IsNullOrWhiteSpace($Message)) {
+            $items += $Message
+        }
+    }
+
+    end {
+        if ($Duration -le 0) {
+            $Duration = 3000
+        }
+
+        foreach ($msg in $items) {
+            Send-PodeWebAction -Value @{
+                Operation  = 'Show'
+                ObjectType = 'Toast'
+                Message    = [System.Net.WebUtility]::HtmlEncode($msg)
+                Title      = [System.Net.WebUtility]::HtmlEncode($Title)
+                Duration   = $Duration
+                Icon       = (Protect-PodeWebIconType -Icon $Icon -Element 'Toast')
+            }
+        }
     }
 }
 

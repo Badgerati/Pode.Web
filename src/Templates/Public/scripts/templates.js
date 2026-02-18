@@ -887,6 +887,14 @@ class PodeElement {
         element.off(evt);
     }
 
+    sanitize(value) {
+        if (FEATURES.ParseDateTime) {
+            value = convertDateTimeString(value);
+        }
+
+        return value;
+    }
+
     spinner(show) {
         if (!this.hasSpinner || (!show && this.loading)) {
             return;
@@ -3370,6 +3378,7 @@ class PodeTable extends PodeRefreshableElement {
                 break;
 
             default:
+                console.log(data);
                 this.updateTable(data, sender, opts);
                 break;
         }
@@ -3413,7 +3422,7 @@ class PodeTable extends PodeRefreshableElement {
                     elements.push(...(renderResult.elements));
                 }
                 else {
-                    html = rowData;
+                    html = this.sanitize(rowData);
                 }
 
                 row.find(`td[pode-column="${key}"]`).html(html);
@@ -3540,10 +3549,10 @@ class PodeTable extends PodeRefreshableElement {
                     });
                 }
                 else if (item[key] != null) {
-                    value += item[key];
+                    value += this.sanitize(item[key]);
                 }
                 else if (!item[key] && header.length > 0) {
-                    value += header.attr('default-value');
+                    value += this.sanitize(header.attr('default-value'));
                 }
 
                 value += `</td>`;
@@ -3794,7 +3803,11 @@ class PodeTextbox extends PodeFormElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.multiline = data.Multiline ?? false;
-        this.autoComplete = data.IsAutoComplete ?? false;
+        this.autoComplete = {
+            enabled: data.AutoComplete.Enabled ?? false,
+            type: data.AutoComplete.Type ?? 'once',
+            minLength: data.AutoComplete.MinLength ?? 1
+        }
     }
 
     new(data, sender, opts) {
@@ -3859,12 +3872,35 @@ class PodeTextbox extends PodeFormElement {
 
         var obj = this;
 
-        if (this.autoComplete) {
-            sendAjaxReq(`${this.url}/autocomplete`, null, null, false, null, null, {
-                customActionCallback: (res) => {
-                    obj.element.autocomplete({ source: res.Values });
-                }
-            });
+        // bind autocomplete handlers
+        if (this.autoComplete.enabled) {
+            switch (this.autoComplete.type) {
+                // load autocomplete options once, and cache on the element
+                case 'once':
+                    sendAjaxReq(`${this.url}/autocomplete`, null, null, false, null, null, {
+                        customActionCallback: (res) => {
+                            obj.element.autocomplete({
+                                source: convertToArray(res.Values),
+                                minLength: obj.autoComplete.minLength
+                            });
+                        }
+                    });
+                    break;
+
+                // load autocomplete options on every char press
+                case 'always':
+                    this.element.autocomplete({
+                        source: function(request, response) {
+                            sendAjaxReq(`${obj.url}/autocomplete`, `Value=${request.term}`, null, false, null, null, {
+                                customActionCallback: (res) => {
+                                    response(convertToArray(res.Values));
+                                }
+                            });
+                        },
+                        minLength: obj.autoComplete.minLength
+                    });
+                    break;
+            }
         }
     }
 

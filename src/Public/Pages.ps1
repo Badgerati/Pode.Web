@@ -153,6 +153,7 @@ function Set-PodeWebLoginPage {
         GrantType       = $grantType
         IsSystem        = $true
         ConnectionType  = (Get-PodeWebConnectionType)
+        Features        = (Get-PodeWebState -Name 'features')
     }
 
     # set auth system urls
@@ -427,6 +428,7 @@ function Add-PodeWebPage {
             Users  = @($AccessUsers)
         }
         ConnectionType   = (Get-PodeWebConnectionType)
+        Features         = (Get-PodeWebState -Name 'features')
     }
 
     # does the page need auth?

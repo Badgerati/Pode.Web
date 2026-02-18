@@ -12,6 +12,7 @@
         $(if ($data.Sessions.Enabled) { "pode-session-tabs='$($data.Sessions.Tabs)'" })
         $(if ($data.AppPath) { "pode-app-path='$($data.AppPath)'" })
         pode-conn-type="$($data.Page.ConnectionType)"
+        pode-parse-datetime="$($data.Page.Features.ParseDateTime)"
         $(ConvertTo-PodeWebEvents -Events $data.Page.Events)>
 
         $(

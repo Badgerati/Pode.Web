@@ -59,6 +59,16 @@ function New-PodeWebTextbox {
         [scriptblock]
         $AutoComplete,
 
+        [Parameter(ParameterSetName = 'Single')]
+        [ValidateSet('Once', 'Always')]
+        [string]
+        $AutoCompleteType = 'Once',
+
+        [Parameter(ParameterSetName = 'Single')]
+        [ValidateRange(1, [int]::MaxValue)]
+        [int]
+        $AutoCompleteMinLength = 1,
+
         [Parameter()]
         [string[]]
         $EndpointName,
@@ -143,7 +153,11 @@ function New-PodeWebTextbox {
             HelpText         = [System.Net.WebUtility]::HtmlEncode($HelpText)
             ReadOnly         = $ReadOnly.IsPresent
             Disabled         = $Disabled.IsPresent
-            IsAutoComplete   = ($null -ne $AutoComplete)
+            AutoComplete     = @{
+                Enabled   = ($null -ne $AutoComplete)
+                Type      = $AutoCompleteType.ToLowerInvariant()
+                MinLength = $AutoCompleteMinLength
+            }
             Value            = $items
             Prepend          = @{
                 Enabled = (![string]::IsNullOrWhiteSpace($PrependText) -or ![string]::IsNullOrWhiteSpace($PrependIcon))
