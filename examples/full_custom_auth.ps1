@@ -149,8 +149,8 @@ Start-PodeServer -StatusPageExceptions Show {
     )
 
     $section3 = New-PodeWebCard -Name 'Comments' -Icon 'comment' -Content @(
-        New-PodeWebComment -Icon '/pode.web-static/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
-        New-PodeWebComment -Icon '/pode.web-static/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
+        New-PodeWebComment -AvatarUrl '/pode.web-static/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum'
+        New-PodeWebComment -AvatarUrl '/pode.web-static/images/icon.png' -Username 'Badgerati' -Message 'Lorem ipsum' -TimeStamp ([datetime]::Now)
     )
 
     $codeEditor = New-PodeWebCodeEditor -Language PowerShell -Name 'Code Editor' -AsCard
