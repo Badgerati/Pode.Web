@@ -1440,6 +1440,7 @@ function New-PodeWebHeader {
 
     $Id = Get-PodeWebElementId -Tag Header -Id $Id
 
+    if ($null -eq $Icon) { $Icon = 'text' }
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -2123,6 +2124,7 @@ function New-PodeWebButton {
 
     $Id = Get-PodeWebElementId -Tag Btn -Id $Id -Name $Name
 
+    if ($null -eq $Icon) { $Icon = 'gesture-tap' }
     $element = @{
         Operation        = 'New'
         ComponentType    = 'Element'
@@ -3141,6 +3143,7 @@ function Initialize-PodeWebTableColumn {
         $Name = $Key
     }
 
+    if ($null -eq $Icon) { $Icon = 'table-column' }
     return @{
         Key       = $Key
         Width     = (ConvertTo-PodeWebSize -Value $Width -Default 'auto' -Type '%')
@@ -3233,6 +3236,7 @@ function Add-PodeWebTableButton {
         }
     }
 
+    if ($null -eq $Icon) { $Icon = 'table-cog' }
     $Table.Buttons += @{
         Name        = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
@@ -3664,6 +3668,7 @@ function New-PodeWebTile {
         $RefreshInterval = 60
     }
 
+    if ($null -eq $Icon) { $Icon = 'view-dashboard-outline' }
     $element = @{
         Operation        = 'New'
         ComponentType    = 'Element'
@@ -3830,6 +3835,7 @@ function New-PodeWebFileStream {
         $Interval = 10
     }
 
+    if ($null -eq $Icon) { $Icon = 'file-document-outline' }
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -4321,6 +4327,7 @@ function New-PodeWebTab {
         throw 'A Tab can only contain other elements'
     }
 
+    if ($null -eq $Icon) { $Icon = 'tab' }
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -4376,6 +4383,7 @@ function New-PodeWebCard {
         throw 'Card Buttons can only contain Buttons'
     }
 
+    if ($null -eq $Icon) { $Icon = 'card-text-outline' }
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -4549,6 +4557,7 @@ function New-PodeWebModal {
         $ButtonType = @('Close')
     }
 
+    if ($null -eq $Icon) { $Icon = 'application-outline' }
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -4828,6 +4837,7 @@ function New-PodeWebStep {
         }
     }
 
+    if ($null -eq $Icon) { $Icon = 'chevron-right-circle-outline' }
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -4987,6 +4997,7 @@ function New-PodeWebBellow {
         throw 'A Bellow can only contain other elements'
     }
 
+    if ($null -eq $Icon) { $Icon = 'chevron-down' }
     return @{
         Operation     = 'New'
         ComponentType = 'Element'

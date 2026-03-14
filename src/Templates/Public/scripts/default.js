@@ -1008,7 +1008,8 @@ function buildTableHeader(column, direction, hidden) {
     value += ">";
 
     if (column.Icon) {
-        value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight04'></span>`;
+        var iconName = typeof column.Icon === 'string' ? column.Icon : column.Icon.Name;
+        value += `<span class='mdi mdi-${iconName.toLowerCase()} mRight04'></span>`;
     }
 
     value += `${column.Name}</th>`;
