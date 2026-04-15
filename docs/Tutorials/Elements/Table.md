@@ -268,3 +268,78 @@ $table | Add-PodeWebTableButton -Name 'Excel' -Icon Database -ScriptBlock {
 
 New-PodeWebContainer -Content $table
 ```
+
+## MultiSelect
+
+You can allow multiple rows to be selected in a table by passing the `-MultiSelect` switch to [`New-PodeWebTable`](../../../Functions/Elements/New-PodeWebTable). This adds a checkbox column to each row.
+
+!!! important 
+	`-MultiSelect` requires `-DataColumn` to be set. The value of that column for each selected row is what gets passed to button scriptblocks as the selection.
+
+```powershell
+$table = New-PodeWebTable -Name 'Services' -DataColumn Name -MultiSelect -ScriptBlock {
+    foreach ($svc in (Get-Service)) {
+        [ordered]@{
+            Name      = $svc.Name
+            Status    = "$($svc.Status)"
+            StartType = "$($svc.StartType)"
+        }
+    }
+}
+
+New-PodeWebContainer -Content $table
+```
+
+### Acting on a Selection
+
+When combined with [`Add-PodeWebTableButton`](../../../Functions/Elements/Add-PodeWebTableButton), the `-DataColumn` values of all checked rows are available in the button's scriptblock via `$WebEvent.Data['Selection']` as a comma-separated string.
+
+```powershell
+$table = New-PodeWebTable -Name 'Services' -DataColumn Name -MultiSelect -ScriptBlock {
+    foreach ($svc in (Get-Service)) {
+        [ordered]@{
+            Name      = $svc.Name
+            Status    = "$($svc.Status)"
+            StartType = "$($svc.StartType)"
+        }
+    }
+}
+
+$table | Add-PodeWebTableButton -Name 'StopSelected' -DisplayName 'Stop Selected' -Icon 'Stop-Circle' -WithText -ScriptBlock {
+    $selected = $WebEvent.Data['Selection'] -split ','
+    if ($selected.Length -eq 0) {
+        Show-PodeWebToast -Message 'No services selected' -Title 'StopSelected'
+    }
+    else {
+        foreach ($svc in $selected) {
+            Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue
+        }
+        Show-PodeWebToast -Message "Stopped $($selected.Count) service(s)" -Title 'Done'
+        Sync-PodeWebTable -Name 'Services'
+    }
+}
+
+New-PodeWebContainer -Content $table
+```
+
+If you want to confirm the selection before acting on it, you can open a Modal from the button's scriptblock and pass the selected values through using [`Update-PodeWebTextbox`](../../../Functions/Actions/Update-PodeWebTextbox):
+
+```powershell
+$table | Add-PodeWebTableButton -Name 'StopSelected' -DisplayName 'Stop Selected' -Icon 'Stop-Circle' -WithText -ScriptBlock {
+    $selected = $WebEvent.Data['Selection'] -split ','
+    Show-PodeWebModal -Name 'ConfirmStop' -Actions @(
+        Update-PodeWebTextbox -Name 'SelectedServices' -Value ($selected -join "`n")
+    )
+}
+
+New-PodeWebModal -Name 'ConfirmStop' -DisplayName 'Stop Selected Services' -AsForm -Content @(
+    New-PodeWebTextbox -Name 'SelectedServices' -DisplayName 'Selected Services' -Multiline -ReadOnly
+) -ScriptBlock {
+    $names = ($WebEvent.Data['SelectedServices'] -split "`n") | Where-Object { ![string]::IsNullOrWhiteSpace($_) }
+    foreach ($svc in $names) {
+        Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue
+    }
+    Show-PodeWebToast -Message "Stopped $($names.Count) service(s)" -Title 'Done'
+    Hide-PodeWebModal
+}
+```

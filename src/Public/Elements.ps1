@@ -2916,6 +2916,9 @@ function New-PodeWebTable {
         $AutoRefresh,
 
         [switch]
+        $MultiSelect,
+
+        [switch]
         $AsCard
     )
 
@@ -2968,6 +2971,7 @@ function New-PodeWebTable {
             RefreshInterval  = ($RefreshInterval * 1000)
             NoRefresh        = $NoRefresh.IsPresent
             NoAuthentication = $NoAuthentication.IsPresent
+            MultiSelect      = $MultiSelect.IsPresent
             Paging           = @{
                 Enabled = $Paginate.IsPresent
                 Size    = $PageSize
