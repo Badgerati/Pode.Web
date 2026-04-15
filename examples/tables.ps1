@@ -107,7 +107,7 @@ Start-PodeServer -Threads 2 {
     ) -ScriptBlock {
         $ids = ($WebEvent.Data['SelectedProcesses'] -split "`n") | Where-Object { ![string]::IsNullOrWhiteSpace($_) }
         foreach ($id in $ids) {
-            Stop-Process -Id ([int]$id) -Force -ErrorAction SilentlyContinue
+            Stop-Process -Id ([int]$id) -Force -ErrorAction SilentlyContinue -WhatIf
         }
         Show-PodeWebToast -Message "Stopped $($ids.Count) process(es)" -Title 'Done' -Duration 3000
         Hide-PodeWebModal
