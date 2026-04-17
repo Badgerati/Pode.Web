@@ -4268,7 +4268,13 @@ function New-PodeWebTabs {
         $CycleInterval = 15,
 
         [switch]
-        $Cycle
+        $Cycle,
+
+        [Parameter()]
+        [ValidateSet('Horizontal', 'Vertical')]
+        [string]
+        $Direction = 'Horizontal'
+
     )
 
     if (!(Test-PodeWebContent -Content $Tabs -ComponentType Element -ObjectType Tab)) {
@@ -4289,6 +4295,7 @@ function New-PodeWebTabs {
             Enabled  = $Cycle.IsPresent
             Interval = ($CycleInterval * 1000)
         }
+        Direction     = $Direction
         NoEvents      = $true
     }
 }
