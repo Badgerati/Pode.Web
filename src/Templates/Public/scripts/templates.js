@@ -4505,14 +4505,19 @@ class PodeTabs extends PodeCyclingElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.content[0] = 'Tabs';
+        this.direction = (data.Direction ?? 'horizontal').toLowerCase();
     }
 
     new(data, sender, opts) {
+        var isVertical = this.direction === 'vertical';
+        var wrapClass = isVertical ? 'nav-tabs-vertical' : '';
+        var ulClass = isVertical ? 'nav' : 'nav nav-tabs';
         return `<div
             id="${this.id}"
+            class="${wrapClass}"
             pode-object="${this.getType()}"
             pode-id="${this.uuid}">
-                <ul class="nav nav-tabs" role="tablist"></ul>
+                <ul class="${ulClass}" role="tablist"></ul>
                 <div class='tab-content' pode-content-for='${this.uuid}' pode-content-order='0'></div>
         </div>`;
     }
