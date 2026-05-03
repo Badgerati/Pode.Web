@@ -9,11 +9,11 @@ Start-PodeServer -Browse {
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Modals Example' -Theme Dark
 
-    # home page with link togglging
+    # home page with link toggling
     Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Title 'Homepage' -ScriptBlock {
         # modal 1 - form
         New-PodeWebModal -Name 'Form Modal' -AsForm -Content @(
-            New-PodeWebTextbox -Name 'Name1' -Type Text
+            New-PodeWebTextbox -Name 'Name1' -Type Text -AutoComplete { return @('John', 'Jane', 'Jack', 'Jill', 'James', 'Judy', 'Jerry', 'Jasmine', 'Joan', 'Jacob', 'Julia', 'Jordan') }
             New-PodeWebTextbox -Name 'Comment1' -Multiline
         ) -ScriptBlock {
             Show-PodeWebToast -Title $WebEvent.Data.Name1 -Message $WebEvent.Data.Comment1
