@@ -26,7 +26,7 @@ on:
     - 'package.json'
 
 env:
-  INVOKE_BUILD_VERSION: '5.12.0'
+  INVOKE_BUILD_VERSION: '5.14.23'
 
 jobs:
   build:
