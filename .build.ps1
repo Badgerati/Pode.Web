@@ -402,7 +402,7 @@ task ReleaseNotes {
 
         # skip PRs with certain labels
         if ($labels -icontains 'superseded' -or
-            $labels -icontains 'new-release' -or
+            $labels -icontains 'new-release :package:' -or
             $labels -icontains 'internal-code :hammer:' -or
             $labels -icontains 'exclude-from-release-notes') {
             continue
@@ -451,7 +451,7 @@ task ReleaseNotes {
         # format the string for the PR, and add it to the relevant category/categories
         foreach ($title in $titles) {
             # handle package version bump PRs separately to aggregate them by package name, and get the from/to versions
-            if ($title -imatch 'Bump (?<name>\S+) from (?<from>[0-9\.]+) to (?<to>[0-9\.]+)') {
+            if ($title -imatch 'Bump (?<name>.+?) from (?<from>[0-9\.]+) to (?<to>[0-9\.]+)') {
                 # get the parts of the PR title
                 $pkgName = $Matches['name']
                 $fromStr = $Matches['from']

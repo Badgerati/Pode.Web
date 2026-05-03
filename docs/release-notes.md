@@ -1,6 +1,6 @@
 # Release Notes
 
-## v1.0.0
+## v1.0.0-preview3
 
 ```plain
 ### Features
@@ -38,6 +38,37 @@
 * #591: Adds support for customising which buttons are visible on Forms and Modals
 * #593: Adds -HideName for all input elements
 * #593: Adds Pre/Append Icon/Text for Select and Textarea
+* #631: Removes the Interval restriction on Timers, so values of 1+ seconds can be supplied
+* #632: New lines in Paragraph/Text Element values are now properly rendered
+* #684: Close SSE connections client-side when enabled
+* #684: Renames -ResponseType to -ConnectionType
+* #684: Set the default connection type to HTTP
+* #684: Use-PodeWebTemplates renamed to Initialize-PodeWebTemplates, alias for the former exists
+* #685: Added support for nesting page Groups
+* #685: Adds support for custom Group/Page ordering in the Sidebar
+* #685: Sidebar Group page counters are now hidden by default
+* #685: Sidebar line separators are now hidden, and can be toggled per Group/Page
+* #686: Add a QueryProperty parameter to Move-PodeWebPage to allow adding custom query string properties to URL
+* #687: Adds support for Update-PodeWebTextbox to clear the textbox by passing an empty string
+* #687: Adds Update/Clear Actions for Credential, DateTime, and MinMax elements
+* #687: Update parameters in Actions to move from "XState" to actual switch parameters
+* #689: Added custom "step" support for Range elements
+* #689: Added support for Events to trigger JavaScript functions
+* #689: Added Update and Step Actions for Range elements
+* #689: Enabled Events support for additional elements, including Buttons and File Upload
+* #689: Enabled support to supply multiple of the same event type for an element
+* #689: Fixed a bug with Range value textbox not triggering Change events
+* #690: Added additional parameters for importing custom JavaScript/CSS, such as Integrity, Async, etc.
+* #690: Added support to state where custom JavaScript files are imported - Head or Body
+* #692: Added -HelpText for Range, Checkbox, Radio, and Select elements
+* #692: Added a new Datalist element
+* #692: Separated Select options into their own Option and OptionGroup elements
+* #693: Added Actions for Radio elements, to align with Checkboxes
+* #693: Creation of Add, Remove, Select, Sync, Reset, and Clear Actions for Checkboxes
+* #693: Separated Checkbox/Radio options into their own Option elements
+* #695: Adds ability to exclude optional parameters in ConvertTo-PodeWebPage
+* #695: Adds further Grouping support to ConvertTo-PodeWebPage
+* #695: Adds support for displaying output from ConvertTo-PodeWebPage textbox as JSON
 
 ### Bugs
 * #466: Throw and error if Use-PodeWebTemplates is called more than once
@@ -50,6 +81,14 @@
 * #586: Fixes a bug preventing textboxes in Modals from working
 * #586: Fixes a bug preventing URL Buttons from working
 * #589: Fixes an issue with Bar and Pie chart heights not being respected
+* #607: Fix issue that the Step does not transition (thanks @mkht!)
+* #629: Fixes the scope for how styles and classes are added
+* #694: Adds support for Autocomplete to always refetch options for more dynamic option filtering
+* #694: Fixes a DateTime rendering issue in Windows PowerShell, where the date would show as "/Date(...)/"
+* #694: Fixes Autocomplete failing to display when 1 option is returned
+* #694: Fixes Autocomplete slow loading when many options returned - adding MinLength support
+* #697: 696 bug -Icon parameter needs renamed to -AvatarUrl in full_custom_auth.ps1 and full_iis.ps1 (thanks @andmigque!)
+* #703: Fixes Autocomplete dropdown appearing behind Modals
 
 ### Documentation
 * #486: Update Accordion.md (thanks @fatherofinvention!)
@@ -60,21 +99,29 @@
 * #530: Update Image.md (thanks @Szeraax!)
 * #561: Fix typo in CommentBlock.md (thanks @KeithALane!)
 * #573: Add mike to mkdocs to support multiple doc versions
-
-### Dependencies
-* #515: Bump jquery from 3.6.3 to 3.7.1
-* #537: Bump moment from 2.29.4 to 2.30.1
-* #539: Bump @mdi/font from 7.1.96 to 7.4.47
-* #540: Bump @highlightjs/cdn-assets from 11.7.0 to 11.9.0
-* #574: Bump chart.js from 4.2.1 to 4.4.3
-* #576: Bump jquery-ui-dist from 1.13.2 to 1.13.3
-* #583: Bump Pode from v2.10.0 to v2.10.1
-* #587: Bump monaco-editor from 0.36.0 to 0.50.0
-* #592: Bumps Bootstrap from v4.6.2 to to v5.3.3
-* #592: Bumps PopperJS from v1.16.1 to v2.11.8
+* #636: Spelling Fixes (thanks @ArieHein!)
+* #652: Update 1.0.0 migration docs to reference AutoImport functionality
 
 ### Packaging
+* #515: Bump jquery from 3.6.3 to 3.7.1
 * #536: Adds vscode pwsh formatter, and updates src files
+* #537: Bump moment from 2.29.4 to 2.30.1
+* #539: Bump @mdi/font from 7.1.96 to 7.4.47
+* #576: Bump jquery-ui-dist from 1.13.2 to 1.13.3
+* #592: Bump PopperJS from 1.16.1 to 2.11.8
+* #619: Enabling Docker tags for preview builds
+* #646: Bump @highlightjs/cdn-assets from 11.7.0 to 11.11.1
+* #653: Bump MkDocs from 1.6.0 to 1.6.1
+* #667: Bump @kurkle/color from 0.3.2 to 0.4.0
+* #676: Bump bootstrap from 4.6.2 to 5.3.8
+* #681: Bump chart.js from 4.2.1 to 4.5.1
+* #682: Bump monaco-editor from 0.36.0 to 0.55.1
+* #704: Bump InvokeBuild from 5.12.0 to 5.14.23
+* #704: Bump mike from 2.1.3 to 2.2.0
+* #704: Bump MkDocs Material from 9.5.23 to 9.7.6
+* #704: Bump Pode from 2.10.0 to 2.13.2
+* #705: Bump actions/checkout from 4.0.0 to 6.0.0
+* #706: Bump actions/add-to-project from 0.3.0 to 1.0.2
 ```
 
 ## v0.8.3
