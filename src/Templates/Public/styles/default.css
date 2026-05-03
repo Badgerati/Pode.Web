@@ -387,6 +387,7 @@ a.disabled {
     border-width: 2px;
     margin-top: -1px;
     border-radius: 5px;
+    z-index: 9999;
 }
 
 table .btn-icon-only {
