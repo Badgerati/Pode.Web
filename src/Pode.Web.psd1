@@ -20,7 +20,7 @@
     Author            = 'Matthew Kelly (Badgerati)'
 
     # Copyright statement for this module
-    Copyright         = 'Copyright (c) 2020-2025 Matthew Kelly (Badgerati), licensed under the MIT License.'
+    Copyright         = 'Copyright (c) 2020-2026 Matthew Kelly (Badgerati), licensed under the MIT License.'
 
     # Description of the functionality provided by this module
     Description       = 'Web template framework for the Pode PowerShell web server'
@@ -31,7 +31,7 @@
     RequiredModules   = @(
         @{
             ModuleName    = 'Pode'
-            ModuleVersion = '2.12.1'
+            ModuleVersion = '2.13.2'
             Guid          = 'e3ea217c-fc3d-406b-95d5-4304ab06c6af'
         }
     )

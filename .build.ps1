@@ -16,8 +16,8 @@ $src_path = './pode_modules'
 
 $Versions = @{
     MkDocs      = '1.6.1'
-    MkDocsTheme = '9.7.1'
-    Mike        = '2.1.3'
+    MkDocsTheme = '9.7.6'
+    Mike        = '2.2.0'
     PlatyPS     = '0.14.2'
 }
 
@@ -399,6 +399,8 @@ task ReleaseNotes {
 
     foreach ($pr in $prs) {
         $labels = @($pr.labels.name)
+
+        # skip PRs with certain labels
         if ($labels -icontains 'superseded' -or
             $labels -icontains 'new-release' -or
             $labels -icontains 'internal-code :hammer:' -or
@@ -406,7 +408,20 @@ task ReleaseNotes {
             continue
         }
 
-        $label = ($pr.labels[0].name -split ' ')[0]
+        # filter out labels that are not relevant
+        $label = @(foreach ($label in $labels) {
+                if ($label -imatch '^(story|priority)') {
+                    continue
+                }
+
+                if ($label -inotmatch '\s\:') {
+                    continue
+                }
+
+                ($label -split ' ', 2)[0]
+                break
+            })[0]
+
         if ([string]::IsNullOrWhiteSpace($label)) {
             $label = 'misc'
         }
@@ -421,47 +436,75 @@ task ReleaseNotes {
             $categories[$label] = @()
         }
 
-        if ($pr.author.login -ilike '*dependabot*') {
-            if ($pr.title -imatch 'Bump (?<name>\S+) from (?<from>[0-9\.]+) to (?<to>[0-9\.]+)') {
-                if (!$dependabot.ContainsKey($Matches['name'])) {
-                    $dependabot[$Matches['name']] = @{
-                        Name   = $Matches['name']
+        # split titles on ; to handle multiple changes in one PR
+        $titles = @($pr.title).Trim()
+        if ($pr.title.Contains(';')) {
+            $titles = ($pr.title -split ';').Trim()
+        }
+
+        # only include the author if it's not badgerati or dependabot
+        $author = $null
+        if (($pr.author.login -ine 'badgerati') -and ($pr.author.login -inotlike '*dependabot*')) {
+            $author = "@$($pr.author.login)"
+        }
+
+        # format the string for the PR, and add it to the relevant category/categories
+        foreach ($title in $titles) {
+            # handle package version bump PRs separately to aggregate them by package name, and get the from/to versions
+            if ($title -imatch 'Bump (?<name>\S+) from (?<from>[0-9\.]+) to (?<to>[0-9\.]+)') {
+                # get the parts of the PR title
+                $pkgName = $Matches['name']
+                $fromStr = $Matches['from']
+                $toStr = $Matches['to']
+
+                # ensure 'from' version has 3 parts
+                if ($fromStr -imatch '^\d+$') {
+                    $fromStr += '.0.0'
+                }
+                $from = [version]$fromStr
+
+                # ensure 'to' version has 3 parts
+                if ($toStr -imatch '^\d+$') {
+                    $toStr += '.0.0'
+                }
+                $to = [version]$toStr
+
+                if (!$dependabot.ContainsKey($pkgName)) {
+                    $dependabot[$pkgName] = @{
+                        Name   = $pkgName
                         Number = $pr.number
-                        From   = [version]$Matches['from']
-                        To     = [version]$Matches['to']
+                        From   = $from
+                        To     = $to
+                        Author = @()
+                    }
+
+                    if ($author) {
+                        $dependabot[$pkgName].Author += $author
                     }
                 }
                 else {
-                    $item = $dependabot[$Matches['name']]
+                    $item = $dependabot[$pkgName]
                     if ([int]$pr.number -gt [int]$item.Number) {
                         $item.Number = $pr.number
                     }
-                    if ([version]$Matches['from'] -lt $item.From) {
-                        $item.From = [version]$Matches['from']
+                    if ($from -lt $item.From) {
+                        $item.From = $from
                     }
-                    if ([version]$Matches['to'] -gt $item.To) {
-                        $item.To = [version]$Matches['to']
+                    if ($to -gt $item.To) {
+                        $item.To = $to
+                    }
+                    if ($author -and ($author -notin $item.Author)) {
+                        $item.Author += $author
                     }
                 }
 
                 continue
             }
-        }
 
-        $titles = @($pr.title)
-        if ($pr.title.Contains(';')) {
-            $titles = ($pr.title -split ';').Trim()
-        }
-
-        $author = $null
-        if (($pr.author.login -ine 'badgerati') -and ($pr.author.login -inotlike '*dependabot*')) {
-            $author = $pr.author.login
-        }
-
-        foreach ($title in $titles) {
-            $str = "* #$($pr.number): $($title)"
+            # handle normal PRs
+            $str = "* #$($pr.number): $($title -replace '`', "'")"
             if (![string]::IsNullOrWhiteSpace($author)) {
-                $str += " (thanks @$($author)!)"
+                $str += " (thanks $author!)"
             }
 
             if ($str -imatch '\s+(docs|documentation)\s+') {
@@ -475,13 +518,17 @@ task ReleaseNotes {
 
     # add dependabot aggregated PRs
     if ($dependabot.Count -gt 0) {
-        $label = 'dependencies'
+        $label = 'Packaging'
         if (!$categories.Contains($label)) {
             $categories[$label] = @()
         }
 
         foreach ($dep in $dependabot.Values) {
-            $categories[$label] += "* #$($dep.Number): Bump $($dep.Name) from $($dep.From) to $($dep.To)"
+            $str = "* #$($dep.Number): Bump $($dep.Name) from $($dep.From) to $($dep.To)"
+            if ($dep.Author.Count -gt 0) {
+                $str += " (thanks $($dep.Author -join ', ')!)"
+            }
+            $categories[$label] += $str
         }
     }
 
