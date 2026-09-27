@@ -322,10 +322,11 @@ function Test-PodeWebColour {
 function Test-PodeWebArrayEmpty {
     param(
         [Parameter()]
+        [array]
         $Array
     )
 
-    return (($null -eq $Array) -or (@($Array).Length -eq 0))
+    return (($null -eq $Array) -or ($Array.Length -eq 0))
 }
 
 function Test-PodeWebPageAccess {
@@ -446,7 +447,7 @@ function Set-PodeWebState {
         $Value
     )
 
-    Set-PodeState -Name "pode.web.$($Name)" -Value $Value -Scope 'pode.web' | Out-Null
+    $null = Set-PodeState -Name "pode.web.$($Name)" -Value $Value -Scope 'pode.web'
 }
 
 function Get-PodeWebState {
@@ -957,7 +958,7 @@ function ConvertTo-PodeWebEvents {
     }
 
     foreach ($evt in $Events) {
-        $js_events += " on$($evt)=`"invokeEvent('$($evt)', this);`""
+        $js_events += " on$($evt)=`"invokePageEvent('$($evt)', this);`""
     }
 
     return $js_events

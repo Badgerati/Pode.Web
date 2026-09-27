@@ -149,3 +149,5 @@ Initialize-PodeWebTemplates -Title 'Example' -Theme Dark -HideSidebar
 ## Custom Scripts/Styles
 
 You can reference custom JavaScript and CSS files to use via [`Import-PodeWebJavaScript`](../../Functions/Utilities/Import-PodeWebJavaScript) and [`Import-PodeWebStylesheet`](../../Functions/Utilities/Import-PodeWebStylesheet). Both take a relative/literal `-Url` to the file.
+
+For each, you can also supply additional parameters to help define how the JavaScript or CSS file should be retrieved, such as: async; crossorigin; integrity; etc.

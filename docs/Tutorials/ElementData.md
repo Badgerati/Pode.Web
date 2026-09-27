@@ -12,7 +12,7 @@ New-PodeWebSelect -Name 'Random' -ScriptBlock {
         Get-Random -Minimum 1 -Maximum 10
     })
 
-    $options | Update-PodeWebSelect -Id $ElementData.Id
+    $options | ConvertTo-PodeWebOption | Update-PodeWebSelect -Id $ElementData.Id
 }
 ```
 

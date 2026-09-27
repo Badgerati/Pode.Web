@@ -1,8 +1,8 @@
 # Code
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | Yes |
 
 The code element will render pre-formatted text as `<code>value</code>`. To create a code element you use [`New-PodeWebCode`](../../../Functions/Elements/New-PodeWebCode):
 

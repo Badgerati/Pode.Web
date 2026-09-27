@@ -1,5 +1,5 @@
 function Register-PodeWebElementEventInternal {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'ScriptBlock')]
     param(
         [Parameter(Mandatory = $true)]
         [ValidateNotNull()]
@@ -10,11 +10,15 @@ function Register-PodeWebElementEventInternal {
         [string]
         $Type,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ScriptBlock')]
         [scriptblock]
         $ScriptBlock,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true, ParameterSetName = 'JSFunction')]
+        [string]
+        $JSFunction,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
         [object[]]
         $ArgumentList,
 
@@ -22,11 +26,13 @@ function Register-PodeWebElementEventInternal {
         [System.Management.Automation.SessionState]
         $PSSession,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication
     )
+
+    $Type = $Type.ToLowerInvariant()
 
     # does element support events?
     if ($Element.NoEvents -or ($Element.ComponentType -ine 'element')) {
@@ -38,51 +44,61 @@ function Register-PodeWebElementEventInternal {
         $Element.Events = @()
     }
 
-    # ensure not already defined
-    if ($Element.Events -icontains $Type) {
-        throw "$($Element.ObjectType) $($Element.ComponentType) with ID '$($Element.ID)' already has the $($Type) event defined"
+    # add event type
+    $eventObj = @{
+        Type         = $Type
+        ID           = $Element.Events.Length + 1
+        IsClientSide = $PSCmdlet.ParameterSetName -ieq 'JSFunction'
     }
 
-    # add event type
-    $Element.Events += $Type.ToLowerInvariant()
+    # setup params for client-side events
+    if ($eventObj.IsClientSide) {
+        $eventObj.JSFunction = $JSFunction
+    }
 
-    # setup the route
-    $routePath = "/pode.web-dynamic/elements/$($Element.ObjectType.ToLowerInvariant())/$($Element.ID)/events/$($Type.ToLowerInvariant())"
-    if (!(Test-PodeWebRoute -Path $routePath)) {
-        # check for scoped vars
-        $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSSession
-        $eventLogic = @{
-            ScriptBlock    = $ScriptBlock
-            UsingVariables = $usingVars
-        }
+    # setup the route for server-side events
+    if (!$eventObj.IsClientSide) {
+        $routePath = "/pode.web-dynamic/elements/$($Element.ObjectType.ToLowerInvariant())/$($Element.ID)/events/$($Type.ToLowerInvariant())/$($eventObj.ID)"
 
-        $auth = $null
-        if (!$NoAuthentication -and !$Element.NoAuthentication -and !$PageData.NoAuthentication) {
-            $auth = (Get-PodeWebState -Name 'auth')
-        }
-
-        $argList = @(
-            @{ Data = $ArgumentList },
-            $Element,
-            $Type,
-            $eventLogic
-        )
-
-        Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $Element.EndpointName -ScriptBlock {
-            param($Data, $Element, $Type, $Logic)
-            $global:ElementData = $Element
-            $global:EventType = $Type
-            Set-PodeWebMetadata
-
-            $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
-
-            if (($null -ne $result) -and !$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
-                Write-PodeJsonResponse -Value $result
+        if (!(Test-PodeWebRoute -Path $routePath)) {
+            # check for scoped vars
+            $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSSession
+            $eventLogic = @{
+                ScriptBlock    = $ScriptBlock
+                UsingVariables = $usingVars
             }
 
-            $global:ElementData = $null
+            $auth = $null
+            if (!$NoAuthentication -and !$Element.NoAuthentication -and !$PageData.NoAuthentication) {
+                $auth = (Get-PodeWebState -Name 'auth')
+            }
+
+            $argList = @(
+                @{ Data = $ArgumentList },
+                $Element,
+                $Type,
+                $eventLogic
+            )
+
+            Add-PodeRoute -Method Post -Path $routePath -Authentication $auth -ArgumentList $argList -EndpointName $Element.EndpointName -ScriptBlock {
+                param($Data, $Element, $Type, $Logic)
+                $global:ElementData = $Element
+                $global:EventType = $Type
+                Set-PodeWebMetadata
+
+                $result = Invoke-PodeWebScriptBlock -Logic $Logic -Arguments $Data.Data
+
+                if (($null -ne $result) -and !$WebEvent.Response.Headers.ContainsKey('Content-Disposition')) {
+                    Write-PodeJsonResponse -Value $result
+                }
+
+                $global:ElementData = $null
+            }
         }
     }
+
+    # add event to element
+    $Element.Events += $eventObj
 }
 
 function Register-PodeWebPageEventInternal {

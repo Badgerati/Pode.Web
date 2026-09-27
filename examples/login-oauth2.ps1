@@ -4,7 +4,7 @@ Import-Module ..\src\Pode.Web.psm1 -Force
 Start-PodeServer -Threads 2 {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging -Levels Error
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging -Levels Error
 
     # enable sessions and authentication
     Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend

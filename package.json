@@ -12,9 +12,9 @@
     "bs-stepper": "1.7.0",
     "@mdi/font": "7.4.47",
     "chart.js": "4.5.1",
-    "@kurkle/color": "0.4.0",
-    "@highlightjs/cdn-assets": "11.11.1",
-    "monaco-editor": "0.55.1",
-    "moment": "2.30.1"
+    "@kurkle/color": "0.6.4",
+    "@highlightjs/cdn-assets": "11.12.0",
+    "monaco-editor": "0.56.0",
+    "moment": "2.31.0"
   }
 }

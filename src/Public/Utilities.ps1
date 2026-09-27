@@ -92,6 +92,11 @@ function Initialize-PodeWebTemplates {
     Set-PodeWebState -Name 'custom-js' -Value @()
     Set-PodeWebState -Name 'conn-type' -Value $ConnectionType.ToLowerInvariant()
 
+    # setup default features for frontend parsing
+    Set-PodeWebState -Name 'features' -Value @{
+        ParseDateTime = !(Test-PodeIsPSCore)
+    }
+
     # themes
     Set-PodeWebState -Name 'theme' -Value $Theme.ToLowerInvariant()
     Set-PodeWebState -Name 'custom-themes' -Value @{
@@ -144,10 +149,44 @@ function Import-PodeWebStylesheet {
     param(
         [Parameter(Mandatory = $true)]
         [string]
-        $Url
+        $Url,
+
+        [Parameter()]
+        [ValidateSet('Render')]
+        [string[]]
+        $Blocking,
+
+        [Parameter()]
+        [ValidateSet('Anonymous', 'Use-Credentials')]
+        [string]
+        $CrossOrigin,
+
+        [Parameter()]
+        [ValidateSet('Auto', 'High', 'Low')]
+        [string]
+        $FetchPriority = 'Auto',
+
+        [Parameter()]
+        [ValidateSet('No-Referrer', 'No-Referrer-When-Downgrade', 'Origin', 'Origin-When-Cross-Origin', 'Unsafe-URL')]
+        [string]
+        $ReferrerPolicy,
+
+        [Parameter()]
+        [string]
+        $Integrity
     )
 
-    Set-PodeWebState -Name 'custom-css' -Value  (@(Get-PodeWebState -Name 'custom-css') + (Add-PodeWebAppPath -Url $Url))
+    # build stylesheet entry and add to state
+    $value = @{
+        Url            = (Add-PodeWebAppPath -Url $Url)
+        Blocking       = "$($Blocking)".ToLowerInvariant()
+        CrossOrigin    = "$($CrossOrigin)".ToLowerInvariant()
+        FetchPriority  = "$($FetchPriority)".ToLowerInvariant()
+        ReferrerPolicy = "$($ReferrerPolicy)".ToLowerInvariant()
+        Integrity      = $Integrity
+    }
+
+    Set-PodeWebState -Name 'custom-css' -Value  (@(Get-PodeWebState -Name 'custom-css') + $value)
 }
 
 function Import-PodeWebJavaScript {
@@ -155,10 +194,64 @@ function Import-PodeWebJavaScript {
     param(
         [Parameter(Mandatory = $true)]
         [string]
-        $Url
+        $Url,
+
+        [Parameter()]
+        [ValidateSet('Head', 'Body')]
+        [string]
+        $Location = 'Body',
+
+        [Parameter()]
+        [ValidateSet('Render')]
+        [string[]]
+        $Blocking,
+
+        [Parameter()]
+        [ValidateSet('Anonymous', 'Use-Credentials')]
+        [string]
+        $CrossOrigin,
+
+        [Parameter()]
+        [ValidateSet('Auto', 'High', 'Low')]
+        [string]
+        $FetchPriority = 'Auto',
+
+        [Parameter()]
+        [ValidateSet('No-Referrer', 'No-Referrer-When-Downgrade', 'Origin', 'Origin-When-Cross-Origin', 'Same-Origin', 'Strict-Origin', 'Strict-Origin-When-Cross-Origin', 'Unsafe-URL')]
+        [string]
+        $ReferrerPolicy,
+
+        [Parameter()]
+        [string]
+        $Integrity,
+
+        [switch]
+        $Async,
+
+        [switch]
+        $Defer
     )
 
-    Set-PodeWebState -Name 'custom-js' -Value  (@(Get-PodeWebState -Name 'custom-js') + (Add-PodeWebAppPath -Url $Url))
+    # ensure not blocking in body
+    if (($Blocking -icontains 'Render') -and ($Location -ieq 'Body')) {
+        throw "When using 'Render' blocking, the location must be 'Head' for JavaScript imports."
+    }
+
+    # build javascript entry
+    $value = @{
+        Url            = (Add-PodeWebAppPath -Url $Url)
+        Location       = $Location
+        Blocking       = "$($Blocking)".ToLowerInvariant()
+        CrossOrigin    = "$($CrossOrigin)".ToLowerInvariant()
+        FetchPriority  = "$($FetchPriority)".ToLowerInvariant()
+        ReferrerPolicy = "$($ReferrerPolicy)".ToLowerInvariant()
+        Integrity      = $Integrity
+        Async          = $Async.IsPresent
+        Defer          = $Defer.IsPresent
+    }
+
+    # add to state
+    Set-PodeWebState -Name 'custom-js' -Value  (@(Get-PodeWebState -Name 'custom-js') + $value)
 }
 
 function Set-PodeWebSocial {

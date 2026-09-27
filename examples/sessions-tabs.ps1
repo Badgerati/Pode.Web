@@ -5,7 +5,7 @@ Import-Module ..\src\Pode.Web.psd1 -Force
 Start-PodeServer -StatusPageExceptions Show {
     # add a simple endpoint
     Add-PodeEndpoint -Address * -Port 8090 -Protocol Http
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging
 
 
     # enable sessions and authentication

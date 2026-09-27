@@ -4,7 +4,7 @@ Import-Module ..\src\Pode.Web.psm1 -Force
 Start-PodeServer -Threads 2 {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Input Events' -Theme Dark
@@ -13,7 +13,9 @@ Start-PodeServer -Threads 2 {
     # select event
     $select = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Please select a value: '
-        New-PodeWebSelect -Name 'Bellows' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebSelect -Name 'Bellows' -Options @(
+            @('Bellow 1', 'Bellow 2', 'Bellow 3') | ConvertTo-PodeWebOption
+        ) |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Open-PodeWebBellow -Name $WebEvent.Data['Bellows']
             }
@@ -43,7 +45,7 @@ Start-PodeServer -Threads 2 {
                     Sort-Object -Property CPU -Descending |
                     Select-Object -First 15 -Property Name, ID, WorkingSet, CPU |
                     Update-PodeWebTable -Name 'Processes'
-            }
+                }
         New-PodeWebLine
         New-PodeWebTable -Name 'Processes'
     )
@@ -68,7 +70,9 @@ Start-PodeServer -Threads 2 {
     # radio event
     $radio = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Select options: '
-        New-PodeWebRadio -Name 'Options' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebRadio -Name 'Options' -Options @(
+            'Bellow 1', 'Bellow 2', 'Bellow 3' | ConvertTo-PodeWebOption
+        ) |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Open-PodeWebBellow -Name $WebEvent.Data['Options']
             }
@@ -92,7 +96,9 @@ Start-PodeServer -Threads 2 {
     # checkbox event
     $checkbox = New-PodeWebContainer -Content @(
         New-PodeWebText -Value 'Select options: '
-        New-PodeWebCheckbox -Name 'Options' -Options 'Bellow 1', 'Bellow 2', 'Bellow 3' |
+        New-PodeWebCheckbox -Name 'Options' -Options @(
+            'Bellow 1', 'Bellow 2', 'Bellow 3' | ConvertTo-PodeWebOption
+        ) |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 if (!$WebEvent.Data['Options']) {
                     Close-PodeWebAccordion -Name 'Accordion3'

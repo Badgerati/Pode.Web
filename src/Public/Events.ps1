@@ -1,5 +1,5 @@
 function Register-PodeWebEvent {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'ScriptBlock')]
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
@@ -11,35 +11,57 @@ function Register-PodeWebEvent {
         [string[]]
         $Type,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ScriptBlock')]
         [scriptblock]
         $ScriptBlock,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true, ParameterSetName = 'JSFunction')]
+        [string]
+        $JSFunction,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
         [object[]]
         $ArgumentList,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication
     )
 
+    # ensure component is and Element
+    if (!(Test-PodeWebContent -Content $Element -ComponentType Element)) {
+        throw "General events can only be registered on Elements, '$($Element.ComponentType)' given"
+    }
+
+    # params for internal call
+    $params = @{
+        Element   = $Element
+        PSSession = $PSCmdlet.SessionState
+    }
+
+    switch ($PSCmdlet.ParameterSetName) {
+        'ScriptBlock' {
+            $params.ScriptBlock = $ScriptBlock
+            $params.ArgumentList = $ArgumentList
+            $params.NoAuthentication = $NoAuthentication.IsPresent
+        }
+        'JSFunction' {
+            $params.JSFunction = $JSFunction
+        }
+    }
+
+    # register event
     foreach ($t in $Type) {
-        Register-PodeWebElementEventInternal `
-            -Element $Element `
-            -Type $t `
-            -ScriptBlock $ScriptBlock `
-            -ArgumentList $ArgumentList `
-            -PSSession $PSCmdlet.SessionState `
-            -NoAuthentication:$NoAuthentication | Out-Null
+        $params.Type = $t
+        $null = Register-PodeWebElementEventInternal @params
     }
 
     return $Element
 }
 
 function Register-PodeWebMediaEvent {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'ScriptBlock')]
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
@@ -51,15 +73,19 @@ function Register-PodeWebMediaEvent {
         [string[]]
         $Type,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ScriptBlock')]
         [scriptblock]
         $ScriptBlock,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true, ParameterSetName = 'JSFunction')]
+        [string]
+        $JSFunction,
+
+        [Parameter(ParameterSetName = 'ScriptBlock')]
         [object[]]
         $ArgumentList,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication
@@ -67,18 +93,30 @@ function Register-PodeWebMediaEvent {
 
     # ensure component is Audio or Video only
     if (!(Test-PodeWebContent -Content $Element -ComponentType Element -ObjectType Audio, Video)) {
-        throw 'Media events can only be registered on Audio/Video elements'
+        throw "Media events can only be registered on Audio/Video elements, '$($Element.ObjectType)' given"
+    }
+
+    # params for internal call
+    $params = @{
+        Element   = $Element
+        PSSession = $PSCmdlet.SessionState
+    }
+
+    switch ($PSCmdlet.ParameterSetName) {
+        'ScriptBlock' {
+            $params.ScriptBlock = $ScriptBlock
+            $params.ArgumentList = $ArgumentList
+            $params.NoAuthentication = $NoAuthentication.IsPresent
+        }
+        'JSFunction' {
+            $params.JSFunction = $JSFunction
+        }
     }
 
     # register event
     foreach ($t in $Type) {
-        Register-PodeWebElementEventInternal `
-            -Element $Element `
-            -Type $t `
-            -ScriptBlock $ScriptBlock `
-            -ArgumentList $ArgumentList `
-            -PSSession $PSCmdlet.SessionState `
-            -NoAuthentication:$NoAuthentication | Out-Null
+        $params.Type = $t
+        $null = Register-PodeWebElementEventInternal @params
     }
 
     return $Element
@@ -116,18 +154,18 @@ function Register-PodeWebPageEvent {
 
     # ensure page is a page
     if (!(Test-PodeWebContent -Content $Page -ComponentType Page)) {
-        throw 'Page events can only be registered onto pages'
+        throw "Page events can only be registered onto pages, '$($Page.ComponentType)' given"
     }
 
     # register event
     foreach ($t in $Type) {
-        Register-PodeWebPageEventInternal `
+        $null = Register-PodeWebPageEventInternal `
             -Page $Page `
             -Type $t `
             -ScriptBlock $ScriptBlock `
             -ArgumentList $ArgumentList `
             -PSSession $PSCmdlet.SessionState `
-            -NoAuthentication:$NoAuthentication | Out-Null
+            -NoAuthentication:$NoAuthentication
     }
 
     if ($PassThru) {

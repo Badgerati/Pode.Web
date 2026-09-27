@@ -1,8 +1,8 @@
 # Header
 
-| Support | |
-| ------- |-|
-| Events | No |
+| Support |     |
+| ------- | --- |
+| Events  | Yes |
 
 You can render header titles to your page by using [`New-PodeWebHeader`](../../../Functions/Elements/New-PodeWebHeader). This will show a title in various header sizes (`h1` - `h6`):
 

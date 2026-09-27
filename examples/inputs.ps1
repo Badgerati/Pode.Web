@@ -4,10 +4,11 @@ Import-Module ..\src\Pode.Web.psd1 -Force
 Start-PodeServer -Threads 2 {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8091 -Protocol Http
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Inputs' -Theme Dark
+    Import-PodeWebJavaScript -Url '/client-events.js'
 
     # set the home page controls (just a simple paragraph)
     $form = New-PodeWebForm -Name 'Test' -ButtonType Submit, Reset -AsCard -ScriptBlock {
@@ -23,6 +24,10 @@ Start-PodeServer -Threads 2 {
             } |
             Register-PodeWebEvent -Type KeyUp -ScriptBlock {
                 Show-PodeWebToast -Message "The element has a keyup: $($WebEvent.Data['Name'])"
+            } |
+            Register-PodeWebEvent -Type MouseOver -JSFunction 'customEvent' |
+            Register-PodeWebEvent -Type MouseOver -ScriptBlock {
+                Show-PodeWebToast -Message 'The element has the mouse over!'
             }
 
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon 'Lock' -Placeholder 'Enter your password' -HideName -Required
@@ -32,17 +37,56 @@ Start-PodeServer -Threads 2 {
         New-PodeWebDateTime -Name 'DateTime' -DateValue '2023-12-23' -TimeValue '13:37'
         New-PodeWebCredential -Name 'Credentials'
         New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent' -ReadOnly
-        New-PodeWebCheckbox -Name 'Switches' -Options @('Terms', 'Privacy') -AsSwitch
-        New-PodeWebCheckbox -Name 'Checkboxes' -Options @('Terms', 'Privacy') -Inline
-        New-PodeWebRadio -Name 'Radios' -Options @('S', 'M', 'L')
-        New-PodeWebSelect -Name 'Role1' -Options @('Choose...', 'User', 'Admin', 'Operations') -PrependIcon 'account' -AppendIcon 'account'
-        New-PodeWebSelect -Name 'Role2' -Options @('User', 'Admin', 'Operations') -Multiple
-        New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue
+
+        New-PodeWebCheckbox -Name 'Do you agree?' -AsSwitch
+
+        New-PodeWebCheckbox -Name 'Switches' -AsSwitch -Options @(
+            'Terms', 'Privacy' | ConvertTo-PodeWebOption
+        )
+
+        New-PodeWebCheckbox -Name 'Checkboxes' -Inline -HelpText 'Accept the terms and privacy policy' -Disabled -Options @(
+            New-PodeWebOption -Name 'Terms'
+            New-PodeWebOption -Name 'Privacy' -Selected
+        )
+
+        New-PodeWebRadio -Name 'Radios' -HelpText 'Select a size' -Options @(
+            'S', 'M', 'L' | ConvertTo-PodeWebOption
+        )
+
+        New-PodeWebSelect -Name 'Role1' -PrependIcon 'account' -AppendIcon 'account' -HelpText 'Select a role' -Options @(
+            @('Choose...', 'User', 'Admin', 'Operations') | ConvertTo-PodeWebOption
+        )
+
+        New-PodeWebSelect -Name 'Role2' -Multiple -Options @(
+            New-PodeWebOptionGroup -Name 'General' -Options @(
+                New-PodeWebOption -Name 'User'
+            )
+            New-PodeWebOptionGroup -Name 'Administrative' -Options @(
+                New-PodeWebOption -Name 'Admin'
+                New-PodeWebOption -Name 'Operations' -Selected
+            )
+        )
+
+        New-PodeWebDatalist -Name 'Browsers' -Placeholder 'Select a browser' -Options @(
+            New-PodeWebOption -Name 'Chrome'
+            New-PodeWebOption -Name 'Firefox'
+            New-PodeWebOption -Name 'Edge'
+            New-PodeWebOption -Name 'Safari' -Selected
+            New-PodeWebOption -Name 'Opera'
+        )
+
+        New-PodeWebDatalist -Name 'Count' -Placeholder 'Select a value' -ScriptBlock {
+            foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            }
+        }
+
+        New-PodeWebRange -Name 'Cores' -Value 30 -ShowValue -HelpText 'Select a number of CPU cores'
 
         New-PodeWebSelect -Name 'Amount' -ScriptBlock {
-            return @(foreach ($i in (1..10)) {
-                    Get-Random -Minimum 1 -Maximum 10
-                })
+            foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            }
         } |
             Register-PodeWebEvent -Type Change -ScriptBlock {
                 Show-PodeWebToast -Message "The value was changed: $($WebEvent.Data['Amount'])"
@@ -82,7 +126,7 @@ Start-PodeServer -Threads 2 {
                     Get-Random -Minimum 1 -Maximum 10
                 })
 
-            $options | Update-PodeWebSelect -Name 'DynamicSelect'
+            $options | ConvertTo-PodeWebOption | Update-PodeWebSelect -Name 'DynamicSelect'
         }
 
         New-PodeWebButton -Name 'Clear Options' -ScriptBlock {
@@ -94,11 +138,35 @@ Start-PodeServer -Threads 2 {
         }
 
         New-PodeWebSelect -Name 'DynamicSelect' -Multiple -Size 6 -ScriptBlock {
-            return @(foreach ($i in (1..10)) {
-                    Get-Random -Minimum 1 -Maximum 10
-                })
+            foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            }
         }
     )
 
-    Add-PodeWebPage -Name 'Home' -Path '/' -Content $form, $container1, $modal, $container2 -Title 'Testing Inputs' -HomePage
+    $container3 = New-PodeWebContainer -Content @(
+        New-PodeWebButton -Name 'New List' -ScriptBlock {
+            $options = @(foreach ($i in (1..10)) {
+                    Get-Random -Minimum 1 -Maximum 10
+                })
+
+            $options | ConvertTo-PodeWebOption | Update-PodeWebDatalist -Name 'DynamicDatalist'
+        }
+
+        New-PodeWebButton -Name 'Clear List' -ScriptBlock {
+            Clear-PodeWebDatalist -Name 'DynamicDatalist'
+        }
+
+        New-PodeWebButton -Name 'Resync List' -ScriptBlock {
+            Sync-PodeWebDatalist -Name 'DynamicDatalist'
+        }
+
+        New-PodeWebDatalist -Name 'DynamicDatalist' -ScriptBlock {
+            foreach ($i in (1..10)) {
+                Get-Random -Minimum 1 -Maximum 10
+            }
+        }
+    )
+
+    Add-PodeWebPage -Name 'Home' -Path '/' -Content $form, $container1, $modal, $container2, $container3 -Title 'Testing Inputs' -HomePage
 }

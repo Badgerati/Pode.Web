@@ -178,8 +178,8 @@ class PodeElementFactory {
         return this.referenceMap.get(id);
     }
 
-    static triggerObject(id, evt) {
-        return this.getObject(id).trigger(evt, true);
+    static triggerObject(id, evt, opts) {
+        return this.getObject(id).trigger(evt, true, opts);
     }
 
     static setTheme(theme) {
@@ -228,6 +228,9 @@ class PodeElement {
         this.width = data.Width ?? '';
         this.height = data.Height ?? '';
         this.themeable = false;
+        this.focused = false;
+        this.previouslyFocused = false;
+        this.focusable = false;
 
         this.content = {
             0: 'Content'
@@ -587,6 +590,14 @@ class PodeElement {
             case 'switch':
                 this.switch(data, sender, opts);
                 break;
+
+            case 'step':
+                this.steps(data, sender, opts);
+                break;
+
+            case 'select':
+                this.select(data, sender, opts);
+                break;
         }
 
         if (this.ephemeral) {
@@ -780,7 +791,7 @@ class PodeElement {
 
         if (checkGroup) {
             var group = element.closest('.pode-element-group');
-            if (group) {
+            if (group && group.length > 0) {
                 element = group;
             }
         }
@@ -792,7 +803,19 @@ class PodeElement {
             processData: false
         };
 
-        if (element.find('input[type=file]').length > 0) {
+        // if the element is an input, textarea or select, serialize directly
+        if (element.is('input, textarea, select')) {
+            if (element.is('input[type=file]')) {
+                data = newFormData(element);
+            }
+            else {
+                opts = {};
+                data = element.serialize();
+            }
+        }
+
+        // otherwise we're in a container; if it has a file input use FormData
+        else if (element.find('input[type=file]').length > 0) {
             data = newFormData(element.find('input, textarea, select'));
         }
         else {
@@ -812,45 +835,46 @@ class PodeElement {
         };
     }
 
-    events(evts) {
-        if (!evts) {
-            return '';
-        }
-
-        var strEvents = '';
-
-        convertToArray(evts).forEach((evt) => {
-            strEvents += `on${evt}="invokeEvent('${evt}', this);"`;
-        });
-
-        return strEvents;
-    }
-
-    trigger(evt, asAjax) {
+    trigger(evt, asAjax, opts) {
         if (asAjax) {
+            if (!opts || !opts.eventId) {
+                throw 'Event ID is required for AJAX event server-side triggers';
+            }
+
             var inputs = this.serialize(null, true);
             inputs.opts.keepFocus = true;
-            sendAjaxReq(`${this.url}/events/${evt}`, inputs.data, this, true, null, null, inputs.opts);
+            sendAjaxReq(`${this.url}/events/${evt}/${opts.eventId}`, inputs.data, this, true, null, null, inputs.opts);
         }
         else {
             this.element.trigger(evt);
         }
     }
 
-    listen(element, evt, func, noPreventDefault) {
+    listen(element, evt, func, noPreventDefault, opts) {
         element = element ?? this.element;
         if (!element) {
             return;
         }
 
         var obj = this;
-        element.off(evt).on(evt, function(e) {
-            if (!noPreventDefault) {
+        element.on(evt, function(e) {
+            var skip = false;
+
+            // check focus state
+            if (obj.focusable && (evt == 'focus' || evt == 'focusout') && obj.previouslyFocused === obj.focused) {
+                skip = true;
+            }
+
+            // stop propagation/prevent default
+            if (!noPreventDefault || skip) {
                 e.preventDefault();
                 e.stopPropagation();
             }
 
-            func(e, $(this), obj);
+            // invoke function
+            if (!skip) {
+                func(e, $(this), obj, evt, opts);
+            }
         });
     }
 
@@ -861,6 +885,14 @@ class PodeElement {
         }
 
         element.off(evt);
+    }
+
+    sanitize(value) {
+        if (FEATURES.ParseDateTime) {
+            value = convertDateTimeString(value);
+        }
+
+        return value;
     }
 
     spinner(show) {
@@ -1272,6 +1304,14 @@ class PodeElement {
         throw `${this.getType()} "switch" method not implemented`;
     }
 
+    steps(data, sender, opts) {
+        throw `${this.getType()} "steps" method not implemented`;
+    }
+
+    select(data, sender, opts) {
+        throw `${this.getType()} "select" method not implemented`;
+    }
+
     update(data, sender, opts) {
         if (data == null) {
             return;
@@ -1293,7 +1333,66 @@ class PodeElement {
             return;
         }
 
+        // bind custom events
+        this.bindCustomEvents(data, sender, opts);
+
+        // bind tooltips
         this.element.find('[data-bs-toggle="tooltip"]').tooltip();
+    }
+
+    bindCustomEvents(data, sender, opts) {
+        // skip if no events
+        if (!this.element || !data || !data.Events) {
+            return;
+        }
+
+        // skip if events are off
+        var eventsStatus = this.element.attr('pode-events-status');
+        if (eventsStatus == 'off') {
+            return;
+        }
+
+        // get this object
+        var obj = this;
+
+        // get delegate element if exists
+        var ele = this.element;
+        var delegateEle = $(`[pode-events-for='${this.uuid}']`);
+        if (delegateEle && delegateEle.length > 0) {
+            ele = delegateEle;
+        }
+
+        // unbind existing events
+        ele.off();
+
+        // bind event handlers, and track focus state to prevent erroneous focusout event
+        var focusHandled = false;
+
+        convertToArray(data.Events).forEach((evt) => {
+            // need to handle focus/focusout only once
+            if (!focusHandled && this.focusable && (evt.Type === 'focus' || evt.Type === 'focusout')) {
+                focusHandled = true;
+
+                ele.on('focus', function() {
+                    obj.previouslyFocused = obj.focused;
+                    obj.focused = true;
+                });
+
+                ele.on('focusout', function() {
+                    obj.previouslyFocused = obj.focused;
+                    obj.focused = false;
+                });
+            }
+
+            // determine function name for server/client side
+            var funcName = 'invokeServerEvent';
+            if (evt.IsClientSide) {
+                funcName = evt.JSFunction;
+            }
+
+            // bind event
+            obj.listen(ele, evt.Type, window[funcName], true, { eventId: evt.ID });
+        });
     }
 
     load(data, sender, opts) {
@@ -1536,6 +1635,7 @@ class PodeFormElement extends PodeContentElement {
             icon: (data.Append.Icon ?? '').toLowerCase()
         };
         this.inForm = false;
+        this.focusable = true;
     }
 
     isInForm(sender) {
@@ -1595,7 +1695,7 @@ class PodeFormElement extends PodeContentElement {
 
                 // help text
                 if (this.help.enabled && this.help.text) {
-                    html += `<small id='${this.help.id}_help' class='form-text text-body-secondary'>${this.help.text}</small>`;
+                    html += `<small id='${this.help.id}_help' class='form-text d-block text-body-secondary'>${this.help.text}</small>`;
                 }
 
                 // are we in a form?
@@ -1617,14 +1717,12 @@ class PodeFormElement extends PodeContentElement {
                 if (this.parent instanceof PodeForm) {
                     var formGroup = !this.inForm ? 'd-inline-block' : `form-group row mb-3`;
                     var divTag = this.asFieldset ? 'fieldset' : 'div';
-                    var idProps = this.asFieldset ? `id='${this.id}' pode-object='${this.getType()}' pode-id='${this.uuid}'` : '';
-                    var events = this.asFieldset ? this.events(data.Events) : '';
+                    var events = this.asFieldset ? `pode-events-status='off'` : '';
                     var width = this.inForm || !this.width ? '' : `width:${this.width}`;
 
                     html = `<${divTag}
                         class='pode-form-${this.getType()} ${formGroup}'
                         style='${width}'
-                        ${idProps}
                         ${events}>
                             ${html}
                     </${divTag}>`;
@@ -1689,6 +1787,55 @@ class PodeFormElement extends PodeContentElement {
     }
 }
 
+class PodeFormOptionElement extends PodeFormElement {
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+        this.optionCount = 0;
+    }
+
+    buildOptions(options) {
+        var html = '';
+        if (!options) {
+            return html;
+        }
+
+        convertToArray(options).forEach((option) => {
+            if (option.Options) {
+                html += this.buildGroup(option);
+            }
+            else {
+                this.optionCount++;
+                html += this.buildOption(option);
+            }
+        });
+
+        return html;
+    }
+
+    buildOption(option) {
+        return `<option
+            id='${this.buildOptionId(option)}'
+            value='${option.Name}'
+            ${option.Selected ? 'selected' : ''}
+            ${option.Disabled ? 'disabled' : ''}>
+                ${option.DisplayName}
+        </option>`;
+    }
+
+    buildOptionId(option) {
+        return `${this.id}_option${this.optionCount}`;
+    }
+
+    buildGroup(group) {
+        return `<optgroup
+            value='${group.Name}'
+            label='${group.DisplayName}'
+            ${group.Disabled ? 'disabled' : ''}>
+                ${this.buildOptions(group.Options)}
+        </optgroup>`;
+    }
+}
+
 class PodeFormMultiElement extends PodeFormElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
@@ -1717,8 +1864,7 @@ class PodeFormMultiElement extends PodeFormElement {
             name='${this.name}'
             class='row'
             pode-object='${this.getType()}'
-            pode-id='${this.uuid}'
-            ${this.events(data.Events)}>
+            pode-id='${this.uuid}'>
                 ${html}
         </div>`;
     }
@@ -1788,8 +1934,7 @@ class PodeBadge extends PodeTextualElement {
             id='${this.id}'
             class='badge text-bg-${PodeElement.mapColourToClass(data.Colour)} pode-text'
             pode-object='${this.getType()}'
-            pode-id='${this.uuid}'
-            ${this.events(data.Events)}>
+            pode-id='${this.uuid}'>
                 ${data.Value}
         </span>`;
     }
@@ -1925,8 +2070,7 @@ class PodeLink extends PodeTextualElement {
             class="pode-text"
             target='${data.NewTab ? '_blank' : '_self'}'
             pode-object='${this.getType()}'
-            pode-id='${this.uuid}'
-            ${this.events(data.Events)}>
+            pode-id='${this.uuid}'>
                 ${data.Value}
         </a>`;
     }
@@ -1995,12 +2139,13 @@ class PodeIcon extends PodeContentElement {
             style='${colour}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
-            ${title}
-            ${this.events(data.Events)}>
+            ${title}>
         </span>`;
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
+
         // icon or parent?
         var obj = this;
         if (this.parent && this.parent.icon && this.parent.icon.uuid === this.uuid) {
@@ -2195,6 +2340,7 @@ class PodeButton extends PodeFormElement {
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
+        this.noClick = data.NoClick ?? false;
         this.iconOnly = data.IconOnly;
         this.validation = false;
         this.label.enabled = false;
@@ -2213,7 +2359,7 @@ class PodeButton extends PodeFormElement {
         var html = '';
 
         if (this.iconOnly) {
-            if (this.dynamic) {
+            if (this.dynamic || this.noClick) {
                 html = `<button
                     type='button'
                     class='btn btn-icon-only pode-button'
@@ -2249,7 +2395,7 @@ class PodeButton extends PodeFormElement {
             var size = this.mapButtonSizeToClass();
             var sizeState = data.FullWidth ? 'btn-block' : '';
 
-            if (this.dynamic) {
+            if (this.dynamic || this.noClick) {
                 html = `<button
                     type='button'
                     class='btn ${colour} ${size} ${sizeState} pode-button'
@@ -2304,7 +2450,7 @@ class PodeButton extends PodeFormElement {
                 }
 
                 // find a form, if no group found
-                if (!group || group.length == 0) {
+                else {
                     var form = sender.element.closest('form');
                     if (form && form.length > 0) {
                         inputs = sender.serialize(form);
@@ -2708,8 +2854,7 @@ class PodeAlert extends PodeTextualElement {
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'
             role="alert"
-            data-bs-theme="${getCssColorScheme()}"
-            ${this.events(data.Events)}>
+            data-bs-theme="${getCssColorScheme()}">
                 <h6 class='pode-alert-header'>
                     <span class="mdi mdi-${iconType}"></span>
                     <strong>${data.DisplayName}</strong>
@@ -3233,6 +3378,7 @@ class PodeTable extends PodeRefreshableElement {
                 break;
 
             default:
+                console.log(data);
                 this.updateTable(data, sender, opts);
                 break;
         }
@@ -3276,7 +3422,7 @@ class PodeTable extends PodeRefreshableElement {
                     elements.push(...(renderResult.elements));
                 }
                 else {
-                    html = rowData;
+                    html = this.sanitize(rowData);
                 }
 
                 row.find(`td[pode-column="${key}"]`).html(html);
@@ -3403,10 +3549,10 @@ class PodeTable extends PodeRefreshableElement {
                     });
                 }
                 else if (item[key] != null) {
-                    value += item[key];
+                    value += this.sanitize(item[key]);
                 }
                 else if (!item[key] && header.length > 0) {
-                    value += header.attr('default-value');
+                    value += this.sanitize(header.attr('default-value'));
                 }
 
                 value += `</td>`;
@@ -3657,7 +3803,11 @@ class PodeTextbox extends PodeFormElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.multiline = data.Multiline ?? false;
-        this.autoComplete = data.IsAutoComplete ?? false;
+        this.autoComplete = {
+            enabled: data.AutoComplete.Enabled ?? false,
+            type: data.AutoComplete.Type ?? 'once',
+            minLength: data.AutoComplete.MinLength ?? 1
+        }
     }
 
     new(data, sender, opts) {
@@ -3665,8 +3815,7 @@ class PodeTextbox extends PodeFormElement {
 
         var autofocus = this.autofocus ? 'autofocus' : '';
         var maxLength = data.MaxLength ? `maxlength='${data.MaxLength}'` : '';
-        var width = `width:${this.width};`;
-        var events = this.events(data.Events);
+        var width = this.width ? `width:${this.width};` : '';
 
         var placeholder = data.Placeholder
             ? `placeholder='${encodeAttribute(data.Placeholder)}'`
@@ -3684,7 +3833,6 @@ class PodeTextbox extends PodeFormElement {
                 style='${width}'
                 ${placeholder}
                 ${autofocus}
-                ${events}
                 ${maxLength}></textarea>`;
         }
 
@@ -3703,7 +3851,6 @@ class PodeTextbox extends PodeFormElement {
                 style='${width}'
                 ${placeholder}
                 ${autofocus}
-                ${events}
                 ${maxLength}>`;
         }
 
@@ -3725,12 +3872,35 @@ class PodeTextbox extends PodeFormElement {
 
         var obj = this;
 
-        if (this.autoComplete) {
-            sendAjaxReq(`${this.url}/autocomplete`, null, null, false, null, null, {
-                customActionCallback: (res) => {
-                    obj.element.autocomplete({ source: res.Values });
-                }
-            });
+        // bind autocomplete handlers
+        if (this.autoComplete.enabled) {
+            switch (this.autoComplete.type) {
+                // load autocomplete options once, and cache on the element
+                case 'once':
+                    sendAjaxReq(`${this.url}/autocomplete`, null, null, false, null, null, {
+                        customActionCallback: (res) => {
+                            obj.element.autocomplete({
+                                source: convertToArray(res.Values),
+                                minLength: obj.autoComplete.minLength
+                            });
+                        }
+                    });
+                    break;
+
+                // load autocomplete options on every char press
+                case 'always':
+                    this.element.autocomplete({
+                        source: function(request, response) {
+                            sendAjaxReq(`${obj.url}/autocomplete`, `Value=${request.term}`, null, false, null, null, {
+                                customActionCallback: (res) => {
+                                    response(convertToArray(res.Values));
+                                }
+                            });
+                        },
+                        minLength: obj.autoComplete.minLength
+                    });
+                    break;
+            }
         }
     }
 
@@ -3822,8 +3992,7 @@ class PodeAudio extends PodeMediaElement {
             ${data.AutoPlay ? 'autoplay' : ''}
             ${data.AutoBuffer ? 'autobuffer' : ''}
             ${data.Loop ? 'loop' : ''}
-            ${data.Muted ? 'muted' : ''}
-            ${this.events(data.Events)}>
+            ${data.Muted ? 'muted' : ''}>
                 ${sources}
                 ${tracks}
                 ${data.NotSupportedText}
@@ -3866,8 +4035,7 @@ class PodeVideo extends PodeMediaElement {
             ${data.AutoBuffer ? 'autobuffer' : ''}
             ${data.Loop ? 'loop' : ''}
             ${data.Muted ? 'muted' : ''}
-            ${thumbnail})
-            ${this.events(data.Events)}>
+            ${thumbnail}>
                 ${sources}
                 ${tracks}
                 ${data.NotSupportedText}
@@ -4101,8 +4269,7 @@ class PodeImage extends PodeContentElement {
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
             data-bs-placement='bottom'
-            ${title}
-            ${this.events(data.Events)}>`;
+            ${title}>`;
     }
 
     update(data, sender, opts) {
@@ -4553,8 +4720,7 @@ class PodeCodeEditor extends PodeContentElement {
             name="${this.name}"
             class="pode-code-editor"
             pode-object="${this.getType()}"
-            pode-id="${this.uuid}"
-            ${this.events(data.Events)}>
+            pode-id="${this.uuid}">
                 ${upload}
                 <div class="code-editor" for="${this.id}"></div>
         </div>`;
@@ -5051,6 +5217,7 @@ class PodeModal extends PodeContentElement {
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         if (this.buttons.reset) {
@@ -5238,35 +5405,21 @@ class PodeHidden extends PodeFormElement {
 }
 PodeElementFactory.setClass(PodeHidden);
 
-class PodeSelect extends PodeFormElement {
+class PodeSelect extends PodeFormOptionElement {
     static type = 'select';
 
     constructor(data, sender, opts) {
         super(data, sender, opts);
-        this.multiSelect = data.Multiple ?? false;
+        this.multiple = data.Multiple ?? false;
     }
 
     new(data, sender, opts) {
-        var multiple = this.multiSelect ? `multiple size='${data.Size ?? 1}'` : '';
-
-        var selectedValue = convertToArray(data.SelectedValue);
-        if (!this.multiSelect && selectedValue.length >= 2) {
-            selectedValue = [selectedValue[0]];
-        }
+        var multiple = this.multiple ? `multiple size='${data.Size ?? 1}'` : '';
 
         var options = '';
-        data.DisplayOptions = convertToArray(data.DisplayOptions);
-        convertToArray(data.Options).forEach((opt, index) => {
-            if (!opt) {
-                return;
-            }
-
-            options += `<option
-                value='${opt}'
-                ${selectedValue.includes(opt) ? 'selected' : ''}>
-                    ${data.DisplayOptions[index]}
-            </option>`;
-        });
+        if (data.Options) {
+            options = this.buildOptions(data.Options);
+        }
 
         return `<select
             id='${this.id}'
@@ -5274,15 +5427,10 @@ class PodeSelect extends PodeFormElement {
             name='${this.name}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
-            ${multiple}
-            ${this.events(data.Events)}>
+            ${multiple}>
                 ${options}
         </select>`;
     }
-
-    //TODO: add "New-PodeWebSelectOption", and make "PodeSelectOption" class
-    //          --  "-Options" is now an array of that func, and we can remove "-DisplayOptions"!
-    //          -- need to fix "clear(...)" if we do this
 
     load(data, sender, opts) {
         super.load(data, sender, opts);
@@ -5291,40 +5439,194 @@ class PodeSelect extends PodeFormElement {
         }
     }
 
-    set(data, sender, opts) {
-        if (!data.Value) {
+    select(data, sender, opts) {
+        if (!data.OptionName) {
             return;
         }
 
-        this.element.val(decodeHTML(data.Value));
+        this.element.val(decodeHTML(data.OptionName));
+        this.trigger('change');
     }
 
     update(data, sender, opts) {
         super.update(data, sender, opts);
 
+        // update multiple
+        if (data.Multiple != null) {
+            this.multiple = data.Multiple;
+            if (this.multiple) {
+                this.addAttribute('multiple', 'multiple');
+                this.addAttribute('size', data.Size ?? 4);
+            }
+            else {
+                this.removeAttribute('multiple');
+                this.removeAttribute('size');
+            }
+        }
+
+        // update size
+        if (data.Size != null && this.multiple) {
+            this.addAttribute('size', data.Size);
+        }
+
         // update options
-        data.Options = convertToArray(data.Options);
-        if (data.Options.length > 0) {
+        if (data.Options != null) {
             this.clear();
-
-            data.DisplayOptions = convertToArray(data.DisplayOptions);
-            data.SelectedValue = convertToArray(data.SelectedValue);
-
-            data.Options.forEach((opt, index) => {
-                this.element.append(`<option
-                    value="${opt}"
-                    ${data.SelectedValue.includes(opt) ? 'selected' : ''}>
-                        ${data.DisplayOptions[index]}
-                </option>`);
-            });
+            this.element.append(this.buildOptions(data.Options));
         }
     }
 
     clear(data, sender, opts) {
         this.element.empty();
     }
+
+    add(data, sender, opts) {
+        // build options html
+        var html = this.buildOptions(data.Options);
+
+        // add options for a group
+        if (data.GroupName) {
+            var group = this.element.find(`optgroup[name='${data.GroupName}']`);
+
+            if (group && group.length > 0) {
+                group.append(html);
+            }
+        }
+
+        // else, add options to root
+        else {
+            this.element.append(html);
+        }
+    }
+
+    remove(data, sender, opts) {
+        // remove any option groups
+        if (data.GroupName) {
+            convertToArray(data.GroupName).forEach((group) => {
+                this.element.find(`optgroup[value='${group}']`).remove();
+            });
+        }
+
+        // remove any options
+        if (data.OptionName) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                this.element.find(`option[value='${opt}']`).remove();
+            });
+        }
+    }
 }
 PodeElementFactory.setClass(PodeSelect);
+
+class PodeDatalist extends PodeFormOptionElement {
+    static type = 'datalist';
+
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
+    }
+
+    new(data, sender, opts) {
+        var options = '';
+        if (data.Options) {
+            options = this.buildOptions(data.Options);
+        }
+
+        var placeholder = data.Placeholder ? `placeholder='${encodeAttribute(data.Placeholder)}'` : '';
+        var width = `width:${this.width};`;
+
+        var input = `<input
+            class='form-control'
+            id='${this.id}'
+            name='${this.name}'
+            list='${this.id}_datalist'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'
+            style='${width}'
+            ${placeholder}>`;
+
+        var datalist = `<datalist
+            id='${this.id}_datalist'
+            for='${this.uuid}'>
+                ${options}
+        </datalist>`;
+
+        return `${input}${datalist}`;
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+
+        // load options dynamically
+        if (this.dynamic) {
+            sendAjaxReq(`${this.url}/options`, null, this, true);
+        }
+
+        // if there is a selected option, set element value
+        if (!this.dynamic && !data.NoAutoSelect) {
+            this.checkSelected();
+        }
+    }
+
+    select(data, sender, opts) {
+        if (!data.Value) {
+            return;
+        }
+
+        this.element.val(decodeHTML(data.Value));
+        this.trigger('change');
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update options
+        if (data.Options != null) {
+            this.clear();
+            this.getDatalist().append(this.buildOptions(data.Options));
+
+            if (!data.NoAutoSelect) {
+                this.checkSelected();
+            }
+        }
+    }
+
+    clear(data, sender, opts) {
+        this.getDatalist().empty();
+        this.element.val('');
+    }
+
+    add(data, sender, opts) {
+        // build and add options
+        var html = this.buildOptions(data.Options);
+        this.getDatalist().append(html);
+
+        if (!data.NoAutoSelect) {
+            this.checkSelected();
+        }
+    }
+
+    remove(data, sender, opts) {
+        // remove any options
+        convertToArray(data.OptionName).forEach((opt) => {
+            this.getDatalist().find(`option[value='${opt}']`).remove();
+        });
+
+        if (!data.NoAutoSelect) {
+            this.checkSelected();
+        }
+    }
+
+    getDatalist() {
+        return $(`datalist[for='${this.uuid}']`);
+    }
+
+    checkSelected() {
+        var selected = this.getDatalist().find('option[selected]');
+        if (selected && selected.length > 0) {
+            this.element.val(selected.attr('value'));
+        }
+    }
+}
+PodeElementFactory.setClass(PodeDatalist);
 
 class PodeRange extends PodeFormElement {
     static type = 'range';
@@ -5332,6 +5634,9 @@ class PodeRange extends PodeFormElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.showValue = data.ShowValue ?? false;
+        this.min = data.Min ?? 0;
+        this.max = data.Max ?? 100;
+        this.step = data.Step ?? 1.0;
     }
 
     new(data, sender, opts) {
@@ -5341,9 +5646,10 @@ class PodeRange extends PodeFormElement {
             class='form-control pode-range-value'
             for='${this.id}'
             value='${data.Value}'
-            min='${data.Min}'
-            max='${data.Max}'>
-        <label class=''>/${data.Max}</label>`;
+            min='${this.min}'
+            max='${this.max}'
+            step='${this.step}'>
+        <span class='pode-range-max'>/${this.max}</span>`;
 
         return `<span class='range-wrapper' for='${this.id}' pode-container-for='${this.uuid}'>
             <input
@@ -5354,14 +5660,15 @@ class PodeRange extends PodeFormElement {
                 pode-object='${this.getType()}'
                 pode-id='${this.uuid}'
                 value='${data.Value}'
-                min='${data.Min}'
-                max='${data.Max}'
-                ${this.events(data.Events)}>
+                min='${this.min}'
+                max='${this.max}'
+                step='${this.step}'>
             ${rangeValue}
         </span>`;
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         if (this.showValue) {
@@ -5373,8 +5680,85 @@ class PodeRange extends PodeFormElement {
 
             this.listen(valElement, 'change', function(e, target) {
                 obj.element.val(valElement.val());
+                obj.trigger('change');
             }, true);
         }
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update min if supplied
+        if (data.Min != null) {
+            var value = data.Min;
+            if (data.AsDelta) {
+                value = this.min + data.Min;
+            }
+
+            this.element.attr('min', value);
+            if (this.showValue) {
+                this.getNumberInput().attr('min', value);
+            }
+
+            this.min = value;
+        }
+
+        // update max if supplied
+        if (data.Max != null) {
+            var value = data.Max;
+            if (data.AsDelta) {
+                value = this.max + data.Max;
+            }
+
+            this.element.attr('max', value);
+            if (this.showValue) {
+                this.getNumberInput().attr('max', value);
+            }
+
+            this.max = value;
+        }
+
+        // update step if supplied
+        if (data.Step != null) {
+            var value = data.Step;
+            if (data.AsDelta) {
+                value = this.step + data.Step;
+            }
+
+            // ensure step is not greater than (max - min)
+            if (value > (this.max - this.min)) {
+                value = this.max - this.min;
+            }
+
+            this.element.attr('step', value);
+            if (this.showValue) {
+                this.getNumberInput().attr('step', value);
+            }
+
+            this.step = value;
+        }
+
+        // update value if supplied - but ensure the value is an increment of step
+        if (data.Value != null) {
+            var value = data.Value;
+            if (data.AsDelta) {
+                value = this.getValue() + data.Value;
+            }
+
+            // ensure value is an increment of step
+            if (((value - this.min) % this.step) !== 0) {
+                value = this.min + (Math.round((value - this.min) / this.step) * this.step);
+            }
+
+            // skip if value is out of range
+            this.updateValue(value);
+        }
+    }
+
+    steps(data, sender, opts) {
+        var currentValue = this.getValue();
+        var value = data.Direction == 'increase' ? currentValue + this.step : currentValue - this.step;
+        this.updateValue(value);
     }
 
     disable(data, sender, opts) {
@@ -5387,8 +5771,44 @@ class PodeRange extends PodeFormElement {
         enable(this.getNumberInput());
     }
 
+    updateValue(value) {
+        // ensure value is a number
+        if (value == null || isNaN(value)) {
+            return;
+        }
+
+        // clamp value to min/max
+        if (value < this.min) {
+            value = this.min;
+        }
+        else if (value > this.max) {
+            value = this.max;
+        }
+
+        // skip if no change
+        var currentValue = this.getValue();
+        if (value === currentValue) {
+            return;
+        }
+
+        // set value
+        this.element.val(value);
+        if (this.showValue) {
+            this.getNumberInput().val(value);
+        }
+
+        // trigger change
+        this.trigger('change');
+    }
+
+    getValue() {
+        return parseFloat(this.element.val());
+    }
+
     getNumberInput() {
-        return !this.showValue ? null : this.element.closest('.range-wrapper').find(`input[type="number"][for="${this.id}"]`);
+        return !this.showValue
+            ? null
+            : this.element.closest('.range-wrapper').find(`input[type="number"][for="${this.id}"]`);
     }
 }
 PodeElementFactory.setClass(PodeRange);
@@ -5420,8 +5840,7 @@ class PodeProgress extends PodeContentElement {
                     aria-valuemin='${data.Min ?? 0}'
                     aria-valuemax='${data.Max ?? 100}'
                     pode-object='${this.getType()}'
-                    pode-id='${this.uuid}'
-                    ${this.events(data.Events)}>
+                    pode-id='${this.uuid}'>
                 </div>
         </div>`;
 
@@ -5444,6 +5863,7 @@ class PodeProgress extends PodeContentElement {
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         if (this.showValue) {
@@ -5495,145 +5915,312 @@ class PodeProgress extends PodeContentElement {
 }
 PodeElementFactory.setClass(PodeProgress);
 
-class PodeCheckbox extends PodeFormElement {
+class PodeCheckbox extends PodeFormOptionElement {
     static type = 'checkbox';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
         this.asFieldset = true;
+        this.asSwitch = data.AsSwitch ?? false;
+        this.inline = data.Inline ?? false;
+        this.isSingle = !data.Options;
     }
 
     new(data, sender, opts) {
-        var inline = data.Inline ? 'form-check-inline' : ''
-        var checked = data.Checked ? 'checked' : '';
-
-        var isSwitch = data.AsSwitch ?? false;
-        var checkboxClass = isSwitch ? 'form-check form-switch' : 'form-check';
-
-        data.Options = convertToArray(data.Options);
-        data.DisplayOptions = convertToArray(data.DisplayOptions);
-
         var options = '';
-        data.Options.forEach((opt, index) => {
-            if (!opt) {
-                return;
-            }
+        if (data.Options) {
+            options = this.buildOptions(data.Options);
+        }
 
-            options += `<div
-                id='${this.id}'
-                class='${checkboxClass} ${inline}'
-                pode-object='${this.getType()}'
-                pode-id='${this.uuid}'>
-                    <input
-                        type='checkbox'
-                        id='${this.id}_option${index}'
-                        class='form-check-input'
-                        value='${opt}'
-                        name='${this.name}'
-                        pode-option-id='${index}'
-                        ${checked}>
-                    <label class='form-check-label' for='${this.id}_option${index}'>
-                        ${opt !== 'true' ? data.DisplayOptions[index] : ''}
-                    </label>
-            </div>`;
-        });
+        return `<div
+            id='${this.id}'
+            name='${this.name}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+                ${options}
+        </div>`;
+    }
 
-        return `<div pode-container-for='${this.uuid}'>${options}</div>`;
+    buildOption(option) {
+        // classes and ID
+        var inline = this.inline ? 'form-check-inline' : '';
+        var checkboxClass = this.asSwitch ? 'form-check form-switch' : 'form-check';
+        var optId = this.buildOptionId(option);
+
+        // option name and label - setting "pode_web_true" as "true" and no label
+        var optName = option.Name;
+        var optLabel = option.DisplayName;
+
+        if (optName == 'pode_web_true') {
+            optName = 'true';
+            optLabel = '';
+        }
+
+        // disabled/required - top level takes priority over option level
+        var disabled = this.disabled || (option.Disabled ?? false) ? 'disabled' : '';
+        var required = this.required || (option.Required ?? false) ? 'required' : '';
+
+        return `<div class='${checkboxClass} ${inline}'>
+            <input
+                type='checkbox'
+                id='${optId}'
+                class='form-check-input'
+                value='${optName}'
+                name='${this.name}'
+                ${option.Selected ? 'checked' : ''}
+                ${disabled}
+                ${required}>
+            <label class='form-check-label' for='${optId}'>
+                ${optLabel}
+            </label>
+        </div>`;
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+        if (this.dynamic) {
+            sendAjaxReq(`${this.url}/options`, null, this, true);
+        }
     }
 
     update(data, sender, opts) {
         super.update(data, sender, opts);
 
-        // get checkbox
-        var checkbox = this.getCheckbox(data.OptionId);
-        if (!checkbox) {
-            return;
+        // update options
+        if (data.Options != null) {
+            this.clear();
+            this.element.append(this.buildOptions(data.Options));
         }
 
-        // check or uncheck
-        if (data.Checked != null) {
-            checkbox.prop('checked', data.Checked);
+        // set checked/unchecked on all options?
+        if (data.Selected != null) {
+            if (data.Selected) {
+                this.select({}, sender, opts);
+            }
+            else {
+                this.reset({}, sender, opts);
+            }
         }
+    }
+
+    setRequired(enabled) {
+        this.element.find(`input[type='checkbox']`).prop('required', enabled);
     }
 
     enable(data, sender, opts) {
-        var checkbox = this.getCheckbox(data.OptionId);
-        if (!checkbox) {
-            return;
+        // enable a specific option if OptionName supplied, else enable all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                enable(this.getCheckbox(opt));
+            });
         }
-
-        enable(checkbox);
+        else {
+            this.element.find(`input[type='checkbox']`).each((_, checkbox) => {
+                enable($(checkbox));
+            });
+        }
     }
 
     disable(data, sender, opts) {
-        var checkbox = this.getCheckbox(data.OptionId);
-        if (!checkbox) {
-            return;
+        // disable a specific option if OptionName supplied, else disable all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                disable(this.getCheckbox(opt));
+            });
+        }
+        else {
+            this.element.find(`input[type='checkbox']`).each((_, checkbox) => {
+                disable($(checkbox));
+            });
+        }
+    }
+
+    select(data, sender, opts) {
+        // check a specific option if OptionName supplied, else check all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                this.getCheckbox(opt).prop('checked', true);
+            });
+        }
+        else {
+            this.element.find(`input[type='checkbox']`).prop('checked', true);
         }
 
-        disable(checkbox);
+        this.trigger('change');
     }
 
-    getCheckbox(index) {
-        return this.element.find(`input#${this.id}_option${index}`);
+    reset(data, sender, opts) {
+        // uncheck a specific option if OptionName supplied, else uncheck all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                this.getCheckbox(opt).prop('checked', false);
+            });
+        }
+        else {
+            this.element.find(`input[type='checkbox']`).prop('checked', false);
+        }
+
+        this.trigger('change');
     }
 
-    //TODO: same as the comment for "select" - CheckboxOption ?
-    //          -- that would make this "Checkbox" not a "FormElement" but the "CheckOption" would be
-    //          -- this is needed to control individual checkboxes, and fix disabled/required/etc support
-    //          -- as well as update() support...
+    add(data, sender, opts) {
+        var html = this.buildOptions(data.Options);
+        this.element.append(html);
+    }
+
+    remove(data, sender, opts) {
+        convertToArray(data.OptionName).forEach((opt) => {
+            this.getCheckbox(opt).closest('.form-check').remove();
+        });
+    }
+
+    clear(data, sender, opts) {
+        this.element.empty();
+    }
+
+    getCheckbox(name) {
+        return this.element.find(`input[type='checkbox'][value='${name}']`);
+    }
 }
 PodeElementFactory.setClass(PodeCheckbox);
 
-class PodeRadio extends PodeFormElement {
+class PodeRadio extends PodeFormOptionElement {
     static type = 'radio';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(data, sender, opts);
         this.label.asLegend = true;
         this.asFieldset = true;
+        this.inline = data.Inline ?? false;
     }
 
     new(data, sender, opts) {
-        var inline = data.Inline ? 'form-check-inline' : '';
-
-        data.Options = convertToArray(data.Options);
-        data.DisplayOptions = convertToArray(data.DisplayOptions);
-
         var options = '';
-        data.Options.forEach((opt, index) => {
-            if (!opt) {
-                return;
-            }
+        if (data.Options) {
+            options = this.buildOptions(data.Options);
+        }
 
-            options += `<div
-                id='${this.id}'
-                class='form-check ${inline}'
-                pode-object='${this.getType()}'
-                pode-id='${this.uuid}'>
-                    <input
-                        type='radio'
-                        id='${this.id}_option${index}'
-                        class='form-check-input'
-                        value='${opt}'
-                        name='${this.name}'
-                        pode-option-id='${index}'
-                        ${index === 0 ? 'checked' : ''}>
-                    <label class='form-check-label' for='${this.id}_option${index}'>
-                        ${opt !== 'true' ? data.DisplayOptions[index] : ''}
-                    </label>
-            </div>`;
-        });
-
-        return `<div pode-container-for='${this.uuid}'>${options}</div>`;
+        return `<div
+            id='${this.id}'
+            name='${this.name}'
+            pode-object='${this.getType()}'
+            pode-id='${this.uuid}'>
+                ${options}
+        </div>`;
     }
 
-    //TODO: same as the comment for "select" - CheckboxOption ?
-    //          -- that would make this "Checkbox" not a "FormElement" but the "CheckOption" would be
-    //          -- this is needed to control individual checkboxes, and fix disabled/required/etc support
-    //          -- as well as update() support...
+    buildOption(option) {
+        // classes and ID
+        var inline = this.inline ? 'form-check-inline' : '';
+        var optId = this.buildOptionId(option);
 
-    //TODO: radio missing update/enable/etc.
+        // disabled/required - top level takes priority over option level
+        var disabled = this.disabled || (option.Disabled ?? false) ? 'disabled' : '';
+        var required = this.required || (option.Required ?? false) ? 'required' : '';
+
+        return `<div class='form-check ${inline}'>
+            <input
+                type='radio'
+                id='${optId}'
+                class='form-check-input'
+                value='${option.Name}'
+                name='${this.name}'
+                ${option.Selected ? 'checked' : ''}
+                ${disabled}
+                ${required}>
+            <label class='form-check-label' for='${optId}'>
+                ${option.DisplayName}
+            </label>
+        </div>`;
+    }
+
+    load(data, sender, opts) {
+        super.load(data, sender, opts);
+        if (this.dynamic) {
+            sendAjaxReq(`${this.url}/options`, null, this, true);
+        }
+    }
+
+    update(data, sender, opts) {
+        super.update(data, sender, opts);
+
+        // update options
+        if (data.Options != null) {
+            this.clear();
+            this.element.append(this.buildOptions(data.Options));
+        }
+    }
+
+    setRequired(enabled) {
+        this.element.find(`input[type='radio']`).prop('required', enabled);
+    }
+
+    enable(data, sender, opts) {
+        // enable a specific option if OptionName supplied, else enable all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                enable(this.getRadio(opt));
+            });
+        }
+        else {
+            this.element.find(`input[type='radio']`).each((_, radio) => {
+                enable($(radio));
+            });
+        }
+    }
+
+    disable(data, sender, opts) {
+        // disable a specific option if OptionName supplied, else disable all options
+        if (data.OptionName && data.OptionName.length > 0) {
+            convertToArray(data.OptionName).forEach((opt) => {
+                disable(this.getRadio(opt));
+            });
+        }
+        else {
+            this.element.find(`input[type='radio']`).each((_, radio) => {
+                disable($(radio));
+            });
+        }
+    }
+
+    select(data, sender, opts) {
+        // check a specific option
+        if (!data.OptionName) {
+            return;
+        }
+
+        this.getRadio(data.OptionName).prop('checked', true);
+        this.trigger('change');
+    }
+
+    reset(data, sender, opts) {
+        // uncheck a specific option
+        if (!data.OptionName) {
+            return;
+        }
+
+        this.getRadio(data.OptionName).prop('checked', false);
+        this.trigger('change');
+    }
+
+    add(data, sender, opts) {
+        var html = this.buildOptions(data.Options);
+        this.element.append(html);
+    }
+
+    remove(data, sender, opts) {
+        convertToArray(data.OptionName).forEach((opt) => {
+            this.getRadio(opt).closest('.form-check').remove();
+        });
+    }
+
+    clear(data, sender, opts) {
+        this.element.empty();
+    }
+
+    getRadio(name) {
+        return this.element.find(`input[type='radio'][value='${name}']`);
+    }
 }
 PodeElementFactory.setClass(PodeRadio);
 
@@ -5957,7 +6544,8 @@ class PodeFileStream extends PodeContentElement {
                             class="form-control"
                             rows="$($data.Height)"
                             readonly
-                            ${this.events(data.Events)}></textarea>
+                            pode-events-for='${this.uuid}'>
+                        </textarea>
                     </pre>
                 </div>
         </div>`;
@@ -6192,6 +6780,7 @@ class PodeStep extends PodeContentElement {
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         // auto submit on enter key
@@ -6395,6 +6984,7 @@ class PodeNavLink extends PodeNavElement {
     }
 
     bind(data, sender, opts) {
+        super.bind(data, sender, opts);
         var obj = this;
 
         if (this.dynamic) {

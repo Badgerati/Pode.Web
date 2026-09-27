@@ -1,18 +1,28 @@
 # Textbox
 
-| Support | |
-| ------- |-|
-| Events | Yes |
+| Support |     |
+| ------- | --- |
+| Events  | Yes |
 
-A textbox element is a form input element; you can render a textbox, single and multiline, to your page using [`New-PodeWebTextbox`](../../../Functions/Elements/New-PodeWebTextbox).
+A Textbox element is a form input element; you can render a Textbox, single and multiline, to your page using [`New-PodeWebTextbox`](../../../Functions/Elements/New-PodeWebTextbox).
 
-A textbox by default is a normal plain single lined textbox, however you can customise its `-Type` to Email/Password/etc. To change the textbox to be a multiline textbox you can supply the `-Multiline` switch.
+A Textbox by default is a normal single lined textbox, however you can customise its `-Type` to Email/Password/etc. To change the textbox to be a multiline textbox you can supply the `-Multiline` switch.
 
-Textboxes also allow you to specify `-AutoComplete` values ([see here](#autocomplete)).
+Supported types are:
+* Text
+* Email
+* Password
+* Number
+* Date
+* Time
+* File
+* DateTime
+
+Textboxes also allow you to specify `-AutoComplete` options, as ([described here](#autocomplete)).
 
 ## Single
 
-A default textbox is just a simple single lined textbox. You can change the type to Email/Password/etc using the `-Type` parameter:
+A default Textbox is just a simple single lined textbox. You can change the type to Email/Password/etc using the `-Type` parameter:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -34,7 +44,7 @@ Which looks like below:
 
 ### AutoComplete
 
-For a single textbox, you can supply autocomplete values via a scriptblock passed to `-AutoComplete`. This scriptblock should return an array of strings, and will be called once when the textbox is initially loaded:
+For a single Textbox, you can supply autocomplete options via a scriptblock passed to `-AutoComplete`. This scriptblock should return an array of strings, and will be called once when the textbox is initially loaded:
 
 ```powershell
 New-PodeWebCard -Content @(
@@ -52,9 +62,39 @@ Which looks like below:
 
 ![textbox_auto](../../../images/textbox_auto.png)
 
+#### Delay
+
+You can delay when the autocomplete options are shown by supplying `-AutoCompleteMinLength`. By default this is `1`, and the value refers to the number of characters typed into the Textbox before the option are displayed.
+
+!!! note
+    The options will still be loaded on initial page load, but will not render until the specified number of characters.
+
+#### Dynamic
+
+To have the autocomplete scriptblock be invoked on every character, instead of once on page load, you supply `-AutoCompleteType Always`. The default is `Once`, and `Always` will invoke the scriptblock every time.
+
+To help with dynamic filtering, the current value entered into the Textbox is supplied as `$WebEvent.Data.Value` - this is only available when using the `Always` autocomplete type, and **not** in the default `Once` type.
+
+```powershell
+New-PodeWebCard -Content @(
+    New-PodeWebForm -Name 'Example' -ScriptBlock {
+        $svcName = $WebEvent.Data['Service Name']
+    } -Content @(
+        New-PodeWebTextbox -Name 'Service Name' -AutoCompleteType Always -AutoComplete {
+            return Get-Service |
+                Where-Object { $_.Name -ilike "*$($WebEvent.Data.Value)*" } |
+                Select-Object -ExpandProperty Name
+        }
+    )
+)
+```
+
+!!! tip
+    The `-AutoCompleteMinLength` parameter still work here, and the scriptblock will only be invoked after the specified number of characters.
+
 ## Multiline
 
-A mutlilined textbox can be displayed by passing `-Multiline`. You cannot change the type of this textbox, it will always allow freestyle text:
+A multi-lined Textbox can be displayed by passing `-Multiline`. You cannot change the type of this Textbox as only `Text` types support multi-line:
 
 ```powershell
 New-PodeWebCard -Content @(

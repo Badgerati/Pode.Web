@@ -4,7 +4,7 @@ Import-Module ..\src\Pode.Web.psd1 -Force
 Start-PodeServer -Threads 2 {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Icons' -Theme Dark
@@ -28,10 +28,13 @@ Start-PodeServer -Threads 2 {
     $card3 = New-PodeWebCard -Content @(
         New-PodeWebTable -Name Example -ScriptBlock {
             return @{
-                Icon = (New-PodeWebIcon -Name 'refresh' -Spin -Colour Yellow |
-                        Register-PodeWebEvent -Type Click -ScriptBlock {
-                            Show-PodeWebToast -Message 'Spinning icon clicked!'
-                        })
+                Icon = New-PodeWebIcon -Name 'refresh' -Spin -Colour Yellow -HoverIcon (New-PodeWebIconPreset -Name 'cat') |
+                    Register-PodeWebEvent -Type Click -ScriptBlock {
+                        Show-PodeWebToast -Message 'Spinning icon clicked!'
+                    } |
+                    Register-PodeWebEvent -Type MouseOver -ScriptBlock {
+                        Show-PodeWebToast -Message 'Spinning icon moused over!'
+                    }
             }
         }
     )

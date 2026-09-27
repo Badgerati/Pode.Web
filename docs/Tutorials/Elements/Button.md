@@ -2,7 +2,7 @@
 
 | Support |     |
 | ------- | --- |
-| Events  | No  |
+| Events  | Yes |
 
 To display a button on your page you use [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton); a button can either be dynamic and run custom logic via a `-ScriptBlock`, or it can redirect a user to a `-Url`.
 
@@ -67,6 +67,17 @@ To open the URL in a new tab, supply the `-NewTab` switch:
 
 ```powershell
 New-PodeWebButton -Name 'Repository' -Icon Link -Url 'https://github.com/Badgerati/Pode.Web' -NewTab
+```
+
+## Custom Events
+
+The Button element does support [`Register-PodeWebEvent`](../../../Functions/Events/Register-PodeWebEvent) and the `Click` event type. There is the `-ScriptBlock` parameter on [`New-PodeWebButton`](../../../Functions/Elements/New-PodeWebButton), but you can supply `-NoClick` instead which will render a dummy button with no event handlers - allowing you to supply custom, including client-side, event handlers via [`Register-PodeWebEvent`](../../../Functions/Events/Register-PodeWebEvent) instead:
+
+```powershell
+New-PodeWebButton -Name 'Custom Events' -NoClick |
+    Register-PodeWebEvent -Type Click -ScriptBlock {
+        Show-PodeWebToast -Message 'The button click event was triggered!'
+    }
 ```
 
 ## Outlined
