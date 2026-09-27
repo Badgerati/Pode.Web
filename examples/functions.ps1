@@ -6,7 +6,7 @@ Import-Module ./misc/functions.psm1 -Force
 Start-PodeServer {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging
 
 
     # set the use of templates, and set a login page

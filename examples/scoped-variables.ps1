@@ -6,7 +6,7 @@ Start-PodeServer -StatusPageExceptions Show {
     $outer_var = 'Kenobi'
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Basic Example' -Theme Dark
