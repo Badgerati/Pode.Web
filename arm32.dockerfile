@@ -1,4 +1,4 @@
-FROM badgerati/pode:2.13.2-arm32
+FROM badgerati/pode:2.14.1-arm32
 LABEL maintainer="Matthew Kelly (Badgerati)"
 RUN mkdir -p /usr/local/share/powershell/Modules/Pode.Web
 COPY ./src/ /usr/local/share/powershell/Modules/Pode.Web

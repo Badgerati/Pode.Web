@@ -4,7 +4,7 @@ Import-Module ..\src\Pode.Web.psd1 -Force
 Start-PodeServer -Threads 2 {
     # add a simple endpoint
     Add-PodeEndpoint -Address localhost -Port 8091 -Protocol Http
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Checkboxes' -Theme Dark

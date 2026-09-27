@@ -6,7 +6,7 @@ Start-PodeServer {
     Add-PodeEndpoint -Address localhost -Port 8090 -Protocol Http -Name '8090Endpoint'
     Add-PodeEndpoint -Address localhost -Port 8091 -Protocol Http -Name '8091Endpoint'
 
-    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+    New-PodeLogTerminalMethod | Enable-PodeErrorLogging
 
     # set the use of templates, and set a login page
     Initialize-PodeWebTemplates -Title 'Basic Example' -Theme Dark -EndpointName '8090Endpoint', '8091Endpoint'
