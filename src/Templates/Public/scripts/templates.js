@@ -3803,9 +3803,9 @@ class PodeTextbox extends PodeFormElement {
         super(data, sender, opts);
         this.multiline = data.Multiline ?? false;
         this.autoComplete = {
-            enabled: data.AutoComplete.Enabled ?? false,
-            type: data.AutoComplete.Type ?? 'once',
-            minLength: data.AutoComplete.MinLength ?? 1
+            enabled: (data.AutoComplete ?? {}).Enabled ?? false,
+            type: (data.AutoComplete ?? {}).Type ?? 'once',
+            minLength: (data.AutoComplete ?? {}).MinLength ?? 1
         }
     }
 
