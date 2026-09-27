@@ -197,7 +197,7 @@ task MoveLibs {
     # kurkle (used by chart.js)
     New-Item -Path "$($libs_path)/kurkle" -ItemType Directory -Force | Out-Null
     Copy-Item -Path "$($src_path)/@kurkle/color/dist/color.min.js*" -Destination "$($libs_path)/kurkle/" -Force
-    Copy-Item -Path "$($src_path)/@kurkle/color/LICENSE.md" -Destination "$($libs_path)/kurkle/" -Force
+    Copy-Item -Path "$($src_path)/@kurkle/color/LICENSE*" -Destination "$($libs_path)/kurkle/" -Force
 
     # mdi fonts - icons
     New-Item -Path "$($libs_path)/mdi-font/css" -ItemType Directory -Force | Out-Null
