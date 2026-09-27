@@ -3378,7 +3378,6 @@ class PodeTable extends PodeRefreshableElement {
                 break;
 
             default:
-                console.log(data);
                 this.updateTable(data, sender, opts);
                 break;
         }
