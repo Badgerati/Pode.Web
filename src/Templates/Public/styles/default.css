@@ -596,6 +596,14 @@ table tbody tr {
     vertical-align: middle;
 }
 
+table.table-sm tbody tr {
+    height: 1.8rem;
+}
+
+table:not(.table-sm) tbody tr {
+    height: 2.8rem;
+}
+
 table thead {
     height: 2.5rem;
     vertical-align: middle;
