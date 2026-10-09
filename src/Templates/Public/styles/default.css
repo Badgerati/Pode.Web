@@ -390,7 +390,7 @@ a.disabled {
     z-index: 9999;
 }
 
-table .btn-icon-only {
+.table .btn-icon-only {
     color: #777;
 }
 
@@ -558,49 +558,56 @@ input[type=datetime-local]:not(:disabled):hover {
     position: absolute;
 }
 
-table {
+.table {
     font-size: .9rem;
 }
 
-table[pode-sort='true'] thead th {
+.table[pode-sort='true'] thead th {
     cursor: pointer;
 }
 
-table[pode-sort='true'] thead th[sort-direction='asc']::after,
-table[pode-sort='true'] thead th[sort-direction='desc']::after {
+.table[pode-sort='true'] thead th[sort-direction='asc']::after,
+.table[pode-sort='true'] thead th[sort-direction='desc']::after {
     content: ' ';
     position: relative;
     left: 10px;
     border: 7px solid transparent;
 }
 
-table[pode-sort='true'] thead th[sort-direction='asc']::after {
+.table[pode-sort='true'] thead th[sort-direction='asc']::after {
     bottom: 12px;
     border-bottom-color: silver;
 }
 
-table[pode-sort='true'] thead th[sort-direction='desc']::after {
+.table[pode-sort='true'] thead th[sort-direction='desc']::after {
     top: 15px;
     border-top-color: silver;
 }
 
-table.pode-table-click tbody tr {
+.table.pode-table-click tbody tr {
     cursor: pointer;
 }
 
-table tbody td {
+.table tbody td {
     word-break: break-word;
 }
 
-table tbody tr {
+.table tbody tr {
     vertical-align: middle;
 }
 
-table thead {
-    height: 2.5rem;
+.table.table-sm tbody tr {
+    height: 1.8rem;
+}
+
+.table:not(.table-sm) tbody tr {
+    height: 2.8rem;
+}
+
+.table thead {
+    height: 2.8rem;
     vertical-align: middle;
     font-weight: bolder;
-    font-size: medium;
 }
 
 .pode-card {

@@ -1037,8 +1037,23 @@ class PodeElement {
         return obj && obj.length > 0 ? obj : undefined;
     }
 
-    checkParentType(type) {
-        return this.parent ? this.parent.getType() === type.toLowerCase() : false;
+    checkParentType(type, recursive) {
+        // generally false if no parent available
+        if (!this.parent) {
+            return false;
+        }
+
+        // check direct parent, return if true else check for recursive use
+        if (this.parent.getType() === type.toLowerCase()) {
+            return true;
+        }
+
+        if (!recursive) {
+            return false;
+        }
+
+        // check recursively up the parent chain
+        return this.parent.checkParentType(type, recursive);
     }
 
     getContentArea(order) {
@@ -1615,7 +1630,8 @@ class PodeFormElement extends PodeContentElement {
         this.dynamicLabel = data.DynamicLabel ?? false;
         this.validation = opts.validation ?? true;
         this.label = {
-            enabled: opts.label ?? !(data.HideName ?? false),
+            enabled: opts.label ?? data.LabelState != 'Hide',
+            state: (data.LabelState ?? 'Automatic').toLowerCase(),
             asLegend: false
         };
         this.asFieldset = false;
@@ -1634,20 +1650,30 @@ class PodeFormElement extends PodeContentElement {
             text: data.Append.Text ?? null,
             icon: (data.Append.Icon ?? '').toLowerCase()
         };
-        this.inForm = false;
+        this.inForm = null;
         this.focusable = true;
     }
 
     isInForm(sender) {
-        if (this.checkParentType('form') || this.checkParentType('step')) {
-            return true;
+        if (this.inForm !== null) {
+            return;
         }
 
-        if (this.checkParentType('modal') && this.parent.asForm) {
-            return true;
+        if (!this.parent) {
+            this.inForm = false;
         }
 
-        return false;
+        else if (this.checkParentType('form', true) || this.checkParentType('step', true)) {
+            this.inForm = true;
+        }
+
+        else if (this.parent.asForm && this.checkParentType('modal', true)) {
+            this.inForm = true;
+        }
+
+        else {
+            this.inForm = false;
+        }
     }
 
     apply(action, data, sender, opts) {
@@ -1656,7 +1682,7 @@ class PodeFormElement extends PodeContentElement {
         // render the form element
         switch (action) {
             case 'new':
-                this.inForm = this.isInForm(sender);
+                this.isInForm(sender);
                 var html = this.new(data, sender, opts);
 
                 if (!(this instanceof PodeFormMultiElement)) {
@@ -1699,11 +1725,9 @@ class PodeFormElement extends PodeContentElement {
                 }
 
                 // are we in a form?
-                if (this.label.enabled && this.inForm && !this.dynamicLabel) {
+                if (this.label.enabled && (this.inForm || this.label.state === 'show') && !this.dynamicLabel) {
                     html = `<div class='col-sm-10'>${html}</div>`;
-                }
 
-                if (this.label.enabled && this.inForm && !this.dynamicLabel) {
                     var lblTag = this.label.asLegend ? 'legend' : 'label';
 
                     html = `<${lblTag}
@@ -4436,6 +4460,7 @@ class PodeGrid extends PodeContentElement {
         this.cells = convertToArray(data.Cells).length;
         this.width = data.Width === 0 ? this.cells : (data.Width ?? this.cells);
         this.rows = Math.ceil(this.cells / this.width);
+        this.totalCells = this.rows * this.width;
     }
 
     new(data, sender, opts) {
@@ -4487,8 +4512,8 @@ class PodeCell extends PodeContentElement {
         </div>`;
 
         // render dummy cells if last child before grid width
-        if ((this.parent.width > 0) && (this.child.index % this.parent.width !== this.parent.width - 1) && this.child.isLast) {
-            for (var i = this.child.index; i < this.parent.width - 1; i++) {
+        if (this.child.isLast && this.child.index < this.parent.totalCells - 1) {
+            for (var i = this.child.index; i < this.parent.totalCells - 1; i++) {
                 html += `<div class='${width}'></div>`;
             }
         }
@@ -5843,7 +5868,7 @@ class PodeProgress extends PodeContentElement {
                 </div>
         </div>`;
 
-        if (!data.HideName && data.DisplayName) {
+        if (!data.HideLabel && data.DisplayName) {
             html = `<div class='form-group row'>
                 <label for='${this.id}' class='col-sm-2 col-form-label'>${data.DisplayName}</label>
                 <div class='col-sm-10 my-auto'>${html}</div>

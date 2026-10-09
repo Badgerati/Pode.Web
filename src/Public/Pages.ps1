@@ -544,7 +544,7 @@ function Add-PodeWebPage {
             }
 
             $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
-            Write-PodeJsonResponse -Value (@($navigation) + @($content))
+            Write-PodeJsonResponse -Value (@($navigation) + @($content)) -Depth 20
         }
 
         $global:PageData = $null
