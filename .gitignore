@@ -11,6 +11,7 @@ examples/issue-*
 examples/issues/
 pkg/
 yarn.lock
+package-lock.json
 min-maps/
 Pode.Web/
 
