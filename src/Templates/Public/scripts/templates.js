@@ -1559,7 +1559,9 @@ class PodeRefreshableElement extends PodeTextualElement {
 
         this.autoRefresh = {
             enabled: data.AutoRefresh ?? false,
-            interval: data.RefreshInterval ?? 0
+            interval: data.RefreshInterval ?? 0,
+            timeoutId: undefined,
+            intervalId: undefined
         };
     }
 
@@ -1600,17 +1602,19 @@ class PodeRefreshableElement extends PodeTextualElement {
             obj.load();
         });
 
-        // auto-refresh timer
-        if (this.autoRefresh.enabled) {
+        // auto-refresh timer, only when not configured
+        if (this.autoRefresh.enabled && !this.autoRefresh.timeoutId) {
+            // adjust mintely timers with minor initial offset
             var timeout = this.autoRefresh.interval;
             if (timeout == 60000) {
                 timeout = (60 - (new Date()).getSeconds()) * 1000;
             }
 
-            setTimeout(() => {
+            // create timeout and interval to refresh element
+            this.autoRefresh.timeoutId = setTimeout(() => {
                 this.load();
 
-                setInterval(() => {
+                this.autoRefresh.intervalId = setInterval(() => {
                     this.load();
                 }, this.autoRefresh.interval);
             }, timeout);

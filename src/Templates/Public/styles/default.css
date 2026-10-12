@@ -942,6 +942,7 @@ iframe {
 .mdi::before {
     font-size: 24px;
     line-height: 14px;
+    vertical-align: middle;
 }
 
 th .mdi::before {
@@ -1052,7 +1053,6 @@ a.nav-link .mdi:before {
 #pode-page-title span.mdi.pode-page-title-icon:before {
     font-size: 35px;
     position: relative;
-    top: 2px;
 }
 
 #pode-nav-social a .mdi::before {

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     $(Use-PodeWebPartialView -Path 'shared/head' -Data @{
         Title = $data.Page.DisplayName
