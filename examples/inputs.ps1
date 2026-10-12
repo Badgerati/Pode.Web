@@ -30,7 +30,7 @@ Start-PodeServer -Threads 2 {
                 Show-PodeWebToast -Message 'The element has the mouse over!'
             }
 
-        New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon 'Lock' -Placeholder 'Enter your password' -HideName -Required
+        New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon 'Lock' -Placeholder 'Enter your password' -LabelState Hide -Required
         New-PodeWebTextbox -Name 'Date' -Type Date
         New-PodeWebTextbox -Name 'Time' -Type Time
         New-PodeWebTextbox -Name 'Comments' -Multiline -PrependIcon 'comment-quote'
@@ -108,7 +108,7 @@ Start-PodeServer -Threads 2 {
     )
 
     $modal = New-PodeWebModal -Name 'Test Modal' -AsForm -Content @(
-        New-PodeWebTextbox -Name 'Username' -HideName -PrependText 'Username' -Required
+        New-PodeWebTextbox -Name 'Username' -LabelState Hide -PrependText 'Username' -Required
     ) -ScriptBlock {
         Show-PodeWebToast -Message "The modal was submitted with: $($WebEvent.Data['Username'])"
         Hide-PodeWebModal

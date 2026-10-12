@@ -77,6 +77,11 @@ function New-PodeWebTextbox {
         [int]
         $MaxLength = 524288,
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [Parameter(ParameterSetName = 'Multi')]
         [switch]
         $Multiline,
@@ -109,10 +114,7 @@ function New-PodeWebTextbox {
 
         [Parameter(ParameterSetName = 'Multi')]
         [switch]
-        $JsonInline,
-
-        [switch]
-        $HideName
+        $JsonInline
     )
 
     begin {
@@ -142,7 +144,7 @@ function New-PodeWebTextbox {
             ObjectType       = 'Textbox'
             Name             = $Name
             DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-            HideName         = $HideName.IsPresent
+            LabelState       = $LabelState
             ID               = $Id
             Type             = $Type
             Multiline        = $Multiline.IsPresent
@@ -241,14 +243,16 @@ function New-PodeWebFileUpload {
         [string[]]
         $Accept = '*/*',
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [switch]
         $Required,
 
         [switch]
-        $Multiple,
-
-        [switch]
-        $HideName
+        $Multiple
     )
 
     $Id = Get-PodeWebElementId -Tag File -Id $Id -Name $Name
@@ -259,7 +263,7 @@ function New-PodeWebFileUpload {
         ObjectType    = 'File-Upload'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName      = $HideName.IsPresent
+        LabelState    = $LabelState
         ID            = $Id
         Accept        = ($Accept -join ',')
         Required      = $Required.IsPresent
@@ -401,6 +405,11 @@ function New-PodeWebCheckbox {
         [string]
         $HelpText,
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
@@ -424,9 +433,6 @@ function New-PodeWebCheckbox {
 
         [switch]
         $Required,
-
-        [switch]
-        $HideName,
 
         [Parameter(ParameterSetName = 'Empty')]
         [switch]
@@ -455,7 +461,7 @@ function New-PodeWebCheckbox {
         ObjectType       = 'Checkbox'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName         = $HideName.IsPresent
+        LabelState       = $LabelState
         ID               = $Id
         Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
@@ -571,6 +577,11 @@ function New-PodeWebRadio {
         [string]
         $HelpText,
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
@@ -584,9 +595,6 @@ function New-PodeWebRadio {
 
         [switch]
         $Required,
-
-        [switch]
-        $HideName,
 
         [Parameter(ParameterSetName = 'Empty')]
         [switch]
@@ -621,7 +629,7 @@ function New-PodeWebRadio {
         ObjectType       = 'Radio'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName         = $HideName.IsPresent
+        LabelState       = $LabelState
         ID               = $Id
         Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
@@ -756,6 +764,11 @@ function New-PodeWebSelect {
         [string]
         $HelpText,
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
@@ -768,10 +781,7 @@ function New-PodeWebSelect {
         $Required,
 
         [switch]
-        $Disabled,
-
-        [switch]
-        $HideName
+        $Disabled
     )
 
     # ensure options are only of type option or option-group
@@ -815,7 +825,7 @@ function New-PodeWebSelect {
         ObjectType       = 'Select'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName         = $HideName.IsPresent
+        LabelState       = $LabelState
         ID               = $Id
         Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
@@ -964,6 +974,11 @@ function New-PodeWebDatalist {
         [string]
         $HelpText,
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [switch]
         $ReadOnly,
 
@@ -972,9 +987,6 @@ function New-PodeWebDatalist {
 
         [switch]
         $Disabled,
-
-        [switch]
-        $HideName,
 
         [switch]
         $NoAutoSelect
@@ -1008,7 +1020,7 @@ function New-PodeWebDatalist {
         ObjectType       = 'Datalist'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName         = $HideName.IsPresent
+        LabelState       = $LabelState
         ID               = $Id
         Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
@@ -1230,6 +1242,11 @@ function New-PodeWebRange {
         [string]
         $HelpText,
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [switch]
         $Disabled,
 
@@ -1237,10 +1254,7 @@ function New-PodeWebRange {
         $ShowValue,
 
         [switch]
-        $Required,
-
-        [switch]
-        $HideName
+        $Required
     )
 
     # ensure min less than max, and max greater than min
@@ -1276,7 +1290,7 @@ function New-PodeWebRange {
         ObjectType    = 'Range'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName      = $HideName.IsPresent
+        LabelState    = $LabelState
         ID            = $Id
         Value         = $Value
         Min           = $Min
@@ -1331,7 +1345,7 @@ function New-PodeWebProgress {
         $Animated,
 
         [switch]
-        $HideName
+        $HideLabel
     )
 
     $Id = Get-PodeWebElementId -Tag Progress -Id $Id -Name $Name
@@ -1364,7 +1378,7 @@ function New-PodeWebProgress {
         Striped       = ($Striped.IsPresent -or $Animated.IsPresent)
         Animated      = $Animated.IsPresent
         Colour        = $Colour
-        HideName      = $HideName.IsPresent
+        HideLabel     = $HideLabel.IsPresent
     }
 }
 
@@ -1729,14 +1743,16 @@ function New-PodeWebCredential {
         [string]
         $PasswordValue,
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [switch]
         $ReadOnly,
 
         [switch]
-        $Required,
-
-        [switch]
-        $HideName
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag Cred -Id $Id -Name $Name
@@ -1747,7 +1763,7 @@ function New-PodeWebCredential {
         ObjectType    = 'Credential'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName      = $HideName.IsPresent
+        LabelState    = $LabelState
         ID            = $Id
         HelpText      = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly      = $ReadOnly.IsPresent
@@ -1831,14 +1847,16 @@ function New-PodeWebDateTime {
         [string]
         $TimeValue,
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [switch]
         $ReadOnly,
 
         [switch]
-        $Required,
-
-        [switch]
-        $HideName
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag DateTime -Id $Id -Name $Name
@@ -1849,7 +1867,7 @@ function New-PodeWebDateTime {
         ObjectType    = 'DateTime'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName      = $HideName.IsPresent
+        LabelState    = $LabelState
         ID            = $Id
         HelpText      = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly      = $ReadOnly.IsPresent
@@ -1933,14 +1951,16 @@ function New-PodeWebMinMax {
         [string[]]
         $Type = @('Min', 'Max'),
 
+        [Parameter()]
+        [ValidateSet('Automatic', 'Show', 'Hide')]
+        [string]
+        $LabelState = 'Automatic',
+
         [switch]
         $ReadOnly,
 
         [switch]
-        $Required,
-
-        [switch]
-        $HideName
+        $Required
     )
 
     $Id = Get-PodeWebElementId -Tag MinMax -Id $Id -Name $Name
@@ -1951,7 +1971,7 @@ function New-PodeWebMinMax {
         ObjectType    = 'MinMax'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        HideName      = $HideName.IsPresent
+        LabelState    = $LabelState
         ID            = $Id
         Values        = @{
             Min = $MinValue
