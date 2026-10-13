@@ -788,7 +788,7 @@ function Update-PodeWebText {
 
     Send-PodeWebAction -Value @{
         Operation  = 'Update'
-        ObjectType = 'Text'
+        ObjectType = 'Element'
         ID         = $Id
         Value      = [System.Net.WebUtility]::HtmlEncode($Value)
     }

@@ -3006,7 +3006,8 @@ function New-PodeWebTable {
         }
 
         # main table data script
-        $routePath = "/pode.web-dynamic/elements/table/$($Id)/data"
+        $basePath = "/pode.web-dynamic/elements/table/$($Id)"
+        $routePath = "$($basePath)/data"
         $buildRoute = (($null -ne $ScriptBlock) -or ![string]::IsNullOrWhiteSpace($CsvFilePath))
 
         if ($buildRoute -and !(Test-PodeWebRoute -Path $routePath)) {
@@ -3082,7 +3083,7 @@ function New-PodeWebTable {
         }
 
         # table row click
-        $clickPath = "$($routePath)/click"
+        $clickPath = "$($basePath)/click"
         if (($null -ne $ClickScriptBlock) -and !(Test-PodeWebRoute -Path $clickPath)) {
             # check for scoped vars
             $ClickScriptBlock, $clickUsingVars = Convert-PodeScopedVariables -ScriptBlock $ClickScriptBlock -PSSession $PSCmdlet.SessionState
@@ -3715,7 +3716,8 @@ function New-PodeWebTile {
     }
 
     # main route to load tile value
-    $routePath = "/pode.web-dynamic/elements/tile/$($Id)/data"
+    $basePath = "/pode.web-dynamic/elements/tile/$($Id)/data"
+    $routePath = "$($basePath)/data"
     if (($null -ne $ScriptBlock) -and !(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
         $ScriptBlock, $usingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState
@@ -3773,7 +3775,7 @@ function New-PodeWebTile {
     }
 
     # tile click route
-    $clickPath = "$($routePath)/click"
+    $clickPath = "$($basePath)/click"
     if (($null -ne $ClickScriptBlock) -and !(Test-PodeWebRoute -Path $clickPath)) {
         # check for scoped vars
         $ClickScriptBlock, $clickUsingVars = Convert-PodeScopedVariables -ScriptBlock $ScriptBlock -PSSession $PSCmdlet.SessionState

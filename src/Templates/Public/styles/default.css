@@ -984,7 +984,6 @@ th .mdi::before {
 
 .pode-card .card-header .pode-card-collapse .mdi::before {
     position: relative;
-    top: 1px;
 }
 
 .card-header:has(+.card-body[style*="display: none;"]) {
