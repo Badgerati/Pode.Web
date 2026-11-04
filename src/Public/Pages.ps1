@@ -317,6 +317,11 @@ function Add-PodeWebPage {
         $HelpScriptBlock,
 
         [Parameter()]
+        [ValidateRange(1, [int]::MaxValue)]
+        [int]
+        $Depth = 20,
+
+        [Parameter()]
         [Alias('NoAuth')]
         [switch]
         $NoAuthentication,
@@ -429,6 +434,7 @@ function Add-PodeWebPage {
         }
         ConnectionType   = (Get-PodeWebConnectionType)
         Features         = (Get-PodeWebState -Name 'features')
+        Depth            = $Depth
     }
 
     # does the page need auth?
@@ -544,7 +550,7 @@ function Add-PodeWebPage {
             }
 
             $navigation = Get-PodeWebNavDefault -Items $global:PageData.Navigation
-            Write-PodeJsonResponse -Value (@($navigation) + @($content)) -Depth 20
+            Write-PodeJsonResponse -Value (@($navigation) + @($content)) -Depth $global:PageData.Depth
         }
 
         $global:PageData = $null

@@ -271,6 +271,23 @@ function New-PodeWebFileUpload {
     }
 }
 
+function New-PodeWebLineBreak {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]
+        $Id
+    )
+
+    return @{
+        Operation     = 'New'
+        ComponentType = 'Element'
+        ObjectType    = 'Line-Break'
+        ID            = (Get-PodeWebElementId -Tag 'LineBreak' -Id $Id)
+        NoEvents      = $true
+    }
+}
+
 function New-PodeWebParagraph {
     [CmdletBinding()]
     param(
@@ -289,7 +306,11 @@ function New-PodeWebParagraph {
         [Parameter()]
         [ValidateSet('Left', 'Right', 'Center')]
         [string]
-        $Alignment = 'Left'
+        $Alignment = 'Left',
+
+        [Parameter(ParameterSetName = 'Empty')]
+        [switch]
+        $Empty
     )
 
     # ensure elements are correct
@@ -298,6 +319,11 @@ function New-PodeWebParagraph {
     }
 
     $Id = Get-PodeWebElementId -Tag Para -Id $Id
+
+    if ($Empty) {
+        $Value = [string]::Empty
+        $Content = $null
+    }
 
     return @{
         Operation     = 'New'

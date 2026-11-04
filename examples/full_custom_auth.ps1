@@ -11,7 +11,7 @@ Start-PodeServer -StatusPageExceptions Show {
     Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
 
     # define a new custom authentication scheme, which needs a client, username, and password
-    $custom_scheme = New-PodeAuthScheme -Custom -ScriptBlock {
+    $custom_scheme = New-PodeAuthCustomScheme -ScriptBlock {
         param($opts)
 
         # get the client/user/password from the request's post data

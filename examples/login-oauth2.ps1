@@ -34,8 +34,7 @@ Start-PodeServer -Threads 2 {
         }
     }
 
-    $scheme = New-PodeAuthScheme `
-        -OAuth2 `
+    $scheme = New-PodeAuthOAuth2Scheme `
         -ClientId $clientId `
         -ClientSecret $clientSecret `
         -AuthoriseUrl '/mock/oauth2/authorise' `

@@ -4,10 +4,10 @@ There are 2 different kinds of pages in Pode.Web which are defined below. Other 
 
 ## Login
 
-To enable the use of a login page, and lock your site behind authentication, is simple! First, just set up sessions and define the authentication method you want via the usual `Enable-PodeSessionMiddleware`, `New-PodeAuthScheme`, and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
+To enable the use of a login page, and lock your site behind authentication, is simple! First, just set up sessions and define the authentication method you want via the usual `Enable-PodeSessionMiddleware`, `New-PodeAuthFormScheme` (and others), and `Add-PodeAuth` in Pode. Then, pass the authentication name into [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) - and that's it!
 
 !!! note
-    Since the login page uses a form to log a user in, the best scheme to use is Forms: `New-PodeAuthScheme -Form`. OAuth2 also works, as the login page will automatically trigger the relevant redirects to your OAuth2 provider.
+    Since the login page uses a form to log a user in, the best scheme to use is Forms: `New-PodeAuthFormScheme`. OAuth2 also works, as the login page will automatically trigger the relevant redirects to your OAuth2 provider.
 
 !!! important
     If you require a login page, then you **must** call [`Set-PodeWebLoginPage`](../../Functions/Pages/Set-PodeWebLoginPage) before you make any calls to [`Add-PodeWebPage`](../../Functions/Pages/Add-PodeWebPage).
@@ -15,7 +15,7 @@ To enable the use of a login page, and lock your site behind authentication, is 
 ```powershell
 Enable-PodeSessionMiddleware -Duration 120 -Extend
 
-New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
+New-PodeAuthFormScheme | Add-PodeAuth -Name Example -ScriptBlock {
     param($username, $password)
 
     return @{
@@ -61,7 +61,7 @@ By default the Login page will display a login form with Username and Password i
 Enable-PodeSessionMiddleware -Duration 120 -Extend
 
 # define a new custom authentication scheme, which needs a client, username, and password
-$custom_scheme = New-PodeAuthScheme -Custom -ScriptBlock {
+$custom_scheme = New-PodeAuthCustomScheme -ScriptBlock {
     param($opts)
 
     # get the client/user/password from the request's post data

@@ -22,13 +22,16 @@ Start-PodeServer -Threads 2 {
     )
 
     $card2 = New-PodeWebCard -Name 'Processes' -Content @(
-        New-PodeWebButton -Name 'HideCPU' -ScriptBlock {
-            Hide-PodeWebTableColumn -Name 'Processes' -Key 'CPU'
-        }
+        New-PodeWebButtonGroup -Buttons @(
+            New-PodeWebButton -Name 'HideCPU' -ScriptBlock {
+                Hide-PodeWebTableColumn -Name 'Processes' -Key 'CPU'
+            }
+            New-PodeWebButton -Name 'ShowCPU' -ScriptBlock {
+                Show-PodeWebTableColumn -Name 'Processes' -Key 'CPU'
+            }
+        )
 
-        New-PodeWebButton -Name 'ShowCPU' -ScriptBlock {
-            Show-PodeWebTableColumn -Name 'Processes' -Key 'CPU'
-        }
+        New-PodeWebParagraph -Empty
 
         New-PodeWebTable `
             -Name 'Processes' `
@@ -37,6 +40,7 @@ Start-PodeServer -Threads 2 {
             -Filter `
             -SimpleFilter `
             -Compact `
+            -NoRefresh `
             -ScriptBlock {
             $processes = Get-Process | Select-Object -Property Name, ID, WorkingSet, CPU
 
