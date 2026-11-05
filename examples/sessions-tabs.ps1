@@ -11,7 +11,7 @@ Start-PodeServer -StatusPageExceptions Show {
     # enable sessions and authentication
     Enable-PodeSessionMiddleware -Duration 600 -Extend -Scope Tab
 
-    New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -SuccessUseOrigin -ScriptBlock {
+    New-PodeAuthFormScheme | Add-PodeAuth -Name Example -SuccessUseOrigin -ScriptBlock {
         param($username, $password)
 
         # here you'd check a real user storage, this is just for example

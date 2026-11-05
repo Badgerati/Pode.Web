@@ -1456,19 +1456,34 @@ class PodeTextualElement extends PodeContentElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.textual = true;
+        this.convertNewLines = true;
     }
 
     update(data, sender, opts) {
         super.update(data, sender, opts);
 
         if (this.textual && data.Value) {
+            var txt = this.convertText(data.Value);
+
             if (this.element.hasClass('pode-text')) {
-                this.element.text(decodeHTML(data.Value));
+                this.element.html(txt);
             }
             else {
-                this.element.find('.pode-text').text(decodeHTML(data.Value));
+                this.element.find('.pode-text').html(txt);
             }
         }
+    }
+
+    convertText(text) {
+        if (!text) {
+            return '';
+        }
+
+        if (this.convertNewLines) {
+            text = text.replace(/\r\n|\r|\n/g, '<br/>');
+        }
+
+        return text;
     }
 }
 
@@ -1552,6 +1567,7 @@ class PodeRefreshableElement extends PodeTextualElement {
     constructor(data, sender, opts) {
         super(data, sender, opts);
         this.hasSpinner = true;
+        this.convertNewLines = false;
 
         this.refreshable = {
             enabled: !(data.NoRefresh ?? false)
@@ -1963,7 +1979,7 @@ class PodeBadge extends PodeTextualElement {
             class='badge text-bg-${PodeElement.mapColourToClass(data.Colour)} pode-text'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
-                ${data.Value}
+                ${this.convertText(data.Value)}
         </span>`;
     }
 
@@ -1991,7 +2007,7 @@ class PodeText extends PodeTextualElement {
             class='pode-text'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
-                ${encodeNewlines(data.Value)}
+                ${this.convertText(data.Value)}
         </span>`;
 
         switch (data.Style.toLowerCase()) {
@@ -2099,7 +2115,7 @@ class PodeLink extends PodeTextualElement {
             target='${data.NewTab ? '_blank' : '_self'}'
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
-                ${data.Value}
+                ${this.convertText(data.Value)}
         </a>`;
     }
 
@@ -2709,7 +2725,7 @@ class PodeForm extends PodeContentElement {
 }
 PodeElementFactory.setClass(PodeForm);
 
-class PodeToast extends PodeElement {
+class PodeToast extends PodeTextualElement {
     static type = 'toast';
 
     constructor(...args) {
@@ -2735,7 +2751,7 @@ class PodeToast extends PodeElement {
                     </button>
                 </div>
                 <div class="toast-body">
-                    ${data.Message}
+                    ${this.convertText(data.Message)}
                 </div>
             </div>
         `);
@@ -2888,7 +2904,7 @@ class PodeAlert extends PodeTextualElement {
                     <strong>${data.DisplayName}</strong>
                 </h6>
                 <div pode-content-for='${this.uuid}' pode-content-order='0' class='pode-alert-body pode-text'>
-                    ${data.Value ? data.Value : ''}
+                    ${this.convertText(data.Value)}
                 </div>
         </div>`;
     }
@@ -2957,6 +2973,9 @@ class PodeTable extends PodeRefreshableElement {
             </button>`;
         });
 
+        var refreshBtn = this.buildRefreshButton(false);
+        var tableBtns = `${refreshBtn}${exportBtn}${customBtns}`;
+
         return `<span pode-container-for='${this.uuid}'>
             ${msg}
             <div
@@ -2979,12 +2998,8 @@ class PodeTable extends PodeRefreshableElement {
                             <span for='${this.uuid}' class='pode-spinner spinner-grow pode-inbuilt-secondary-theme' role='status' style='display: none'></span>
                         </div>
                     </div>
-                    <div role='controls'>
-                        <div class="btn-group me-2">
-                        ${this.buildRefreshButton(false)}
-                        ${exportBtn}
-                        ${customBtns}
-                        </div>
+                    <div role='controls' class='${tableBtns ? '' : 'mBottom1'}'>
+                        <div class="btn-group me-2">${tableBtns}</div>
                         ${paging}
                     </div>
             </div>
@@ -3780,7 +3795,7 @@ class PodeParagraph extends PodeTextualElement {
             pode-object="${this.getType()}"
             pode-id="${this.uuid}">
                 <span pode-content-for='${this.uuid}' pode-content-order='0' class='pode-text'>
-                    ${data.Value ? encodeNewlines(data.Value) : ''}
+                    ${this.convertText(data.Value)}
                 </span>
         </p>`;
     }
@@ -3806,9 +3821,9 @@ class PodeHeader extends PodeTextualElement {
             pode-id='${this.uuid}'>
                 ${icon}
                 <span pode-content-for='${this.uuid}' pode-content-order='0' class='pode-text'>
-                    ${data.Value}
+                    ${this.convertText(data.Value)}
                 </span>
-                ${subHeader}
+                ${this.convertText(subHeader)}
         </span>`;
     }
 
@@ -4084,6 +4099,7 @@ class PodeCodeBlock extends PodeTextualElement {
 
     constructor(...args) {
         super(...args);
+        this.convertNewLines = false;
     }
 
     new(data, sender, opts) {
@@ -4093,12 +4109,10 @@ class PodeCodeBlock extends PodeTextualElement {
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
                 <button type='button' class='btn btn-icon-only pode-code-copy' data-bs-title='Copy to clipboard' data-bs-toggle='tooltip'>
-                    <span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight02'></span>
+                    <span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight02 mTop-03'></span>
                 </button>
 
-                <code class="${data.Language} pode-text">
-                    ${data.Value}
-                </code>
+                <code class="${data.Language} pode-text">${data.Value}</code>
         </pre>`;
     }
 
@@ -4133,7 +4147,7 @@ class PodeCode extends PodeTextualElement {
             class="pode-text"
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
-                ${data.Value}
+                ${this.convertText(data.Value)}
         </code>`;
     }
 }
@@ -4155,7 +4169,7 @@ class PodeQuote extends PodeTextualElement {
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'>
                 <blockquote class='blockquote'>
-                    <p class='pode-text mb-0'>${data.Value}</p>
+                    <p class='pode-text mb-0'>${this.convertText(data.Value)}</p>
                 </blockquote>
                 ${footer}
         </figure>`;
@@ -7123,3 +7137,20 @@ class PodeSpan extends PodeElement {
     }
 }
 PodeElementFactory.setClass(PodeSpan);
+
+class PodeLineBreak extends PodeElement {
+    static type = 'line-break'
+
+    constructor(...args) {
+        super(...args);
+    }
+
+    new(data, sender, opts) {
+        return `<br
+            id="${this.id}"
+            class="pode-line-break"
+            pode-object="${this.getType()}"
+            pode-id='${this.uuid}'/>`;
+    }
+}
+PodeElementFactory.setClass(PodeLineBreak);

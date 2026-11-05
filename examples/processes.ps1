@@ -8,7 +8,7 @@ Start-PodeServer {
 
     # login/auth
     Enable-PodeSessionMiddleware -Duration (10 * 60) -Extend
-    New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
+    New-PodeAuthFormScheme | Add-PodeAuth -Name Example -ScriptBlock {
         param($username, $password)
 
         if ($username -eq 'morty' -and $password -eq 'pickle') {

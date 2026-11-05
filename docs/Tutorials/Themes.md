@@ -179,7 +179,7 @@ Above it was mentioned that colours are supplied in hex, rgb, etc. formats. Howe
 You can override the default theme on a per-user basis by either setting the `pode.web.theme` cookie on the frontend, or by setting a `Theme` property in the user's authentication object:
 
 ```powershell
-New-PodeAuthScheme -Form | Add-PodeAuth -Name Example -ScriptBlock {
+New-PodeAuthFormScheme | Add-PodeAuth -Name Example -ScriptBlock {
     param($username, $password)
 
     return @{

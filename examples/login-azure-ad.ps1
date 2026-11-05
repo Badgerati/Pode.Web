@@ -13,7 +13,7 @@ Start-PodeServer {
     $tenantId = '<tenant-from-portal>'
 
     # for OAuth2 grant type = password
-    # $form = New-PodeAuthScheme -Form
+    # $form = New-PodeAuthFormScheme
     # $scheme = New-PodeAuthAzureADScheme -Tenant $tenantId -ClientId $clientId -ClientSecret $clientSecret -InnerScheme $form
 
     # for OAuth2 grant type = auth_code

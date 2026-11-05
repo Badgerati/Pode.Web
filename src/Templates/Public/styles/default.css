@@ -212,17 +212,6 @@ nav[role="pagination"] input.page-size {
     background-color: transparent;
 }
 
-div#pode-nav-social a,
-div#pode-nav-items a.nav-link:not(.disabled) {
-    color: #bbb;
-}
-
-div#pode-nav-social a:hover,
-div#pode-nav-items a.nav-link:hover {
-    color: #007bff;
-    text-decoration: none;
-}
-
 li.nav-item {
     margin-right: 0.4rem;
 }
@@ -916,6 +905,10 @@ iframe {
     margin-top: -0.2em;
 }
 
+.mTop-03 {
+    margin-top: -0.3em;
+}
+
 .mTop05 {
     margin-top: 0.5em;
 }
@@ -979,7 +972,7 @@ th .mdi::before {
 
 .btn:not(.btn-icon-only, .btn-no-text, .btn-block) .mdi::before {
     position: relative;
-    top: 4px;
+    top: -1px;
 }
 
 .pode-card .card-header .pode-card-collapse .mdi::before {
@@ -1051,17 +1044,18 @@ a.nav-link .mdi:before {
 
 #pode-page-title span.mdi.pode-page-title-icon:before {
     font-size: 35px;
+    top: -3px;
     position: relative;
 }
 
 #pode-nav-social a .mdi::before {
     position: relative;
-    top: 3px;
+    top: 0px;
 }
 
 .modal-title .mdi::before {
     position: relative;
-    top: 2px;
+    top: -2px;
 }
 
 .btn-xs .mdi::before {
@@ -1124,7 +1118,7 @@ a.nav-link .mdi:before {
 
 .dropdown-menu .mdi::before {
     position: relative;
-    top: 4px;
+    top: -1px;
 }
 
 .nav .mdi::before {
@@ -1140,7 +1134,7 @@ a.nav-link .mdi:before {
 
 .navbar #avatar.mdi::before {
     position: relative;
-    top: 3px;
+    top: 0px;
 }
 
 .breadcrumb .mdi::before {
@@ -1163,13 +1157,13 @@ a.nav-link .mdi:before {
 
 .alert .mdi::before {
     position: relative;
-    top: 4px;
+    top: -2px;
     margin-right: 2px;
 }
 
 .pode-tile-header .mdi::before {
     position: relative;
-    top: 3px;
+    top: -2px;
     margin-right: 2px;
 }
 
@@ -1232,6 +1226,7 @@ a.navbar-brand:hover {
 div#pode-nav-social a,
 div#pode-nav-items a.nav-link:not(.disabled) {
     color: var(--podeweb-nav-text-color) !important;
+    text-decoration: none;
 }
 
 div#pode-nav-social a:hover,
