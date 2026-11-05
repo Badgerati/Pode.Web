@@ -1429,11 +1429,3 @@ function mergeObjects(obj1, obj2, excludeProps) {
 
     return obj1;
 }
-
-function encodeNewlines(text) {
-    if (!text) {
-        return '';
-    }
-
-    return text.replace(/\r?\n/g, "<br/>");
-}
