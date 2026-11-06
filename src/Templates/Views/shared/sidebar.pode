@@ -105,7 +105,7 @@ $(
 
                             $icon = [string]::Empty
                             if (![string]::IsNullOrWhiteSpace($group.Icon)) {
-                                $icon = "<span class='mdi mdi-$($group.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>"
+                                $icon = "<span class='mdi mdi-$($group.Icon.ToLowerInvariant()) mdi-size-22 mRight02 page-group-icon'></span>"
                             }
 
                             if ($group.Sidebar.Separator -and $group.Sidebar.Separator.ShowBefore) {
@@ -115,7 +115,7 @@ $(
                             $html += "<li class='nav-item nav-group-title mLeft$($Level * 2)'>
                                 <a class='nav-link $($collapsed)' data-bs-toggle='collapse' href='#nav-$($group.ID)' aria-expanded='$($data.Page.Group -ieq $group.Name)' aria-controls='nav-$($group.ID)'>
                                     <div>
-                                        <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02'></span>
+                                        <span class='mdi mdi-chevron-$($chevron) mdi-size-22 mRight02 page-group-arrow'></span>
                                         <span class='h6'><strong>$($icon)$($group.DisplayName)</strong></span>
                                         $(if ($group.Sidebar.ShowCounter) {
                                             "<span class='badge pode-inbuilt-primary-theme'>$($pageCounter)</span>"
@@ -181,7 +181,7 @@ $(
                     "<li class='nav-item nav-page-item mLeft$(($Level + 1) * 2)'>
                         <a class='nav-link $($activePage)' name='$($Page.Name)' pode-page-group='$($group.Name)' pode-page-type='$($Page.ObjectType)' pode-dynamic='$($Page.IsDynamic)' $($href)>
                             <div>
-                                <span class='mdi mdi-$($Page.Icon.ToLowerInvariant()) mdi-size-22 mRight02'></span>
+                                <span class='mdi mdi-$($Page.Icon.ToLowerInvariant()) mdi-size-22 mRight02 page-icon'></span>
                                 $($Page.DisplayName)
                             </div>
                         </a>
