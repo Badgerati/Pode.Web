@@ -787,14 +787,14 @@ function isNumeric(value) {
 function bindPageGroupCollapse() {
     $('ul#sidebar-list div.collapse').off('hide.bs.collapse').on('hide.bs.collapse', function(e) {
         var id = $(e.target).attr('id');
-        var icon = $(`a[aria-controls="${id}"] span.mdi`);
+        var icon = $(`a[aria-controls="${id}"] span.mdi.page-group-arrow`);
         toggleIcon(icon, 'chevron-right', 'chevron-down');
         e.stopPropagation();
     });
 
     $('ul#sidebar-list div.collapse').off('show.bs.collapse').on('show.bs.collapse', function(e) {
         var id = $(e.target).attr('id');
-        var icon = $(`a[aria-controls="${id}"] span.mdi`);
+        var icon = $(`a[aria-controls="${id}"] span.mdi.page-group-arrow`);
         toggleIcon(icon, 'chevron-down', 'chevron-right');
         e.stopPropagation();
     });

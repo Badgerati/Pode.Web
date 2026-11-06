@@ -1259,7 +1259,7 @@ function New-PodeWebPageGroup {
         DisplayName   = [System.Net.WebUtility]::HtmlEncode($DisplayName)
         Parent        = $Parent
         Children      = @()
-        Icon          = $Icon1
+        Icon          = $Icon
         Sidebar       = @{
             ShowCounter = $ShowCounter.IsPresent
             Hide        = $Hide.IsPresent

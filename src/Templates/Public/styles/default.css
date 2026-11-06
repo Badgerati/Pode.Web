@@ -444,7 +444,7 @@ li.nav-group-title span.badge {
     padding: 5px;
 }
 
-ul#sidebar-list li.nav-group-title a span.mdi {
+ul#sidebar-list li.nav-group-title a span.mdi.page-group-arrow {
     border-style: solid;
     border-color: var(--podeweb-secondary-text-color);
     border-radius: 0.4em;
@@ -453,13 +453,13 @@ ul#sidebar-list li.nav-group-title a span.mdi {
     padding-bottom: 0.24em;
 }
 
-ul#sidebar-list li.nav-group-title a:not(.collapsed) span.mdi {
+ul#sidebar-list li.nav-group-title a:not(.collapsed) span.mdi.page-group-arrow {
     background-color: var(--podeweb-secondary-border-color);
     border-color: var(--podeweb-tertiary-text-color);
     color: var(--podeweb-tertiary-text-color);
 }
 
-ul#sidebar-list li.nav-group-title a.collapsed span.mdi {
+ul#sidebar-list li.nav-group-title a.collapsed span.mdi.page-group-arrow {
     background-color: var(--podeweb-tertiary-border-color);
 }
 

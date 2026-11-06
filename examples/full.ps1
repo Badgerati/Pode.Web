@@ -36,7 +36,7 @@ Start-PodeServer -StatusPageExceptions Show {
         -BackgroundColourConfig (New-PodeWebBackgroundColourConfig -Page 'darkred')
 
     # create custom sidebar groups
-    New-PodeWebPageGroup -Name 'Tools' -PassThru | Show-PodeWebSidebarSeparator
+    New-PodeWebPageGroup -Name 'Tools' -Icon Cogs -PassThru | Show-PodeWebSidebarSeparator
     New-PodeWebPageGroup -Name 'Windows' -Parent 'Tools'
 
     # set login page
