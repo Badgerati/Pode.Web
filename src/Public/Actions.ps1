@@ -810,11 +810,16 @@ function Update-PodeWebCodeBlock {
         $Language = [string]::Empty
     )
 
+    # value
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        $Value = [string]::Empty
+    }
+
     Send-PodeWebAction -Value @{
         Operation  = 'Update'
         ObjectType = 'CodeBlock'
         ID         = $Id
-        Value      = [System.Net.WebUtility]::HtmlEncode($Value)
+        Value      = [System.Net.WebUtility]::HtmlEncode($Value.TrimEnd().Trim("`r", "`n"))
         Language   = $Language.ToLowerInvariant()
     }
 }
