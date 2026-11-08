@@ -355,11 +355,19 @@ function New-PodeWebCodeBlock {
         $Scrollable,
 
         [switch]
-        $NoHighlight
+        $NoHighlight,
+
+        [switch]
+        $PreserveIndentation
     )
 
     # id
     $Id = Get-PodeWebElementId -Tag Codeblock -Id $Id
+
+    # value
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        $Value = [string]::Empty
+    }
 
     # language
     if ($NoHighlight) {
@@ -367,13 +375,15 @@ function New-PodeWebCodeBlock {
     }
 
     return @{
-        Operation     = 'New'
-        ComponentType = 'Element'
-        ObjectType    = 'CodeBlock'
-        ID            = $Id
-        Value         = [System.Net.WebUtility]::HtmlEncode($Value)
-        Language      = $Language.ToLowerInvariant()
-        Scrollable    = $Scrollable.IsPresent
+        Operation           = 'New'
+        ComponentType       = 'Element'
+        ObjectType          = 'CodeBlock'
+        ID                  = $Id
+        Value               = [System.Net.WebUtility]::HtmlEncode($Value.TrimEnd().Trim("`r", "`n"))
+        Language            = $Language.ToLowerInvariant()
+        Scrollable          = $Scrollable.IsPresent
+        NoHighlight         = $NoHighlight.IsPresent
+        PreserveIndentation = $PreserveIndentation.IsPresent
     }
 }
 

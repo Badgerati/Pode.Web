@@ -1283,7 +1283,9 @@ function removeClass(element, _class, raw) {
         element.removeClass();
     }
     else {
-        element.removeClass((raw ? _class : getClass(element, _class)));
+        while (hasClass(element, _class, raw)) {
+            element.removeClass((raw ? _class : getClass(element, _class)));
+        }
     }
 }
 

@@ -16,7 +16,7 @@ $src_path = './pode_modules'
 
 $Versions = @{
     MkDocs      = '1.6.1'
-    MkDocsTheme = '9.7.6'
+    MkDocsTheme = '9.7.7'
     Mike        = '2.2.0'
     PlatyPS     = '0.14.2'
 }

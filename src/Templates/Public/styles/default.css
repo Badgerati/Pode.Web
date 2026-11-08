@@ -384,8 +384,6 @@ a.disabled {
 }
 
 pre.code-block {
-    margin-top: -3em;
-    margin-bottom: 0em;
     position: relative;
 }
 
@@ -401,8 +399,8 @@ pre code {
     color: #333;
     position: absolute;
     display: flex;
-    top: 4rem;
-    right: 0.5em;
+    top: 0.1rem;
+    right: 0.1em;
 }
 
 .btn-icon-only,

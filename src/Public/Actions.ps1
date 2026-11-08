@@ -794,6 +794,36 @@ function Update-PodeWebText {
     }
 }
 
+function Update-PodeWebCodeBlock {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Id,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [string]
+        $Language = [string]::Empty
+    )
+
+    # value
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        $Value = [string]::Empty
+    }
+
+    Send-PodeWebAction -Value @{
+        Operation  = 'Update'
+        ObjectType = 'CodeBlock'
+        ID         = $Id
+        Value      = [System.Net.WebUtility]::HtmlEncode($Value.TrimEnd().Trim("`r", "`n"))
+        Language   = $Language.ToLowerInvariant()
+    }
+}
+
 function Select-PodeWebSelectOption {
     [CmdletBinding(DefaultParameterSetName = 'Name')]
     param(
