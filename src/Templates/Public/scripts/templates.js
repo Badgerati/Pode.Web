@@ -4097,28 +4097,27 @@ PodeElementFactory.setClass(PodeVideo);
 class PodeCodeBlock extends PodeTextualElement {
     static type = 'codeblock';
 
-    constructor(...args) {
-        super(...args);
+    constructor(data, sender, opts) {
+        super(...arguments);
         this.convertNewLines = false;
+        this.language = (data.Language ?? 'plaintext');
+        this.highlightEnabled = !(data.NoHighlight ?? false)
+        this.preserveIndentation = data.PreserveIndentation ?? false;
     }
 
     new(data, sender, opts) {
-        return `<pre
-            id="${this.id}"
-            class='code-block ${data.Scrollable ? 'pre-scrollable' : ''}'
-            pode-object="${this.getType()}"
-            pode-id='${this.uuid}'>
-                <button type='button' class='btn btn-icon-only pode-code-copy' data-bs-title='Copy to clipboard' data-bs-toggle='tooltip'>
-                    <span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight02 mTop-03'></span>
-                </button>
+        // fix the indentation of the code value before rendering
+        data.Value = this.fixIndentation(data.Value);
 
-                <code class="${data.Language} pode-text">${data.Value}</code>
-        </pre>`;
+        // build the pre block with code and copy button
+        var copyBtn = `<button type='button' class='btn btn-icon-only pode-code-copy' data-bs-title='Copy to clipboard' data-bs-toggle='tooltip'><span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight02 mTop-03'></span></button>`;
+        var codeTxt = `<code class="language-${this.language} pode-text">${data.Value}</code>`;
+        return `<pre id="${this.id}" class='code-block ${data.Scrollable ? 'pre-scrollable' : ''}' pode-object="${this.getType()}" pode-id='${this.uuid}'>${copyBtn}${codeTxt}</pre>`;
     }
 
     load(data, sender, opts) {
         super.load(data, sender, opts);
-        hljs.highlightElement(this.element.find('code')[0]);
+        this.highlight();
     }
 
     bind(data, sender, opts) {
@@ -4130,6 +4129,73 @@ class PodeCodeBlock extends PodeTextualElement {
             var value = obj.element.find('code').text().trim();
             navigator.clipboard.writeText(value);
         }, true);
+    }
+
+    update(data, sender, opts) {
+        // if a value has been supplied, fix its indentation before updating
+        if (data.Value) {
+            data.Value = this.fixIndentation(data.Value);
+        }
+
+        super.update(data, sender, opts);
+        var refreshHighlight = false;
+
+        // check if the language has changed and update highlighting if necessary
+        if (data.Language && this.language !== data.Language) {
+            replaceClass(this.getCodeElement(), `language-\\w+`, `language-${data.Language}`);
+            this.language = data.Language;
+            refreshHighlight = true;
+        }
+
+        // check if the value has changed and update highlighting if necessary
+        if (data.Value) {
+            refreshHighlight = true;
+        }
+
+        // if any changes require re-highlighting, do it now
+        if (refreshHighlight) {
+            this.highlight(true);
+        }
+    }
+
+    getCodeElement() {
+        return this.element.find('code');
+    }
+
+    highlight(force) {
+        if (!this.element || !this.highlightEnabled) {
+            return;
+        }
+
+        // on force, unset data-highlighted attribute to force re-highlighting
+        if (force) {
+            this.element.find('code').removeAttr('data-highlighted');
+        }
+
+        // attempt to highlight the code element
+        hljs.highlightElement(this.getCodeElement()[0]);
+    }
+
+    fixIndentation(value) {
+        // skip if no value, or preserve indentation is enabled
+        if (!value || this.preserveIndentation) {
+            return value;
+        }
+
+        // split value on new lines
+        var lines = value.split('\n');
+
+        // count number of leading spaces in the first line
+        var firstLineMatch = lines[0].match(/^(\s*)/);
+        var leadingSpaces = firstLineMatch ? firstLineMatch[1].length : 0;
+
+        // remove leading spaces in each line - if present
+        if (leadingSpaces > 0) {
+            lines = lines.map(line => line.replace(new RegExp(`^\\s{0,${leadingSpaces}}`), ''));
+        }
+
+        // re-join the lines into a single string
+        return lines.join('\n');
     }
 }
 PodeElementFactory.setClass(PodeCodeBlock);
