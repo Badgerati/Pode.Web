@@ -2643,6 +2643,7 @@ class PodeForm extends PodeContentElement {
         this.action = data.Action ?? '';
         this.method = data.Method ?? 'POST';
         this.hasSpinner = true;
+        this.inline = data.Inline ?? false;
         this.buttons = {
             submit: data.ButtonType.indexOf('submit') >= 0,
             reset: data.ButtonType.indexOf('reset') >= 0,
@@ -2655,7 +2656,7 @@ class PodeForm extends PodeContentElement {
 
         if (!this.buttons.none) {
             var submitBtn = !this.buttons.submit ? '' : `<button
-                class='btn pode-inbuilt-primary-theme mRight05'
+                class='btn pode-inbuilt-primary-theme form-submit mRight05'
                 type='submit'>
                     <span for='${this.uuid}' class="pode-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                     ${data.SubmitText}
@@ -2677,9 +2678,10 @@ class PodeForm extends PodeContentElement {
             class="pode-form"
             method="${this.method}"
             action="${this.action}"
+            pode-inline="${this.inline}"
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
-                <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0' class='form-content'></div>
                 ${formFooter}
         </form>`;
 
@@ -4112,8 +4114,8 @@ class PodeCodeBlock extends PodeTextualElement {
         data.Value = this.fixIndentation(data.Value);
 
         // build the pre block with code and copy button
-        var copyBtn = `<button type='button' class='btn btn-icon-only pode-code-copy' data-bs-title='Copy to clipboard' data-bs-toggle='tooltip'><span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight02 mTop-03'></span></button>`;
-        var codeTxt = `<code class="language-${this.language} pode-text">${data.Value}</code>`;
+        var copyBtn = `<button type='button' class='btn btn-icon-only pode-code-copy' data-bs-title='Copy to clipboard' data-bs-toggle='tooltip'><span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight05'></span></button>`;
+        var codeTxt = `<code class="hljs language-${this.language} pode-text">${data.Value}</code>`;
         return `<pre id="${this.id}" class='code-block ${data.Scrollable ? 'pre-scrollable' : ''}' pode-object="${this.getType()}" pode-id='${this.uuid}'>${copyBtn}${codeTxt}</pre>`;
     }
 

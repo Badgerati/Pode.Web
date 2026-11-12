@@ -68,6 +68,26 @@ The available form elements in Pode.Web are:
 * [Select](../Select)
 * [Textbox](../Textbox)
 
+### Label State
+
+You can control a Form Element's label appearance using `-LabelState`, with the default value being `Automatic` - the label will appear if the element is detected to be within a Form.
+
+You can also force the label to `Show` or `Hide`, allowing to to force a label to be shown or hidden.
+
+```powershell
+New-PodeWebTextbox -Name 'Password' -Type Password -LabelState Hide -Required
+```
+
+### Label Width
+
+You can optionally specify the width used by the label, by using the `-LabelWidth` parameter. Form elements are rendered using a grid, which is split up into 12 segments, and the `-LabelWidth` parameter lets you specify a value between 1 and 12 - the default value is 2. A value of 12 means the label takes up the full width of the grid, where as 6 would be half the width.
+
+You can also supply the value as a percentage as well; 50% being 6 segments, etc.
+
+```powershell
+New-PodeWebTextbox -Name 'Date' -Type Date -LabelWidth 1
+```
+
 ## Method/Action
 
 The default method for forms is `Post`, and the action is the internal route created for the form.
@@ -99,3 +119,7 @@ New-PodeWebForm -Name 'Example' -ButtonType Submit, Reset -Content @() -ScriptBl
 # if you want a Form with no buttons:
 New-PodeWebForm -Name 'Example' -ButtonType None -Content @() -ScriptBlock {}
 ```
+
+### Inline
+
+This only really works for Forms with a single element, and using `-LabelState Hide`, but you can supply `-Inline` and the buttons and element will be rendered inline with one another - rather than having the buttons on a new line.
