@@ -82,6 +82,10 @@ function New-PodeWebTextbox {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [Parameter(ParameterSetName = 'Multi')]
         [switch]
         $Multiline,
@@ -144,7 +148,10 @@ function New-PodeWebTextbox {
             ObjectType       = 'Textbox'
             Name             = $Name
             DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-            LabelState       = $LabelState
+            Label            = @{
+                State = $LabelState
+                Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+            }
             ID               = $Id
             Type             = $Type
             Multiline        = $Multiline.IsPresent
@@ -248,6 +255,10 @@ function New-PodeWebFileUpload {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [switch]
         $Required,
 
@@ -263,7 +274,10 @@ function New-PodeWebFileUpload {
         ObjectType    = 'File-Upload'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState    = $LabelState
+        Label         = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID            = $Id
         Accept        = ($Accept -join ',')
         Required      = $Required.IsPresent
@@ -446,6 +460,10 @@ function New-PodeWebCheckbox {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
@@ -497,7 +515,10 @@ function New-PodeWebCheckbox {
         ObjectType       = 'Checkbox'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState       = $LabelState
+        Label            = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID               = $Id
         Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
@@ -618,6 +639,10 @@ function New-PodeWebRadio {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
@@ -665,7 +690,10 @@ function New-PodeWebRadio {
         ObjectType       = 'Radio'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState       = $LabelState
+        Label            = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID               = $Id
         Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
@@ -805,6 +833,10 @@ function New-PodeWebSelect {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [Parameter(ParameterSetName = 'ScriptBlock')]
         [Alias('NoAuth')]
         [switch]
@@ -861,7 +893,10 @@ function New-PodeWebSelect {
         ObjectType       = 'Select'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState       = $LabelState
+        Label            = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID               = $Id
         Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
@@ -1015,6 +1050,10 @@ function New-PodeWebDatalist {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [switch]
         $ReadOnly,
 
@@ -1056,7 +1095,10 @@ function New-PodeWebDatalist {
         ObjectType       = 'Datalist'
         Name             = $Name
         DisplayName      = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState       = $LabelState
+        Label            = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID               = $Id
         Options          = $Options
         IsDynamic        = ($null -ne $ScriptBlock)
@@ -1283,6 +1325,10 @@ function New-PodeWebRange {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [switch]
         $Disabled,
 
@@ -1326,7 +1372,10 @@ function New-PodeWebRange {
         ObjectType    = 'Range'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState    = $LabelState
+        Label         = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID            = $Id
         Value         = $Value
         Min           = $Min
@@ -1784,6 +1833,10 @@ function New-PodeWebCredential {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [switch]
         $ReadOnly,
 
@@ -1799,7 +1852,10 @@ function New-PodeWebCredential {
         ObjectType    = 'Credential'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState    = $LabelState
+        Label         = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID            = $Id
         HelpText      = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly      = $ReadOnly.IsPresent
@@ -1888,6 +1944,10 @@ function New-PodeWebDateTime {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [switch]
         $ReadOnly,
 
@@ -1903,7 +1963,10 @@ function New-PodeWebDateTime {
         ObjectType    = 'DateTime'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState    = $LabelState
+        Label         = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID            = $Id
         HelpText      = [System.Net.WebUtility]::HtmlEncode($HelpText)
         ReadOnly      = $ReadOnly.IsPresent
@@ -1992,6 +2055,10 @@ function New-PodeWebMinMax {
         [string]
         $LabelState = 'Automatic',
 
+        [Parameter()]
+        [string]
+        $LabelWidth,
+
         [switch]
         $ReadOnly,
 
@@ -2007,7 +2074,10 @@ function New-PodeWebMinMax {
         ObjectType    = 'MinMax'
         Name          = $Name
         DisplayName   = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
-        LabelState    = $LabelState
+        Label         = @{
+            State = $LabelState
+            Width = Protect-PodeWebRange -Value $LabelWidth -Min 1 -Max 12
+        }
         ID            = $Id
         Values        = @{
             Min = $MinValue
@@ -4258,6 +4328,16 @@ function New-PodeWebGrid {
         throw 'A Grid can only contain Cell elements'
     }
 
+    # ensure the cells don't share the same ID
+    $cellIds = @{}
+    foreach ($cell in $Cells) {
+        if ($cellIds.ContainsKey($cell.ID)) {
+            throw "Duplicate Cell ID detected: $($cell.ID)"
+        }
+        $cellIds[$cell.ID] = $true
+    }
+
+    # set the width to 1 if the grid is vertical
     if ($Vertical) {
         $Width = 1
     }
@@ -4333,6 +4413,16 @@ function New-PodeWebTabs {
         throw 'Tabs can only contain Tab elements'
     }
 
+    # ensure the tabs don't share the same ID
+    $tabIds = @{}
+    foreach ($tab in $Tabs) {
+        if ($tabIds.ContainsKey($tab.ID)) {
+            throw "Duplicate Tab ID detected: $($tab.ID)"
+        }
+        $tabIds[$tab.ID] = $true
+    }
+
+    # set a minimum cycle interval of 10 seconds
     if ($CycleInterval -lt 10) {
         $CycleInterval = 10
     }
@@ -4680,6 +4770,15 @@ function New-PodeWebCarousel {
         throw 'A Carousel can only contain Slide elements'
     }
 
+    # ensure the slides don't share the same ID
+    $slideIds = @{}
+    foreach ($slide in $Slides) {
+        if ($slideIds.ContainsKey($slide.ID)) {
+            throw "Duplicate Slide ID detected: $($slide.ID)"
+        }
+        $slideIds[$slide.ID] = $true
+    }
+
     return @{
         Operation     = 'New'
         ComponentType = 'Element'
@@ -4757,6 +4856,15 @@ function New-PodeWebSteps {
 
     if (!(Test-PodeWebContent -Content $Steps -ComponentType Element -ObjectType Step)) {
         throw 'Steps can only contain Step elements'
+    }
+
+    # ensure the steps don't share the same ID
+    $stepIds = @{}
+    foreach ($step in $Steps) {
+        if ($stepIds.ContainsKey($step.ID)) {
+            throw "Duplicate Step ID detected: $($step.ID)"
+        }
+        $stepIds[$step.ID] = $true
     }
 
     # generate ID
@@ -4997,6 +5105,16 @@ function New-PodeWebAccordion {
         throw 'An Accordion can only contain Bellow elements'
     }
 
+    # ensure the bellows don't share the same ID
+    $bellowIds = @{}
+    foreach ($bellow in $Bellows) {
+        if ($bellowIds.ContainsKey($bellow.ID)) {
+            throw "Duplicate Bellow ID detected: $($bellow.ID)"
+        }
+        $bellowIds[$bellow.ID] = $true
+    }
+
+    # set the minimum cycle interval to 10 seconds
     if ($CycleInterval -lt 10) {
         $CycleInterval = 10
     }

@@ -31,12 +31,12 @@ Start-PodeServer -Threads 2 {
             }
 
         New-PodeWebTextbox -Name 'Password' -Type Password -PrependIcon 'Lock' -Placeholder 'Enter your password' -LabelState Hide -Required
-        New-PodeWebTextbox -Name 'Date' -Type Date
-        New-PodeWebTextbox -Name 'Time' -Type Time
-        New-PodeWebTextbox -Name 'Comments' -Multiline -PrependIcon 'comment-quote'
-        New-PodeWebDateTime -Name 'DateTime' -DateValue '2023-12-23' -TimeValue '13:37'
-        New-PodeWebCredential -Name 'Credentials'
-        New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent' -ReadOnly
+        New-PodeWebTextbox -Name 'Date' -Type Date -LabelWidth 1
+        New-PodeWebTextbox -Name 'Time' -Type Time -LabelWidth 1
+        New-PodeWebTextbox -Name 'Comments' -Multiline -PrependIcon 'comment-quote' -LabelWidth 1
+        New-PodeWebDateTime -Name 'DateTime' -DateValue '2023-12-23' -TimeValue '13:37' -LabelWidth 1
+        New-PodeWebCredential -Name 'Credentials' -LabelWidth 1
+        New-PodeWebMinMax -Name 'CPU' -AppendIcon 'percent' -ReadOnly -LabelWidth 1
 
         New-PodeWebCheckbox -Name 'Do you agree?' -AsSwitch
 
