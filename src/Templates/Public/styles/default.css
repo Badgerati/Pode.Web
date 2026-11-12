@@ -702,21 +702,24 @@ input[type=datetime-local]:not(:disabled):hover {
     margin-top: -5px;
 }
 
-div.no-form {
-    display: inline-block;
-}
-
-.no-form {
-    width: auto;
-}
-
-.no-form.pode-form-checkbox {
-    width: inherit;
-}
-
 .pode-form-button .pode-button:not(.btn-icon-only),
 .pode-form-button .pode-link-button:not(.btn-icon-only) {
     margin: 0.5em;
+}
+
+.pode-form[pode-inline="true"] div.form-content {
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+.form-submit,
+.form-reset {
+    position: relative;
+}
+
+.pode-form[pode-inline="true"] .form-submit,
+.pode-form[pode-inline="true"] .form-reset {
+    top: -2px;
 }
 
 

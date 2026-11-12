@@ -2643,6 +2643,7 @@ class PodeForm extends PodeContentElement {
         this.action = data.Action ?? '';
         this.method = data.Method ?? 'POST';
         this.hasSpinner = true;
+        this.inline = data.Inline ?? false;
         this.buttons = {
             submit: data.ButtonType.indexOf('submit') >= 0,
             reset: data.ButtonType.indexOf('reset') >= 0,
@@ -2655,7 +2656,7 @@ class PodeForm extends PodeContentElement {
 
         if (!this.buttons.none) {
             var submitBtn = !this.buttons.submit ? '' : `<button
-                class='btn pode-inbuilt-primary-theme mRight05'
+                class='btn pode-inbuilt-primary-theme form-submit mRight05'
                 type='submit'>
                     <span for='${this.uuid}' class="pode-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                     ${data.SubmitText}
@@ -2677,9 +2678,10 @@ class PodeForm extends PodeContentElement {
             class="pode-form"
             method="${this.method}"
             action="${this.action}"
+            pode-inline="${this.inline}"
             pode-object="${this.getType()}"
             pode-id='${this.uuid}'>
-                <div pode-content-for='${this.uuid}' pode-content-order='0'></div>
+                <div pode-content-for='${this.uuid}' pode-content-order='0' class='form-content'></div>
                 ${formFooter}
         </form>`;
 

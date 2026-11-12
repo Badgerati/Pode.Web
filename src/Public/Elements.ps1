@@ -3545,7 +3545,10 @@ function New-PodeWebForm {
         $NoAuthentication,
 
         [switch]
-        $AsCard
+        $AsCard,
+
+        [switch]
+        $Inline
     )
 
     # ensure content are correct
@@ -3573,6 +3576,7 @@ function New-PodeWebForm {
         ButtonType       = $ButtonType.ToLowerInvariant()
         ResetText        = (Protect-PodeWebValue -Value $ResetText -Default 'Reset' -Encode)
         SubmitText       = (Protect-PodeWebValue -Value $SubmitText -Default 'Submit' -Encode)
+        Inline           = $Inline.IsPresent
     }
 
     if (!(Test-PodeWebRoute -Path $routePath)) {
