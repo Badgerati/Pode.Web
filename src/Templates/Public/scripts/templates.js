@@ -1645,13 +1645,15 @@ class PodeFormElement extends PodeContentElement {
         opts.help = opts.help ?? {};
         data.Prepend = data.Prepend ?? {};
         data.Append = data.Append ?? {};
+        data.Label = data.Label ?? {};
 
         this.autofocus = data.AutoFocus ?? false;
         this.dynamicLabel = data.DynamicLabel ?? false;
         this.validation = opts.validation ?? true;
         this.label = {
-            enabled: opts.label ?? data.LabelState != 'Hide',
-            state: (data.LabelState ?? 'Automatic').toLowerCase(),
+            enabled: opts.label ?? data.Label.State != 'Hide',
+            state: (data.Label.State ?? 'Automatic').toLowerCase(),
+            width: data.Label.Width ?? 2,
             asLegend: false
         };
         this.asFieldset = false;
@@ -1746,13 +1748,13 @@ class PodeFormElement extends PodeContentElement {
 
                 // are we in a form?
                 if (this.label.enabled && (this.inForm || this.label.state === 'show') && !this.dynamicLabel) {
-                    html = `<div class='col-sm-10'>${html}</div>`;
+                    html = `<div class='col-sm-${12 - this.label.width}'>${html}</div>`;
 
                     var lblTag = this.label.asLegend ? 'legend' : 'label';
 
                     html = `<${lblTag}
                         for='${this.id}'
-                        class='col-sm-2 col-form-label ${this.label.asLegend ? 'float-sm-left pt-0' : ''}'>
+                        class='col-sm-${this.label.width} col-form-label ${this.label.asLegend ? 'float-sm-left pt-0' : ''}'>
                             ${data.DisplayName}
                     </${lblTag}>
                     ${html}`;
@@ -2653,7 +2655,7 @@ class PodeForm extends PodeContentElement {
 
         if (!this.buttons.none) {
             var submitBtn = !this.buttons.submit ? '' : `<button
-                class='btn pode-inbuilt-primary-theme'
+                class='btn pode-inbuilt-primary-theme mRight05'
                 type='submit'>
                     <span for='${this.uuid}' class="pode-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none"></span>
                     ${data.SubmitText}
