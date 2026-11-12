@@ -398,9 +398,13 @@ pre code {
 .pode-code-copy {
     color: #333;
     position: absolute;
-    display: flex;
-    top: 0.1rem;
+    top: 0.2rem;
     right: 0.1em;
+    display: none
+}
+
+pre.code-block:hover .pode-code-copy {
+    display: flex;
 }
 
 .btn-icon-only,
