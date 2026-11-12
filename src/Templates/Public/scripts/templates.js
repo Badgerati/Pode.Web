@@ -4115,7 +4115,7 @@ class PodeCodeBlock extends PodeTextualElement {
 
         // build the pre block with code and copy button
         var copyBtn = `<button type='button' class='btn btn-icon-only pode-code-copy' data-bs-title='Copy to clipboard' data-bs-toggle='tooltip'><span class='mdi mdi-clipboard-text-multiple-outline mdi-size-20 mRight05'></span></button>`;
-        var codeTxt = `<code class="language-${this.language} pode-text">${data.Value}</code>`;
+        var codeTxt = `<code class="hljs language-${this.language} pode-text">${data.Value}</code>`;
         return `<pre id="${this.id}" class='code-block ${data.Scrollable ? 'pre-scrollable' : ''}' pode-object="${this.getType()}" pode-id='${this.uuid}'>${copyBtn}${codeTxt}</pre>`;
     }
 
