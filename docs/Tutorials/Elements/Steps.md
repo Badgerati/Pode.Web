@@ -17,6 +17,9 @@ To create a steps element you use [`New-PodeWebSteps`](../../../Functions/Elemen
 
 Each step you create via [`New-PodeWebStep`](../../../Functions/Elements/New-PodeWebStep) has a `-Name`, `-Content`, and an optional `-ScriptBlock`. This scriptblock lets you run validation, or other logic, on a per-step basis. If any [`Show-PodeWebValidation`](../../../Functions/Actions/Show-PodeWebValidation) calls are used, then the step will be prevented from moving forward.
 
+!!! note
+    If you have additional logic being run in your Step's scriptblock, make sure to call `return` after any `Show-PodeWebValidation` calls - otherwise the Step will transition to the next Step. `Show-PodeWebValidation` will not exit the scriptblock for you.
+
 For example, the below renders an element with 3 steps to set up a very basic user. The email/password performs validation in their steps, with the user being created in the main final scriptblock:
 
 ```powershell
