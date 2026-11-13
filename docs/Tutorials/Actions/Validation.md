@@ -4,7 +4,9 @@ This page details the actions available to input form element Validation message
 
 ## Show
 
-To show an error validation message beneath an element - usually form input elements - you can use [`Show-PodeWebValidation`](../../../Functions/Actions/Show-PodeWebValidation). This will turn the element red, and show a red message beneath it - useful for username lengths, etc:
+To show an error validation message beneath an element - usually form input elements - you can use [`Show-PodeWebValidation`](../../../Functions/Actions/Show-PodeWebValidation). This will turn the element red, and show a red message beneath it - useful for username lengths, etc.
+
+Make sure to call `return` from an scriptblock logic, otherwise further logic will be invoked - `Show-PodeWebValidation` does not exit the scriptblock for you in case you have multiple validation errors to show.
 
 ```powershell
 New-PodeWebCard -Content @(
