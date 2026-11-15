@@ -29,13 +29,22 @@ Start-PodeServer -Threads 2 {
             New-PodeWebButton -Name 'ShowCPU' -ScriptBlock {
                 Show-PodeWebTableColumn -Name 'Processes' -Key 'CPU'
             }
+            New-PodeWebButton -Name 'UpdateTable' -ScriptBlock {
+                $processes = Get-Process | Select-Object -Property Name, ID, WorkingSet, CPU | Sort-Object -Property Name -Descending
+
+                $totalCount = $processes.Length
+                $pageIndex = 1
+                $pageSize = 10
+                $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
+                $processes | Update-PodeWebTable -Name 'Processes' -PageIndex $pageIndex -TotalItemCount $totalCount -Force
+            }
         )
 
         New-PodeWebParagraph -Empty
 
         $table = New-PodeWebTable `
             -Name 'Processes' `
-            -PageSize 4 `
+            -PageSize 10 `
             -Paginate `
             -Filter `
             -SimpleFilter `
@@ -48,9 +57,6 @@ Start-PodeServer -Threads 2 {
             $pageIndex = [int]$WebEvent.Data.PageIndex
             $pageSize = [int]$WebEvent.Data.PageSize
             $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
-
-            Start-Sleep -Seconds 2
-
             $processes | Update-PodeWebTable -Name $ElementData.Name -PageIndex $pageIndex -TotalItemCount $totalCount
         } `
             -Columns @(
