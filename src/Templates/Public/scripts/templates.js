@@ -340,10 +340,21 @@ class PodeElement {
             return '';
         }
 
+        // build opts
+        opts = opts ?? {};
+        opts.child = opts.child ?? {};
+        opts.child.ignore = true;
+
         // build data, or use new-icon data?
         if (typeof (data) === 'string') {
+            var id = this.id
+            if (opts.sub_id) {
+                id = `${id}_${opts.sub_id}`;
+            }
+            id = `${id}_icon`;
+
             data = {
-                ID: `${this.id}_icon`,
+                ID: id,
                 Name: data
             }
         }
@@ -362,16 +373,14 @@ class PodeElement {
             }
         }
 
-        // build opts
-        opts = opts ?? {};
-        opts.child = opts.child ?? {};
-        opts.child.ignore = true;
-
         // build icon
         var result = this.build('icon', data, opts);
 
         // set icon and return its html
-        this.icon = result.elements[0];
+        if (!opts.adhoc_icon) {
+            this.icon = result.elements[0];
+        }
+
         return result.html;
     }
 
@@ -2179,10 +2188,15 @@ class PodeIcon extends PodeContentElement {
         var flip = this.flip ? `mdi-flip-${this.flip[0]}` : '';
         var rotate = this.rotate > 0 ? `mdi-rotate-${this.rotate}` : '';
 
+        var style = '';
+        if (colour) {
+            style = `style='${colour}'`;
+        }
+
         return `<span
             id='${this.id}'
             class='mdi ${this.getName()} ${size} ${spin} ${flip} ${rotate}'
-            style='${colour}'
+            ${style}
             pode-object='${this.getType()}'
             pode-id='${this.uuid}'
             ${title}>
@@ -2971,8 +2985,9 @@ class PodeTable extends PodeRefreshableElement {
 
         var customBtns = '';
         convertToArray(data.Buttons).forEach((btn) => {
+            var btnIcon = this.setIcon(btn.Icon, btn.WithText, false, { sub_id: btn.Name, adhoc_icon: true })
             customBtns += `<button type='button' class='btn btn-no-text btn-outline-secondary pode-action-btn pode-table-button' for='${this.id}' data-bs-title='${btn.Name}' data-bs-toggle='tooltip' name='${btn.Name}'>
-                <span class='mdi mdi-${btn.Icon.toLowerCase()} mdi-size-20 ${btn.WithText ? "mRight02" : ''}'></span>
+                ${btnIcon}
                 ${btn.WithText ? btn.DisplayName : ''}
             </button>`;
         });
@@ -3128,6 +3143,33 @@ class PodeTable extends PodeRefreshableElement {
                     <span aria-hidden="true">&gt;&gt;</span>
                 </a>
             </li>`);
+    }
+
+    buildTableHeader(column, direction, hidden) {
+        var value = `<th scope='col' sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
+
+        if (column.Width) {
+            value += `width:${column.Width};`;
+        }
+
+        if (column.Alignment) {
+            value += `text-align:${column.Alignment};`;
+        }
+
+        value += "'";
+
+        if (hidden || (hidden == null && column.Hide)) {
+            value += ` class='d-none'`;
+        }
+
+        value += ">";
+
+        if (column.Icon) {
+            value += this.setIcon(column.Icon, true, false, { sub_id: column.Key, adhoc_icon: true });
+        }
+
+        value += `${column.Name}</th>`;
+        return value;
     }
 
     load(data, sender, opts) {
@@ -3507,7 +3549,7 @@ class PodeTable extends PodeRefreshableElement {
             value = '<tr>';
 
             columnKeys.forEach((key) => {
-                value += buildTableHeader(columns[key], direction);
+                value += this.buildTableHeader(columns[key], direction);
             });
 
             value += '</tr>';
@@ -3541,7 +3583,7 @@ class PodeTable extends PodeRefreshableElement {
 
             // add the table header
             if (key in columns) {
-                value += buildTableHeader(columns[key], direction, columnHidden);
+                value += this.buildTableHeader(columns[key], direction, columnHidden);
             }
             else {
                 value += oldHeader.length > 0

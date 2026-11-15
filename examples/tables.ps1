@@ -29,13 +29,22 @@ Start-PodeServer -Threads 2 {
             New-PodeWebButton -Name 'ShowCPU' -ScriptBlock {
                 Show-PodeWebTableColumn -Name 'Processes' -Key 'CPU'
             }
+            New-PodeWebButton -Name 'UpdateTable' -ScriptBlock {
+                $processes = Get-Process | Select-Object -Property Name, ID, WorkingSet, CPU | Sort-Object -Property Name -Descending
+
+                $totalCount = $processes.Length
+                $pageIndex = 1
+                $pageSize = 10
+                $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
+                $processes | Update-PodeWebTable -Name 'Processes' -PageIndex $pageIndex -TotalItemCount $totalCount -Force
+            }
         )
 
         New-PodeWebParagraph -Empty
 
-        New-PodeWebTable `
+        $table = New-PodeWebTable `
             -Name 'Processes' `
-            -PageSize 4 `
+            -PageSize 10 `
             -Paginate `
             -Filter `
             -SimpleFilter `
@@ -48,17 +57,18 @@ Start-PodeServer -Threads 2 {
             $pageIndex = [int]$WebEvent.Data.PageIndex
             $pageSize = [int]$WebEvent.Data.PageSize
             $processes = $processes[(($pageIndex - 1) * $pageSize) .. (($pageIndex * $pageSize) - 1)]
-
-            Start-Sleep -Seconds 2
-
             $processes | Update-PodeWebTable -Name $ElementData.Name -PageIndex $pageIndex -TotalItemCount $totalCount
         } `
             -Columns @(
             Initialize-PodeWebTableColumn -Key 'Name'
             Initialize-PodeWebTableColumn -Key 'ID'
-            Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory' -Alignment Center -Width 10
+            Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory' -Alignment Center -Width 10 -Icon (New-PodeWebIcon -Name 'chart-bar')
             Initialize-PodeWebTableColumn -Key 'CPU' -Hide
         )
+
+        $table | Add-PodeWebTableButton -Name 'Excel' -Icon (New-PodeWebIcon -Name 'chart-bar') -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'Exported to Excel' -Duration 3000
+        }
     )
 
     Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $card1, $card2 -Title 'Tables'

@@ -3056,16 +3056,28 @@ function New-PodeWebTable {
     }
 
     end {
+        # build the table element ID
         $Id = Get-PodeWebElementId -Tag Table -Id $Id -Name $Name
 
+        # if any columns were supplied, ensure the Keys are unique
+        if (!(Test-PodeIsEmpty $Columns)) {
+            $clmKeys = $Columns.Key | Group-Object -NoElement | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name }
+            if ($clmKeys) {
+                throw "Duplicate column keys for '$($clmKeys -join ', ')' found in table '$($Id)'"
+            }
+        }
+
+        # resolve the CSV file path if it's relative
         if (![string]::IsNullOrWhiteSpace($CsvFilePath) -and $CsvFilePath.StartsWith('.')) {
             $CsvFilePath = Join-PodeWebPath (Get-PodeServerPath) $CsvFilePath
         }
 
+        # set a default refresh interval if not specified
         if ($RefreshInterval -le 0) {
             $RefreshInterval = 60
         }
 
+        # build the table element hashtable
         $element = @{
             Operation        = 'New'
             ComponentType    = 'Element'
@@ -3311,13 +3323,23 @@ function Add-PodeWebTableButton {
         $EndpointName,
 
         [switch]
-        $WithText
+        $WithText,
+
+        [switch]
+        $PassThru
     )
 
+    # find the table element if it's inside a card
     if ($Table.ObjectType -ieq 'card') {
         $Table = @($Table.Content | Where-Object { $_.ObjectType -ieq 'table' })[0]
     }
 
+    # ensure there isn't another button with the same name
+    if ($Table.Buttons | Where-Object { $_.Name -ieq $Name }) {
+        throw "A button with the name '$($Name)' already exists in the table '$($Table.ID)'."
+    }
+
+    # build the route path for the table button
     $routePath = "/pode.web-dynamic/elements/table/$($Table.ID)/button/$($Name)"
     if (!(Test-PodeWebRoute -Path $routePath)) {
         # check for scoped vars
@@ -3360,12 +3382,18 @@ function Add-PodeWebTableButton {
         }
     }
 
+    # add the button to the table's buttons collection
     $Table.Buttons += @{
         Name        = $Name
         DisplayName = (Protect-PodeWebValue -Value $DisplayName -Default $Name -Encode)
         Icon        = (Protect-PodeWebIconType -Icon $Icon -Element 'Table Button')
         IsDynamic   = ($null -ne $ScriptBlock)
         WithText    = $WithText.IsPresent
+    }
+
+    # return the table if PassThru is specified
+    if ($PassThru) {
+        return $Table
     }
 }
 
