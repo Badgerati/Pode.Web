@@ -33,7 +33,7 @@ Start-PodeServer -Threads 2 {
 
         New-PodeWebParagraph -Empty
 
-        New-PodeWebTable `
+        $table = New-PodeWebTable `
             -Name 'Processes' `
             -PageSize 4 `
             -Paginate `
@@ -56,9 +56,13 @@ Start-PodeServer -Threads 2 {
             -Columns @(
             Initialize-PodeWebTableColumn -Key 'Name'
             Initialize-PodeWebTableColumn -Key 'ID'
-            Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory' -Alignment Center -Width 10
+            Initialize-PodeWebTableColumn -Key 'WorkingSet' -Name 'Memory' -Alignment Center -Width 10 -Icon (New-PodeWebIcon -Name 'chart-bar')
             Initialize-PodeWebTableColumn -Key 'CPU' -Hide
         )
+
+        $table | Add-PodeWebTableButton -Name 'Excel' -Icon (New-PodeWebIcon -Name 'chart-bar') -PassThru -ScriptBlock {
+            Show-PodeWebToast -Message 'Exported to Excel' -Duration 3000
+        }
     )
 
     Add-PodeWebPage -Name 'Home' -Path '/' -HomePage -Content $card1, $card2 -Title 'Tables'

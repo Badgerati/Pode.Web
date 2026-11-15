@@ -988,33 +988,6 @@ function getQueryStringValue(name) {
     return (new URLSearchParams(window.location.search)).get(name);
 }
 
-function buildTableHeader(column, direction, hidden) {
-    var value = `<th scope='col' sort-direction='${direction}' name='${column.Key}' default-value='${column.Default}' style='`;
-
-    if (column.Width) {
-        value += `width:${column.Width};`;
-    }
-
-    if (column.Alignment) {
-        value += `text-align:${column.Alignment};`;
-    }
-
-    value += "'";
-
-    if (hidden || (hidden == null && column.Hide)) {
-        value += ` class='d-none'`;
-    }
-
-    value += ">";
-
-    if (column.Icon) {
-        value += `<span class='mdi mdi-${column.Icon.toLowerCase()} mRight04'></span>`;
-    }
-
-    value += `${column.Name}</th>`;
-    return value;
-}
-
 function getTagName(element) {
     if (!element) {
         return null;
