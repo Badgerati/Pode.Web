@@ -2943,6 +2943,7 @@ class PodeTable extends PodeRefreshableElement {
         this.dataColumn = data.DataColumn;
         this.clickableRows = data.Click ?? false;
         this.clickIsDynamic = data.ClickIsDynamic ?? false;
+        this.multiselect = data.MultiSelect ?? false;
 
         this.exportable = {
             enabled: data.Export ?? false
@@ -3009,7 +3010,8 @@ class PodeTable extends PodeRefreshableElement {
                         <table
                             class='table table-striped table-hover ${data.Compact ? 'table-sm' : ''} ${data.Click ? 'pode-table-click' : ''}'
                             pode-dynamic='${this.dynamic}'
-                            pode-sort='${this.sort.enabled}'>
+                            pode-sort='${this.sort.enabled}'
+                            pode-multiselect='${this.multiselect}'>
                                 <thead></thead>
                                 <tbody></tbody>
                         </table>
@@ -3415,8 +3417,65 @@ class PodeTable extends PodeRefreshableElement {
         this.listen(this.element.find('.pode-table-button'), 'click', function(e, target) {
             obj.tooltip(false, target);
             var url = `${obj.url}/button/${target.attr('name')}`;
-            sendAjaxReq(url, obj.export(), obj, true, null, null, { contentType: 'text/csv' }, $(e.currentTarget));
+            var reqData, reqOpts;
+
+            if (obj.multiselect) {
+                var sel = obj.getSelectedRows().join(',');
+                reqData = `SelectedRows=${encodeURIComponent(sel)}`;
+                reqOpts = {};
+            }
+            else {
+                reqData = obj.export();
+                reqOpts = { contentType: 'text/csv' };
+            }
+
+            sendAjaxReq(url, reqData, obj, true, null, null, reqOpts, $(e.currentTarget));
         });
+
+        // multiselect
+        if (this.multiselect) {
+            // select-all header checkbox
+            this.listen(this.element.find('table thead th.pode-table-select-col input'), 'click', function(e, target) {
+                e.stopPropagation();
+                obj.element.find('table tbody td.pode-table-select-col input').prop('checked', target.prop('checked'));
+            }, true);
+
+            // row checkbox
+            this.listen(this.element.find('table tbody td.pode-table-select-col input'), 'click', function(e, target) {
+                e.stopPropagation();
+                obj.updateSelectAllState();
+            }, true);
+
+            // clicking the select cell (outside the checkbox input) toggles the checkbox
+            this.listen(this.element.find('table tbody td.pode-table-select-col'), 'click', function(e, target) {
+                if ($(e.target).is('input')) {
+                    return;
+                }
+
+                var input = target.find('input.pode-row-select');
+                input.prop('checked', !input.prop('checked'));
+                obj.updateSelectAllState();
+            });
+        }
+    }
+
+    getSelectedRows() {
+        var selected = [];
+
+        this.element.find('table tbody td.pode-table-select-col input:checked').each(function() {
+            selected.push($(this).val());
+        });
+
+        return selected;
+    }
+
+    updateSelectAllState() {
+        var total = this.element.find('table tbody td.pode-table-select-col input').length;
+        var checked = this.element.find('table tbody td.pode-table-select-col input:checked').length;
+        var allCheck = this.element.find('table thead th.pode-table-select-col input');
+
+        allCheck.prop('checked', total > 0 && checked === total);
+        allCheck.prop('indeterminate', checked > 0 && checked < total);
     }
 
     export() {
@@ -3426,9 +3485,14 @@ class PodeTable extends PodeRefreshableElement {
         }
 
         var csv = [];
+        var obj = this;
+
         rows.each((i, row) => {
             var data = [];
-            var cols = $(row).find('td, th');
+
+            var cols = obj.multiselect
+                ? $(row).find('td:not(.pode-table-select-col), th:not(.pode-table-select-col)')
+                : $(row).find('td, th');
 
             cols.each((i, col) => {
                 data.push(col.innerText);
@@ -3547,6 +3611,11 @@ class PodeTable extends PodeRefreshableElement {
 
         if (head.find('th').length == 0 && columnKeys.length > 0) {
             value = '<tr>';
+            if (this.multiselect) {
+                value += `<th scope='col' class='pode-table-select-col' style='width:2rem;'>
+                    <input type='checkbox' class='form-check-input pode-table-select-all-check' title='Select All' />
+                </th>`;
+            }
 
             columnKeys.forEach((key) => {
                 value += this.buildTableHeader(columns[key], direction);
@@ -3572,6 +3641,12 @@ class PodeTable extends PodeRefreshableElement {
 
         // table headers
         value = '<tr>';
+        if (this.multiselect) {
+            value += `<th scope='col' class='pode-table-select-col' style='width:2rem;'>
+                <input type='checkbox' class='form-check-input pode-table-select-all-check' title='Select All' />
+            </th>`;
+        }
+
         var oldHeader = null;
         var header = null;
 
@@ -3604,6 +3679,11 @@ class PodeTable extends PodeRefreshableElement {
         data.Data.forEach((item, index) => {
             value = `<tr ${item[this.dataColumn] != null ? `pode-data-value="${item[this.dataColumn]}"` : ''}>`;
             elements = [];
+
+            if (this.multiselect) {
+                var rowVal = item[this.dataColumn] != null ? item[this.dataColumn] : index;
+                value += `<td class='pode-table-select-col' style='width:2rem;'><input type='checkbox' class='form-check-input pode-row-select' value='${rowVal}'></td>`;
+            }
 
             keys.forEach((key) => {
                 header = head.find(`th[name='${key}']`);

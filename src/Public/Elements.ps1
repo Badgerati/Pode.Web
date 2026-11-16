@@ -3042,6 +3042,9 @@ function New-PodeWebTable {
         $AutoRefresh,
 
         [switch]
+        $MultiSelect,
+
+        [switch]
         $AsCard
     )
 
@@ -3077,6 +3080,11 @@ function New-PodeWebTable {
             $RefreshInterval = 60
         }
 
+        # data column is required for multiselect
+        if ($MultiSelect -and [string]::IsNullOrWhiteSpace($DataColumn)) {
+            throw "DataColumn is required for a multiselect table: $($Name)"
+        }
+
         # build the table element hashtable
         $element = @{
             Operation        = 'New'
@@ -3110,6 +3118,7 @@ function New-PodeWebTable {
                 Enabled = $Paginate.IsPresent
                 Size    = $PageSize
             }
+            MultiSelect      = $MultiSelect.IsPresent
             NoEvents         = $true
         }
 
