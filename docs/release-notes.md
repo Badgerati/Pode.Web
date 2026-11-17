@@ -1,6 +1,6 @@
 # Release Notes
 
-## v1.0.0-preview3
+## v1.0.0-rc1
 
 ```plain
 ### Features
@@ -69,6 +69,12 @@
 * #695: Adds ability to exclude optional parameters in ConvertTo-PodeWebPage
 * #695: Adds further Grouping support to ConvertTo-PodeWebPage
 * #695: Adds support for displaying output from ConvertTo-PodeWebPage textbox as JSON
+* #731: Added a new Line Break element
+* #731: Enables rendering support of new-lines for text elements during creation and updating
+* #735: Adds space between form buttons
+* #735: Adds support for controlling the label width of form elements
+* #736: Adds support to render Form buttons inline with single-element Forms
+* #739: Adds support for multi-selecting rows in Tables (thanks @BirkFoste!)
 
 ### Bugs
 * #466: Throw and error if Use-PodeWebTemplates is called more than once
@@ -89,6 +95,14 @@
 * #694: Fixes Autocomplete slow loading when many options returned - adding MinLength support
 * #697: 696 bug -Icon parameter needs renamed to -AvatarUrl in full_custom_auth.ps1 and full_iis.ps1 (thanks @andmigque!)
 * #703: Fixes Autocomplete dropdown appearing behind Modals
+* #721: Fixes null reference when rendering Date/Time elements
+* #723: Adds new LabelState parameter to control label rendering for input elements
+* #723: Adjust table heights slightly, to align with v0.8
+* #725: Fixes malformed Route, preventing clicking Tables and Tiles
+* #725: Fixes Update-PodeWebText only updating Text, and not other textual elements
+* #732: Fixes -Icon on New-PodeWebPageGroup
+* #733: Fixes code-block highlighting during update calls
+* #738: Fixes Table Buttons and Columns Icons to work with New-PodeWebIcon
 
 ### Documentation
 * #486: Update Accordion.md (thanks @fatherofinvention!)
@@ -101,27 +115,28 @@
 * #573: Add mike to mkdocs to support multiple doc versions
 * #636: Spelling Fixes (thanks @ArieHein!)
 * #652: Update 1.0.0 migration docs to reference AutoImport functionality
+* #737: Update docs to reference calling return after Show-PodeWebValidation calls
 
 ### Packaging
-* #515: Bump jquery from 3.6.3 to 3.7.1
 * #536: Adds vscode pwsh formatter, and updates src files
-* #537: Bump moment from 2.29.4 to 2.30.1
 * #539: Bump @mdi/font from 7.1.96 to 7.4.47
 * #576: Bump jquery-ui-dist from 1.13.2 to 1.13.3
 * #592: Bump PopperJS from 1.16.1 to 2.11.8
 * #619: Enabling Docker tags for preview builds
-* #646: Bump @highlightjs/cdn-assets from 11.7.0 to 11.11.1
 * #653: Bump MkDocs from 1.6.0 to 1.6.1
-* #667: Bump @kurkle/color from 0.3.2 to 0.4.0
-* #676: Bump bootstrap from 4.6.2 to 5.3.8
-* #681: Bump chart.js from 4.2.1 to 4.5.1
-* #682: Bump monaco-editor from 0.36.0 to 0.55.1
+* #688: Bump jquery from 3.6.3 to 4.0.0
 * #704: Bump InvokeBuild from 5.12.0 to 5.14.23
 * #704: Bump mike from 2.1.3 to 2.2.0
 * #704: Bump MkDocs Material from 9.5.23 to 9.7.6
-* #704: Bump Pode from 2.10.0 to 2.13.2
-* #705: Bump actions/checkout from 4.0.0 to 6.0.0
-* #706: Bump actions/add-to-project from 0.3.0 to 1.0.2
+* #710: Bump actions/checkout from 4.0.0 to 7.0.0
+* #717: Bump Pode from 2.10.0 to 2.14.2
+* #718: Bump @highlightjs/cdn-assets from 11.7.0 to 11.12.0
+* #720: Bump moment from 2.29.4 to 2.31.0
+* #722: Bump monaco-editor from 0.36.0 to 0.57.0
+* #729: Bump @kurkle/color from 0.3.2 to 0.6.5
+* #730: Bump chart.js from 4.2.1 to 4.6.1
+* #734: Bump actions/add-to-project from 0.3.0 to 2.0.1
+* #740: Bump bootstrap from 4.6.2 to 5.3.9
 ```
 
 ## v0.8.3

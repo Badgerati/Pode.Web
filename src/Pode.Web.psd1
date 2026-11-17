@@ -31,7 +31,7 @@
     RequiredModules   = @(
         @{
             ModuleName    = 'Pode'
-            ModuleVersion = '2.14.1'
+            ModuleVersion = '2.14.2'
             Guid          = 'e3ea217c-fc3d-406b-95d5-4304ab06c6af'
         }
     )
@@ -40,7 +40,7 @@
     PrivateData       = @{
         PSData = @{
 
-            Prerelease   = 'preview3'
+            Prerelease   = 'rc1'
 
             # Tags applied to this module. These help with module discovery in online galleries.
             Tags         = @('powershell', 'web', 'server', 'pode', 'framework', 'templates', 'pages', 'charts', 'dashboard')
