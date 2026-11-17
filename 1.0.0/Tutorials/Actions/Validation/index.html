@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3385,6 +3385,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../Functions/Actions/Update-PodeWebCodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update-PodeWebCodeBlock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../Functions/Actions/Update-PodeWebCodeEditor/" class="md-nav__link">
         
   
@@ -5385,6 +5413,34 @@
     
   
     New-PodeWebLine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Functions/Elements/New-PodeWebLineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    New-PodeWebLineBreak
   
 
     
@@ -8535,6 +8591,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../CodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../CodeEditor/" class="md-nav__link">
         
   
@@ -10499,6 +10583,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../Elements/LineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Line Break
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../Elements/Link/" class="md-nav__link">
         
   
@@ -11168,7 +11280,8 @@
 <h1 id="validation">Validation</h1>
 <p>This page details the actions available to input form element Validation messages.</p>
 <h2 id="show">Show</h2>
-<p>To show an error validation message beneath an element - usually form input elements - you can use <a href="../../../Functions/Actions/Show-PodeWebValidation"><code>Show-PodeWebValidation</code></a>. This will turn the element red, and show a red message beneath it - useful for username lengths, etc:</p>
+<p>To show an error validation message beneath an element - usually form input elements - you can use <a href="../../../Functions/Actions/Show-PodeWebValidation"><code>Show-PodeWebValidation</code></a>. This will turn the element red, and show a red message beneath it - useful for username lengths, etc.</p>
+<p>Make sure to call <code>return</code> from an scriptblock logic, otherwise further logic will be invoked - <code>Show-PodeWebValidation</code> does not exit the scriptblock for you in case you have multiple validation errors to show.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">New-PodeWebCard</span> <span class="n">-Content</span> <span class="p">@(</span>
     <span class="nb">New-PodeWebForm</span> <span class="n">-Name</span> <span class="s1">&#39;Example&#39;</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
         <span class="nv">$invalid</span> <span class="p">=</span> <span class="nv">$false</span>
@@ -11315,7 +11428,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.top", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

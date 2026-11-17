@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3385,6 +3385,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../Functions/Actions/Update-PodeWebCodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update-PodeWebCodeBlock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../Functions/Actions/Update-PodeWebCodeEditor/" class="md-nav__link">
         
   
@@ -5385,6 +5413,34 @@
     
   
     New-PodeWebLine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Functions/Elements/New-PodeWebLineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    New-PodeWebLineBreak
   
 
     
@@ -8533,6 +8589,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../Actions/CodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../Actions/CodeEditor/" class="md-nav__link">
         
   
@@ -9918,6 +10002,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Block
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -9934,6 +10036,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#indentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Indentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -10431,6 +10563,34 @@
     
   
     Line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Line Break
   
 
     
@@ -11067,6 +11227,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#indentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Indentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -11113,13 +11292,60 @@
 </tr>
 </tbody>
 </table>
-<p>The code block element will render pre-formatted text as <code>&lt;pre&gt;value&lt;/pre&gt;</code>. To create a code block element you use <a href="../../../Functions/Elements/New-PodeWebCodeBlock"><code>New-PodeWebCodeBlock</code></a>, and you can specify the highlighting language via <code>-Language</code> - the default is plain text.</p>
+<p>The Code Block element will render pre-formatted text as <code>&lt;pre&gt;value&lt;/pre&gt;</code>. To create a Code Block element you use <a href="../../../Functions/Elements/New-PodeWebCodeBlock"><code>New-PodeWebCodeBlock</code></a>, and you can specify the highlighting language via <code>-Language</code> - the default is plain text.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">New-PodeWebCard</span> <span class="n">-Content</span> <span class="p">@(</span>
     <span class="nb">New-PodeWebCodeBlock</span> <span class="n">-Value</span> <span class="s1">&#39;Write-Host &quot;Hello, world!&quot;&#39;</span> <span class="n">-Language</span> <span class="n">PowerShell</span>
 <span class="p">)</span>
 </code></pre></div>
 <p>Which looks like below:</p>
 <p><img alt="code_block" src="../../../images/code_block.png" /></p>
+<h2 id="indentation">Indentation</h2>
+<p>The Code Block element will remove any indentation, based on the whitespace of the first line provided - this is due to the element being a free-form <code>&lt;pre&gt;</code> element, which preserves all whitespace.</p>
+<p>If you would like the indentation you supply to be preserved, supply <code>-PreserveIndentation</code> to <a href="../../../Functions/Elements/New-PodeWebCodeBlock"><code>New-PodeWebCodeBlock</code></a>.</p>
+<p>For example, with <code>-PreserveIndentation</code> the following:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">New-PodeWebCodeBlock</span> <span class="n">-Language</span> <span class="n">PowerShell</span> <span class="n">-PreserveIndentation</span> <span class="n">-Value</span> <span class="s2">&quot;</span>
+<span class="s2">    function Write-SomeStuff</span>
+<span class="s2">    {</span>
+<span class="s2">        param(</span>
+<span class="s2">            [Parameter()]</span>
+<span class="s2">            [string]</span>
+<span class="s2">            </span><span class="se">`$</span><span class="s2">Message</span>
+<span class="s2">        )</span>
+
+<span class="s2">        Write-Host </span><span class="se">`$</span><span class="s2">Message</span>
+<span class="s2">    }</span>
+
+<span class="s2">    Write-SomeStuff -Message &#39;Hello, there&#39;</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<p>would be rendered as:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">function</span> <span class="nb">Write-SomeStuff</span>
+    <span class="p">{</span>
+        <span class="k">param</span><span class="p">(</span>
+            <span class="p">[</span><span class="k">Parameter</span><span class="p">()]</span>
+            <span class="no">[string]</span>
+            <span class="nv">$Message</span>
+        <span class="p">)</span>
+
+        <span class="nb">Write-Host</span> <span class="nv">$Message</span>
+    <span class="p">}</span>
+
+    <span class="nb">Write-SomeStuff</span> <span class="n">-Message</span> <span class="s1">&#39;Hello, there&#39;</span>
+</code></pre></div>
+<p>while normally it would be rendered as:</p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span> <span class="nb">Write-SomeStuff</span>
+<span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+        <span class="p">[</span><span class="k">Parameter</span><span class="p">()]</span>
+        <span class="no">[string]</span>
+        <span class="nv">$Message</span>
+    <span class="p">)</span>
+
+    <span class="nb">Write-Host</span> <span class="nv">$Message</span>
+<span class="p">}</span>
+
+<span class="nb">Write-SomeStuff</span> <span class="n">-Message</span> <span class="s1">&#39;Hello, there&#39;</span>
+</code></pre></div>
 
 
 
@@ -11238,7 +11464,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.top", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

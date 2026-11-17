@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3392,6 +3392,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../Actions/Update-PodeWebCodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update-PodeWebCodeBlock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../Actions/Update-PodeWebCodeEditor/" class="md-nav__link">
         
   
@@ -5165,10 +5193,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#-hidename" class="md-nav__link">
+  <a href="#-id" class="md-nav__link">
     <span class="md-ellipsis">
       
-        -HideName
+        -Id
       
     </span>
   </a>
@@ -5176,10 +5204,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#-id" class="md-nav__link">
+  <a href="#-labelstate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        -Id
+        -LabelState
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-labelwidth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        -LabelWidth
       
     </span>
   </a>
@@ -5795,6 +5834,34 @@
     
   
     New-PodeWebLine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../New-PodeWebLineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    New-PodeWebLineBreak
   
 
     
@@ -8938,6 +9005,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../Tutorials/Actions/CodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../Tutorials/Actions/CodeEditor/" class="md-nav__link">
         
   
@@ -10844,6 +10939,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../Tutorials/Elements/LineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Line Break
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../Tutorials/Elements/Link/" class="md-nav__link">
         
   
@@ -11606,10 +11729,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#-hidename" class="md-nav__link">
+  <a href="#-id" class="md-nav__link">
     <span class="md-ellipsis">
       
-        -HideName
+        -Id
       
     </span>
   </a>
@@ -11617,10 +11740,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#-id" class="md-nav__link">
+  <a href="#-labelstate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        -Id
+        -LabelState
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-labelwidth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        -LabelWidth
       
     </span>
   </a>
@@ -11860,8 +11994,8 @@
 <div class="highlight"><pre><span></span><code>New-PodeWebCredential [-Name] &lt;String&gt; [[-DisplayName] &lt;String&gt;] [[-Id] &lt;String&gt;] [[-HelpText] &lt;String&gt;]
  [[-PrependText] &lt;String&gt;] [[-PrependIcon] &lt;String&gt;] [[-AppendText] &lt;String&gt;] [[-AppendIcon] &lt;String&gt;]
  [[-DisplayUsername] &lt;String&gt;] [[-DisplayPassword] &lt;String&gt;] [[-Type] &lt;String[]&gt;] [[-UsernameValue] &lt;String&gt;]
- [[-PasswordValue] &lt;String&gt;] [-ReadOnly] [-Required] [-HideName] [-ProgressAction &lt;ActionPreference&gt;]
- [&lt;CommonParameters&gt;]
+ [[-PasswordValue] &lt;String&gt;] [[-LabelState] &lt;String&gt;] [[-LabelWidth] &lt;String&gt;] [-ReadOnly] [-Required]
+ [-ProgressAction &lt;ActionPreference&gt;] [&lt;CommonParameters&gt;]
 </code></pre></div>
 <h2 id="description">DESCRIPTION</h2>
 <p>{{ Fill in the Description }}</p>
@@ -11943,18 +12077,6 @@
 <span class="nt">Accept pipeline input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
 <span class="nt">Accept wildcard characters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
 </code></pre></div>
-<h3 id="-hidename">-HideName</h3>
-<p>{{ Fill HideName Description }}</p>
-<div class="highlight"><pre><span></span><code><span class="nt">Type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SwitchParameter</span>
-<span class="nt">Parameter Sets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(All)</span>
-<span class="nt">Aliases</span><span class="p">:</span>
-
-<span class="nt">Required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
-<span class="nt">Position</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Named</span>
-<span class="nt">Default value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
-<span class="nt">Accept pipeline input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
-<span class="nt">Accept wildcard characters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
-</code></pre></div>
 <h3 id="-id">-Id</h3>
 <p>{{ Fill Id Description }}</p>
 <div class="highlight"><pre><span></span><code><span class="nt">Type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">String</span>
@@ -11963,6 +12085,31 @@
 
 <span class="nt">Required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
 <span class="nt">Position</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">Default value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
+<span class="nt">Accept pipeline input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="nt">Accept wildcard characters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+</code></pre></div>
+<h3 id="-labelstate">-LabelState</h3>
+<p>{{ Fill LabelState Description }}</p>
+<div class="highlight"><pre><span></span><code><span class="nt">Type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">String</span>
+<span class="nt">Parameter Sets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(All)</span>
+<span class="nt">Aliases</span><span class="p">:</span>
+<span class="nt">Accepted values</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Automatic, Show, Hide</span>
+
+<span class="nt">Required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="nt">Position</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">13</span>
+<span class="nt">Default value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
+<span class="nt">Accept pipeline input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="nt">Accept wildcard characters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+</code></pre></div>
+<h3 id="-labelwidth">-LabelWidth</h3>
+<p>{{ Fill LabelWidth Description }}</p>
+<div class="highlight"><pre><span></span><code><span class="nt">Type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">String</span>
+<span class="nt">Parameter Sets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(All)</span>
+<span class="nt">Aliases</span><span class="p">:</span>
+
+<span class="nt">Required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="nt">Position</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">14</span>
 <span class="nt">Default value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None</span>
 <span class="nt">Accept pipeline input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
 <span class="nt">Accept wildcard characters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
@@ -12205,7 +12352,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.top", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

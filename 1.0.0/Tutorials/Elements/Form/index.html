@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3385,6 +3385,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../Functions/Actions/Update-PodeWebCodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update-PodeWebCodeBlock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../Functions/Actions/Update-PodeWebCodeEditor/" class="md-nav__link">
         
   
@@ -5385,6 +5413,34 @@
     
   
     New-PodeWebLine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Functions/Elements/New-PodeWebLineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    New-PodeWebLineBreak
   
 
     
@@ -8533,6 +8589,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../Actions/CodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../Actions/CodeEditor/" class="md-nav__link">
         
   
@@ -10257,6 +10341,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Elements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#label-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Label State
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#label-width" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Label Width
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -10278,6 +10390,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Buttons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -10501,6 +10630,34 @@
     
   
     Line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Line Break
   
 
     
@@ -11152,6 +11309,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Elements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#label-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Label State
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#label-width" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Label Width
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -11173,6 +11358,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Buttons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -11280,6 +11482,16 @@
 <li><a href="../Select">Select</a></li>
 <li><a href="../Textbox">Textbox</a></li>
 </ul>
+<h3 id="label-state">Label State</h3>
+<p>You can control a Form Element's label appearance using <code>-LabelState</code>, with the default value being <code>Automatic</code> - the label will appear if the element is detected to be within a Form.</p>
+<p>You can also force the label to <code>Show</code> or <code>Hide</code>, allowing to to force a label to be shown or hidden.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">New-PodeWebTextbox</span> <span class="n">-Name</span> <span class="s1">&#39;Password&#39;</span> <span class="n">-Type</span> <span class="n">Password</span> <span class="n">-LabelState</span> <span class="n">Hide</span> <span class="n">-Required</span>
+</code></pre></div>
+<h3 id="label-width">Label Width</h3>
+<p>You can optionally specify the width used by the label, by using the <code>-LabelWidth</code> parameter. Form elements are rendered using a grid, which is split up into 12 segments, and the <code>-LabelWidth</code> parameter lets you specify a value between 1 and 12 - the default value is 2. A value of 12 means the label takes up the full width of the grid, where as 6 would be half the width.</p>
+<p>You can also supply the value as a percentage as well; 50% being 6 segments, etc.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">New-PodeWebTextbox</span> <span class="n">-Name</span> <span class="s1">&#39;Date&#39;</span> <span class="n">-Type</span> <span class="n">Date</span> <span class="n">-LabelWidth</span> <span class="n">1</span>
+</code></pre></div>
 <h2 id="methodaction">Method/Action</h2>
 <p>The default method for forms is <code>Post</code>, and the action is the internal route created for the form.</p>
 <p>You can change these values by using the <code>-Method</code> and <code>-Action</code> parameters. The method can only be <code>Get</code> or <code>Post</code>, and the action must be a valid URL.</p>
@@ -11304,6 +11516,8 @@
 <span class="c"># if you want a Form with no buttons:</span>
 <span class="nb">New-PodeWebForm</span> <span class="n">-Name</span> <span class="s1">&#39;Example&#39;</span> <span class="n">-ButtonType</span> <span class="n">None</span> <span class="n">-Content</span> <span class="p">@()</span> <span class="n">-ScriptBlock</span> <span class="p">{}</span>
 </code></pre></div>
+<h3 id="inline">Inline</h3>
+<p>This only really works for Forms with a single element, and using <code>-LabelState Hide</code>, but you can supply <code>-Inline</code> and the buttons and element will be rendered inline with one another - rather than having the buttons on a new line.</p>
 
 
 
@@ -11422,7 +11636,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.top", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

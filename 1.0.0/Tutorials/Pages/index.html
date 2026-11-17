@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3385,6 +3385,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../Functions/Actions/Update-PodeWebCodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update-PodeWebCodeBlock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../Functions/Actions/Update-PodeWebCodeEditor/" class="md-nav__link">
         
   
@@ -5385,6 +5413,34 @@
     
   
     New-PodeWebLine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Functions/Elements/New-PodeWebLineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    New-PodeWebLineBreak
   
 
     
@@ -8790,6 +8846,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../Actions/CodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../Actions/CodeEditor/" class="md-nav__link">
         
   
@@ -10696,6 +10780,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../Elements/LineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Line Break
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../Elements/Link/" class="md-nav__link">
         
   
@@ -11564,10 +11676,10 @@
 <h1 id="pages">Pages</h1>
 <p>There are 2 different kinds of pages in Pode.Web which are defined below. Other than the Login page, normal pages can be populated with custom elements. When you add pages to your site they appear on the sidebar for navigation - unless they are specified to be hidden from the sidebar.</p>
 <h2 id="login">Login</h2>
-<p>To enable the use of a login page, and lock your site behind authentication, is simple! First, just set up sessions and define the authentication method you want via the usual <code>Enable-PodeSessionMiddleware</code>, <code>New-PodeAuthScheme</code>, and <code>Add-PodeAuth</code> in Pode. Then, pass the authentication name into <a href="../../Functions/Pages/Set-PodeWebLoginPage"><code>Set-PodeWebLoginPage</code></a> - and that's it!</p>
+<p>To enable the use of a login page, and lock your site behind authentication, is simple! First, just set up sessions and define the authentication method you want via the usual <code>Enable-PodeSessionMiddleware</code>, <code>New-PodeAuthFormScheme</code> (and others), and <code>Add-PodeAuth</code> in Pode. Then, pass the authentication name into <a href="../../Functions/Pages/Set-PodeWebLoginPage"><code>Set-PodeWebLoginPage</code></a> - and that's it!</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Since the login page uses a form to log a user in, the best scheme to use is Forms: <code>New-PodeAuthScheme -Form</code>. OAuth2 also works, as the login page will automatically trigger the relevant redirects to your OAuth2 provider.</p>
+<p>Since the login page uses a form to log a user in, the best scheme to use is Forms: <code>New-PodeAuthFormScheme</code>. OAuth2 also works, as the login page will automatically trigger the relevant redirects to your OAuth2 provider.</p>
 </div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -11575,7 +11687,7 @@
 </div>
 <div class="highlight"><pre><span></span><code><span class="nb">Enable-PodeSessionMiddleware</span> <span class="n">-Duration</span> <span class="n">120</span> <span class="n">-Extend</span>
 
-<span class="nb">New-PodeAuthScheme</span> <span class="n">-Form</span> <span class="p">|</span> <span class="nb">Add-PodeAuth</span> <span class="n">-Name</span> <span class="n">Example</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
+<span class="nb">New-PodeAuthFormScheme</span> <span class="p">|</span> <span class="nb">Add-PodeAuth</span> <span class="n">-Name</span> <span class="n">Example</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
     <span class="k">param</span><span class="p">(</span><span class="nv">$username</span><span class="p">,</span> <span class="nv">$password</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">@{</span>
@@ -11607,7 +11719,7 @@
 <span class="nb">Enable-PodeSessionMiddleware</span> <span class="n">-Duration</span> <span class="n">120</span> <span class="n">-Extend</span>
 
 <span class="c"># define a new custom authentication scheme, which needs a client, username, and password</span>
-<span class="nv">$custom_scheme</span> <span class="p">=</span> <span class="nb">New-PodeAuthScheme</span> <span class="n">-Custom</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
+<span class="nv">$custom_scheme</span> <span class="p">=</span> <span class="nb">New-PodeAuthCustomScheme</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
     <span class="k">param</span><span class="p">(</span><span class="nv">$opts</span><span class="p">)</span>
 
     <span class="c"># get the client/user/password from the request&#39;s post data</span>
@@ -12042,7 +12154,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.top", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

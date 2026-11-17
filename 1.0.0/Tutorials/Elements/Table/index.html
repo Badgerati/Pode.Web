@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3385,6 +3385,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../Functions/Actions/Update-PodeWebCodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update-PodeWebCodeBlock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../Functions/Actions/Update-PodeWebCodeEditor/" class="md-nav__link">
         
   
@@ -5385,6 +5413,34 @@
     
   
     New-PodeWebLine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Functions/Elements/New-PodeWebLineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    New-PodeWebLineBreak
   
 
     
@@ -8533,6 +8589,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../Actions/CodeBlock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Block
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../Actions/CodeEditor/" class="md-nav__link">
         
   
@@ -10441,6 +10525,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../LineBreak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Line Break
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../Link/" class="md-nav__link">
         
   
@@ -11064,6 +11176,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#multiselect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MultiSelect
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MultiSelect">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#acting-on-a-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acting on a Selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -11454,6 +11594,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#multiselect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MultiSelect
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MultiSelect">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#acting-on-a-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acting on a Selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -11704,6 +11872,73 @@
 
 <span class="nb">New-PodeWebContainer</span> <span class="n">-Content</span> <span class="nv">$table</span>
 </code></pre></div>
+<h2 id="multiselect">MultiSelect</h2>
+<p>You can enable multiple rows to be selected in a table by passing the <code>-MultiSelect</code> switch to <a href="../../../Functions/Elements/New-PodeWebTable"><code>New-PodeWebTable</code></a>. This adds an initial checkbox column to each row.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code>-MultiSelect</code> requires <code>-DataColumn</code> to be set. The value of that column for each selected row is what gets passed to button scriptblocks as the selection.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="nb">New-PodeWebTable</span> <span class="n">-Name</span> <span class="s1">&#39;Services&#39;</span> <span class="n">-DataColumn</span> <span class="n">Name</span> <span class="n">-MultiSelect</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$svc</span> <span class="k">in</span> <span class="p">(</span><span class="nb">Get-Service</span><span class="p">))</span> <span class="p">{</span>
+        <span class="no">[ordered]</span><span class="p">@{</span>
+            <span class="n">Name</span>      <span class="p">=</span> <span class="nv">$svc</span><span class="p">.</span><span class="n">Name</span>
+            <span class="n">Status</span>    <span class="p">=</span> <span class="s2">&quot;</span><span class="p">$(</span><span class="nv">$svc</span><span class="p">.</span><span class="n">Status</span><span class="p">)</span><span class="s2">&quot;</span>
+            <span class="n">StartType</span> <span class="p">=</span> <span class="s2">&quot;</span><span class="p">$(</span><span class="nv">$svc</span><span class="p">.</span><span class="n">StartType</span><span class="p">)</span><span class="s2">&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="acting-on-a-selection">Acting on a Selection</h3>
+<p>When combined with <a href="../../../Functions/Elements/Add-PodeWebTableButton"><code>Add-PodeWebTableButton</code></a>, the <code>-DataColumn</code> values of all checked rows are available in the button's scriptblock via <code>$WebEvent.Data['SelectedRows']</code> as a comma-separated string.</p>
+<div class="highlight"><pre><span></span><code><span class="nv">$table</span> <span class="p">=</span> <span class="nb">New-PodeWebTable</span> <span class="n">-Name</span> <span class="s1">&#39;Services&#39;</span> <span class="n">-DataColumn</span> <span class="n">Name</span> <span class="n">-MultiSelect</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$svc</span> <span class="k">in</span> <span class="p">(</span><span class="nb">Get-Service</span><span class="p">))</span> <span class="p">{</span>
+        <span class="no">[ordered]</span><span class="p">@{</span>
+            <span class="n">Name</span>      <span class="p">=</span> <span class="nv">$svc</span><span class="p">.</span><span class="n">Name</span>
+            <span class="n">Status</span>    <span class="p">=</span> <span class="s2">&quot;</span><span class="p">$(</span><span class="nv">$svc</span><span class="p">.</span><span class="n">Status</span><span class="p">)</span><span class="s2">&quot;</span>
+            <span class="n">StartType</span> <span class="p">=</span> <span class="s2">&quot;</span><span class="p">$(</span><span class="nv">$svc</span><span class="p">.</span><span class="n">StartType</span><span class="p">)</span><span class="s2">&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$table</span> <span class="p">|</span> <span class="nb">Add-PodeWebTableButton</span> <span class="n">-Name</span> <span class="s1">&#39;StopSelected&#39;</span> <span class="n">-DisplayName</span> <span class="s1">&#39;Stop Selected&#39;</span> <span class="n">-Icon</span> <span class="s1">&#39;Stop-Circle&#39;</span> <span class="n">-WithText</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
+    <span class="nv">$selected</span> <span class="p">=</span> <span class="nv">$WebEvent</span><span class="p">.</span><span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SelectedRows&#39;</span><span class="p">]</span> <span class="n">-split</span> <span class="s1">&#39;,&#39;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="no">[string]</span><span class="p">::</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="nv">$WebEvent</span><span class="p">.</span><span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SelectedRows&#39;</span><span class="p">])</span> <span class="o">-or</span> <span class="nv">$selected</span><span class="p">.</span><span class="n">Length</span> <span class="o">-eq</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Show-PodeWebToast</span> <span class="n">-Message</span> <span class="s1">&#39;No services selected&#39;</span> <span class="n">-Title</span> <span class="s1">&#39;StopSelected&#39;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$svc</span> <span class="k">in</span> <span class="nv">$selected</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nb">Stop-Service</span> <span class="n">-Name</span> <span class="nv">$svc</span> <span class="n">-Force</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+        <span class="p">}</span>
+
+        <span class="nb">Show-PodeWebToast</span> <span class="n">-Message</span> <span class="s2">&quot;Stopped </span><span class="p">$(</span><span class="nv">$selected</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> service(s)&quot;</span> <span class="n">-Title</span> <span class="s1">&#39;Done&#39;</span>
+        <span class="nb">Sync-PodeWebTable</span> <span class="n">-Name</span> <span class="s1">&#39;Services&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">New-PodeWebContainer</span> <span class="n">-Content</span> <span class="nv">$table</span>
+</code></pre></div>
+<p>If you want to confirm the selection before acting on it, you can open a Modal from the button's scriptblock and pass the selected values through using <a href="../../../Functions/Actions/Update-PodeWebTextbox"><code>Update-PodeWebTextbox</code></a>:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">$table</span> <span class="p">|</span> <span class="nb">Add-PodeWebTableButton</span> <span class="n">-Name</span> <span class="s1">&#39;StopSelected&#39;</span> <span class="n">-DisplayName</span> <span class="s1">&#39;Stop Selected&#39;</span> <span class="n">-Icon</span> <span class="s1">&#39;Stop-Circle&#39;</span> <span class="n">-WithText</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
+    <span class="nv">$selected</span> <span class="p">=</span> <span class="nv">$WebEvent</span><span class="p">.</span><span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SelectedRows&#39;</span><span class="p">]</span> <span class="n">-split</span> <span class="s1">&#39;,&#39;</span>
+    <span class="nb">Show-PodeWebModal</span> <span class="n">-Name</span> <span class="s1">&#39;ConfirmStop&#39;</span> <span class="n">-Actions</span> <span class="p">@(</span>
+        <span class="nb">Update-PodeWebTextbox</span> <span class="n">-Name</span> <span class="s1">&#39;SelectedServices&#39;</span> <span class="n">-Value</span> <span class="p">(</span><span class="nv">$selected</span> <span class="n">-join</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nb">New-PodeWebModal</span> <span class="n">-Name</span> <span class="s1">&#39;ConfirmStop&#39;</span> <span class="n">-DisplayName</span> <span class="s1">&#39;Stop Selected Services&#39;</span> <span class="n">-AsForm</span> <span class="n">-Content</span> <span class="p">@(</span>
+    <span class="nb">New-PodeWebTextbox</span> <span class="n">-Name</span> <span class="s1">&#39;SelectedServices&#39;</span> <span class="n">-DisplayName</span> <span class="s1">&#39;Selected Services&#39;</span> <span class="n">-Multiline</span> <span class="n">-ReadOnly</span>
+<span class="p">)</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
+    <span class="nv">$names</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$WebEvent</span><span class="p">.</span><span class="n">Data</span><span class="p">[</span><span class="s1">&#39;SelectedServices&#39;</span><span class="p">]</span> <span class="n">-split</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="p">!</span><span class="no">[string]</span><span class="p">::</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="nv">$_</span><span class="p">)</span> <span class="p">}</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$svc</span> <span class="k">in</span> <span class="nv">$names</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">Stop-Service</span> <span class="n">-Name</span> <span class="nv">$svc</span> <span class="n">-Force</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+    <span class="p">}</span>
+
+    <span class="nb">Show-PodeWebToast</span> <span class="n">-Message</span> <span class="s2">&quot;Stopped </span><span class="p">$(</span><span class="nv">$names</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="s2"> service(s)&quot;</span> <span class="n">-Title</span> <span class="s1">&#39;Done&#39;</span>
+    <span class="nb">Hide-PodeWebModal</span>
+<span class="p">}</span>
+</code></pre></div>
 
 
 
@@ -11822,7 +12057,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.top", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
